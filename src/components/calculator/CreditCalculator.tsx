@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -22,7 +23,8 @@ import {
   ArrowRightLeft,
   Coins,
   Settings2,
-  Calendar
+  Calendar,
+  Zap
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { 
@@ -33,6 +35,12 @@ import {
   DialogDescription,
   DialogClose
 } from "@/components/ui/dialog";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
@@ -256,8 +264,15 @@ export default function CreditCalculator({ initialExpanded = false, onExpandedCh
   const netLiquidCredit = netFinancing > 0 ? netFinancing - totalOperatingExpenses : 0;
   const suggestedLivingBudget = minIncomeRequired > 0 ? minIncomeRequired - totalMonthlyLoad : 0;
 
+  // Lógica de reducción de plazo:
+  // El costo total del crédito sin aportaciones es baseMonthly * currentTerm.
+  // Con aportaciones, el plazo se reduce proporcionalmente a la carga de pago total.
+  const projectedReducedTerm = currentExtraMonthly > 0 
+    ? Math.ceil((baseMonthly * currentTerm) / totalMonthlyLoad)
+    : currentTerm;
+
   const totalInitialInvestment = totalDownPayment + totalOperatingExpenses;
-  const totalCostOfCredit = (totalMonthlyLoad * currentTerm) + totalInitialInvestment;
+  const totalCostOfCredit = (totalMonthlyLoad * projectedReducedTerm) + totalInitialInvestment;
 
   const handleCopySummary = () => {
     if (rawP <= 0) {
@@ -272,7 +287,7 @@ export default function CreditCalculator({ initialExpanded = false, onExpandedCh
     let summaryParts = [
       `📊 *RESUMEN DE COTIZACIÓN - FINANTO*`,
       `• Monto Crédito: ${formatCurrency(rawP)}`,
-      `• Plazo: ${currentTerm} meses`,
+      `• Plazo: ${projectedReducedTerm} meses ${currentExtraMonthly > 0 ? '(Optimizado)' : ''}`,
       `• Mensualidad: ${formatCurrency(totalMonthlyLoad)}`,
       `--------------------------`,
       `💰 *PAGO INICIAL*`,
@@ -281,7 +296,7 @@ export default function CreditCalculator({ initialExpanded = false, onExpandedCh
 
     let notes = [];
     if (extraDown > 0) notes.push(`• Enganche adicional: ${formatCurrency(extraDown)}`);
-    if (currentTerm < 192) notes.push(`• Plazo optimizado a ${currentTerm} meses`);
+    if (currentTerm < 192 && currentExtraMonthly === 0) notes.push(`• Plazo ajustado a ${currentTerm} meses`);
     if (currentExtraMonthly > 0) notes.push(`• Aportación extra: ${formatCurrency(currentExtraMonthly)}/mes`);
 
     if (notes.length > 0) {
@@ -418,7 +433,7 @@ export default function CreditCalculator({ initialExpanded = false, onExpandedCh
           </DialogHeader>
 
           <TooltipProvider>
-            <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin">
+            <div className="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-thin">
               <section className="bg-muted/30 p-6 rounded-2xl border border-border/50 shadow-inner">
                 <CalculatorInputs 
                   isModal={true}
@@ -431,92 +446,21 @@ export default function CreditCalculator({ initialExpanded = false, onExpandedCh
                 />
               </section>
 
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                <Card className="lg:col-span-3 border-border shadow-md overflow-hidden bg-card/50">
-                  <div className="p-4 border-b border-border/40 bg-muted/20 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Settings2 className="w-4 h-4 text-primary" />
-                      <h3 className="text-xs font-bold uppercase tracking-wider">Ajustes de Escenario</h3>
-                    </div>
-                    <span className="text-[10px] text-muted-foreground uppercase font-bold italic opacity-60">Impacto en el financiamiento</span>
-                  </div>
-                  <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-                    <div className="space-y-2 h-full flex flex-col">
-                      <div className="h-4 flex items-center">
-                        <Label className="text-[10px] font-bold uppercase text-muted-foreground">Enganche Extra</Label>
-                      </div>
-                      <div className="relative mt-auto">
-                         <span className="absolute left-3 top-2.5 text-xs text-muted-foreground">$</span>
-                         <Input 
-                          placeholder="Ej. 50,000" 
-                          className="pl-7 bg-background h-10 text-sm border-primary/20"
-                          value={formatWithCommas(extraDownPayment)}
-                          onChange={(e) => handleExtraDownChange(e.target.value)}
-                        />
-                      </div>
-                      <p className="text-[9px] text-muted-foreground h-3 mt-1">Descuenta el monto a financiar.</p>
-                    </div>
-                    <div className="space-y-2 h-full flex flex-col">
-                      <div className="h-4 flex items-center">
-                        <Label className="text-[10px] font-bold uppercase text-muted-foreground">Aportación Extra Mensual</Label>
-                      </div>
-                      <div className="relative mt-auto">
-                         <span className="absolute left-3 top-2.5 text-xs text-muted-foreground">$</span>
-                         <Input 
-                          placeholder="Ej. 2,000" 
-                          className="pl-7 bg-background h-10 text-sm border-accent/20"
-                          value={formatWithCommas(extraMonthlyContribution)}
-                          onChange={(e) => handleExtraMonthlyChange(e.target.value)}
-                        />
-                      </div>
-                      <p className="text-[9px] text-muted-foreground h-3 mt-1">Suma a la carga de pago mensual.</p>
-                    </div>
-                    <div className="space-y-2 h-full flex flex-col">
-                      <div className="h-4 flex items-center">
-                        <Label className="text-[10px] font-bold uppercase text-muted-foreground">Plazo (Meses)</Label>
-                      </div>
-                      <div className="relative mt-auto">
-                        <Input 
-                          type="number" 
-                          placeholder="192" 
-                          className="bg-background h-10 text-sm border-primary/20 font-bold"
-                          value={customTerm}
-                          onChange={(e) => setCustomTerm(e.target.value)}
-                        />
-                      </div>
-                      <p className="text-[9px] text-muted-foreground h-3 mt-1">Altera el factor de mensualidad.</p>
-                    </div>
-                  </div>
-                </Card>
-
-                <div className="space-y-6">
-                   <div className="p-6 rounded-2xl border-2 border-secondary bg-secondary/20 space-y-4 shadow-lg h-full flex flex-col justify-center">
-                    <div className="flex items-center gap-2">
-                      <ShieldAlert className="w-5 h-5 text-secondary-foreground" />
-                      <h4 className="text-[10px] font-bold uppercase tracking-widest text-secondary-foreground">Perfilamiento Técnico</h4>
-                    </div>
-                    <div className="space-y-3">
-                      <div>
-                        <p className="text-[10px] text-primary uppercase font-bold mb-1">Ingreso mín. requerido</p>
-                        <p className="text-2xl font-bold text-foreground">{formatCurrency(minIncomeRequired)}</p>
-                      </div>
-                      <div className="p-3 bg-secondary/30 rounded-xl border border-secondary/40 shadow-inner">
-                        <span className="text-[10px] font-bold uppercase tracking-tight text-secondary-foreground block mb-1">Presupuesto libre sug.</span>
-                        <p className="text-lg font-bold text-foreground">{formatCurrency(suggestedLivingBudget)}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-                  <div className="p-6 rounded-2xl border border-primary/20 bg-primary/5 space-y-4 flex flex-col">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+                  <div className="lg:col-span-5 p-6 rounded-2xl border border-primary/20 bg-primary/5 space-y-4 flex flex-col">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2 text-primary">
                         <TrendingUp className="w-5 h-5" />
                         <h4 className="text-[10px] font-bold uppercase tracking-widest">Estructura del Crédito</h4>
                       </div>
-                      <span className="text-[10px] font-bold text-muted-foreground/50">Plazo: {currentTerm} meses</span>
+                      <div className="flex flex-col items-end">
+                        <span className="text-[10px] font-bold text-muted-foreground/50">Plazo Original: {currentTerm} meses</span>
+                        {currentExtraMonthly > 0 && (
+                          <span className="text-[10px] font-black text-green-600 uppercase flex items-center gap-1">
+                            <Zap className="w-3 h-3" /> Plazo Optimizado: {projectedReducedTerm} meses
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4 flex-1">
                       <div className="space-y-1">
@@ -550,7 +494,7 @@ export default function CreditCalculator({ initialExpanded = false, onExpandedCh
                     </div>
                   </div>
 
-                  <div className="p-6 rounded-2xl border border-accent/20 bg-accent/5 space-y-4 flex flex-col">
+                  <div className="lg:col-span-4 p-6 rounded-2xl border border-accent/20 bg-accent/5 space-y-4 flex flex-col">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2 text-accent">
                         <Receipt className="w-5 h-5" />
@@ -596,7 +540,89 @@ export default function CreditCalculator({ initialExpanded = false, onExpandedCh
                       <p className="font-bold text-2xl text-accent">{formatCurrency(netLiquidCredit)}</p>
                     </div>
                   </div>
+
+                  <div className="lg:col-span-3 space-y-6">
+                    <div className="p-6 rounded-2xl border-2 border-secondary bg-secondary/20 space-y-4 shadow-lg h-full flex flex-col justify-center">
+                      <div className="flex items-center gap-2">
+                        <ShieldAlert className="w-5 h-5 text-secondary-foreground" />
+                        <h4 className="text-[10px] font-bold uppercase tracking-widest text-secondary-foreground">Perfilamiento Técnico</h4>
+                      </div>
+                      <div className="space-y-3">
+                        <div>
+                          <p className="text-[10px] text-primary uppercase font-bold mb-1">Ingreso mín. requerido</p>
+                          <p className="text-2xl font-bold text-foreground">{formatCurrency(minIncomeRequired)}</p>
+                        </div>
+                        <div className="p-3 bg-secondary/30 rounded-xl border border-secondary/40 shadow-inner">
+                          <span className="text-[10px] font-bold uppercase tracking-tight text-secondary-foreground block mb-1">Presupuesto libre sug.</span>
+                          <p className="text-lg font-bold text-foreground">{formatCurrency(suggestedLivingBudget)}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
               </div>
+
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="ajustes" className="border rounded-2xl px-6 bg-card/50 overflow-hidden">
+                  <AccordionTrigger className="hover:no-underline py-4">
+                    <div className="flex items-center gap-3 text-primary">
+                      <Settings2 className="w-5 h-5" />
+                      <div className="flex flex-col items-start">
+                        <span className="text-sm font-bold uppercase tracking-wider">Ajustes de Escenario y Personalización</span>
+                        <span className="text-[10px] text-muted-foreground uppercase font-bold opacity-60">Impacto en enganche, aportaciones y plazos</span>
+                      </div>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="pb-6 pt-2">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start border-t border-border/20 pt-6">
+                      <div className="space-y-2">
+                        <div className="h-4 flex items-center">
+                          <Label className="text-[10px] font-bold uppercase text-muted-foreground">Enganche Extra</Label>
+                        </div>
+                        <div className="relative">
+                           <span className="absolute left-3 top-2.5 text-xs text-muted-foreground">$</span>
+                           <Input 
+                            placeholder="Ej. 50,000" 
+                            className="pl-7 bg-background h-10 text-sm border-primary/20"
+                            value={formatWithCommas(extraDownPayment)}
+                            onChange={(e) => handleExtraDownChange(e.target.value)}
+                          />
+                        </div>
+                        <p className="text-[9px] text-muted-foreground mt-1">Descuenta directamente el monto principal a financiar.</p>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="h-4 flex items-center">
+                          <Label className="text-[10px] font-bold uppercase text-muted-foreground">Aportación Extra Mensual</Label>
+                        </div>
+                        <div className="relative">
+                           <span className="absolute left-3 top-2.5 text-xs text-muted-foreground">$</span>
+                           <Input 
+                            placeholder="Ej. 2,000" 
+                            className="pl-7 bg-background h-10 text-sm border-accent/20"
+                            value={formatWithCommas(extraMonthlyContribution)}
+                            onChange={(e) => handleExtraMonthlyChange(e.target.value)}
+                          />
+                        </div>
+                        <p className="text-[9px] text-green-600 font-bold mt-1">Reduce el plazo total del crédito automáticamente.</p>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="h-4 flex items-center">
+                          <Label className="text-[10px] font-bold uppercase text-muted-foreground">Plazo Base (Meses)</Label>
+                        </div>
+                        <div className="relative">
+                          <Input 
+                            type="number" 
+                            placeholder="192" 
+                            className="bg-background h-10 text-sm border-primary/20 font-bold"
+                            value={customTerm}
+                            onChange={(e) => setCustomTerm(e.target.value)}
+                          />
+                        </div>
+                        <p className="text-[9px] text-muted-foreground mt-1">Plazo estipulado inicialmente en el contrato.</p>
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </div>
           </TooltipProvider>
 
