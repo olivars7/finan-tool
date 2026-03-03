@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -107,7 +108,6 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
       setShowIntro(true);
       setShowContent(false);
       
-      // La duración de la intro coincide con la animación CSS para suavidad total
       const introTimer = setTimeout(() => {
         setShowIntro(false);
         setShowContent(true);
@@ -245,15 +245,9 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
             <Progress value={closingRate} className="h-1.5 bg-green-500/10" />
           </div>
           
-          <div className="grid grid-cols-2 gap-4 pt-2 border-t border-border/10">
-            <div>
-              <p className="text-[8px] font-bold text-muted-foreground uppercase mb-1">Cierres Meta</p>
-              <p className="text-xs font-black">{stats.currentMonthSales} / {MONTHLY_GOAL}</p>
-            </div>
-            <div className="text-right">
-              <p className="text-[8px] font-bold text-muted-foreground uppercase mb-1">Impuestos (9%)</p>
-              <p className="text-xs font-black text-destructive">{formatCurrency(taxImpact)}</p>
-            </div>
+          <div className="pt-2 border-t border-border/10 flex justify-between items-center">
+            <p className="text-[8px] font-bold text-muted-foreground uppercase">Cierres Meta</p>
+            <p className="text-sm font-black">{stats.currentMonthSales} / {MONTHLY_GOAL}</p>
           </div>
         </div>
       </CardContent>

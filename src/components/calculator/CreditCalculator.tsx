@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -414,7 +415,7 @@ export default function CreditCalculator({ initialExpanded = false, onExpandedCh
               </section>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-                  <div className="lg:col-span-5 p-6 rounded-2xl border border-primary/20 bg-primary/5 space-y-4 flex flex-col">
+                  <div className="lg:col-span-5 p-6 rounded-2xl border border-primary/20 bg-primary/5 space-y-4 flex flex-col animate-entrance-stagger" style={{ animationDelay: '0.1s' }}>
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2 text-primary">
                         <TrendingUp className="w-5 h-5" />
@@ -461,7 +462,7 @@ export default function CreditCalculator({ initialExpanded = false, onExpandedCh
                     </div>
                   </div>
 
-                  <div className="lg:col-span-4 p-6 rounded-2xl border border-accent/20 bg-accent/5 space-y-4 flex flex-col">
+                  <div className="lg:col-span-4 p-6 rounded-2xl border border-accent/20 bg-accent/5 space-y-4 flex flex-col animate-entrance-stagger" style={{ animationDelay: '0.2s' }}>
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2 text-accent">
                         <Receipt className="w-5 h-5" />
@@ -508,7 +509,7 @@ export default function CreditCalculator({ initialExpanded = false, onExpandedCh
                     </div>
                   </div>
 
-                  <div className="lg:col-span-3 space-y-6">
+                  <div className="lg:col-span-3 space-y-6 animate-entrance-stagger" style={{ animationDelay: '0.3s' }}>
                     <div className="p-6 rounded-2xl border-2 border-secondary bg-secondary/20 space-y-4 shadow-lg h-full flex flex-col justify-center">
                       <div className="flex items-center gap-2">
                         <ShieldAlert className="w-5 h-5 text-secondary-foreground" />
@@ -528,7 +529,7 @@ export default function CreditCalculator({ initialExpanded = false, onExpandedCh
                   </div>
               </div>
 
-              <Accordion type="single" collapsible className="w-full">
+              <Accordion type="single" collapsible className="w-full animate-entrance-stagger" style={{ animationDelay: '0.4s' }}>
                 <AccordionItem value="ajustes" className="border rounded-2xl px-6 bg-card/50 overflow-hidden">
                   <AccordionTrigger className="hover:no-underline py-4">
                     <div className="flex items-center gap-3 text-primary">
