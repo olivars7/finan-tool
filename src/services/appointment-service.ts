@@ -234,6 +234,10 @@ export const calculateStats = (appointments: Appointment[]) => {
     .filter(a => (a.status === 'Cierre' || a.status === 'Apartado') && isSameMonth(parseISO(a.date), now))
     .reduce((sum, a) => sum + (a.finalCreditAmount || 0), 0);
 
+  const lastMonthCreditSold = activeApps
+    .filter(a => (a.status === 'Cierre' || a.status === 'Apartado') && isSameMonth(parseISO(a.date), lastMonth))
+    .reduce((sum, a) => sum + (a.finalCreditAmount || 0), 0);
+
   // Participación promedio en cierres
   const salesWithAmount = activeApps.filter(a => (a.status === 'Cierre' || a.status === 'Apartado') && isSameMonth(parseISO(a.date), now) && (a.commissionPercent || 0) > 0);
   const avgParticipation = salesWithAmount.length > 0 
@@ -326,7 +330,13 @@ export const calculateStats = (appointments: Appointment[]) => {
         isSameDay(parseISO(a.date), day) && 
         a.status === 'Cierre'
       ).length;
-      return { day: dayStr, agendadas, atendidas, cierres };
+      return { 
+        day: dayStr, 
+        agendadas, 
+        atendidas, 
+        cierres,
+        isToday: isToday(day)
+      };
     });
   };
 
@@ -355,6 +365,7 @@ export const calculateStats = (appointments: Appointment[]) => {
     lastMonthApartados,
     currentMonthFollowUps,
     totalCreditSold,
+    lastMonthCreditSold,
     avgParticipation: parseFloat(avgParticipation.toFixed(1)),
     currentMonthCommission,
     lastMonthCommission,
