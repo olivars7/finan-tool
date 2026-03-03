@@ -75,7 +75,7 @@ const chartConfig = {
   },
   cierres: {
     label: "Cierres",
-    color: "hsl(142 70% 45%)",
+    color: "url(#cierreGradient)",
   },
 } satisfies ChartConfig;
 
@@ -158,6 +158,14 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
       <CardContent className="p-4 h-[200px] overflow-visible">
         <ChartContainer config={chartConfig} className="h-full w-full overflow-visible">
           <BarChart data={data}>
+            <defs>
+              <linearGradient id="cierreGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#00F5FF" />
+                <stop offset="33%" stopColor="#1877F2" />
+                <stop offset="66%" stopColor="#7B61FF" />
+                <stop offset="100%" stopColor="#FF00D6" />
+              </linearGradient>
+            </defs>
             <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
             <XAxis 
               dataKey="day" 
@@ -198,9 +206,10 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
               {data.map((entry: any, index: number) => (
                 <Cell 
                   key={`cell-cie-${index}`} 
-                  fill={entry.isToday ? "hsl(142 70% 45%)" : "var(--color-cierres)"}
-                  stroke={entry.isToday ? "hsl(142 70% 45%)" : "none"}
-                  strokeWidth={entry.isToday ? 2 : 0}
+                  fill={entry.isToday ? "url(#cierreGradient)" : "url(#cierreGradient)"}
+                  stroke={entry.isToday ? "white" : "none"}
+                  strokeWidth={entry.isToday ? 1 : 0}
+                  className="filter drop-shadow-sm"
                 />
               ))}
               <LabelList dataKey="cierres" content={<ZeroLabel />} />
@@ -300,123 +309,72 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
           <div className="flex-1 overflow-y-auto p-8 scrollbar-thin bg-muted/5">
             <div className="max-w-[1400px] mx-auto space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                <Card className="bg-card/40 border-primary/20 p-4 space-y-3">
-                  <div className="flex justify-between items-start">
-                    <div className="p-2 bg-primary/10 rounded-lg"><CalendarDays className="w-4 h-4 text-primary" /></div>
-                    <span className="text-[10px] font-bold text-primary bg-primary/5 px-2 py-0.5 rounded-full border border-primary/10">HOY</span>
-                  </div>
-                  <div>
-                    <p className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest">Citas Agendadas</p>
-                    <p className="text-3xl font-black">{stats.todayCount}</p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border/10">
-                    <div>
-                      <p className="text-[8px] font-bold text-muted-foreground uppercase">Confirmadas</p>
-                      <p className="text-xs font-bold text-green-500">{stats.todayConfirmed}</p>
+                {[
+                  { icon: CalendarDays, color: 'text-primary', label: 'Citas Agendadas', value: stats.todayCount, tag: 'HOY', sub1: 'Confirmadas', val1: stats.todayConfirmed, sub2: 'Mañana', val2: stats.tomorrowTotal },
+                  { icon: TrendingUp, color: 'text-primary', label: 'Eficiencia de Cierre', value: `${Math.round(closingRate)}%`, sub1: 'Ratio de éxito', val1: 'Sobre atendidos' },
+                  { icon: Users, color: 'text-accent', label: 'Prospectos Mes', value: stats.currentMonthProspects, growth: monthlyGrowth, sub1: 'Mes Pasado', val1: stats.lastMonthProspects, sub2: 'Seguimientos', val2: stats.currentMonthFollowUps },
+                  { icon: Trophy, color: 'text-green-500', label: 'Cierres de Mes', value: stats.currentMonthSales, sub1: 'Formalizados', val1: stats.currentMonthOnlyCierre, sub2: 'Apartados', val2: stats.currentMonthApartados },
+                  { icon: Coins, color: 'text-yellow-600', label: 'Ingresos Totales (Neto)', value: formatCurrency(stats.currentMonthCommission), special: true, sub1: 'Cobrado Neto', val1: formatCurrency(stats.currentMonthPaidCommission), sub2: 'Este Viernes', val2: formatCurrency(stats.thisFridayCommission) }
+                ].map((s, i) => (
+                  <Card 
+                    key={i} 
+                    className={cn(
+                      "bg-card/40 border-primary/20 p-4 space-y-3 animate-entrance-stagger animate-staggered-periodic",
+                      s.special && stats.currentMonthCommission > 5000 && "border-primary/40 shadow-[0_0_15px_rgba(var(--primary),0.1)]"
+                    )}
+                    style={{ animationDelay: `${i * 0.1}s, ${i * 0.2}s` }}
+                  >
+                    <div className="flex justify-between items-start">
+                      <div className={cn("p-2 rounded-lg bg-muted/20", s.color)}><s.icon className="w-4 h-4" /></div>
+                      {s.tag && <span className="text-[10px] font-bold text-primary bg-primary/5 px-2 py-0.5 rounded-full border border-primary/10">{s.tag}</span>}
+                      {s.growth !== undefined && (
+                        <div className="flex items-center gap-1">
+                          {s.growth >= 0 ? <ArrowUpRight className="w-3 h-3 text-green-500"/> : <ArrowDownRight className="w-3 h-3 text-destructive"/>}
+                          <span className={cn("text-[10px] font-bold", s.growth >= 0 ? "text-green-500" : "text-destructive")}>{Math.abs(Math.round(s.growth))}%</span>
+                        </div>
+                      )}
                     </div>
                     <div>
-                      <p className="text-[8px] font-bold text-muted-foreground uppercase">Mañana</p>
-                      <p className="text-xs font-bold text-primary">{stats.tomorrowTotal}</p>
+                      <p className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest">{s.label}</p>
+                      <p className={cn(
+                        "text-2xl font-black truncate",
+                        s.special && stats.currentMonthCommission > 5000 && "bg-gradient-to-r from-[#00F5FF] via-[#7B61FF] to-[#FF00D6] bg-clip-text text-transparent"
+                      )}>
+                        {s.value}
+                      </p>
                     </div>
-                  </div>
-                </Card>
-
-                <Card className="bg-card/40 border-primary/20 p-4 space-y-3">
-                  <div className="flex justify-between items-start">
-                    <div className="p-2 bg-primary/10 rounded-lg"><TrendingUp className="w-4 h-4 text-primary" /></div>
-                  </div>
-                  <div>
-                    <p className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest">Eficiencia de Cierre</p>
-                    <p className="text-3xl font-black">{Math.round(closingRate)}%</p>
-                  </div>
-                  <div className="pt-2 border-t border-border/10">
-                    <p className="text-[8px] font-bold text-muted-foreground uppercase">Ratio de éxito</p>
-                    <p className="text-xs font-bold text-primary">Sobre prospectos atendidos</p>
-                  </div>
-                </Card>
-
-                <Card className="bg-card/40 border-accent/20 p-4 space-y-3">
-                  <div className="flex justify-between items-start">
-                    <div className="p-2 bg-accent/10 rounded-lg"><Users className="w-4 h-4 text-accent" /></div>
-                    <div className="flex items-center gap-1">
-                      {monthlyGrowth >= 0 ? <ArrowUpRight className="w-3 h-3 text-green-500"/> : <ArrowDownRight className="w-3 h-3 text-destructive"/>}
-                      <span className={cn("text-[10px] font-bold", monthlyGrowth >= 0 ? "text-green-500" : "text-destructive")}>{Math.abs(Math.round(monthlyGrowth))}%</span>
+                    <div className="grid grid-cols-1 gap-1 pt-2 border-t border-border/10">
+                      <div className="flex justify-between">
+                        <span className="text-[8px] font-bold text-muted-foreground uppercase">{s.sub1}</span>
+                        <span className="text-xs font-bold">{s.val1}</span>
+                      </div>
+                      {s.sub2 && (
+                        <div className="flex justify-between">
+                          <span className="text-[8px] font-bold text-muted-foreground uppercase">{s.sub2}</span>
+                          <span className="text-xs font-bold">{s.val2}</span>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                  <div>
-                    <p className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest">Prospectos Mes</p>
-                    <p className="text-3xl font-black">{stats.currentMonthProspects}</p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border/10">
-                    <div>
-                      <p className="text-[8px] font-bold text-muted-foreground uppercase">Mes Pasado</p>
-                      <p className="text-xs font-bold">{stats.lastMonthProspects}</p>
-                    </div>
-                    <div>
-                      <p className="text-[8px] font-bold text-muted-foreground uppercase">Seguimientos</p>
-                      <p className="text-xs font-bold text-accent">{stats.currentMonthFollowUps}</p>
-                    </div>
-                  </div>
-                </Card>
-
-                <Card className="bg-card/40 border-green-500/20 p-4 space-y-3">
-                  <div className="flex justify-between items-start">
-                    <div className="p-2 bg-green-500/10 rounded-lg"><Trophy className="w-4 h-4 text-green-500" /></div>
-                  </div>
-                  <div>
-                    <p className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest">Cierres de Mes</p>
-                    <p className="text-3xl font-black text-green-500">{stats.currentMonthSales}</p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border/10">
-                    <div>
-                      <p className="text-[8px] font-bold text-muted-foreground uppercase">Formalizados</p>
-                      <p className="text-xs font-bold text-green-600">{stats.currentMonthOnlyCierre}</p>
-                    </div>
-                    <div>
-                      <p className="text-[8px] font-bold text-muted-foreground uppercase">Apartados</p>
-                      <p className="text-xs font-bold text-blue-500">{stats.currentMonthApartados}</p>
-                    </div>
-                  </div>
-                </Card>
-
-                <Card className="bg-card/40 border-yellow-500/20 p-4 space-y-3">
-                  <div className="flex justify-between items-start">
-                    <div className="p-2 bg-yellow-500/10 rounded-lg"><Coins className="w-4 h-4 text-yellow-600" /></div>
-                  </div>
-                  <div>
-                    <p className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest">Ingresos Totales (Neto)</p>
-                    <p className={cn(
-                      "text-xl font-black truncate",
-                      stats.currentMonthCommission > 5000 && "bg-gradient-to-r from-[#00F5FF] via-[#7B61FF] to-[#FF00D6] bg-clip-text text-transparent"
-                    )}>
-                      {formatCurrency(stats.currentMonthCommission)}
-                    </p>
-                  </div>
-                  <div className="grid grid-cols-1 gap-1 pt-2 border-t border-border/10">
-                    <div className="flex justify-between">
-                      <span className="text-[8px] font-bold text-muted-foreground uppercase">Cobrado Neto</span>
-                      <span className="text-xs font-bold text-green-500">{formatCurrency(stats.currentMonthPaidCommission)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-[8px] font-bold text-muted-foreground uppercase">Este Viernes</span>
-                      <span className="text-xs font-bold text-yellow-600">{formatCurrency(stats.thisFridayCommission)}</span>
-                    </div>
-                  </div>
-                </Card>
+                  </Card>
+                ))}
               </div>
 
               <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 overflow-visible">
                 <div className="xl:col-span-8 space-y-6 overflow-visible">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 overflow-visible">
-                    <WeeklyChart data={stats.charts.dailyActivity} title="Ciclo Actual" icon={CalendarDays} />
-                    <WeeklyChart data={stats.charts.lastWeekActivity} title="Ciclo Anterior" icon={History} opacity={0.65} />
+                    <div className="animate-entrance-stagger" style={{ animationDelay: '0.5s' }}>
+                      <WeeklyChart data={stats.charts.dailyActivity} title="Ciclo Actual" icon={CalendarDays} />
+                    </div>
+                    <div className="animate-entrance-stagger" style={{ animationDelay: '0.6s' }}>
+                      <WeeklyChart data={stats.charts.lastWeekActivity} title="Ciclo Anterior" icon={History} opacity={0.65} />
+                    </div>
                   </div>
                   
-                  <Card className="bg-card border-border/40 overflow-hidden">
+                  <Card className="bg-card border-border/40 overflow-hidden animate-entrance-stagger" style={{ animationDelay: '0.7s' }}>
                     <CardHeader className="bg-muted/30 p-4 border-b">
                       <div className="flex items-center gap-2">
                         <Zap className="w-4 h-4 text-yellow-500" />
-                        <CardTitle className="text-xs font-bold uppercase tracking-wider">Insights</CardTitle>
+                        <CardTitle className="text-xs font-bold uppercase tracking-wider">Insights Financieros</CardTitle>
                       </div>
                     </CardHeader>
                     <CardContent className="p-6 grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -432,7 +390,7 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
                             <span className={creditGrowth >= 0 ? "text-green-500" : "text-destructive"}>{Math.abs(Math.round(creditGrowth))}%</span>
                           </div>
                         </div>
-                        <p className="text-[9px] text-muted-foreground">Valor total gestionado este mes vs el mes anterior ({formatCurrency(stats.lastMonthCreditSold)}).</p>
+                        <p className="text-[9px] text-muted-foreground">Valor total formalizado este mes vs mes pasado ({formatCurrency(stats.lastMonthCreditSold)}).</p>
                       </div>
                       
                       <div className="space-y-2">
@@ -456,7 +414,7 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
                   </Card>
                 </div>
 
-                <div className="xl:col-span-4 space-y-6">
+                <div className="xl:col-span-4 space-y-6 animate-entrance-stagger" style={{ animationDelay: '0.8s' }}>
                   <PerformanceSection />
                   
                   <Card className="border-accent/20 bg-accent/5 relative overflow-hidden h-fit">
@@ -465,7 +423,7 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
                     </div>
                     <CardHeader className="p-4 pb-0 flex flex-row items-center gap-2 relative z-10">
                       <Zap className="w-4 h-4 text-accent animate-bounce" />
-                      <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-accent/80">Sugerencia</CardTitle>
+                      <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-accent/80">Sugerencia Estratégica</CardTitle>
                     </CardHeader>
                     <CardContent className="p-4 pt-2 relative z-10">
                       <p className="text-sm text-foreground/90 leading-relaxed font-bold border-l-2 border-accent/30 pl-3">
