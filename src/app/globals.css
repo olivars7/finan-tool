@@ -131,36 +131,32 @@
   
   header { @apply backdrop-blur-[12px] bg-card/10 !important; }
   
+  /* Generic Transparent Glass Style for small Dialogs and Toasts */
   [role="dialog"]:not([data-calculator-dialog="true"]):not([data-appointments-dialog="true"]), 
   [role="status"] { 
-    @apply backdrop-blur-[12px] !important; 
+    @apply backdrop-blur-[16px] shadow-2xl border border-border/40 rounded-xl !important; 
     background-color: hsl(var(--card) / 0.8) !important;
-    @apply shadow-xl !important;
+    color: hsl(var(--foreground)) !important;
   }
 
+  /* Destructive Variant Styles */
+  [role="status"].destructive {
+    background-color: hsla(var(--destructive) / 0.15) !important;
+    border-color: hsl(var(--destructive) / 0.5) !important;
+    color: hsl(var(--destructive)) !important;
+  }
+
+  [role="status"].destructive p,
+  [role="status"].destructive div,
+  [role="status"].destructive span {
+    color: inherit !important;
+  }
+
+  /* Full screen dialogs specific to themes */
   [data-theme="moderno"] [data-calculator-dialog="true"],
   [data-theme="moderno"] [data-appointments-dialog="true"] {
     background-color: hsla(var(--background) / 0.6) !important;
     backdrop-filter: blur(16px) !important;
-  }
-
-  :root [role="dialog"]:not([data-calculator-dialog="true"]):not([data-appointments-dialog="true"]),
-  :root [role="status"]:not(.destructive) {
-    background-color: rgba(230, 242, 255, 0.85) !important;
-    @apply border-border shadow-xl !important;
-  }
-
-  :root [role="status"].destructive {
-    background-color: hsla(var(--destructive) / 0.15) !important;
-    border-color: hsl(var(--destructive)) !important;
-    color: hsl(var(--destructive)) !important;
-    backdrop-filter: blur(12px) !important;
-    @apply shadow-lg !important;
-  }
-
-  :root [role="status"].destructive p,
-  :root [role="status"].destructive div {
-    color: hsl(var(--destructive)) !important;
   }
 
   input[type="date"]::-webkit-calendar-picker-indicator,
