@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -111,7 +110,7 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
       const introTimer = setTimeout(() => {
         setShowIntro(false);
         setShowContent(true);
-      }, 2800); 
+      }, 3000); 
       
       return () => clearTimeout(introTimer);
     } else if (window.location.pathname === '/stats') {

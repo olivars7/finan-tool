@@ -123,7 +123,7 @@ const DashboardContent = ({
       const d = startOfDay(parseISO(a.date));
       return isBefore(d, today) || !!a.status;
     })
-    .sort((a, b) => parseISO(b.date).getTime() - parseISO(a.date).getTime() || b.time.localeCompare(a.time));
+    .sort((a, b) => parseISO(a.date).getTime() - parseISO(b.date).getTime() || b.time.localeCompare(a.time));
 
   const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('es-MX', {
@@ -135,7 +135,10 @@ const DashboardContent = ({
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full h-full flex flex-col">
-      <div className={cn("flex flex-col gap-4 mb-6 shrink-0", expanded && "bg-muted/10 p-6 rounded-2xl border border-border/30 backdrop-blur-md")}>
+      <div className={cn(
+        "flex flex-col gap-4 mb-6 shrink-0", 
+        expanded && "bg-muted/10 p-6 rounded-2xl border border-border/30 backdrop-blur-md animate-entrance-stagger"
+      )}>
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <TabsList className="grid w-full sm:w-80 grid-cols-2 h-10 p-1 bg-muted/40 border border-border/20 shadow-inner rounded-lg">
             <TabsTrigger 
@@ -175,128 +178,91 @@ const DashboardContent = ({
         {expanded && (
           <TooltipProvider delayDuration={0}>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-6 items-center flex-1">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex flex-col items-center sm:items-start group cursor-help">
-                    <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest mb-1 group-hover:text-primary transition-colors">Hoy</span>
-                    <div className="flex items-center gap-2">
-                      <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-600 border border-blue-500/20"><CalendarDays className="w-3.5 h-3.5"/></div>
-                      <span className="text-sm font-bold text-foreground">{stats.todayConfirmed}<span className="text-muted-foreground/40 mx-0.5">/</span>{stats.todayCount}</span>
-                    </div>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" sideOffset={1} className="bg-card border-border shadow-xl z-[100] p-3">
-                  <div className="flex flex-col gap-1 text-[10px] leading-tight">
-                    <div className="flex justify-between items-center gap-4">
-                      <span className="text-muted-foreground uppercase font-medium">Mañana:</span>
-                      <span className="text-primary font-bold">{stats.tomorrowTotal}</span>
-                    </div>
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex flex-col items-center sm:items-start group cursor-help">
-                    <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest mb-1">Cierres Mes</span>
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-2">
-                        <div className="p-1.5 rounded-lg bg-green-500/10 text-green-600 border border-green-500/20"><CheckCircle2 className="w-3.5 h-3.5"/></div>
-                        <span className="text-sm font-bold text-foreground">{stats.currentMonthOnlyCierre}</span>
-                      </div>
-                      <div className="flex items-center mt-1 text-[7px] font-bold text-muted-foreground/40 uppercase">
-                        {stats.currentMonthOnlyCierre > stats.lastMonthOnlyCierre && <TrendingUp className="w-2 h-2 text-green-500 mr-0.5" />}
-                        Mes pasado: {stats.lastMonthOnlyCierre}
-                      </div>
-                    </div>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" sideOffset={1} className="bg-card border-border shadow-xl z-[100] p-3">
-                   <span className="text-[9px] uppercase font-bold text-muted-foreground block mb-1">Cierres formalizados</span>
-                   <span className="text-xs font-bold text-green-500">{stats.currentMonthOnlyCierre}</span>
-                </TooltipContent>
-              </Tooltip>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex flex-col items-center sm:items-start group cursor-help">
-                    <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest mb-1">Apartados</span>
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-2">
-                        <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-500 border border-blue-500/20"><Coins className="w-3.5 h-3.5"/></div>
-                        <span className="text-sm font-bold text-foreground">{stats.currentMonthApartados}</span>
-                      </div>
-                      <div className="flex items-center mt-1 text-[7px] font-bold text-muted-foreground/40 uppercase">
-                        {stats.currentMonthApartados > stats.lastMonthApartados && <TrendingUp className="w-2 h-2 text-green-500 mr-0.5" />}
-                        Mes pasado: {stats.lastMonthApartados}
-                      </div>
-                    </div>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" sideOffset={1} className="bg-card border-border shadow-xl z-[100] p-3">
-                   <span className="text-[9px] uppercase font-bold text-muted-foreground block mb-1">En proceso</span>
-                   <span className="text-xs font-bold text-blue-500">{stats.currentMonthApartados}</span>
-                </TooltipContent>
-              </Tooltip>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex flex-col items-center sm:items-start group cursor-help">
-                    <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest mb-1">Conversión</span>
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-2">
-                        <div className="p-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20"><TrendingUp className="w-3.5 h-3.5"/></div>
-                        <span className="text-sm font-bold text-foreground">{stats.conversionRate}%</span>
-                      </div>
-                      <div className="flex items-center mt-1 text-[7px] font-bold text-muted-foreground/40 uppercase">
-                        {stats.conversionRate > stats.lastMonthConversionRate && <TrendingUp className="w-2 h-2 text-green-500 mr-0.5" />}
-                        Mes pasado: {stats.lastMonthConversionRate}%
+              {[
+                { 
+                  label: 'Hoy', 
+                  icon: CalendarDays, 
+                  color: 'text-blue-600', 
+                  bg: 'bg-blue-500/10', 
+                  val: `${stats.todayConfirmed}/${stats.todayCount}`,
+                  sub: `Mañana: ${stats.tomorrowTotal}`
+                },
+                { 
+                  label: 'Cierres Mes', 
+                  icon: CheckCircle2, 
+                  color: 'text-green-600', 
+                  bg: 'bg-green-500/10', 
+                  val: stats.currentMonthOnlyCierre,
+                  trend: stats.currentMonthOnlyCierre > stats.lastMonthOnlyCierre,
+                  trendVal: `Mes pasado: ${stats.lastMonthOnlyCierre}`
+                },
+                { 
+                  label: 'Apartados', 
+                  icon: Coins, 
+                  color: 'text-blue-500', 
+                  bg: 'bg-blue-500/10', 
+                  val: stats.currentMonthApartados,
+                  trend: stats.currentMonthApartados > stats.lastMonthApartados,
+                  trendVal: `Mes pasado: ${stats.lastMonthApartados}`
+                },
+                { 
+                  label: 'Conversión', 
+                  icon: TrendingUp, 
+                  color: 'text-primary', 
+                  bg: 'bg-primary/10', 
+                  val: `${stats.conversionRate}%`,
+                  trend: stats.conversionRate > stats.lastMonthConversionRate,
+                  trendVal: `Mes pasado: ${stats.lastMonthConversionRate}%`
+                },
+                { 
+                  label: 'Ingresos Mes', 
+                  icon: Coins, 
+                  color: 'text-yellow-600', 
+                  bg: 'bg-yellow-500/10', 
+                  val: formatCurrency(stats.currentMonthCommission),
+                  trend: stats.currentMonthCommission > stats.lastMonthCommission,
+                  trendVal: `Mes pasado: ${formatCurrency(stats.lastMonthCommission)}`,
+                  isCurrency: true
+                }
+              ].map((s, i) => (
+                <Tooltip key={i}>
+                  <TooltipTrigger asChild>
+                    <div 
+                      className="flex flex-col items-center sm:items-start group cursor-help animate-entrance-stagger"
+                      style={{ animationDelay: `${(i + 1) * 0.1}s` }}
+                    >
+                      <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest mb-1 group-hover:text-primary transition-colors">{s.label}</span>
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-2">
+                          <div className={cn("p-1.5 rounded-lg border", s.bg, s.color, "border-current/20")}>
+                            <s.icon className="w-3.5 h-3.5"/>
+                          </div>
+                          <span className={cn(
+                            "text-sm font-bold text-foreground truncate",
+                            s.isCurrency && stats.currentMonthCommission > 5000 && "bg-gradient-to-r from-[#00F5FF] via-[#7B61FF] to-[#FF00D6] bg-clip-text text-transparent"
+                          )}>
+                            {s.val}
+                          </span>
+                        </div>
+                        <div className="flex items-center mt-1 text-[7px] font-bold text-muted-foreground/40 uppercase">
+                          {s.trend && <TrendingUp className="w-2 h-2 text-green-500 mr-0.5" />}
+                          {s.trendVal || s.sub}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" sideOffset={1} className="bg-card border-border shadow-xl z-[100] p-3">
-                   <span className="text-[9px] uppercase font-bold text-muted-foreground block mb-1">Efectividad mensual</span>
-                   <span className="text-xs font-bold text-primary">{stats.conversionRate}%</span>
-                </TooltipContent>
-              </Tooltip>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex flex-col items-center sm:items-start group cursor-help">
-                    <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest mb-1">Ingresos Mes</span>
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-2">
-                        <div className="p-1.5 rounded-lg bg-yellow-500/10 text-yellow-600 border border-yellow-500/20"><Coins className="w-3.5 h-3.5"/></div>
-                        <span className={cn(
-                          "text-sm font-bold text-foreground",
-                          stats.currentMonthCommission > 5000 && "bg-gradient-to-r from-[#00F5FF] via-[#7B61FF] to-[#FF00D6] bg-clip-text text-transparent"
-                        )}>
-                          {formatCurrency(stats.currentMonthCommission)}
-                        </span>
-                      </div>
-                      <div className="flex items-center mt-1 text-[7px] font-bold text-muted-foreground/40 uppercase">
-                        {stats.currentMonthCommission > stats.lastMonthCommission && <TrendingUp className="w-2 h-2 text-green-500 mr-0.5" />}
-                        Mes pasado: {formatCurrency(stats.lastMonthCommission)}
-                      </div>
-                    </div>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" sideOffset={1} className="bg-card border-border shadow-xl z-[100] p-3">
-                  <div className="flex flex-col gap-1 text-[10px] leading-tight">
-                    <div className="flex justify-between items-center gap-4">
-                      <span className="text-muted-foreground uppercase font-medium">Recibido:</span>
-                      <span className="text-primary font-bold">{formatCurrency(stats.currentMonthPaidCommission)}</span>
-                    </div>
-                  </div>
-                </TooltipContent>
-              </Tooltip>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="bg-card border-border shadow-xl p-3">
+                    <span className="text-[9px] uppercase font-bold text-muted-foreground block mb-1">{s.label} detallado</span>
+                    <span className="text-xs font-bold">{s.val}</span>
+                  </TooltipContent>
+                </Tooltip>
+              ))}
             </div>
           </TooltipProvider>
         )}
       </div>
 
-      <div className="flex-1 min-h-0 overflow-hidden">
+      <div className="flex-1 min-h-0 overflow-hidden animate-stats-reveal" style={{ animationDelay: '0.6s' }}>
         <TabsContent value="upcoming" className="mt-0 h-full">
           <UpcomingAppointments 
             appointments={filteredUpcoming} 
@@ -467,7 +433,7 @@ export default function AppointmentsDashboard({
 
       <Dialog open={isExpanded} onOpenChange={setIsExpanded}>
         <DialogContent 
-          data-calculator-dialog="true"
+          data-appointments-dialog="true"
           className="max-w-none w-screen h-screen m-0 rounded-none bg-background border-none shadow-none p-0 flex flex-col overflow-hidden"
         >
           <DialogHeader className="px-6 py-4 border-b border-border/40 flex flex-row items-center justify-between bg-card/10 shrink-0">
