@@ -106,10 +106,13 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
       window.history.pushState(null, '', '/stats');
       setShowIntro(true);
       setShowContent(false);
+      
+      // La duración de la intro coincide con la animación CSS para suavidad total
       const introTimer = setTimeout(() => {
         setShowIntro(false);
         setShowContent(true);
-      }, 2500);
+      }, 2800); 
+      
       return () => clearTimeout(introTimer);
     } else if (window.location.pathname === '/stats') {
       window.history.pushState(null, '', '/');
@@ -286,14 +289,14 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
           className="max-w-none w-screen h-screen m-0 rounded-none bg-background border-none shadow-none p-0 flex flex-col overflow-hidden"
         >
           {showIntro ? (
-            <div className="flex-1 flex items-center justify-center bg-background/90 backdrop-blur-3xl z-[300]">
+            <div className="flex-1 flex items-center justify-center bg-background/95 backdrop-blur-3xl z-[300]">
               <DialogTitle className="sr-only">Inteligencia Finanto</DialogTitle>
               <h2 className="text-6xl md:text-8xl font-black tracking-tighter bg-gradient-to-r from-[#00F5FF] via-[#7B61FF] to-[#FF00D6] bg-clip-text text-transparent animate-intro-text text-center px-4">
                 INTELIGENCIA FINANTO
               </h2>
             </div>
           ) : showContent ? (
-            <>
+            <div className="flex-1 flex flex-col animate-stats-reveal">
               <DialogHeader className="px-6 py-4 border-b border-border/40 flex flex-row items-center justify-between bg-card/10 shrink-0">
                 <div className="flex items-center gap-3">
                   <div className="bg-primary/20 p-2 rounded-xl border border-primary/30">
@@ -301,7 +304,7 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
                   </div>
                   <div>
                     <DialogTitle className="text-xl font-headline font-bold text-foreground">Inteligencia Avanzada</DialogTitle>
-                    <DialogDescription className="text-xs">Análisis financiero y tendencias.</DialogDescription>
+                    <DialogDescription className="text-xs">Análisis financiero y tendencias operativos.</DialogDescription>
                   </div>
                 </div>
                 <DialogClose asChild>
@@ -327,7 +330,7 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
                           "bg-card/40 border-primary/20 p-4 space-y-3 animate-entrance-stagger animate-staggered-periodic",
                           s.special && stats.currentMonthCommission > 5000 && "border-primary/40 shadow-[0_0_15px_rgba(var(--primary),0.1)]"
                         )}
-                        style={{ animationDelay: `${i * 0.15}s, ${i * 0.25}s` }}
+                        style={{ animationDelay: `${i * 0.1}s, ${i * 0.2}s` }}
                       >
                         <div className="flex justify-between items-start">
                           <div className={cn("p-2 rounded-lg bg-muted/20", s.color)}><s.icon className="w-4 h-4" /></div>
@@ -367,15 +370,15 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
                   <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 overflow-visible">
                     <div className="xl:col-span-8 space-y-6 overflow-visible">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 overflow-visible">
-                        <div className="animate-entrance-stagger" style={{ animationDelay: '0.8s' }}>
+                        <div className="animate-entrance-stagger" style={{ animationDelay: '0.6s' }}>
                           <WeeklyChart data={stats.charts.dailyActivity} title="Actual" icon={CalendarDays} />
                         </div>
-                        <div className="animate-entrance-stagger" style={{ animationDelay: '0.9s' }}>
+                        <div className="animate-entrance-stagger" style={{ animationDelay: '0.7s' }}>
                           <WeeklyChart data={stats.charts.lastWeekActivity} title="Anterior" icon={History} opacity={0.65} />
                         </div>
                       </div>
                       
-                      <Card className="bg-card border-border/40 overflow-hidden animate-entrance-stagger" style={{ animationDelay: '1s' }}>
+                      <Card className="bg-card border-border/40 overflow-hidden animate-entrance-stagger" style={{ animationDelay: '0.8s' }}>
                         <CardHeader className="bg-muted/30 p-4 border-b">
                           <div className="flex items-center gap-2">
                             <Zap className="w-4 h-4 text-yellow-500" />
@@ -416,7 +419,7 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
                       </Card>
                     </div>
 
-                    <div className="xl:col-span-4 space-y-6 animate-entrance-stagger" style={{ animationDelay: '1.1s' }}>
+                    <div className="xl:col-span-4 space-y-6 animate-entrance-stagger" style={{ animationDelay: '0.9s' }}>
                       <PerformanceSection />
                       
                       <Card className="border-accent/20 bg-accent/5 relative overflow-hidden h-fit">
@@ -451,7 +454,7 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
                   </div>
                 </div>
               </div>
-            </>
+            </div>
           ) : null}
         </DialogContent>
       </Dialog>

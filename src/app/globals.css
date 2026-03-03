@@ -216,14 +216,24 @@
 }
 
 @keyframes intro-zoom-fade {
-  0% { opacity: 0; transform: scale(0.9); filter: blur(10px); }
-  20% { opacity: 1; transform: scale(1); filter: blur(0); }
-  80% { opacity: 1; transform: scale(1.05); filter: blur(0); }
-  100% { opacity: 0; transform: scale(1.1); filter: blur(10px); }
+  0% { opacity: 0; transform: scale(0.95); filter: blur(4px); }
+  15% { opacity: 1; transform: scale(1); filter: blur(0); }
+  85% { opacity: 1; transform: scale(1.02); filter: blur(0); }
+  100% { opacity: 0; transform: scale(1.05); filter: blur(8px); }
+}
+
+@keyframes stats-reveal {
+  from { opacity: 0; transform: scale(0.98) translateY(10px); filter: blur(5px); }
+  to { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
 }
 
 .animate-intro-text {
-  animation: intro-zoom-fade 2.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: intro-zoom-fade 3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity, filter;
+}
+
+.animate-stats-reveal {
+  animation: stats-reveal 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .animate-entrance-stagger {
