@@ -97,11 +97,21 @@ const ZeroLabel = (props: any) => {
 
 export default function AdvancedStats({ stats, initialExpanded = false, onExpandedChange }: AdvancedStatsProps) {
   const [isExpanded, setIsExpanded] = useState(initialExpanded);
+  const [showIntro, setShowIntro] = useState(false);
+  const [showContent, setShowContent] = useState(false);
 
   useEffect(() => {
     onExpandedChange?.(isExpanded);
     if (isExpanded) {
       window.history.pushState(null, '', '/stats');
+      // Iniciar secuencia cinematográfica
+      setShowIntro(true);
+      setShowContent(false);
+      const introTimer = setTimeout(() => {
+        setShowIntro(false);
+        setShowContent(true);
+      }, 2500);
+      return () => clearTimeout(introTimer);
     } else if (window.location.pathname === '/stats') {
       window.history.pushState(null, '', '/');
     }
@@ -206,7 +216,7 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
               {data.map((entry: any, index: number) => (
                 <Cell 
                   key={`cell-cie-${index}`} 
-                  fill={entry.isToday ? "url(#cierreGradient)" : "url(#cierreGradient)"}
+                  fill="url(#cierreGradient)"
                   stroke={entry.isToday ? "white" : "none"}
                   strokeWidth={entry.isToday ? 1 : 0}
                   className="filter drop-shadow-sm"
@@ -289,166 +299,176 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
           data-calculator-dialog="true"
           className="max-w-none w-screen h-screen m-0 rounded-none bg-background border-none shadow-none p-0 flex flex-col overflow-hidden"
         >
-          <DialogHeader className="px-6 py-4 border-b border-border/40 flex flex-row items-center justify-between bg-card/10 shrink-0">
-            <div className="flex items-center gap-3">
-              <div className="bg-primary/20 p-2 rounded-xl border border-primary/30">
-                <BarChart3 className="text-primary w-6 h-6" />
-              </div>
-              <div>
-                <DialogTitle className="text-xl font-headline font-bold text-foreground">Panel de Inteligencia</DialogTitle>
-                <DialogDescription className="text-xs">Análisis de rendimiento, flujo financiero y tendencias operativas.</DialogDescription>
-              </div>
+          {showIntro ? (
+            <div className="flex-1 flex items-center justify-center bg-background/90 backdrop-blur-3xl z-[300]">
+              <h2 className="text-6xl md:text-8xl font-black tracking-tighter bg-gradient-to-r from-[#00F5FF] via-[#7B61FF] to-[#FF00D6] bg-clip-text text-transparent animate-intro-text text-center px-4">
+                INTELIGENCIA FINANTO
+              </h2>
             </div>
-            <DialogClose asChild>
-              <Button variant="ghost" size="icon" className="rounded-full hover:bg-destructive/10 hover:text-destructive h-10 w-10">
-                <X className="w-5 h-5" />
-              </Button>
-            </DialogClose>
-          </DialogHeader>
-
-          <div className="flex-1 overflow-y-auto p-8 scrollbar-thin bg-muted/5">
-            <div className="max-w-[1400px] mx-auto space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                {[
-                  { icon: CalendarDays, color: 'text-primary', label: 'Citas Agendadas', value: stats.todayCount, tag: 'HOY', sub1: 'Confirmadas', val1: stats.todayConfirmed, sub2: 'Mañana', val2: stats.tomorrowTotal },
-                  { icon: TrendingUp, color: 'text-primary', label: 'Eficiencia de Cierre', value: `${Math.round(closingRate)}%`, sub1: 'Ratio de éxito', val1: 'Sobre atendidos' },
-                  { icon: Users, color: 'text-accent', label: 'Prospectos Mes', value: stats.currentMonthProspects, growth: monthlyGrowth, sub1: 'Mes Pasado', val1: stats.lastMonthProspects, sub2: 'Seguimientos', val2: stats.currentMonthFollowUps },
-                  { icon: Trophy, color: 'text-green-500', label: 'Cierres de Mes', value: stats.currentMonthSales, sub1: 'Formalizados', val1: stats.currentMonthOnlyCierre, sub2: 'Apartados', val2: stats.currentMonthApartados },
-                  { icon: Coins, color: 'text-yellow-600', label: 'Ingresos Totales (Neto)', value: formatCurrency(stats.currentMonthCommission), special: true, sub1: 'Cobrado Neto', val1: formatCurrency(stats.currentMonthPaidCommission), sub2: 'Este Viernes', val2: formatCurrency(stats.thisFridayCommission) }
-                ].map((s, i) => (
-                  <Card 
-                    key={i} 
-                    className={cn(
-                      "bg-card/40 border-primary/20 p-4 space-y-3 animate-entrance-stagger animate-staggered-periodic",
-                      s.special && stats.currentMonthCommission > 5000 && "border-primary/40 shadow-[0_0_15px_rgba(var(--primary),0.1)]"
-                    )}
-                    style={{ animationDelay: `${i * 0.1}s, ${i * 0.2}s` }}
-                  >
-                    <div className="flex justify-between items-start">
-                      <div className={cn("p-2 rounded-lg bg-muted/20", s.color)}><s.icon className="w-4 h-4" /></div>
-                      {s.tag && <span className="text-[10px] font-bold text-primary bg-primary/5 px-2 py-0.5 rounded-full border border-primary/10">{s.tag}</span>}
-                      {s.growth !== undefined && (
-                        <div className="flex items-center gap-1">
-                          {s.growth >= 0 ? <ArrowUpRight className="w-3 h-3 text-green-500"/> : <ArrowDownRight className="w-3 h-3 text-destructive"/>}
-                          <span className={cn("text-[10px] font-bold", s.growth >= 0 ? "text-green-500" : "text-destructive")}>{Math.abs(Math.round(s.growth))}%</span>
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <p className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest">{s.label}</p>
-                      <p className={cn(
-                        "text-2xl font-black truncate",
-                        s.special && stats.currentMonthCommission > 5000 && "bg-gradient-to-r from-[#00F5FF] via-[#7B61FF] to-[#FF00D6] bg-clip-text text-transparent"
-                      )}>
-                        {s.value}
-                      </p>
-                    </div>
-                    <div className="grid grid-cols-1 gap-1 pt-2 border-t border-border/10">
-                      <div className="flex justify-between">
-                        <span className="text-[8px] font-bold text-muted-foreground uppercase">{s.sub1}</span>
-                        <span className="text-xs font-bold">{s.val1}</span>
-                      </div>
-                      {s.sub2 && (
-                        <div className="flex justify-between">
-                          <span className="text-[8px] font-bold text-muted-foreground uppercase">{s.sub2}</span>
-                          <span className="text-xs font-bold">{s.val2}</span>
-                        </div>
-                      )}
-                    </div>
-                  </Card>
-                ))}
-              </div>
-
-              <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 overflow-visible">
-                <div className="xl:col-span-8 space-y-6 overflow-visible">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 overflow-visible">
-                    <div className="animate-entrance-stagger" style={{ animationDelay: '0.5s' }}>
-                      <WeeklyChart data={stats.charts.dailyActivity} title="Ciclo Actual" icon={CalendarDays} />
-                    </div>
-                    <div className="animate-entrance-stagger" style={{ animationDelay: '0.6s' }}>
-                      <WeeklyChart data={stats.charts.lastWeekActivity} title="Ciclo Anterior" icon={History} opacity={0.65} />
-                    </div>
+          ) : showContent ? (
+            <>
+              <DialogHeader className="px-6 py-4 border-b border-border/40 flex flex-row items-center justify-between bg-card/10 shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="bg-primary/20 p-2 rounded-xl border border-primary/30">
+                    <BarChart3 className="text-primary w-6 h-6" />
                   </div>
-                  
-                  <Card className="bg-card border-border/40 overflow-hidden animate-entrance-stagger" style={{ animationDelay: '0.7s' }}>
-                    <CardHeader className="bg-muted/30 p-4 border-b">
-                      <div className="flex items-center gap-2">
-                        <Zap className="w-4 h-4 text-yellow-500" />
-                        <CardTitle className="text-xs font-bold uppercase tracking-wider">Insights Financieros</CardTitle>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="p-6 grid grid-cols-1 md:grid-cols-3 gap-8">
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <Target className="w-4 h-4" />
-                          <span className="text-[10px] font-bold uppercase">Crédito Vendido</span>
+                  <div>
+                    <DialogTitle className="text-xl font-headline font-bold text-foreground">Panel de Inteligencia</DialogTitle>
+                    <DialogDescription className="text-xs">Análisis de rendimiento, flujo financiero y tendencias operativas.</DialogDescription>
+                  </div>
+                </div>
+                <DialogClose asChild>
+                  <Button variant="ghost" size="icon" className="rounded-full hover:bg-destructive/10 hover:text-destructive h-10 w-10">
+                    <X className="w-5 h-5" />
+                  </Button>
+                </DialogClose>
+              </DialogHeader>
+
+              <div className="flex-1 overflow-y-auto p-8 scrollbar-thin bg-muted/5">
+                <div className="max-w-[1400px] mx-auto space-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    {[
+                      { icon: CalendarDays, color: 'text-primary', label: 'Citas Hoy', value: stats.todayCount, tag: 'HOY', sub1: 'Confirmadas', val1: stats.todayConfirmed, sub2: 'Mañana', val2: stats.tomorrowTotal },
+                      { icon: TrendingUp, color: 'text-primary', label: 'Eficiencia', value: `${Math.round(closingRate)}%`, sub1: 'Éxito en Citas', val1: 'Sobre atendidos' },
+                      { icon: Users, color: 'text-accent', label: 'Prospectos Mes', value: stats.currentMonthProspects, growth: monthlyGrowth, sub1: 'Mes Pasado', val1: stats.lastMonthProspects, sub2: 'Seguimientos', val2: stats.currentMonthFollowUps },
+                      { icon: Trophy, color: 'text-green-500', label: 'Cierres de Mes', value: stats.currentMonthSales, sub1: 'Formalizados', val1: stats.currentMonthOnlyCierre, sub2: 'Apartados', val2: stats.currentMonthApartados },
+                      { icon: Coins, color: 'text-yellow-600', label: 'Ingresos (Neto)', value: formatCurrency(stats.currentMonthCommission), special: true, sub1: 'Cobrado', val1: formatCurrency(stats.currentMonthPaidCommission), sub2: 'Próximo Viernes', val2: formatCurrency(stats.thisFridayCommission) }
+                    ].map((s, i) => (
+                      <Card 
+                        key={i} 
+                        className={cn(
+                          "bg-card/40 border-primary/20 p-4 space-y-3 animate-entrance-stagger animate-staggered-periodic",
+                          s.special && stats.currentMonthCommission > 5000 && "border-primary/40 shadow-[0_0_15px_rgba(var(--primary),0.1)]"
+                        )}
+                        style={{ animationDelay: `${i * 0.15}s, ${i * 0.25}s` }}
+                      >
+                        <div className="flex justify-between items-start">
+                          <div className={cn("p-2 rounded-lg bg-muted/20", s.color)}><s.icon className="w-4 h-4" /></div>
+                          {s.tag && <span className="text-[10px] font-bold text-primary bg-primary/5 px-2 py-0.5 rounded-full border border-primary/10">{s.tag}</span>}
+                          {s.growth !== undefined && (
+                            <div className="flex items-center gap-1">
+                              {s.growth >= 0 ? <ArrowUpRight className="w-3 h-3 text-green-500"/> : <ArrowDownRight className="w-3 h-3 text-destructive"/>}
+                              <span className={cn("text-[10px] font-bold", s.growth >= 0 ? "text-green-500" : "text-destructive")}>{Math.abs(Math.round(s.growth))}%</span>
+                            </div>
+                          )}
                         </div>
-                        <div className="flex items-baseline gap-2">
-                          <p className="text-2xl font-black text-foreground">{formatCurrency(stats.totalCreditSold)}</p>
-                          <div className="flex items-center text-[10px] font-bold">
-                            {creditGrowth >= 0 ? <ArrowUpRight className="w-3 h-3 text-green-500 mr-0.5" /> : <ArrowDownRight className="w-3 h-3 text-destructive mr-0.5" />}
-                            <span className={creditGrowth >= 0 ? "text-green-500" : "text-destructive"}>{Math.abs(Math.round(creditGrowth))}%</span>
+                        <div>
+                          <p className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest">{s.label}</p>
+                          <p className={cn(
+                            "text-2xl font-black truncate",
+                            s.special && stats.currentMonthCommission > 5000 && "bg-gradient-to-r from-[#00F5FF] via-[#7B61FF] to-[#FF00D6] bg-clip-text text-transparent"
+                          )}>
+                            {s.value}
+                          </p>
+                        </div>
+                        <div className="grid grid-cols-1 gap-1 pt-2 border-t border-border/10">
+                          <div className="flex justify-between">
+                            <span className="text-[8px] font-bold text-muted-foreground uppercase">{s.sub1}</span>
+                            <span className="text-xs font-bold">{s.val1}</span>
                           </div>
+                          {s.sub2 && (
+                            <div className="flex justify-between">
+                              <span className="text-[8px] font-bold text-muted-foreground uppercase">{s.sub2}</span>
+                              <span className="text-xs font-bold">{s.val2}</span>
+                            </div>
+                          )}
                         </div>
-                        <p className="text-[9px] text-muted-foreground">Valor total formalizado este mes vs mes pasado ({formatCurrency(stats.lastMonthCreditSold)}).</p>
+                      </Card>
+                    ))}
+                  </div>
+
+                  <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 overflow-visible">
+                    <div className="xl:col-span-8 space-y-6 overflow-visible">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 overflow-visible">
+                        <div className="animate-entrance-stagger" style={{ animationDelay: '0.8s' }}>
+                          <WeeklyChart data={stats.charts.dailyActivity} title="Ciclo Actual" icon={CalendarDays} />
+                        </div>
+                        <div className="animate-entrance-stagger" style={{ animationDelay: '0.9s' }}>
+                          <WeeklyChart data={stats.charts.lastWeekActivity} title="Ciclo Anterior" icon={History} opacity={0.65} />
+                        </div>
                       </div>
                       
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <Percent className="w-4 h-4" />
-                          <span className="text-[10px] font-bold uppercase">Participación Media</span>
+                      <Card className="bg-card border-border/40 overflow-hidden animate-entrance-stagger" style={{ animationDelay: '1s' }}>
+                        <CardHeader className="bg-muted/30 p-4 border-b">
+                          <div className="flex items-center gap-2">
+                            <Zap className="w-4 h-4 text-yellow-500" />
+                            <CardTitle className="text-xs font-bold uppercase tracking-wider">Insights</CardTitle>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="p-6 grid grid-cols-1 md:grid-cols-3 gap-8">
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <Target className="w-4 h-4" />
+                              <span className="text-[10px] font-bold uppercase">Crédito Vendido</span>
+                            </div>
+                            <div className="flex items-baseline gap-2">
+                              <p className="text-2xl font-black text-foreground">{formatCurrency(stats.totalCreditSold)}</p>
+                              <div className="flex items-center text-[10px] font-bold">
+                                {creditGrowth >= 0 ? <ArrowUpRight className="w-3 h-3 text-green-500 mr-0.5" /> : <ArrowDownRight className="w-3 h-3 text-destructive mr-0.5" />}
+                                <span className={creditGrowth >= 0 ? "text-green-500" : "text-destructive"}>{Math.abs(Math.round(creditGrowth))}%</span>
+                              </div>
+                            </div>
+                            <p className="text-[9px] text-muted-foreground">Total formalizado vs mes pasado ({formatCurrency(stats.lastMonthCreditSold)}).</p>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <Percent className="w-4 h-4" />
+                              <span className="text-[10px] font-bold uppercase">Participación Media</span>
+                            </div>
+                            <p className="text-2xl font-black text-primary">{stats.avgParticipation}%</p>
+                            <p className="text-[9px] text-muted-foreground">Porcentaje de comisión promedio sobre el volumen total.</p>
+                          </div>
+
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <Receipt className="w-4 h-4" />
+                              <span className="text-[10px] font-bold uppercase">Impacto Fiscal</span>
+                            </div>
+                            <p className="text-2xl font-black text-destructive">{formatCurrency(taxImpact)}</p>
+                            <p className="text-[9px] text-muted-foreground">Monto proyectado retenido por el impuesto del 9%.</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    <div className="xl:col-span-4 space-y-6 animate-entrance-stagger" style={{ animationDelay: '1.1s' }}>
+                      <PerformanceSection />
+                      
+                      <Card className="border-accent/20 bg-accent/5 relative overflow-hidden h-fit">
+                        <div className="absolute top-0 right-0 p-4 opacity-10">
+                          <Lightbulb className="w-24 h-24 rotate-12" />
                         </div>
-                        <p className="text-2xl font-black text-primary">{stats.avgParticipation}%</p>
-                        <p className="text-[9px] text-muted-foreground">Tu porcentaje de comisión promedio sobre el volumen total.</p>
-                      </div>
+                        <CardHeader className="p-4 pb-0 flex flex-row items-center gap-2 relative z-10">
+                          <Zap className="w-4 h-4 text-accent animate-bounce" />
+                          <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-accent/80">Sugerencia Estratégica</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-4 pt-2 relative z-10">
+                          <p className="text-sm text-foreground/90 leading-relaxed font-bold border-l-2 border-accent/30 pl-3">
+                            {getAdvice()}
+                          </p>
+                        </CardContent>
+                      </Card>
 
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <Receipt className="w-4 h-4" />
-                          <span className="text-[10px] font-bold uppercase">Impacto Fiscal</span>
+                      <Card className="bg-primary/5 border-primary/20 p-6 flex items-center gap-4">
+                        <div className="bg-primary/20 p-3 rounded-2xl">
+                          <Activity className="w-8 h-8 text-primary" />
                         </div>
-                        <p className="text-2xl font-black text-destructive">{formatCurrency(taxImpact)}</p>
-                        <p className="text-[9px] text-muted-foreground">Monto aproximado retenido por el impuesto del 9%.</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                <div className="xl:col-span-4 space-y-6 animate-entrance-stagger" style={{ animationDelay: '0.8s' }}>
-                  <PerformanceSection />
-                  
-                  <Card className="border-accent/20 bg-accent/5 relative overflow-hidden h-fit">
-                    <div className="absolute top-0 right-0 p-4 opacity-10">
-                      <Lightbulb className="w-24 h-24 rotate-12" />
+                        <div>
+                          <p className="text-[9px] uppercase font-bold text-muted-foreground">Meta Mensual</p>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-2xl font-black">{stats.currentMonthSales} / {MONTHLY_GOAL}</span>
+                            <span className="text-xs font-bold text-primary">+{Math.round((stats.currentMonthSales / MONTHLY_GOAL) * 100)}%</span>
+                          </div>
+                          <Progress value={(stats.currentMonthSales / MONTHLY_GOAL) * 100} className="h-1.5 mt-2" />
+                        </div>
+                      </Card>
                     </div>
-                    <CardHeader className="p-4 pb-0 flex flex-row items-center gap-2 relative z-10">
-                      <Zap className="w-4 h-4 text-accent animate-bounce" />
-                      <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-accent/80">Sugerencia Estratégica</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-4 pt-2 relative z-10">
-                      <p className="text-sm text-foreground/90 leading-relaxed font-bold border-l-2 border-accent/30 pl-3">
-                        {getAdvice()}
-                      </p>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="bg-primary/5 border-primary/20 p-6 flex items-center gap-4">
-                    <div className="bg-primary/20 p-3 rounded-2xl">
-                      <Activity className="w-8 h-8 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-[9px] uppercase font-bold text-muted-foreground">Meta Mensual</p>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-2xl font-black">{stats.currentMonthSales} / {MONTHLY_GOAL}</span>
-                        <span className="text-xs font-bold text-primary">+{Math.round((stats.currentMonthSales / MONTHLY_GOAL) * 100)}%</span>
-                      </div>
-                      <Progress value={(stats.currentMonthSales / MONTHLY_GOAL) * 100} className="h-1.5 mt-2" />
-                    </div>
-                  </Card>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </>
+          ) : null}
         </DialogContent>
       </Dialog>
     </>

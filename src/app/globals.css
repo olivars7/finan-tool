@@ -215,6 +215,17 @@
   90% { background-color: hsla(var(--primary) / 0.08); }
 }
 
+@keyframes intro-zoom-fade {
+  0% { opacity: 0; transform: scale(0.9); filter: blur(10px); }
+  20% { opacity: 1; transform: scale(1); filter: blur(0); }
+  80% { opacity: 1; transform: scale(1.05); filter: blur(0); }
+  100% { opacity: 0; transform: scale(1.1); filter: blur(10px); }
+}
+
+.animate-intro-text {
+  animation: intro-zoom-fade 2.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 .animate-entrance-stagger {
   animation: stats-box-entrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
