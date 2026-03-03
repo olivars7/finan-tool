@@ -5,33 +5,6 @@
 @layer base {
   :root {
     color-scheme: light;
-    --background: 210 60% 96%; /* Azul Glacial base */
-    --foreground: 222 47% 11%;
-    --card: 0 0% 100% / 0.7;
-    --card-foreground: 222 47% 15%;
-    --popover: 0 0% 100% / 0.8;
-    --popover-foreground: 222 47% 15%;
-    --primary: 142 76% 36%; /* Verde Bosque */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 210 50% 88%; /* Azul Riel / Gestión de citas */
-    --secondary-foreground: 222 47% 15%;
-    --muted: 210 30% 94%;
-    --muted-foreground: 210 40% 30%; /* Azul para texto secundario */
-    --accent: 45 100% 50%; /* Amarillo Oro */
-    --accent-foreground: 222 47% 10%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 210 30% 85%;
-    --input: 210 30% 85%;
-    --ring: 210 60% 50%; /* Ring Azul */
-    --radius: 0.75rem;
-    --calendar-filter: none;
-    --font-body: 'Inter', sans-serif;
-    --font-headline: 'Inter', sans-serif;
-  }
-
-  [data-theme="corporativo-v2"] {
-    color-scheme: light;
     --background: 210 17% 96%; /* Facebook background #F0F2F5 */
     --foreground: 222 13% 1%;
     --card: 0 0% 100% / 1;
@@ -150,28 +123,6 @@
     --radius: 0.5rem;
     --calendar-filter: invert(1);
   }
-
-  [data-theme="gelido"] {
-    color-scheme: dark;
-    --background: 210 40% 10%;
-    --foreground: 210 20% 95%;
-    --card: 210 40% 15% / 0.5;
-    --card-foreground: 210 20% 95%;
-    --popover: 210 40% 12% / 0.6;
-    --popover-foreground: 210 20% 95%;
-    --primary: 190 100% 50%; /* Cyan Glacial */
-    --primary-foreground: 210 40% 5%;
-    --secondary: 210 40% 28%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 210 40% 18%;
-    --muted-foreground: 190 40% 80%;
-    --accent: 200 100% 60%; /* Azul Frío */
-    --accent-foreground: 210 40% 5%;
-    --border: 190 100% 30% / 0.3;
-    --ring: 190 100% 50%;
-    --radius: 1rem;
-    --calendar-filter: invert(1);
-  }
 }
 
 @layer base {
@@ -193,16 +144,13 @@
     backdrop-filter: blur(16px) !important;
   }
 
-  [data-theme="corporativo"] [role="dialog"]:not([data-calculator-dialog="true"]):not([data-appointments-dialog="true"]),
-  [data-theme="corporativo"] [role="status"]:not(.destructive),
-  :root:not([data-theme]) [role="dialog"]:not([data-calculator-dialog="true"]):not([data-appointments-dialog="true"]),
-  :root:not([data-theme]) [role="status"]:not(.destructive) {
+  :root [role="dialog"]:not([data-calculator-dialog="true"]):not([data-appointments-dialog="true"]),
+  :root [role="status"]:not(.destructive) {
     background-color: rgba(230, 242, 255, 0.85) !important;
     @apply border-border shadow-xl !important;
   }
 
-  [data-theme="corporativo"] [role="status"].destructive,
-  :root:not([data-theme]) [role="status"].destructive {
+  :root [role="status"].destructive {
     background-color: hsla(var(--destructive) / 0.15) !important;
     border-color: hsl(var(--destructive)) !important;
     color: hsl(var(--destructive)) !important;
@@ -210,10 +158,8 @@
     @apply shadow-lg !important;
   }
 
-  [data-theme="corporativo"] [role="status"].destructive p,
-  [data-theme="corporativo"] [role="status"].destructive div,
-  :root:not([data-theme]) [role="status"].destructive p,
-  :root:not([data-theme]) [role="status"].destructive div {
+  :root [role="status"].destructive p,
+  :root [role="status"].destructive div {
     color: hsl(var(--destructive)) !important;
   }
 

@@ -63,7 +63,7 @@ import { cn } from "@/lib/utils";
 import * as Service from '@/services/appointment-service';
 import { isBefore } from 'date-fns';
 
-type Theme = 'corporativo' | 'tranquilo' | 'moderno' | 'discreto' | 'olivares' | 'gelido' | 'corporativo-v2';
+type Theme = 'tranquilo' | 'moderno' | 'discreto' | 'olivares' | 'corporativo-v2';
 
 const APP_TIPS = [
   { icon: Calculator, title: "Calculadora Rápida", color: "text-primary", text: "Usa la calculadora rapida en caso de tener una llamada con un interesado que pregunte montos aproximados." },
@@ -71,7 +71,7 @@ const APP_TIPS = [
   { icon: ShieldCheck, title: "Seguridad de Datos", color: "text-destructive", text: "Recuerda, tus citas se guardan localmente para tu privacidad." },
   { icon: Sparkles, title: "IA Integrada", color: "text-yellow-500", text: "IA para automatización de mensajes personalizados y seguimiento de cierres." },
   { icon: Maximize2, title: "Modo Presentación", color: "text-primary", text: "Usa el icono de expansión para mostrar los números al cliente de forma limpia y profesional." },
-  { icon: Palette, title: "Imagen Corporativa", color: "text-accent", text: "Usa el tema <<corporativo>> para mostrar pantalla a tus clientes presenciales." },
+  { icon: Palette, title: "Imagen Corporativa", color: "text-accent", text: "Usa el tema <<Corporativo V2>> para mostrar pantalla a tus clientes presenciales." },
   { icon: Copy, title: "Envío a WhatsApp", color: "text-green-500", text: "Copia los datos de cada cliente para mandarlos por el grupo de WhatsApp rápidamente." }
 ];
 
@@ -88,7 +88,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
   const [isGestorExpanded, setIsGestorExpanded] = useState(initialSection === 'gestor');
   const [isStatsExpanded, setIsStatsExpanded] = useState(initialSection === 'stats');
   const [selectedAppId, setSelectedAppId] = useState<string | null>(null);
-  const [theme, setTheme] = useState<Theme>('corporativo');
+  const [theme, setTheme] = useState<Theme>('corporativo-v2');
   const [api, setApi] = useState<CarouselApi>();
   const [timerKey, setTimerKey] = useState(0);
   
@@ -126,10 +126,10 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('finanto-theme') as Theme;
-    if (savedTheme) {
+    if (savedTheme && ['tranquilo', 'moderno', 'discreto', 'olivares', 'corporativo-v2'].includes(savedTheme)) {
       applyTheme(savedTheme);
     } else {
-      applyTheme('corporativo');
+      applyTheme('corporativo-v2');
     }
 
     if (!initialSection) {
@@ -140,17 +140,38 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
     }
   }, [initialSection]);
 
+  // Manejo de retroceder página
+  useEffect(() => {
+    const handlePopState = () => {
+      setShowHelp(false);
+      setIsSimulatorExpanded(false);
+      setIsGestorExpanded(false);
+      setIsStatsExpanded(false);
+      setSelectedAppId(null);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   useEffect(() => {
     if (showHelp) {
       document.title = "Manual de Inicio - Finanto";
+      window.history.pushState({ section: 'guia' }, '', '/guia');
     } else if (isSimulatorExpanded) {
       document.title = "Simulador - Finanto";
+      window.history.pushState({ section: 'simulador' }, '', '/simulador');
     } else if (isGestorExpanded) {
       document.title = "Gestor - Finanto";
+      window.history.pushState({ section: 'gestor' }, '', '/gestor');
     } else if (isStatsExpanded) {
       document.title = "Estadísticas - Finanto";
+      window.history.pushState({ section: 'stats' }, '', '/stats');
     } else {
       document.title = "Finanto - Gestión Inmobiliaria";
+      if (window.location.pathname !== '/') {
+        window.history.pushState(null, '', '/');
+      }
     }
   }, [showHelp, isSimulatorExpanded, isGestorExpanded, isStatsExpanded]);
 
@@ -251,7 +272,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
   const applyTheme = (themeId: Theme) => {
     setTheme(themeId);
     document.documentElement.setAttribute('data-theme', themeId);
-    if (themeId === 'corporativo' || themeId === 'corporativo-v2') {
+    if (themeId === 'corporativo-v2') {
       document.documentElement.classList.remove('dark');
     } else {
       document.documentElement.classList.add('dark');
@@ -442,20 +463,18 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="icon" className="w-9 h-9 rounded-full bg-muted border border-border overflow-hidden">
-                  {theme === 'moderno' ? <Cpu className="w-5 h-5 text-primary" /> : theme === 'corporativo' ? <Sun className="w-5 h-5 text-primary" /> : theme === 'discreto' ? <Moon className="w-5 h-5 text-primary" /> : theme === 'olivares' ? <Crown className="w-5 h-5 text-primary" /> : theme === 'gelido' ? <Snowflake className="w-5 h-5 text-primary" /> : theme === 'corporativo-v2' ? <MessageSquare className="w-5 h-5 text-primary" /> : <Palette className="w-5 h-5 text-primary" />}
+                  {theme === 'moderno' ? <Cpu className="w-5 h-5 text-primary" /> : theme === 'discreto' ? <Moon className="w-5 h-5 text-primary" /> : theme === 'olivares' ? <Crown className="w-5 h-5 text-primary" /> : theme === 'corporativo-v2' ? <MessageSquare className="w-5 h-5 text-primary" /> : <Palette className="w-5 h-5 text-primary" />}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 backdrop-blur-lg">
                 <DropdownMenuLabel>Temas Visuales</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {[
-                  { id: 'corporativo', label: 'Corporativo', icon: Sun, color: 'bg-blue-600' },
                   { id: 'corporativo-v2', label: 'Corporativo V2', icon: MessageSquare, color: 'bg-[#1877F2]' },
                   { id: 'tranquilo', label: 'Tranquilo', icon: Palette, color: 'bg-primary' },
                   { id: 'moderno', label: 'Moderno', icon: Cpu, color: 'bg-cyan-500' },
                   { id: 'discreto', label: 'Discreto', icon: Moon, color: 'bg-slate-700' },
                   { id: 'olivares', label: 'Olivares', icon: Crown, color: 'bg-yellow-600' },
-                  { id: 'gelido', label: 'Gélido', icon: Snowflake, color: 'bg-blue-300' },
                 ].map((t) => (
                   <DropdownMenuItem key={t.id} onClick={() => handleThemeChange(t.id as Theme)} className="cursor-pointer">
                     <t.icon className="w-4 h-4 text-muted-foreground mr-2" />
@@ -687,7 +706,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
                 <div className="pl-7 space-y-3 text-sm text-muted-foreground border-l-4 border-primary/40 bg-primary/5 p-4 rounded-r-xl">
                   <p>Finanto ofrece dos niveles de análisis para tus clientes:</p>
                   <ul className="list-disc pl-4 space-y-2">
-                    <li><strong>Calculadora Rápida:</strong> Ideal para llamadas telefónicas. Ingresa solo el monto del crédito para obtener mensualidad e ingreso requerido al instante.</li>
+                    <li><strong>Calculadora Rápida:</strong> Ideal para llamadas telefónicas. Ingresa solo el monto del crédito para obtener mensualidad al instante.</li>
                     <li><strong>Simulador Expandido:</strong> Usa el icono <Maximize2 className="inline w-3 h-3" /> para entrar en modo profesional. Aquí podrás ajustar:
                       <ul className="pl-4 mt-1 list-circle space-y-1">
                         <li><strong>Enganche adicional:</strong> Para clientes que desean abonar más del 3% base.</li>
@@ -874,7 +893,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
               const app = celebrationApp;
               setCelebrationApp(null);
               if (app) onSelectAppId(app.id);
-            }} className="w-full h-14 bg-white text-green-700 hover:bg-green-50 font-black text-lg rounded-2xl shadow-2xl gap-2 relative z-10" type="button">
+            }} className="w-full h-14 bg-white text-green-700 hover:bg-blue-50 font-black text-lg rounded-2xl shadow-2xl gap-2 relative z-10" type="button">
               <PartyIcon className="w-5 h-5" /> ¡A POR EL SIGUIENTE CIERRE!
             </Button>
           </div>

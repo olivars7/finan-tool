@@ -16,14 +16,13 @@ export function useAppointments() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Carga inicial única
+  // Carga inicial única - No aplica seeds automáticamente por primera vez
   useEffect(() => {
     const stored = localStorage.getItem(KEY);
     if (stored) {
       setAppointments(JSON.parse(stored));
     } else {
-      const seed = Service.generateSeedData();
-      setAppointments(seed);
+      setAppointments([]);
     }
     setIsLoaded(true);
   }, []);

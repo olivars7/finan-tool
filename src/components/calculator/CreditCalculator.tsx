@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -148,16 +147,6 @@ export default function CreditCalculator({ initialExpanded = false, onExpandedCh
     onExpandedChange?.(isExpanded);
   }, [isExpanded, onExpandedChange]);
 
-  useEffect(() => {
-    if (isExpanded) {
-      window.history.pushState(null, '', '/simulador');
-    } else {
-      if (window.location.pathname === '/simulador') {
-        window.history.pushState(null, '', '/');
-      }
-    }
-  }, [isExpanded]);
-
   const parseNumber = (val: string) => {
     return Math.round(parseFloat(val.replace(/,/g, ''))) || 0;
   };
@@ -264,9 +253,6 @@ export default function CreditCalculator({ initialExpanded = false, onExpandedCh
   const netLiquidCredit = netFinancing > 0 ? netFinancing - totalOperatingExpenses : 0;
   const suggestedLivingBudget = minIncomeRequired > 0 ? minIncomeRequired - totalMonthlyLoad : 0;
 
-  // Lógica de reducción de plazo:
-  // El costo total del crédito sin aportaciones es baseMonthly * currentTerm.
-  // Con aportaciones, el plazo se reduce proporcionalmente a la carga de pago total.
   const projectedReducedTerm = currentExtraMonthly > 0 
     ? Math.ceil((baseMonthly * currentTerm) / totalMonthlyLoad)
     : currentTerm;
@@ -375,25 +361,6 @@ export default function CreditCalculator({ initialExpanded = false, onExpandedCh
               <span className="text-[10px] font-bold text-primary">{formatCurrency(totalDownPayment)}</span>
             </div>
             <Progress value={Math.min(100, (totalDownPayment / (rawP || 1)) * 100)} className="h-2 bg-secondary" />
-          </div>
-
-          <div className="p-4 rounded-xl bg-accent/10 border border-accent/20 backdrop-blur-sm">
-            <div className="flex items-center gap-3">
-              <div className="bg-accent/20 p-2 rounded-lg">
-                <UserCheck className="w-5 h-5 text-accent" />
-              </div>
-              <div className="space-y-0.5">
-                <span className="text-[10px] text-accent uppercase font-bold flex items-center gap-1">
-                  Ingreso mensual comprobable
-                </span>
-                <p className="text-xl font-bold text-foreground">
-                  {formatCurrency(minIncomeRequired)}
-                </p>
-                <p className="text-[10px] text-muted-foreground leading-none">
-                  * Basado en un ratio de endeudamiento del 35%.
-                </p>
-              </div>
-            </div>
           </div>
 
           <div className="pt-2 flex flex-col md:flex-row items-center justify-between gap-4">
