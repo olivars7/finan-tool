@@ -18,7 +18,8 @@ import {
   RotateCcw,
   Coins,
   Calendar,
-  Percent
+  Percent,
+  UserCheck
 } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -186,26 +187,42 @@ export default function PastAppointments({
                     <TableCell className="align-middle pl-4">
                       <div className="flex items-center gap-2">
                         <div className="font-bold text-sm text-foreground">{app.name}</div>
-                        {app.prospectorName && (
-                          <TooltipProvider delayDuration={0}>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <div className="p-1 rounded-md bg-blue-500/10 hover:bg-blue-500/20 transition-colors cursor-help">
-                                  <UserCog className="w-3.5 h-3.5 text-blue-500" />
-                                </div>
-                              </TooltipTrigger>
-                              <TooltipContent className="z-[170] shadow-xl border-border bg-card p-3">
-                                <div className="space-y-1">
-                                  <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest">Prospectado por:</p>
-                                  <p className="text-xs font-black text-blue-600">{app.prospectorName}</p>
-                                  {app.prospectorPhone && (
-                                    <p className="text-[10px] font-mono text-muted-foreground font-semibold">{app.prospectorPhone}</p>
-                                  )}
-                                </div>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        )}
+                        <div className="flex gap-1">
+                          {app.prospectorName && (
+                            <TooltipProvider delayDuration={0}>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="p-1 rounded-md bg-blue-500/10 hover:bg-blue-500/20 transition-colors cursor-help">
+                                    <UserCog className="w-3.5 h-3.5 text-blue-500" />
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent className="z-[170] shadow-xl border-border bg-card p-3">
+                                  <div className="space-y-1">
+                                    <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest">Prospectado por:</p>
+                                    <p className="text-xs font-black text-blue-600">{app.prospectorName}</p>
+                                  </div>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
+                          {app.attendingExecutive && (
+                            <TooltipProvider delayDuration={0}>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="p-1 rounded-md bg-purple-500/10 hover:bg-purple-500/20 transition-colors cursor-help">
+                                    <UserCheck className="w-3.5 h-3.5 text-purple-500" />
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent className="z-[170] shadow-xl border-border bg-card p-3">
+                                  <div className="space-y-1">
+                                    <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest">Atendido por:</p>
+                                    <p className="text-xs font-black text-purple-600">{app.attendingExecutive}</p>
+                                  </div>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
+                        </div>
                       </div>
                       {!expanded && (
                         <div className="text-[10px] text-muted-foreground inline-flex items-center gap-1 mt-0.5">

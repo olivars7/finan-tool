@@ -54,6 +54,8 @@ export interface Appointment {
   // Datos de prospectador externo
   prospectorName?: string;
   prospectorPhone?: string;
+  // Ejecutivo que atendió
+  attendingExecutive?: string;
 }
 
 export const STORAGE_KEY = 'FINANTO_DATA_V1.1_50SEED';
@@ -195,6 +197,7 @@ export const generateSeedData = (): Appointment[] => {
       commissionStatus: isSale ? (i % 2 === 0 ? 'Pagada' : 'Pendiente') : undefined,
       commissionPercent: isSale ? (i % 3 === 0 ? 50 : 100) : undefined,
       finalCreditAmount: isSale ? Math.floor(800000 + Math.random() * 2500000) : undefined,
+      attendingExecutive: i % 10 === 0 ? 'Ejecutivo Externo' : undefined
     });
   }
   

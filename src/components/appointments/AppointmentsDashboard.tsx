@@ -83,8 +83,6 @@ const DashboardContent = ({
   searchTerm,
   onCelebrate
 }: DashboardContentProps) => {
-  const [view, setView] = useState<"activas" | "archivadas">("activas");
-
   const normalizeStr = (str: string) => {
     return str.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
   };
@@ -92,8 +90,8 @@ const DashboardContent = ({
   const today = startOfDay(new Date());
 
   const filteredList = appointments.filter(a => {
-    const matchesView = view === "activas" ? !a.isArchived : a.isArchived;
-    if (!matchesView) return false;
+    // El gestor ahora solo muestra citas NO archivadas
+    if (a.isArchived) return false;
 
     if (!searchTerm) return true;
     const s = normalizeStr(searchTerm);
@@ -154,25 +152,6 @@ const DashboardContent = ({
               Historial ({filteredPast.length})
             </TabsTrigger>
           </TabsList>
-
-          <div className="flex items-center gap-2 bg-muted/30 p-1 rounded-lg border border-border/40">
-            <Button 
-              variant={view === "activas" ? "secondary" : "ghost"} 
-              size="sm" 
-              onClick={() => setView("activas")}
-              className="h-8 text-[10px] font-bold uppercase gap-2"
-            >
-              <Inbox className="w-3.5 h-3.5" /> Activas
-            </Button>
-            <Button 
-              variant={view === "archivadas" ? "secondary" : "ghost"} 
-              size="sm" 
-              onClick={() => setView("archivadas")}
-              className="h-8 text-[10px] font-bold uppercase gap-2"
-            >
-              <Archive className="w-3.5 h-3.5" /> Archivadas
-            </Button>
-          </div>
         </div>
 
         {expanded && (

@@ -22,7 +22,7 @@ import {
   User, Phone, Clock, Edit2, Save, Copy, ClipboardList, 
   CheckCircle2, Box, CalendarPlus, Receipt, Coins, 
   CalendarDays, UserCog, ChevronDown, History as HistoryIcon, 
-  Info, Trash2, Archive 
+  Info, Trash2, Archive, UserCheck
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { parseISO, format, isToday, isTomorrow, isYesterday, differenceInCalendarDays, startOfDay } from 'date-fns';
@@ -133,6 +133,9 @@ export default function AppointmentDetailsDialog({
       type: newType,
       product: newProduct,
       notes: newNotes,
+      prospectorName: appointment.prospectorName,
+      prospectorPhone: appointment.prospectorPhone,
+      attendingExecutive: appointment.attendingExecutive
     });
 
     setIsRescheduling(false);
@@ -359,6 +362,16 @@ Hora: ${timeBold}${confirmedBold}`;
                   </div>
                 )}
               </div>
+
+              <div className="space-y-1">
+                <Label className="text-[10px] font-bold uppercase text-muted-foreground">Ejecutivo que atendió</Label>
+                <Input 
+                  value={editData.attendingExecutive || ''} 
+                  onChange={e => setEditData({...editData, attendingExecutive: e.target.value})} 
+                  className="h-8 bg-muted/20 text-sm" 
+                  placeholder="Opcional..."
+                />
+              </div>
               
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
@@ -437,7 +450,13 @@ Hora: ${timeBold}${confirmedBold}`;
                 <div className="p-2 bg-primary/10 rounded-lg"><User className="w-4 h-4 text-primary" /></div>
                 <div className="flex-1">
                   <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-widest">Cliente</p>
-                  <p className="text-sm font-bold">{appointment.name}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-bold">{appointment.name}</p>
+                    <div className="flex gap-1">
+                      {appointment.prospectorName && <UserCog className="w-3 h-3 text-blue-500" />}
+                      {appointment.attendingExecutive && <UserCheck className="w-3 h-3 text-purple-500" />}
+                    </div>
+                  </div>
                 </div>
               </div>
               
@@ -502,6 +521,16 @@ Hora: ${timeBold}${confirmedBold}`;
                       <Copy className="h-3.5 h-3.5" />
                     </Button>
                   )}
+                </div>
+              )}
+
+              {appointment.attendingExecutive && (
+                <div className="flex items-center gap-3 border-t border-border/10 pt-3">
+                  <div className="p-2 bg-purple-500/10 rounded-lg"><UserCheck className="w-4 h-4 text-purple-500" /></div>
+                  <div className="flex-1">
+                    <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-widest">Atendido por</p>
+                    <p className="text-xs font-bold">{appointment.attendingExecutive}</p>
+                  </div>
                 </div>
               )}
 
@@ -703,7 +732,7 @@ Hora: ${timeBold}${confirmedBold}`;
                 Programar Seguimiento
               </DialogTitle>
               <DialogDescription className="text-xs">
-                Agendando seguimiento para <strong>{newName}</strong>.
+                Agendando seguimiento para <strong>{newName}</strong>. Se heredarán prospectadores y ejecutivos anteriores.
               </DialogDescription>
             </DialogHeader>
             
