@@ -58,7 +58,7 @@ export default function TrashDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] bg-card border-border shadow-2xl z-[70]">
+      <DialogContent className="sm:max-w-[700px] bg-card border-border shadow-2xl">
         <DialogHeader>
           <div className="flex items-center gap-2">
             <Trash2 className="w-5 h-5 text-muted-foreground" />
@@ -103,7 +103,7 @@ export default function TrashDialog({
                               size="icon" 
                               variant="ghost" 
                               className="h-8 w-8 text-primary hover:bg-primary/10"
-                              onClick={() => handleRestore(app.id, app.name)}
+                              onClick={(e) => { e.stopPropagation(); handleRestore(app.id, app.name); }}
                               title="Restaurar"
                             >
                               <RotateCcw className="h-4 w-4" />
@@ -112,7 +112,7 @@ export default function TrashDialog({
                               size="icon" 
                               variant="ghost" 
                               className="h-8 w-8 text-destructive hover:bg-destructive/10"
-                              onClick={() => handlePermanentDelete(app.id, app.name)}
+                              onClick={(e) => { e.stopPropagation(); handlePermanentDelete(app.id, app.name); }}
                               title="Borrar permanentemente"
                             >
                               <Trash2 className="h-4 w-4" />

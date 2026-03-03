@@ -169,7 +169,6 @@ export default function PastAppointments({
                 const paymentDate = getCommissionPaymentDate(app.date);
                 const isCommissionOverdue = isPending && isBefore(paymentDate, new Date());
 
-                // Cálculo con retención del 9% de impuesto
                 const commissionValue = isCierre 
                   ? ((app.finalCreditAmount || 0) * 0.007 * ((app.commissionPercent || 0) / 100)) * 0.91
                   : 0;
@@ -302,7 +301,7 @@ export default function PastAppointments({
                             </div>
                           </TooltipTrigger>
                           {isCierre && (
-                            <TooltipContent side="top" className="bg-card border-border shadow-xl p-3 min-w-[180px] z-[100]">
+                            <TooltipContent side="top" className="bg-card border-border shadow-xl p-3 min-w-[180px] z-[170]">
                               <div className="space-y-2">
                                 <div className="flex items-center justify-between border-b border-border/10 pb-1">
                                   <span className="text-[8px] uppercase font-bold text-muted-foreground tracking-widest">Detalle Financiero (Neto)</span>
@@ -395,7 +394,7 @@ export default function PastAppointments({
       )}
 
       <AlertDialog open={!!archiveConfirmId} onOpenChange={(o) => !o && setArchiveConfirmId(null)}>
-        <AlertDialogContent className="z-[85]">
+        <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>¿Archivar registro?</AlertDialogTitle>
             <AlertDialogDescription>
