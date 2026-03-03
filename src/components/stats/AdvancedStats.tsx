@@ -71,6 +71,10 @@ const chartConfig = {
     label: "Atendidas",
     color: "hsl(var(--accent))",
   },
+  cierres: {
+    label: "Cierres",
+    color: "hsl(142 70% 45%)",
+  },
 } satisfies ChartConfig;
 
 export default function AdvancedStats({ stats, initialExpanded = false, onExpandedChange }: AdvancedStatsProps) {
@@ -127,7 +131,7 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
             </TooltipTrigger>
             <TooltipContent className="text-[10px] max-w-[200px] bg-card border-border shadow-xl p-3 z-[100]" side="top">
               <p className="font-bold mb-1 uppercase text-primary">Ciclo Miércoles a Martes</p>
-              Compara citas agendadas contra citas con resultado real (excluyendo inasistencias).
+              Compara citas agendadas, clientes que asistieron y cierres finales por día.
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -148,8 +152,9 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
               domain={[0, stats.charts.globalMax + 1]} 
             />
             <ChartTooltip content={<ChartTooltipContent />} />
-            <Bar dataKey="agendadas" name="Agendadas" fill="var(--color-agendadas)" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="atendidas" name="Atendidas" fill="var(--color-atendidas)" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="agendadas" name="Agendadas" fill="var(--color-agendadas)" radius={[2, 2, 0, 0]} />
+            <Bar dataKey="atendidas" name="Atendidas" fill="var(--color-atendidas)" radius={[2, 2, 0, 0]} />
+            <Bar dataKey="cierres" name="Cierres" fill="var(--color-cierres)" radius={[2, 2, 0, 0]} />
           </BarChart>
         </ChartContainer>
       </CardContent>

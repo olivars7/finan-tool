@@ -322,15 +322,19 @@ export const calculateStats = (appointments: Appointment[]) => {
         a.status && 
         a.status !== 'No asistencia'
       ).length;
-      return { day: dayStr, agendadas, atendidas };
+      const cierres = activeApps.filter(a => 
+        isSameDay(parseISO(a.date), day) && 
+        a.status === 'Cierre'
+      ).length;
+      return { day: dayStr, agendadas, atendidas, cierres };
     });
   };
 
   const dailyActivity = buildCycleData(currentCycleStart, currentCycleEnd);
   const lastWeekActivity = buildCycleData(lastCycleStart, lastCycleEnd);
 
-  // Encontrar el valor máximo global para sincronizar ejes
-  const allVals = [...dailyActivity, ...lastWeekActivity].flatMap(d => [d.agendadas, d.atendidas]);
+  // Encontrar el valor máximo global para sincronizar ejes considerando las 3 variables
+  const allVals = [...dailyActivity, ...lastWeekActivity].flatMap(d => [d.agendadas, d.atendidas, d.cierres]);
   const globalMax = Math.max(0, ...allVals);
 
   return {
