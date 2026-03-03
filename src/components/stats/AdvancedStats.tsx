@@ -104,7 +104,6 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
     onExpandedChange?.(isExpanded);
     if (isExpanded) {
       window.history.pushState(null, '', '/stats');
-      // Iniciar secuencia cinematográfica
       setShowIntro(true);
       setShowContent(false);
       const introTimer = setTimeout(() => {
@@ -125,7 +124,6 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
   const creditGrowth = stats.lastMonthCreditSold > 0 ? ((stats.totalCreditSold - stats.lastMonthCreditSold) / stats.lastMonthCreditSold) * 100 : 0;
   const taxImpact = stats.currentMonthCommission / 0.91 * 0.09;
 
-  // Cierre mensual fijo en 5
   const MONTHLY_GOAL = 5;
 
   const formatCurrency = (val: number) => {
@@ -137,18 +135,16 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
   };
 
   const getAdvice = () => {
-    if (stats.conversionRate > 20) return "Sugerencia: Tu tasa de cierre es excepcional. Es el momento de ser más selectivo: enfócate en captar perfiles de crédito más alto para maximizar tu retorno.";
-    if (stats.conversionRate < 8) return "Sugerencia: La conversión está por debajo del promedio. Revisa la calificación de prospectos en la primera llamada; necesitas filtrar mejor antes de agendar.";
-    if (stats.currentMonthFollowUps > 5) return "Sugerencia: Tienes un volumen alto de prospectos en seguimiento. Prioriza las llamadas de cierre hoy para evitar que el interés se enfríe.";
-    if (stats.todayCount > 0 && (stats.todayConfirmed / stats.todayCount) < 0.6) return "Sugerencia: Baja tasa de asistencia hoy. Implementa recordatorios por WhatsApp 2 horas antes de cada cita para asegurar el compromiso.";
-    if (stats.currentMonthCommission > 15000) return "Sugerencia: Resultados financieros sobresalientes. Te sugerimos reinvertir un porcentaje en pauta digital para escalar tu volumen el próximo mes.";
-    if (stats.currentMonthApartados > stats.currentMonthOnlyCierre * 2) return "Sugerencia: Tienes muchos apartados pendientes de formalizar. Enfoca tu semana en el área operativa para empujar esas firmas y liberar flujo de efectivo.";
-    return "Sugerencia: Tu ritmo operativo es estable. Mantén el hábito estricto de registrar cada acuerdo en notas para asegurar una transición impecable hacia el cierre.";
+    if (stats.conversionRate > 20) return "Tu tasa de cierre es excepcional. Es el momento de ser más selectivo: enfócate en captar perfiles de crédito más alto.";
+    if (stats.conversionRate < 8) return "La conversión está baja. Revisa la calificación de prospectos en la primera llamada antes de agendar.";
+    if (stats.currentMonthFollowUps > 5) return "Volumen alto de seguimientos. Prioriza las llamadas de cierre hoy para evitar que el interés se enfríe.";
+    if (stats.todayCount > 0 && (stats.todayConfirmed / stats.todayCount) < 0.6) return "Baja asistencia hoy. Implementa recordatorios por WhatsApp 2 horas antes.";
+    return "Tu ritmo operativo es estable. Mantén el hábito de registrar notas detalladas para asegurar el cierre.";
   };
 
   const WeeklyChart = ({ data, title, icon: Icon, opacity = 1 }: { data: any, title: string, icon: any, opacity?: number }) => (
     <Card className={cn("border-border/40 bg-card/30 backdrop-blur-md shadow-sm overflow-visible", opacity < 1 && "opacity-75")}>
-      <CardHeader className="p-4 pb-2 border-b border-border/10 flex flex-row items-center justify-between">
+      <CardHeader className="p-4 pb-2 border-b border-border/10 flex flex-row items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
           <Icon className="w-4 h-4 text-primary" />
           <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">{title}</CardTitle>
@@ -159,8 +155,8 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
               <Button variant="ghost" size="icon" className="h-6 w-6"><Info className="w-3.5 h-3.5 text-muted-foreground/60" /></Button>
             </TooltipTrigger>
             <TooltipContent className="text-[10px] max-w-[200px] bg-card border-border shadow-xl p-3 z-[250]" side="top">
-              <p className="font-bold mb-1 uppercase text-primary">Ciclo Miércoles a Martes</p>
-              Compara citas agendadas, clientes que asistieron y cierres finales por día.
+              <p className="font-bold mb-1 uppercase text-primary">Comparativa Diaria</p>
+              Muestra agendadas, asistencias y ventas cerradas.
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -194,9 +190,7 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
                 <Cell 
                   key={`cell-age-${index}`} 
                   fill={entry.isToday ? "hsl(var(--primary))" : "var(--color-agendadas)"}
-                  stroke={entry.isToday ? "hsl(var(--primary))" : "none"}
-                  strokeWidth={entry.isToday ? 2 : 0}
-                  className={entry.isToday ? "filter drop-shadow-[0_0_4px_rgba(var(--primary),0.5)]" : ""}
+                  className={entry.isToday ? "stroke-primary stroke-2" : ""}
                 />
               ))}
               <LabelList dataKey="agendadas" content={<ZeroLabel />} />
@@ -206,8 +200,6 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
                 <Cell 
                   key={`cell-ate-${index}`} 
                   fill={entry.isToday ? "hsl(var(--accent))" : "var(--color-atendidas)"}
-                  stroke={entry.isToday ? "hsl(var(--accent))" : "none"}
-                  strokeWidth={entry.isToday ? 2 : 0}
                 />
               ))}
               <LabelList dataKey="atendidas" content={<ZeroLabel />} />
@@ -217,9 +209,6 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
                 <Cell 
                   key={`cell-cie-${index}`} 
                   fill="url(#cierreGradient)"
-                  stroke={entry.isToday ? "white" : "none"}
-                  strokeWidth={entry.isToday ? 1 : 0}
-                  className="filter drop-shadow-sm"
                 />
               ))}
               <LabelList dataKey="cierres" content={<ZeroLabel />} />
@@ -240,17 +229,14 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
           </div>
           <div className="flex flex-col items-end">
             <span className="text-2xl font-black text-primary leading-none">{Math.round(attendanceRate)}%</span>
-            <span className="text-[7px] font-bold uppercase text-primary/40">Tasa de Asistencia</span>
+            <span className="text-[7px] font-bold uppercase text-primary/40">Asistencia</span>
           </div>
         </div>
 
         <div className="space-y-5">
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <div className="flex items-center gap-1.5">
-                <span className="text-[9px] uppercase font-bold text-muted-foreground">Efectividad de Cierre</span>
-                <TooltipProvider><Tooltip><TooltipTrigger asChild><Info className="w-2.5 h-2.5 opacity-40 cursor-help"/></TooltipTrigger><TooltipContent className="text-[10px] z-[250]">Ventas logradas divididas entre prospectos que sí asistieron.</TooltipContent></Tooltip></TooltipProvider>
-              </div>
+              <span className="text-[9px] uppercase font-bold text-muted-foreground">Efectividad Cierre</span>
               <span className="text-xs font-bold text-green-500">{Math.round(closingRate)}%</span>
             </div>
             <Progress value={closingRate} className="h-1.5 bg-green-500/10" />
@@ -262,7 +248,7 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
               <p className="text-xs font-black">{stats.currentMonthSales} / {MONTHLY_GOAL}</p>
             </div>
             <div className="text-right">
-              <p className="text-[8px] font-bold text-muted-foreground uppercase mb-1">Impacto Fiscal</p>
+              <p className="text-[8px] font-bold text-muted-foreground uppercase mb-1">Impuestos (9%)</p>
               <p className="text-xs font-black text-destructive">{formatCurrency(taxImpact)}</p>
             </div>
           </div>
@@ -277,7 +263,7 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
         <CardHeader className="bg-primary/5 border-b border-border/50 py-4 flex flex-row items-center justify-between">
           <div className="flex items-center gap-2">
             <BarChart3 className="text-primary w-5 h-5" />
-            <CardTitle className="text-lg font-headline font-semibold">Stats Avanzados</CardTitle>
+            <CardTitle className="text-lg font-headline font-semibold">Stats</CardTitle>
           </div>
           <Button 
             variant="ghost" 
@@ -289,7 +275,7 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
           </Button>
         </CardHeader>
         <CardContent className="p-6 space-y-6">
-          <WeeklyChart data={stats.charts.dailyActivity} title="Flujo Ciclo Actual" icon={CalendarDays} />
+          <WeeklyChart data={stats.charts.dailyActivity} title="Ciclo Actual" icon={CalendarDays} />
           <PerformanceSection />
         </CardContent>
       </Card>
@@ -301,6 +287,7 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
         >
           {showIntro ? (
             <div className="flex-1 flex items-center justify-center bg-background/90 backdrop-blur-3xl z-[300]">
+              <DialogTitle className="sr-only">Inteligencia Finanto</DialogTitle>
               <h2 className="text-6xl md:text-8xl font-black tracking-tighter bg-gradient-to-r from-[#00F5FF] via-[#7B61FF] to-[#FF00D6] bg-clip-text text-transparent animate-intro-text text-center px-4">
                 INTELIGENCIA FINANTO
               </h2>
@@ -313,8 +300,8 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
                     <BarChart3 className="text-primary w-6 h-6" />
                   </div>
                   <div>
-                    <DialogTitle className="text-xl font-headline font-bold text-foreground">Panel de Inteligencia</DialogTitle>
-                    <DialogDescription className="text-xs">Análisis de rendimiento, flujo financiero y tendencias operativas.</DialogDescription>
+                    <DialogTitle className="text-xl font-headline font-bold text-foreground">Inteligencia Avanzada</DialogTitle>
+                    <DialogDescription className="text-xs">Análisis financiero y tendencias.</DialogDescription>
                   </div>
                 </div>
                 <DialogClose asChild>
@@ -329,10 +316,10 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
                   <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                     {[
                       { icon: CalendarDays, color: 'text-primary', label: 'Citas Hoy', value: stats.todayCount, tag: 'HOY', sub1: 'Confirmadas', val1: stats.todayConfirmed, sub2: 'Mañana', val2: stats.tomorrowTotal },
-                      { icon: TrendingUp, color: 'text-primary', label: 'Eficiencia', value: `${Math.round(closingRate)}%`, sub1: 'Éxito en Citas', val1: 'Sobre atendidos' },
-                      { icon: Users, color: 'text-accent', label: 'Prospectos Mes', value: stats.currentMonthProspects, growth: monthlyGrowth, sub1: 'Mes Pasado', val1: stats.lastMonthProspects, sub2: 'Seguimientos', val2: stats.currentMonthFollowUps },
-                      { icon: Trophy, color: 'text-green-500', label: 'Cierres de Mes', value: stats.currentMonthSales, sub1: 'Formalizados', val1: stats.currentMonthOnlyCierre, sub2: 'Apartados', val2: stats.currentMonthApartados },
-                      { icon: Coins, color: 'text-yellow-600', label: 'Ingresos (Neto)', value: formatCurrency(stats.currentMonthCommission), special: true, sub1: 'Cobrado', val1: formatCurrency(stats.currentMonthPaidCommission), sub2: 'Próximo Viernes', val2: formatCurrency(stats.thisFridayCommission) }
+                      { icon: TrendingUp, color: 'text-primary', label: 'Eficiencia', value: `${Math.round(closingRate)}%`, sub1: 'Éxito Citas', val1: 'Atendidas' },
+                      { icon: Users, color: 'text-accent', label: 'Prospectos', value: stats.currentMonthProspects, growth: monthlyGrowth, sub1: 'Mes Ant.', val1: stats.lastMonthProspects, sub2: 'Seguimiento', val2: stats.currentMonthFollowUps },
+                      { icon: Trophy, color: 'text-green-500', label: 'Cierres', value: stats.currentMonthSales, sub1: 'Ventas', val1: stats.currentMonthOnlyCierre, sub2: 'Apartados', val2: stats.currentMonthApartados },
+                      { icon: Coins, color: 'text-yellow-600', label: 'Ingresos', value: formatCurrency(stats.currentMonthCommission), special: true, sub1: 'Cobrado', val1: formatCurrency(stats.currentMonthPaidCommission), sub2: 'Próx. Viernes', val2: formatCurrency(stats.thisFridayCommission) }
                     ].map((s, i) => (
                       <Card 
                         key={i} 
@@ -381,10 +368,10 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
                     <div className="xl:col-span-8 space-y-6 overflow-visible">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 overflow-visible">
                         <div className="animate-entrance-stagger" style={{ animationDelay: '0.8s' }}>
-                          <WeeklyChart data={stats.charts.dailyActivity} title="Ciclo Actual" icon={CalendarDays} />
+                          <WeeklyChart data={stats.charts.dailyActivity} title="Actual" icon={CalendarDays} />
                         </div>
                         <div className="animate-entrance-stagger" style={{ animationDelay: '0.9s' }}>
-                          <WeeklyChart data={stats.charts.lastWeekActivity} title="Ciclo Anterior" icon={History} opacity={0.65} />
+                          <WeeklyChart data={stats.charts.lastWeekActivity} title="Anterior" icon={History} opacity={0.65} />
                         </div>
                       </div>
                       
@@ -399,7 +386,7 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
                           <div className="space-y-2">
                             <div className="flex items-center gap-2 text-muted-foreground">
                               <Target className="w-4 h-4" />
-                              <span className="text-[10px] font-bold uppercase">Crédito Vendido</span>
+                              <span className="text-[10px] font-bold uppercase">Vendido</span>
                             </div>
                             <div className="flex items-baseline gap-2">
                               <p className="text-2xl font-black text-foreground">{formatCurrency(stats.totalCreditSold)}</p>
@@ -408,25 +395,22 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
                                 <span className={creditGrowth >= 0 ? "text-green-500" : "text-destructive"}>{Math.abs(Math.round(creditGrowth))}%</span>
                               </div>
                             </div>
-                            <p className="text-[9px] text-muted-foreground">Total formalizado vs mes pasado ({formatCurrency(stats.lastMonthCreditSold)}).</p>
                           </div>
                           
                           <div className="space-y-2">
                             <div className="flex items-center gap-2 text-muted-foreground">
                               <Percent className="w-4 h-4" />
-                              <span className="text-[10px] font-bold uppercase">Participación Media</span>
+                              <span className="text-[10px] font-bold uppercase">Part. Media</span>
                             </div>
                             <p className="text-2xl font-black text-primary">{stats.avgParticipation}%</p>
-                            <p className="text-[9px] text-muted-foreground">Porcentaje de comisión promedio sobre el volumen total.</p>
                           </div>
 
                           <div className="space-y-2">
                             <div className="flex items-center gap-2 text-muted-foreground">
                               <Receipt className="w-4 h-4" />
-                              <span className="text-[10px] font-bold uppercase">Impacto Fiscal</span>
+                              <span className="text-[10px] font-bold uppercase">Impuestos</span>
                             </div>
                             <p className="text-2xl font-black text-destructive">{formatCurrency(taxImpact)}</p>
-                            <p className="text-[9px] text-muted-foreground">Monto proyectado retenido por el impuesto del 9%.</p>
                           </div>
                         </CardContent>
                       </Card>
@@ -441,7 +425,7 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
                         </div>
                         <CardHeader className="p-4 pb-0 flex flex-row items-center gap-2 relative z-10">
                           <Zap className="w-4 h-4 text-accent animate-bounce" />
-                          <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-accent/80">Sugerencia Estratégica</CardTitle>
+                          <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-accent/80">Sugerencia</CardTitle>
                         </CardHeader>
                         <CardContent className="p-4 pt-2 relative z-10">
                           <p className="text-sm text-foreground/90 leading-relaxed font-bold border-l-2 border-accent/30 pl-3">
@@ -455,7 +439,7 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
                           <Activity className="w-8 h-8 text-primary" />
                         </div>
                         <div>
-                          <p className="text-[9px] uppercase font-bold text-muted-foreground">Meta Mensual</p>
+                          <p className="text-[9px] uppercase font-bold text-muted-foreground">Meta Mes</p>
                           <div className="flex items-baseline gap-2">
                             <span className="text-2xl font-black">{stats.currentMonthSales} / {MONTHLY_GOAL}</span>
                             <span className="text-xs font-bold text-primary">+{Math.round((stats.currentMonthSales / MONTHLY_GOAL) * 100)}%</span>
