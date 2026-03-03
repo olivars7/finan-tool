@@ -101,9 +101,11 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
   const [showContent, setShowContent] = useState(false);
 
   useEffect(() => {
-    onExpandedChange?.(isExpanded);
+    setIsExpanded(initialExpanded);
+  }, [initialExpanded]);
+
+  useEffect(() => {
     if (isExpanded) {
-      window.history.pushState(null, '', '/stats');
       setShowIntro(true);
       setShowContent(false);
       
@@ -113,10 +115,8 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
       }, 3000); 
       
       return () => clearTimeout(introTimer);
-    } else if (window.location.pathname === '/stats') {
-      window.history.pushState(null, '', '/');
     }
-  }, [isExpanded, onExpandedChange]);
+  }, [isExpanded]);
 
   const totalMonth = stats.currentMonthProspects || 0;
   const attendanceRate = totalMonth > 0 ? Math.min(95, 75 + (stats.todayConfirmed / (stats.todayCount || 1) * 10)) : 0;
@@ -125,8 +125,6 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
   const monthlyGrowth = stats.lastMonthProspects > 0 ? ((stats.currentMonthProspects - stats.lastMonthProspects) / stats.lastMonthProspects) * 100 : 0;
   const creditGrowth = stats.lastMonthCreditSold > 0 ? ((stats.totalCreditSold - stats.lastMonthCreditSold) / stats.lastMonthCreditSold) * 100 : 0;
   const taxImpact = stats.currentMonthCommission / 0.91 * 0.09;
-
-  const MONTHLY_GOAL = 5;
 
   const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('es-MX', {
@@ -243,11 +241,6 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
             </div>
             <Progress value={closingRate} className="h-1.5 bg-green-500/10" />
           </div>
-          
-          <div className="pt-2 border-t border-border/10 flex justify-between items-center">
-            <p className="text-[8px] font-bold text-muted-foreground uppercase">Cierres Meta</p>
-            <p className="text-sm font-black">{stats.currentMonthSales} / {MONTHLY_GOAL}</p>
-          </div>
         </div>
       </CardContent>
     </Card>
@@ -265,7 +258,7 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
             variant="ghost" 
             size="icon" 
             className="h-8 w-8 rounded-lg text-muted-foreground/60 hover:text-primary hover:bg-primary/10"
-            onClick={() => setIsExpanded(true)}
+            onClick={() => onExpandedChange?.(true)}
           >
             <Maximize2 className="w-4 h-4" />
           </Button>
@@ -276,7 +269,7 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
         </CardContent>
       </Card>
 
-      <Dialog open={isExpanded} onOpenChange={setIsExpanded}>
+      <Dialog open={isExpanded} onOpenChange={(o) => onExpandedChange?.(o)}>
         <DialogContent 
           data-calculator-dialog="true"
           className="max-w-none w-screen h-screen m-0 rounded-none bg-background border-none shadow-none p-0 flex flex-col overflow-hidden"
@@ -428,20 +421,6 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
                             {getAdvice()}
                           </p>
                         </CardContent>
-                      </Card>
-
-                      <Card className="bg-primary/5 border-primary/20 p-6 flex items-center gap-4">
-                        <div className="bg-primary/20 p-3 rounded-2xl">
-                          <Activity className="w-8 h-8 text-primary" />
-                        </div>
-                        <div>
-                          <p className="text-[9px] uppercase font-bold text-muted-foreground">Meta Mes</p>
-                          <div className="flex items-baseline gap-2">
-                            <span className="text-2xl font-black">{stats.currentMonthSales} / {MONTHLY_GOAL}</span>
-                            <span className="text-xs font-bold text-primary">+{Math.round((stats.currentMonthSales / MONTHLY_GOAL) * 100)}%</span>
-                          </div>
-                          <Progress value={(stats.currentMonthSales / MONTHLY_GOAL) * 100} className="h-1.5 mt-2" />
-                        </div>
                       </Card>
                     </div>
                   </div>

@@ -140,13 +140,14 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
     }
   }, [initialSection]);
 
-  // Manejo de retroceder página
+  // Manejo de navegación SPA (Popstate)
   useEffect(() => {
     const handlePopState = () => {
-      setShowHelp(false);
-      setIsSimulatorExpanded(false);
-      setIsGestorExpanded(false);
-      setIsStatsExpanded(false);
+      const path = window.location.pathname;
+      setShowHelp(path === '/guia');
+      setIsSimulatorExpanded(path === '/simulador');
+      setIsGestorExpanded(path === '/gestor');
+      setIsStatsExpanded(path === '/stats');
       setSelectedAppId(null);
     };
 
@@ -154,26 +155,56 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  useEffect(() => {
-    if (showHelp) {
+  // Sincronización de URL sin refrescar
+  const syncUrl = (path: string) => {
+    if (window.location.pathname !== path) {
+      window.history.pushState(null, '', path);
+    }
+  };
+
+  const handleToggleHelp = (open: boolean) => {
+    if (open) {
       document.title = "Manual de Inicio - Finanto";
-      window.history.pushState({ section: 'guia' }, '', '/guia');
-    } else if (isSimulatorExpanded) {
-      document.title = "Simulador - Finanto";
-      window.history.pushState({ section: 'simulador' }, '', '/simulador');
-    } else if (isGestorExpanded) {
-      document.title = "Gestor - Finanto";
-      window.history.pushState({ section: 'gestor' }, '', '/gestor');
-    } else if (isStatsExpanded) {
-      document.title = "Estadísticas - Finanto";
-      window.history.pushState({ section: 'stats' }, '', '/stats');
+      syncUrl('/guia');
     } else {
       document.title = "Finanto - Gestión Inmobiliaria";
-      if (window.location.pathname !== '/') {
-        window.history.pushState(null, '', '/');
-      }
+      syncUrl('/');
     }
-  }, [showHelp, isSimulatorExpanded, isGestorExpanded, isStatsExpanded]);
+    setShowHelp(open);
+  };
+
+  const handleToggleSimulator = (open: boolean) => {
+    if (open) {
+      document.title = "Simulador - Finanto";
+      syncUrl('/simulador');
+    } else {
+      document.title = "Finanto - Gestión Inmobiliaria";
+      syncUrl('/');
+    }
+    setIsSimulatorExpanded(open);
+  };
+
+  const handleToggleGestor = (open: boolean) => {
+    if (open) {
+      document.title = "Gestor - Finanto";
+      syncUrl('/gestor');
+    } else {
+      document.title = "Finanto - Gestión Inmobiliaria";
+      syncUrl('/');
+    }
+    setIsGestorExpanded(open);
+  };
+
+  const handleToggleStats = (open: boolean) => {
+    if (open) {
+      document.title = "Estadísticas - Finanto";
+      syncUrl('/stats');
+    } else {
+      document.title = "Finanto - Gestión Inmobiliaria";
+      syncUrl('/');
+    }
+    setIsStatsExpanded(open);
+  };
 
   useEffect(() => {
     if (!api) return;
@@ -450,7 +481,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
                   variant="ghost" 
                   size="sm" 
                   className="h-7 px-2 text-[10px] font-bold uppercase border border-primary/20" 
-                  onClick={() => setShowHelp(true)}
+                  onClick={() => handleToggleHelp(true)}
                 >
                   <BookOpen className="w-3.5 h-3.5 mr-1" /> Tutorial
                 </Button>
@@ -554,8 +585,8 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
           <section className="xl:col-span-5 space-y-6">
             <CreditCalculator 
-              initialExpanded={initialSection === 'simulador'} 
-              onExpandedChange={setIsSimulatorExpanded}
+              initialExpanded={isSimulatorExpanded} 
+              onExpandedChange={handleToggleSimulator}
             />
             <div className="p-6 border rounded-xl border-primary/20 bg-primary/5">
               <Carousel setApi={setApi} className="w-full" opts={{ loop: true }}>
@@ -579,14 +610,14 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
             </div>
             <AdvancedStats 
               stats={stats} 
-              initialExpanded={initialSection === 'stats'}
-              onExpandedChange={setIsStatsExpanded}
+              initialExpanded={isStatsExpanded}
+              onExpandedChange={handleToggleStats}
             />
           </section>
           <section className="xl:col-span-7 pb-10 space-y-6">
             <AppointmentsDashboard 
-              initialExpanded={initialSection === 'gestor'}
-              onExpandedChange={setIsGestorExpanded}
+              initialExpanded={isGestorExpanded}
+              onExpandedChange={handleToggleGestor}
               selectedAppId={selectedAppId}
               onSelectAppId={onSelectAppId}
               theme={theme}
@@ -683,7 +714,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
         format12hTime={appointmentState.format12hTime}
       />
 
-      <Dialog open={showHelp} onOpenChange={setShowHelp}>
+      <Dialog open={showHelp} onOpenChange={handleToggleHelp}>
         <DialogContent className="sm:max-w-[750px] h-[85vh] flex flex-col p-0 overflow-hidden bg-card shadow-2xl">
           <DialogHeader className="p-6 border-b bg-primary/5 shrink-0">
             <div className="flex items-center gap-3">
@@ -784,7 +815,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
             </div>
           </ScrollArea>
           <DialogFooter className="p-4 border-t bg-muted/20">
-            <Button onClick={() => setShowHelp(false)} className="w-full h-11 font-bold rounded-xl shadow-lg" type="button">
+            <Button onClick={() => handleToggleHelp(false)} className="w-full h-11 font-bold rounded-xl shadow-lg" type="button">
               ¡Entendido, a cerrar ventas!
             </Button>
           </DialogFooter>
