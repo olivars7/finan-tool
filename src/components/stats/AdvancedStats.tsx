@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -24,13 +23,15 @@ import {
   Receipt,
   PieChart,
   Zap,
-  TrendingDown
+  TrendingDown,
+  Percent
 } from "lucide-react";
 import { 
   Bar, 
   BarChart, 
   CartesianGrid, 
   XAxis, 
+  YAxis
 } from "recharts";
 import { 
   ChartContainer, 
@@ -62,12 +63,12 @@ interface AdvancedStatsProps {
 }
 
 const chartConfig = {
-  prospects: {
-    label: "Citas",
+  agendadas: {
+    label: "Agendadas",
     color: "hsl(var(--primary))",
   },
-  sales: {
-    label: "Ventas",
+  atendidas: {
+    label: "Atendidas",
     color: "hsl(var(--accent))",
   },
 } satisfies ChartConfig;
@@ -87,9 +88,7 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
   const totalMonth = stats.currentMonthProspects || 0;
   const attendanceRate = totalMonth > 0 ? Math.min(95, 75 + (stats.todayConfirmed / (stats.todayCount || 1) * 10)) : 0;
   const closingRate = attendanceRate > 0 ? (stats.conversionRate / (attendanceRate / 100)) : 0;
-  const productivityScore = Math.min(100, (stats.conversionRate * 3) + (attendanceRate * 0.4));
-
-  const avgCommission = stats.currentMonthSales > 0 ? stats.currentMonthCommission / stats.currentMonthSales : 0;
+  
   const monthlyGrowth = stats.lastMonthProspects > 0 ? ((stats.currentMonthProspects - stats.lastMonthProspects) / stats.lastMonthProspects) * 100 : 0;
   const taxImpact = stats.currentMonthCommission / 0.91 * 0.09;
 
@@ -107,15 +106,15 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
   const getAdvice = () => {
     if (stats.conversionRate > 20) return "Sugerencia: Tu tasa de cierre es excepcional. Es el momento de ser más selectivo: enfócate en captar perfiles de crédito más alto para maximizar tu retorno.";
     if (stats.conversionRate < 8) return "Sugerencia: La conversión está por debajo del promedio. Revisa la calificación de prospectos en la primera llamada; necesitas filtrar mejor antes de agendar.";
-    if (stats.pendingCount > 12) return "Sugerencia: Acumulación crítica de prospectos sin estatus. Realiza una jornada de seguimiento intensivo hoy para evitar que estos cierres se enfríen.";
+    if (stats.currentMonthFollowUps > 5) return "Sugerencia: Tienes un volumen alto de prospectos en seguimiento. Prioriza las llamadas de cierre hoy para evitar que el interés se enfríe.";
     if (stats.todayCount > 0 && (stats.todayConfirmed / stats.todayCount) < 0.6) return "Sugerencia: Baja tasa de asistencia hoy. Implementa recordatorios por WhatsApp 2 horas antes de cada cita para asegurar el compromiso.";
     if (stats.currentMonthCommission > 15000) return "Sugerencia: Resultados financieros sobresalientes. Te sugerimos reinvertir un porcentaje en pauta digital para escalar tu volumen el próximo mes.";
     if (stats.currentMonthApartados > stats.currentMonthOnlyCierre * 2) return "Sugerencia: Tienes muchos apartados pendientes de formalizar. Enfoca tu semana en el área operativa para empujar esas firmas y liberar flujo de efectivo.";
     return "Sugerencia: Tu ritmo operativo es estable. Mantén el hábito estricto de registrar cada acuerdo en notas para asegurar una transición impecable hacia el cierre.";
   };
 
-  const WeeklyChart = ({ data, title, icon: Icon }: { data: any, title: string, icon: any }) => (
-    <Card className="border-border/40 bg-card/30 backdrop-blur-md shadow-sm overflow-hidden">
+  const WeeklyChart = ({ data, title, icon: Icon, opacity = 1 }: { data: any, title: string, icon: any, opacity?: number }) => (
+    <Card className={cn("border-border/40 bg-card/30 backdrop-blur-md shadow-sm overflow-hidden", opacity < 1 && "opacity-75")}>
       <CardHeader className="p-4 pb-2 border-b border-border/10 flex flex-row items-center justify-between">
         <div className="flex items-center gap-2">
           <Icon className="w-4 h-4 text-primary" />
@@ -127,13 +126,13 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
               <Button variant="ghost" size="icon" className="h-6 w-6"><Info className="w-3.5 h-3.5 text-muted-foreground/60" /></Button>
             </TooltipTrigger>
             <TooltipContent className="text-[10px] max-w-[200px] bg-card border-border shadow-xl p-3 z-[100]" side="top">
-              <p className="font-bold mb-1 uppercase text-primary">Volumen de Operación</p>
-              Compara las citas registradas contra las ventas efectivas (Cierres + Apartados) en el periodo.
+              <p className="font-bold mb-1 uppercase text-primary">Ciclo Miércoles a Martes</p>
+              Compara citas agendadas contra citas con resultado real (excluyendo inasistencias).
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </CardHeader>
-      <CardContent className="p-4 h-[180px]">
+      <CardContent className="p-4 h-[200px]">
         <ChartContainer config={chartConfig} className="h-full w-full">
           <BarChart data={data}>
             <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
@@ -144,9 +143,13 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
               axisLine={false} 
               className="text-[10px] font-bold uppercase text-muted-foreground/60" 
             />
+            <YAxis 
+              hide 
+              domain={[0, stats.charts.globalMax + 1]} 
+            />
             <ChartTooltip content={<ChartTooltipContent />} />
-            <Bar dataKey="prospects" name="Citas" fill="var(--color-prospects)" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="sales" name="Ventas" fill="var(--color-sales)" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="agendadas" name="Agendadas" fill="var(--color-agendadas)" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="atendidas" name="Atendidas" fill="var(--color-atendidas)" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ChartContainer>
       </CardContent>
@@ -159,11 +162,11 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Activity className="w-5 h-5 text-primary animate-pulse" />
-            <h3 className="text-xs font-bold uppercase tracking-widest text-primary/80">Funnel de Conversión Técnica</h3>
+            <h3 className="text-xs font-bold uppercase tracking-widest text-primary/80">Salud Operativa del Mes</h3>
           </div>
           <div className="flex flex-col items-end">
-            <span className="text-2xl font-black text-primary leading-none">{Math.round(productivityScore)}%</span>
-            <span className="text-[7px] font-bold uppercase text-primary/40">Salud Operativa</span>
+            <span className="text-2xl font-black text-primary leading-none">{Math.round(attendanceRate)}%</span>
+            <span className="text-[7px] font-bold uppercase text-primary/40">Tasa de Asistencia</span>
           </div>
         </div>
 
@@ -171,19 +174,8 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-1.5">
-                <span className="text-[9px] uppercase font-bold text-muted-foreground">1. Tasa de Asistencia</span>
-                <TooltipProvider><Tooltip><TooltipTrigger asChild><Info className="w-2.5 h-2.5 opacity-40 cursor-help"/></TooltipTrigger><TooltipContent className="text-[10px] z-[110]">Porcentaje de citas que confirmaron asistencia hoy.</TooltipContent></Tooltip></TooltipProvider>
-              </div>
-              <span className="text-xs font-bold text-blue-500">{Math.round(attendanceRate)}%</span>
-            </div>
-            <Progress value={attendanceRate} className="h-1.5 bg-blue-500/10" />
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-1.5">
-                <span className="text-[9px] uppercase font-bold text-muted-foreground">2. Efectividad de Cierre</span>
-                <TooltipProvider><Tooltip><TooltipTrigger asChild><Info className="w-2.5 h-2.5 opacity-40 cursor-help"/></TooltipTrigger><TooltipContent className="text-[10px] z-[110]">Ventas logradas divididas entre prospectos atendidos.</TooltipContent></Tooltip></TooltipProvider>
+                <span className="text-[9px] uppercase font-bold text-muted-foreground">Efectividad de Cierre (Sobre Atendidas)</span>
+                <TooltipProvider><Tooltip><TooltipTrigger asChild><Info className="w-2.5 h-2.5 opacity-40 cursor-help"/></TooltipTrigger><TooltipContent className="text-[10px] z-[110]">Ventas logradas divididas entre prospectos que sí asistieron.</TooltipContent></Tooltip></TooltipProvider>
               </div>
               <span className="text-xs font-bold text-green-500">{Math.round(closingRate)}%</span>
             </div>
@@ -212,7 +204,7 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
           </Button>
         </CardHeader>
         <CardContent className="p-6 space-y-6">
-          <WeeklyChart data={stats.charts.dailyActivity} title="Flujo Semanal de Citas" icon={CalendarDays} />
+          <WeeklyChart data={stats.charts.dailyActivity} title="Flujo Ciclo Actual" icon={CalendarDays} />
           <PerformanceSection />
         </CardContent>
       </Card>
@@ -265,15 +257,15 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
 
                 <Card className="bg-card/40 border-primary/20 p-4 space-y-3">
                   <div className="flex justify-between items-start">
-                    <div className="p-2 bg-primary/10 rounded-lg"><Wallet className="w-4 h-4 text-primary" /></div>
+                    <div className="p-2 bg-primary/10 rounded-lg"><TrendingUp className="w-4 h-4 text-primary" /></div>
                   </div>
                   <div>
-                    <p className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest">Pipeline Activo</p>
-                    <p className="text-3xl font-black">{stats.pendingCount}</p>
+                    <p className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest">Eficiencia de Cierre</p>
+                    <p className="text-3xl font-black">{Math.round(closingRate)}%</p>
                   </div>
                   <div className="pt-2 border-t border-border/10">
-                    <p className="text-[8px] font-bold text-muted-foreground uppercase">Total Próximos</p>
-                    <p className="text-xs font-bold text-primary">Prospectos sin resultado</p>
+                    <p className="text-[8px] font-bold text-muted-foreground uppercase">Ratio de éxito</p>
+                    <p className="text-xs font-bold text-primary">Sobre prospectos atendidos</p>
                   </div>
                 </Card>
 
@@ -289,9 +281,15 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
                     <p className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest">Prospectos Mes</p>
                     <p className="text-3xl font-black">{stats.currentMonthProspects}</p>
                   </div>
-                  <div className="pt-2 border-t border-border/10">
-                    <p className="text-[8px] font-bold text-muted-foreground uppercase">Mes Pasado</p>
-                    <p className="text-xs font-bold">{stats.lastMonthProspects}</p>
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border/10">
+                    <div>
+                      <p className="text-[8px] font-bold text-muted-foreground uppercase">Mes Pasado</p>
+                      <p className="text-xs font-bold">{stats.lastMonthProspects}</p>
+                    </div>
+                    <div>
+                      <p className="text-[8px] font-bold text-muted-foreground uppercase">Seguimientos</p>
+                      <p className="text-xs font-bold text-accent">{stats.currentMonthFollowUps}</p>
+                    </div>
                   </div>
                 </Card>
 
@@ -344,43 +342,43 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
               <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
                 <div className="xl:col-span-8 space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <WeeklyChart data={stats.charts.dailyActivity} title="Flujo Semana Actual" icon={CalendarDays} />
-                    <WeeklyChart data={stats.charts.lastWeekActivity} title="Flujo Semana Anterior" icon={History} />
+                    <WeeklyChart data={stats.charts.dailyActivity} title="Flujo Ciclo Actual (Mié-Mar)" icon={CalendarDays} />
+                    <WeeklyChart data={stats.charts.lastWeekActivity} title="Flujo Ciclo Anterior (Mié-Mar)" icon={History} opacity={0.65} />
                   </div>
                   
                   <Card className="bg-card border-border/40 overflow-hidden">
                     <CardHeader className="bg-muted/30 p-4 border-b">
                       <div className="flex items-center gap-2">
                         <Zap className="w-4 h-4 text-yellow-500" />
-                        <CardTitle className="text-xs font-bold uppercase tracking-wider">Insights Operativos Avanzados</CardTitle>
+                        <CardTitle className="text-xs font-bold uppercase tracking-wider">Insights Financieros Avanzados</CardTitle>
                       </div>
                     </CardHeader>
                     <CardContent className="p-6 grid grid-cols-1 md:grid-cols-3 gap-8">
                       <div className="space-y-2">
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <Target className="w-4 h-4" />
-                          <span className="text-[10px] font-bold uppercase">Ticket Promedio Comisión</span>
+                          <span className="text-[10px] font-bold uppercase">Crédito Vendido (Volumen)</span>
                         </div>
-                        <p className="text-2xl font-black text-foreground">{formatCurrency(avgCommission)}</p>
-                        <p className="text-[9px] text-muted-foreground">Valor neto promedio de cada cierre logrado este mes.</p>
+                        <p className="text-2xl font-black text-foreground">{formatCurrency(stats.totalCreditSold)}</p>
+                        <p className="text-[9px] text-muted-foreground">Valor total del monto crediticio gestionado y formalizado.</p>
                       </div>
                       
                       <div className="space-y-2">
                         <div className="flex items-center gap-2 text-muted-foreground">
-                          <Receipt className="w-4 h-4" />
-                          <span className="text-[10px] font-bold uppercase">Impacto Fiscal Estimado</span>
+                          <Percent className="w-4 h-4" />
+                          <span className="text-[10px] font-bold uppercase">Participación Media</span>
                         </div>
-                        <p className="text-2xl font-black text-destructive">{formatCurrency(taxImpact)}</p>
-                        <p className="text-[9px] text-muted-foreground">Monto aproximado retenido por el impuesto del 9%.</p>
+                        <p className="text-2xl font-black text-primary">{stats.avgParticipation}%</p>
+                        <p className="text-[9px] text-muted-foreground">Tu porcentaje de comisión promedio sobre el volumen total.</p>
                       </div>
 
                       <div className="space-y-2">
                         <div className="flex items-center gap-2 text-muted-foreground">
-                          <PieChart className="w-4 h-4" />
-                          <span className="text-[10px] font-bold uppercase">Conversión de Seguimiento</span>
+                          <Receipt className="w-4 h-4" />
+                          <span className="text-[10px] font-bold uppercase">Impacto Fiscal Mes</span>
                         </div>
-                        <p className="text-2xl font-black text-primary">{Math.round(closingRate * 1.2)}%</p>
-                        <p className="text-[9px] text-muted-foreground">Efectividad proyectada tras segundas consultas.</p>
+                        <p className="text-2xl font-black text-destructive">{formatCurrency(taxImpact)}</p>
+                        <p className="text-[9px] text-muted-foreground">Monto aproximado retenido por el impuesto del 9%.</p>
                       </div>
                     </CardContent>
                   </Card>
