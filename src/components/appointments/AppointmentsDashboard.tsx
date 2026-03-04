@@ -132,7 +132,7 @@ const DashboardContent = ({
                       </div>
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent className="bg-card border-border shadow-xl text-[10px] font-bold p-2 border-white">
+                  <TooltipContent side="bottom">
                     {s.tip}
                   </TooltipContent>
                 </Tooltip>

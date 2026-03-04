@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -148,7 +147,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
 
   const handleToggleGestor = (open: boolean) => {
     setIsGestorExpanded(open);
-    if (open) { syncUrl('/gestor'); document.title = "Gestor - Finanto"; }
+    if (open) { syncUrl('/gestor'); document.title = "Agenda - Finanto"; }
     else if (!showHelp && !isSimulatorExpanded && !isStatsExpanded) { syncUrl('/'); document.title = "Finanto"; }
   };
 
@@ -169,7 +168,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
       if (path === '/') document.title = "Finanto - Gestión Inmobiliaria";
       else if (path === '/guia') document.title = "Manual - Finanto";
       else if (path === '/simulador') document.title = "Simulador - Finanto";
-      else if (path === '/gestor') document.title = "Gestor - Finanto";
+      else if (path === '/gestor') document.title = "Agenda - Finanto";
       else if (path === '/stats') document.title = "Stats - Finanto";
     };
 
@@ -362,11 +361,11 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
       tooltip: (
         <div className="flex flex-col gap-1 text-[10px] leading-tight">
           <div className="flex justify-between items-center gap-4">
-            <span className="text-muted-foreground uppercase font-medium">Mañana:</span>
+            <span className="uppercase font-medium">Mañana:</span>
             <span className="text-primary font-bold">{stats.tomorrowTotal}</span>
           </div>
           <div className="flex justify-between items-center gap-4">
-            <span className="text-muted-foreground uppercase font-medium">Confirmadas:</span>
+            <span className="uppercase font-medium">Confirmadas:</span>
             <span className="text-green-500 font-bold">{stats.todayConfirmed}</span>
           </div>
         </div>
@@ -380,7 +379,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
       tooltip: (
         <div className="flex flex-col gap-1 text-[10px] leading-tight">
           <div className="flex justify-between items-center gap-4">
-            <span className="text-muted-foreground uppercase font-medium">Total próximos:</span>
+            <span className="uppercase font-medium">Total próximos:</span>
             <span className="text-primary font-bold">{stats.pendingCount}</span>
           </div>
         </div>
@@ -395,12 +394,12 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
       tooltip: (
         <div className="flex flex-col gap-1 text-[10px] leading-tight">
           <div className="flex justify-between items-center gap-4">
-            <span className="text-muted-foreground uppercase font-medium">Este mes:</span>
+            <span className="uppercase font-medium">Este mes:</span>
             <span className="text-accent font-bold">{stats.currentMonthProspects}</span>
           </div>
           <div className="flex justify-between items-center gap-4 border-t border-border/10 pt-1">
-            <span className="text-muted-foreground uppercase font-medium">Mes pasado:</span>
-            <span className="text-muted-foreground/60 font-bold">{stats.lastMonthProspects}</span>
+            <span className="uppercase font-medium opacity-60">Mes pasado:</span>
+            <span className="font-bold opacity-60">{stats.lastMonthProspects}</span>
           </div>
         </div>
       )
@@ -414,16 +413,16 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
       tooltip: (
         <div className="flex flex-col gap-1 text-[10px] leading-tight">
           <div className="flex justify-between items-center gap-4">
-            <span className="text-muted-foreground uppercase font-medium">Cierres:</span>
+            <span className="uppercase font-medium">Cierres:</span>
             <span className="text-green-500 font-bold">{stats.currentMonthOnlyCierre}</span>
           </div>
           <div className="flex justify-between items-center gap-4">
-            <span className="text-muted-foreground uppercase font-medium">Apartados:</span>
+            <span className="uppercase font-medium">Apartados:</span>
             <span className="text-blue-500 font-bold">{stats.currentMonthApartados}</span>
           </div>
           <div className="flex justify-between items-center gap-4 border-t border-border/10 pt-1">
-            <span className="text-muted-foreground uppercase font-medium">Mes pasado:</span>
-            <span className="text-muted-foreground/60 font-bold">{stats.lastMonthSales}</span>
+            <span className="uppercase font-medium opacity-60">Mes pasado:</span>
+            <span className="font-bold opacity-60">{stats.lastMonthSales}</span>
           </div>
         </div>
       )
@@ -438,15 +437,15 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
       tooltip: (
         <div className="flex flex-col gap-1 text-[10px] leading-tight">
           <div className="flex justify-between items-center gap-4">
-            <span className="text-muted-foreground uppercase font-medium">Ingreso Neto Recibido:</span>
+            <span className="uppercase font-medium">Ingreso Neto Recibido:</span>
             <span className="text-primary font-bold">{formatCurrency(stats.currentMonthPaidCommission)}</span>
           </div>
           <div className="flex justify-between items-center gap-4">
-            <span className="text-muted-foreground uppercase font-medium">Cobro este viernes:</span>
+            <span className="uppercase font-medium">Cobro este viernes:</span>
             <span className="text-yellow-500 font-bold">{formatCurrency(stats.thisFridayCommission)}</span>
           </div>
           <div className="flex justify-between items-center gap-4 border-t border-border/10 pt-1">
-            <span className="text-muted-foreground uppercase font-medium">Pendiente neto:</span>
+            <span className="uppercase font-medium text-destructive">Pendiente neto:</span>
             <span className="text-destructive font-bold">{formatCurrency(stats.overdueCommission)}</span>
           </div>
         </div>
@@ -559,7 +558,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
                     <TooltipTrigger asChild>
                       {cardContent}
                     </TooltipTrigger>
-                    <TooltipContent side="bottom" sideOffset={1} className="bg-card border-border shadow-xl z-[100] p-3 border-white">
+                    <TooltipContent side="bottom" sideOffset={1}>
                       {stat.tooltip}
                     </TooltipContent>
                   </Tooltip>

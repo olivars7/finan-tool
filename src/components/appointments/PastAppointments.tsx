@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState } from 'react';
@@ -166,9 +165,9 @@ export default function PastAppointments({
                                     <UserCog className="w-3.5 h-3.5 text-blue-500" />
                                   </div>
                                 </TooltipTrigger>
-                                <TooltipContent className="shadow-xl border-border bg-card p-3 border-white">
+                                <TooltipContent>
                                   <div className="space-y-1">
-                                    <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest">Prospectado por:</p>
+                                    <p className="text-[9px] font-bold uppercase opacity-60 tracking-widest">Prospectado por:</p>
                                     <p className="text-xs font-black text-blue-600">{app.prospectorName}</p>
                                   </div>
                                 </TooltipContent>
@@ -183,9 +182,9 @@ export default function PastAppointments({
                                     <UserCheck className="w-3.5 h-3.5 text-purple-500" />
                                   </div>
                                 </TooltipTrigger>
-                                <TooltipContent className="shadow-xl border-border bg-card p-3 border-white">
+                                <TooltipContent>
                                   <div className="space-y-1">
-                                    <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest">Atendido por:</p>
+                                    <p className="text-[9px] font-bold uppercase opacity-60 tracking-widest">Atendido por:</p>
                                     <p className="text-xs font-black text-purple-600">{app.attendingExecutive}</p>
                                   </div>
                                 </TooltipContent>
@@ -272,10 +271,10 @@ export default function PastAppointments({
                             </div>
                           </TooltipTrigger>
                           {isCierre && (
-                            <TooltipContent side="top" className="bg-card border-border shadow-xl p-3 min-w-[180px] z-[300] border-white">
+                            <TooltipContent side="top" className="min-w-[180px] z-[300]">
                               <div className="space-y-2">
                                 <div className="flex items-center justify-between border-b border-border/10 pb-1">
-                                  <span className="text-[8px] uppercase font-bold text-muted-foreground tracking-widest">Detalle Financiero (Neto)</span>
+                                  <span className="text-[8px] uppercase font-bold opacity-60 tracking-widest">Detalle Financiero (Neto)</span>
                                   <span className={cn(
                                     "text-[8px] font-bold px-1.5 py-0.5 rounded-full border",
                                     isCommissionPaid ? "bg-green-500/10 text-green-500 border-green-500/20" : "bg-yellow-500/10 text-yellow-600 border-yellow-500/20"
@@ -287,21 +286,21 @@ export default function PastAppointments({
                                   <div className="flex items-center justify-between gap-4">
                                     <div className="flex items-center gap-1.5">
                                       <Coins className="w-3 h-3 text-accent" />
-                                      <span className="text-[9px] text-muted-foreground font-medium uppercase">Monto Ganado:</span>
+                                      <span className="text-[9px] opacity-60 font-medium uppercase">Monto Ganado:</span>
                                     </div>
                                     <span className="text-xs font-bold text-accent">{formatCurrency(commissionValue)}</span>
                                   </div>
                                   <div className="flex items-center justify-between gap-4">
                                     <div className="flex items-center gap-1.5">
                                       <Percent className="w-3 h-3 text-primary" />
-                                      <span className="text-[9px] text-muted-foreground font-medium uppercase">Participación:</span>
+                                      <span className="text-[9px] opacity-60 font-medium uppercase">Participación:</span>
                                     </div>
                                     <span className="text-[10px] font-bold">{app.commissionPercent}%</span>
                                   </div>
                                   <div className="flex items-center justify-between gap-4 pt-1 border-t border-border/10">
                                     <div className="flex items-center gap-1.5">
-                                      <Calendar className="w-3 h-3 text-muted-foreground" />
-                                      <span className="text-[9px] text-muted-foreground font-medium uppercase">Fecha Pago:</span>
+                                      <Calendar className="w-3 h-3 opacity-60" />
+                                      <span className="text-[9px] opacity-60 font-medium uppercase">Fecha Pago:</span>
                                     </div>
                                     <span className="text-[10px] font-bold text-primary">
                                       {format(paymentDate, "d 'de' MMM", { locale: es })}

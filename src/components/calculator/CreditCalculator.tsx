@@ -70,7 +70,7 @@ const CalculatorInputs = ({
           <Label htmlFor={isModal ? "totalPriceModal" : "totalPrice"} className="text-xs font-bold text-primary uppercase tracking-wider">
             Monto del crédito (P)
           </Label>
-          <span className="text-[9px] font-bold text-muted-foreground/60 uppercase">Enganche Base: 3%</span>
+          <span className="text-[9px] font-bold opacity-60 uppercase">Enganche Base: 3%</span>
         </div>
         <div className="relative flex items-center">
           <span className={cn(
@@ -92,7 +92,7 @@ const CalculatorInputs = ({
           <Label htmlFor={isModal ? "monthlyPaymentModal" : "monthlyPayment"} className="text-xs font-bold text-accent uppercase tracking-wider">
             Mensualidad Total
           </Label>
-          <span className="text-[9px] font-bold text-muted-foreground/60 uppercase">Factor Base: {displayFactor}%</span>
+          <span className="text-[9px] font-bold opacity-60 uppercase">Factor Base: {displayFactor}%</span>
         </div>
         <div className="relative flex items-center">
           <span className={cn(
@@ -245,9 +245,9 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
                 <TooltipProvider>
                   <Tooltip delayDuration={0}>
                     <TooltipTrigger asChild>
-                      <Info className="w-4 h-4 text-muted-foreground/40 cursor-help hover:text-primary transition-colors" />
+                      <Info className="w-4 h-4 opacity-40 cursor-help hover:text-primary transition-colors" />
                     </TooltipTrigger>
-                    <TooltipContent className="max-w-[280px] p-3 text-[11px] leading-relaxed border-white border bg-black text-white" side="top">
+                    <TooltipContent className="max-w-[280px] p-3 text-[11px] leading-relaxed" side="top">
                       <p className="font-bold mb-1 text-primary">Modelo de Negocio Finanto</p>
                       Simulador basado en el Plan Tradicional 12pp. Proyecta mensualidades competitivas con un enganche mínimo del 3% y plazos flexibles de hasta 192 meses.
                     </TooltipContent>
@@ -275,7 +275,7 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
             <Progress value={Math.min(100, (totalDownPayment / (rawP || 1)) * 100)} className="h-2" />
           </div>
           <div className="pt-2 flex items-center justify-between">
-            <span className="text-[10px] text-muted-foreground/60 font-semibold uppercase">Factor: {(effectiveFactor * 100).toFixed(4)}%</span>
+            <span className="text-[10px] opacity-60 font-semibold uppercase">Factor: {(effectiveFactor * 100).toFixed(4)}%</span>
             <Button variant="ghost" size="sm" onClick={clear} className="text-muted-foreground hover:text-destructive h-8 px-2"><RotateCcw className="mr-1 h-3.5 w-3.5" /> Reiniciar</Button>
           </div>
         </CardContent>
@@ -307,9 +307,9 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
                     {currentExtraMonthly > 0 && <span className="text-[10px] font-black text-green-600 uppercase flex items-center gap-1"><Zap className="w-3 h-3" /> Optimizado: {projectedReducedTerm} m</span>}
                   </div>
                   <div className="grid grid-cols-2 gap-4 flex-1">
-                    <div><span className="text-[10px] uppercase font-bold text-muted-foreground">Monto Base</span><p className="font-bold text-lg">{formatCurrency(rawP)}</p></div>
-                    <div><span className="text-[10px] uppercase font-bold text-muted-foreground">Enganche</span><p className="font-bold text-lg text-primary">{formatCurrency(totalDownPayment)}</p></div>
-                    <div><span className="text-[10px] uppercase font-bold text-muted-foreground">Mensualidad</span><p className="font-bold text-lg text-primary">{formatCurrency(totalMonthlyLoad)}</p></div>
+                    <div><span className="text-[10px] uppercase font-bold opacity-60">Monto Base</span><p className="font-bold text-lg">{formatCurrency(rawP)}</p></div>
+                    <div><span className="text-[10px] uppercase font-bold opacity-60">Enganche</span><p className="font-bold text-lg text-primary">{formatCurrency(totalDownPayment)}</p></div>
+                    <div><span className="text-[10px] uppercase font-bold opacity-60">Mensualidad</span><p className="font-bold text-lg text-primary">{formatCurrency(totalMonthlyLoad)}</p></div>
                   </div>
                   <div className="pt-4 border-t border-primary/20"><span className="text-[10px] uppercase font-bold text-primary">Inversión Final Proyectada</span><p className="font-bold text-2xl text-primary">{formatCurrency(totalCostOfCredit)}</p></div>
                 </div>
@@ -318,15 +318,15 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
                   <div className="flex items-center gap-2 text-accent"><Receipt className="w-5 h-5" /><h4 className="text-[10px] font-bold uppercase">Gastos e Inversión</h4></div>
                   <div className="grid grid-cols-2 gap-4 flex-1">
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-muted-foreground">Escrituración (5%)</span>
+                      <span className="text-[10px] uppercase font-bold opacity-60">Escrituración (5%)</span>
                       <p className="font-bold text-lg">{formatCurrency(taxesEscrituracion)}</p>
                     </div>
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-muted-foreground">Inversión Total</span>
+                      <span className="text-[10px] uppercase font-bold opacity-60">Inversión Total</span>
                       <p className="font-bold text-lg text-accent">{formatCurrency(totalDownPayment + totalOperatingExpenses)}</p>
                     </div>
                     <div className="col-span-2 pt-2 border-t border-border/10">
-                      <span className="text-[10px] uppercase font-bold text-muted-foreground">Avalúo (Est. $7,500)</span>
+                      <span className="text-[10px] uppercase font-bold opacity-60">Avalúo (Est. $7,500)</span>
                       <p className="font-bold text-sm text-accent/80">{formatCurrency(appraisalFee)}</p>
                     </div>
                   </div>

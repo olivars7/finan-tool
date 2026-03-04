@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState } from 'react';
@@ -311,9 +310,9 @@ export default function UpcomingAppointments({
                                       <UserCog className="w-3.5 h-3.5 text-blue-500" />
                                     </div>
                                   </TooltipTrigger>
-                                  <TooltipContent className="shadow-xl border-border bg-card p-3 border-white">
+                                  <TooltipContent>
                                     <div className="space-y-1">
-                                      <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest">Prospectado por:</p>
+                                      <p className="text-[9px] font-bold uppercase opacity-60 tracking-widest">Prospectado por:</p>
                                       <p className="text-xs font-black text-blue-600">{app.prospectorName}</p>
                                     </div>
                                   </TooltipContent>
@@ -328,9 +327,9 @@ export default function UpcomingAppointments({
                                       <UserCheck className="w-3.5 h-3.5 text-purple-500" />
                                     </div>
                                   </TooltipTrigger>
-                                  <TooltipContent className="shadow-xl border-border bg-card p-3 border-white">
+                                  <TooltipContent>
                                     <div className="space-y-1">
-                                      <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest">Atendido por:</p>
+                                      <p className="text-[9px] font-bold uppercase opacity-60 tracking-widest">Atendido por:</p>
                                       <p className="text-xs font-black text-purple-600">{app.attendingExecutive}</p>
                                     </div>
                                   </TooltipContent>
@@ -418,7 +417,7 @@ export default function UpcomingAppointments({
                                     <CheckIcon className="w-4 h-4" />
                                   </Button>
                                 </TooltipTrigger>
-                                <TooltipContent className="bg-card border-border shadow-xl text-[10px] font-bold border-white">
+                                <TooltipContent>
                                   FINALIZAR CONSULTA
                                 </TooltipContent>
                               </Tooltip>
@@ -450,7 +449,7 @@ export default function UpcomingAppointments({
                 <ClipboardList className="w-4 h-4" /> Copiar Citas de Hoy
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="top" className="p-3 bg-card border-border shadow-2xl text-[10px] font-bold uppercase border-white">
+            <TooltipContent side="top">
               Copia todas las fichas de hoy para WhatsApp.
             </TooltipContent>
           </Tooltip>
@@ -468,7 +467,7 @@ export default function UpcomingAppointments({
                 <ClipboardCheck className="w-4 h-4" /> Reporte Diario
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="top" className="p-4 max-w-[280px] bg-card border-border shadow-2xl space-y-3 border-white">
+            <TooltipContent side="top" className="max-w-[280px] space-y-3">
               <div className="space-y-1">
                 <p className="text-[10px] font-bold text-primary uppercase">Vista previa del reporte:</p>
                 <div className="bg-muted/30 p-2 rounded text-[10px] font-mono leading-tight">
@@ -588,8 +587,8 @@ export default function UpcomingAppointments({
                     <span className="text-[9px] font-bold uppercase text-muted-foreground">Comisión Proyectada (Neto):</span>
                     <TooltipProvider>
                       <Tooltip>
-                        <TooltipTrigger asChild><Info className="w-3.5 h-3.5 text-muted-foreground/40 cursor-help" /></TooltipTrigger>
-                        <TooltipContent className="text-[10px] z-[300] border-white">Incluye retención del 9% de impuesto sobre el 0.7% del crédito.</TooltipContent>
+                        <TooltipTrigger asChild><Info className="w-3.5 h-3.5 opacity-40 cursor-help" /></TooltipTrigger>
+                        <TooltipContent className="text-[10px] z-[300]">Incluye retención del 9% de impuesto sobre el 0.7% del crédito.</TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
                   </div>

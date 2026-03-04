@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -646,9 +645,9 @@ Hora: ${timeBold}${confirmedBold}`;
                     <TooltipProvider>
                       <Tooltip delayDuration={0}>
                         <TooltipTrigger asChild>
-                          <Info className="w-3 h-3 text-muted-foreground/60 cursor-help" />
+                          <Info className="w-3 h-3 opacity-40 cursor-help" />
                         </TooltipTrigger>
-                        <TooltipContent className="max-w-[200px] text-[10px] border-white border" side="top">
+                        <TooltipContent className="max-w-[200px] text-[10px]" side="top">
                           Define el porcentaje de la comisión total (0.7% del crédito) que te corresponde por este cierre.
                         </TooltipContent>
                       </Tooltip>
@@ -678,9 +677,9 @@ Hora: ${timeBold}${confirmedBold}`;
                     <TooltipProvider>
                       <Tooltip delayDuration={0}>
                         <TooltipTrigger asChild>
-                          <Info className="w-3 h-3 text-muted-foreground/40 cursor-help" />
+                          <Info className="w-3 h-3 opacity-40 cursor-help" />
                         </TooltipTrigger>
-                        <TooltipContent className="text-[10px] border-white border" side="top">
+                        <TooltipContent className="text-[10px]" side="top">
                           Incluye retención del 9% de impuesto al monto ganado.
                         </TooltipContent>
                       </Tooltip>
@@ -694,9 +693,9 @@ Hora: ${timeBold}${confirmedBold}`;
                     <TooltipProvider>
                       <Tooltip delayDuration={0}>
                         <TooltipTrigger asChild>
-                          <Info className="w-3 h-3 text-muted-foreground/60 cursor-help" />
+                          <Info className="w-3 h-3 opacity-40 cursor-help" />
                         </TooltipTrigger>
-                        <TooltipContent className="max-w-[220px] text-[10px] border-white border" side="top">
+                        <TooltipContent className="max-w-[220px] text-[10px]" side="top">
                           <p className="font-bold mb-1">Ciclo de Liquidación:</p>
                           Ventas de Domingo a Martes se pagan el viernes de la siguiente semana. Ventas de Miércoles a Sábado se pagan el viernes de la subsiguiente semana.
                         </TooltipContent>
