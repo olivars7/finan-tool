@@ -603,7 +603,12 @@ export default function UpcomingAppointments({
             </div>
 
             <div className="space-y-3">
-              <Collapsible open={showExecutiveSection} onOpenChange={setShowExecutiveSection}>
+              <Collapsible open={showExecutiveSection} onOpenChange={(open) => {
+                setShowExecutiveSection(open);
+                if (open) {
+                  // Si se abre ejecutivo, se hereda exclusividad en guardado (no hay prospectador en este diálogo)
+                }
+              }}>
                 <CollapsibleTrigger asChild>
                   <Button type="button" variant="ghost" size="sm" className="h-7 text-[10px] font-bold uppercase text-purple-600 hover:bg-purple-500/10 px-0">
                     <UserCheck className="w-3.5 h-3.5 mr-2" />

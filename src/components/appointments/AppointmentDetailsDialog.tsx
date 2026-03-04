@@ -101,9 +101,18 @@ export default function AppointmentDetailsDialog({
       setNewProduct(appointment.product || 'Casa');
       setNewNotes(appointment.notes || '');
       setNewType(appointment.status === 'Cierre' ? 'Seguimiento' : '2da consulta');
-      setNewAttendingExecutive(appointment.attendingExecutive || '');
-      setNewProspectorName(appointment.prospectorName || '');
-      setNewProspectorPhone(appointment.prospectorPhone || '');
+      
+      // Herencia mutua exclusiva
+      if (appointment.prospectorName) {
+        setNewProspectorName(appointment.prospectorName);
+        setNewProspectorPhone(appointment.prospectorPhone || '');
+        setNewAttendingExecutive('');
+      } else {
+        setNewAttendingExecutive(appointment.attendingExecutive || '');
+        setNewProspectorName('');
+        setNewProspectorPhone('');
+      }
+      
       setNewDate('');
       setNewTime('');
     }
@@ -142,13 +151,29 @@ export default function AppointmentDetailsDialog({
       type: newType,
       product: newProduct,
       notes: newNotes,
-      prospectorName: newProspectorName || appointment.prospectorName,
-      prospectorPhone: newProspectorPhone || appointment.prospectorPhone,
-      attendingExecutive: newAttendingExecutive || appointment.attendingExecutive
+      prospectorName: newProspectorName || undefined,
+      prospectorPhone: newProspectorPhone || undefined,
+      attendingExecutive: newAttendingExecutive || undefined
     });
 
     setIsRescheduling(false);
     toast({ title: "Cita Agendada", description: `Nueva cita de ${newType} registrada para ${newName}.` });
+  };
+
+  const handleToggleEditProspector = (open: boolean) => {
+    setShowEditProspector(open);
+    if (open) {
+      setShowEditExecutive(false);
+      setEditData(prev => ({ ...prev, attendingExecutive: undefined }));
+    }
+  };
+
+  const handleToggleEditExecutive = (open: boolean) => {
+    setShowEditExecutive(open);
+    if (open) {
+      setShowEditProspector(false);
+      setEditData(prev => ({ ...prev, prospectorName: undefined, prospectorPhone: undefined }));
+    }
   };
 
   const copyPhoneOnly = () => {
@@ -335,7 +360,7 @@ Hora: ${timeBold}${confirmedBold}`;
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setShowEditProspector(!showEditProspector)}
+                    onClick={() => handleToggleEditProspector(!showEditProspector)}
                     className="h-7 text-[10px] font-bold uppercase text-blue-600 hover:bg-blue-500/10 px-0 w-full justify-between"
                     type="button"
                   >
@@ -371,7 +396,7 @@ Hora: ${timeBold}${confirmedBold}`;
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setShowEditExecutive(!showEditExecutive)}
+                    onClick={() => handleToggleEditExecutive(!showEditExecutive)}
                     className="h-7 text-[10px] font-bold uppercase text-purple-600 hover:bg-purple-500/10 px-0 w-full justify-between"
                     type="button"
                   >

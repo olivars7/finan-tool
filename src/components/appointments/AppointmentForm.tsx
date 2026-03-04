@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState } from 'react';
@@ -74,6 +75,23 @@ export default function AppointmentForm({ onAdd }: AppointmentFormProps) {
       title: "Cita agregada",
       description: `Cita de ${type} para ${name} registrada.`,
     });
+  };
+
+  const handleToggleProspector = (open: boolean) => {
+    setShowProspector(open);
+    if (open) {
+      setShowExecutive(false);
+      setAttendingExecutive('');
+    }
+  };
+
+  const handleToggleExecutive = (open: boolean) => {
+    setShowExecutive(open);
+    if (open) {
+      setShowProspector(false);
+      setProspectorName('');
+      setProspectorPhone('');
+    }
   };
 
   const setDateTomorrow = (e: React.MouseEvent) => {
@@ -198,7 +216,7 @@ export default function AppointmentForm({ onAdd }: AppointmentFormProps) {
           </div>
           
           <div className="flex flex-wrap gap-4">
-            <Collapsible open={showProspector} onOpenChange={setShowProspector} className="flex-1 min-w-[250px]">
+            <Collapsible open={showProspector} onOpenChange={handleToggleProspector} className="flex-1 min-w-[250px]">
               <CollapsibleTrigger asChild>
                 <Button type="button" variant="ghost" size="sm" className="h-7 text-[10px] font-bold uppercase text-primary hover:bg-primary/10 px-0">
                   <UserCog className="w-3.5 h-3.5 mr-2" />
@@ -232,7 +250,7 @@ export default function AppointmentForm({ onAdd }: AppointmentFormProps) {
               </CollapsibleContent>
             </Collapsible>
 
-            <Collapsible open={showExecutive} onOpenChange={setShowExecutive} className="flex-1 min-w-[250px]">
+            <Collapsible open={showExecutive} onOpenChange={handleToggleExecutive} className="flex-1 min-w-[250px]">
               <CollapsibleTrigger asChild>
                 <Button type="button" variant="ghost" size="sm" className="h-7 text-[10px] font-bold uppercase text-purple-500 hover:bg-purple-500/10 px-0">
                   <UserCheck className="w-3.5 h-3.5 mr-2" />

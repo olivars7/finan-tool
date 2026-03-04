@@ -229,7 +229,8 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
       const today = new Date();
 
       const overdueCommissions = currentApps.filter(app => {
-        const isSalesStatus = app.status === 'Cierre' || app.status === 'Apartado';
+        // ACTUALIZADO: Los Apartados NO disparan advertencias de pago
+        const isSalesStatus = app.status === 'Cierre';
         const isPending = (app.commissionStatus || 'Pendiente') === 'Pendiente';
         const notShownYet = !shownCommissionIds.current.has(app.id);
         
@@ -546,7 +547,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
                     <TooltipTrigger asChild>
                       {cardContent}
                     </TooltipTrigger>
-                    <TooltipContent side="bottom" sideOffset={1} className="bg-card border-border shadow-xl z-[100] p-3">
+                    <TooltipContent side="bottom" sideOffset={1} className="bg-card border-border shadow-xl z-[100] p-3 border-white">
                       {stat.tooltip}
                     </TooltipContent>
                   </Tooltip>
@@ -737,7 +738,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
                   <h3 className="text-lg font-bold">2. Gestión de Agenda Dinámica</h3>
                 </div>
                 <div className="pl-7 space-y-3 text-sm text-muted-foreground border-l-4 border-blue-500/40 bg-blue-500/5 p-4 rounded-r-xl">
-                  <p>Organiza tus prospectos mediante las pestañas de navegación:</p>
+                  <p>Organiza tus prospectos mediante las pestañas de navigation:</p>
                   <ul className="list-disc pl-4 space-y-2">
                     <li><strong>Pestaña Próximas:</strong> Tu centro de operaciones. Aquí verás tus citas de hoy y futuros días.
                       <ul className="pl-4 mt-1 list-circle space-y-1">

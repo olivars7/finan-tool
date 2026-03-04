@@ -113,6 +113,7 @@ export const formatPhoneNumber = (phone: string): string => {
 
 /**
  * Genera datos de prueba realistas y variados (60 registros).
+ * Se asegura que un registro NO tenga prospectador y ejecutivo simultáneamente.
  */
 export const generateSeedData = (): Appointment[] => {
   const data: Appointment[] = [];
@@ -153,6 +154,16 @@ export const generateSeedData = (): Appointment[] => {
     
     const isTodayApp = isToday(appDate);
     
+    // Lógica de exclusividad: 30% prospectador, 30% ejecutivo, 40% ninguno
+    const rand = Math.random();
+    let pName, pPhone, eName;
+    if (rand < 0.3) {
+      pName = 'Agente Externo ' + (i % 5);
+      pPhone = '664 555 0000';
+    } else if (rand < 0.6) {
+      eName = executives[i % executives.length];
+    }
+
     data.push({
       id: uuidv4(),
       name: getName(i),
@@ -164,8 +175,9 @@ export const generateSeedData = (): Appointment[] => {
       isConfirmed: isTodayApp ? Math.random() > 0.5 : false,
       isArchived: false,
       notes: i % 4 === 0 ? `Interés en ${products[i % products.length]} zona centro.` : '',
-      prospectorName: i % 5 === 0 ? 'Agente Externo' : undefined,
-      attendingExecutive: i % 7 === 0 ? executives[i % executives.length] : undefined
+      prospectorName: pName,
+      prospectorPhone: pPhone,
+      attendingExecutive: eName
     });
   }
 
@@ -181,8 +193,17 @@ export const generateSeedData = (): Appointment[] => {
     else if (i % 12 === 0) status = 'Reagendó';
 
     const isSale = status === 'Cierre';
-    const isApartado = status === 'Apartado';
     
+    // Lógica de exclusividad
+    const rand = Math.random();
+    let pName, pPhone, eName;
+    if (rand < 0.3) {
+      pName = 'Marketing FB';
+      pPhone = '664 111 2222';
+    } else if (rand < 0.6) {
+      eName = executives[i % executives.length];
+    }
+
     data.push({
       id: uuidv4(),
       name: getName(globalIndex),
@@ -198,8 +219,9 @@ export const generateSeedData = (): Appointment[] => {
       commissionStatus: isSale ? (i % 2 === 0 ? 'Pagada' : 'Pendiente') : undefined,
       commissionPercent: isSale ? (i % 3 === 0 ? 50 : 100) : undefined,
       finalCreditAmount: isSale ? Math.floor(800000 + Math.random() * 2500000) : undefined,
-      attendingExecutive: i % 6 === 0 ? executives[i % executives.length] : undefined,
-      prospectorName: i % 8 === 0 ? 'Marketing FB' : undefined
+      attendingExecutive: eName,
+      prospectorName: pName,
+      prospectorPhone: pPhone
     });
   }
   
