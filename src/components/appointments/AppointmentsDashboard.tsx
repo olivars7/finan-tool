@@ -215,7 +215,7 @@ export default function AppointmentsDashboard({
               <CalendarClock className="text-blue-600 w-6 h-6" />
             </div>
             <div>
-              <CardTitle className="text-xl font-semibold">Gestión de citas</CardTitle>
+              <CardTitle className="text-xl font-semibold">Agenda</CardTitle>
               <CardDescription className="text-muted-foreground">Monitoreo de prospectos</CardDescription>
             </div>
           </div>
@@ -259,7 +259,7 @@ export default function AppointmentsDashboard({
                 <LayoutDashboard className="text-blue-600 w-6 h-6" />
               </div>
               <div>
-                <DialogTitle className="text-xl font-bold">Panel de Control de Citas</DialogTitle>
+                <DialogTitle className="text-xl font-bold">Agenda</DialogTitle>
                 <DialogDescription className="text-xs">Vista completa del flujo.</DialogDescription>
               </div>
             </div>
