@@ -238,11 +238,11 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
               <div className="flex items-center gap-2">
                 <CardTitle className="text-xl font-headline font-semibold">Calculadora rápida</CardTitle>
                 <TooltipProvider>
-                  <Tooltip>
+                  <Tooltip delayDuration={0}>
                     <TooltipTrigger asChild>
                       <Info className="w-4 h-4 text-muted-foreground/40 cursor-help hover:text-primary transition-colors" />
                     </TooltipTrigger>
-                    <TooltipContent className="max-w-[280px] p-3 text-xs leading-relaxed">
+                    <TooltipContent className="max-w-[280px] p-3 text-[11px] leading-relaxed border-white border bg-black text-white" side="top">
                       <p className="font-bold mb-1 text-primary">Modelo de Negocio Finanto</p>
                       Simulador basado en el Plan Tradicional 12pp. Proyecta mensualidades competitivas con un enganche mínimo del 3% y plazos flexibles de hasta 192 meses.
                     </TooltipContent>

@@ -505,7 +505,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
               >
                 <div 
                   className="absolute inset-0 pointer-events-none animate-periodic-glow" 
-                  style={{ animationDelay: `${i * 0.25}s` }}
+                  style={{ animationDelay: `${i * 0.1}s` }}
                 />
                 <CardContent className="p-4 flex items-center gap-3 relative z-10">
                   <div className={cn("p-2 rounded-full bg-muted/50", stat.color)}><stat.icon className="w-5 h-5" /></div>

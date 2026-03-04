@@ -28,7 +28,7 @@
     --calendar-filter: none;
     --font-body: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
     --font-headline: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    --tooltip-bg: 0 0% 100%;
+    --tooltip-bg: 0 0% 10%;
   }
 
   [data-theme="tranquilo"] {

@@ -4,13 +4,14 @@ import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
-  TrendingUp, BarChart3, Maximize2, X, Activity, CalendarDays, Trophy, Users, History, Coins, ArrowUpRight, ArrowDownRight, Zap, Target, Receipt
+  TrendingUp, BarChart3, Maximize2, X, Activity, CalendarDays, Trophy, Users, History, Coins, ArrowUpRight, ArrowDownRight, Zap, Target, Receipt, Percent, Info
 } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Cell, LabelList } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
 interface AdvancedStatsProps {
   stats: any;
@@ -36,16 +37,15 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
   const closingRate = attendanceRate > 0 ? (stats.conversionRate / (attendanceRate / 100)) : 0;
   const monthlyGrowth = stats.lastMonthProspects > 0 ? ((stats.currentMonthProspects - stats.lastMonthProspects) / stats.lastMonthProspects) * 100 : 0;
   const taxImpact = stats.currentMonthCommission / 0.91 * 0.09;
-  const avgCredit = stats.currentMonthSales > 0 ? stats.totalCreditSold / stats.currentMonthSales : 0;
 
   const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(Math.round(val));
   };
 
   const getAdvice = () => {
-    if (stats.conversionRate > 20) return "Tu tasa de cierre es excepcional. Enfócate en captar perfiles de crédito más alto para maximizar el retorno por esfuerzo.";
-    if (stats.conversionRate < 8) return "Conversión baja detectada. Revisa el protocolo de calificación de prospectos antes de agendar para asegurar la calidad de la agenda.";
-    return "Ritmo operativo estable y saludable. Mantén el registro de notas detalladas para facilitar el seguimiento a largo plazo.";
+    if (stats.conversionRate > 20) return "Tasa de cierre excepcional. Mantén el enfoque en prospectos de alto perfil.";
+    if (stats.conversionRate < 8) return "Conversión baja. Sugerimos revisar el protocolo de perfilamiento inicial.";
+    return "Ritmo operativo estable. Mantén el seguimiento detallado de cada prospecto.";
   };
 
   const WeeklyChart = ({ data, title, icon: Icon, opacity = 1 }: { data: any, title: string, icon: any, opacity?: number }) => (
@@ -126,11 +126,17 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                     { icon: TrendingUp, color: 'text-primary', label: 'Eficiencia', value: `${Math.round(closingRate)}%`, val1: 'Atendidas', sub1: 'Base' },
                     { icon: Users, color: 'text-accent', label: 'Prospectos', value: stats.currentMonthProspects, growth: monthlyGrowth, val1: stats.lastMonthProspects, sub1: 'Mes Ant.' },
                     { icon: Trophy, color: 'text-green-500', label: 'Cierres', value: stats.currentMonthSales, val1: stats.currentMonthOnlyCierre, sub1: 'Ventas' },
-                    { icon: Coins, color: 'text-yellow-600', label: 'Ingresos', value: formatCurrency(stats.currentMonthCommission), val1: formatCurrency(stats.thisFridayCommission), sub1: 'Viernes' }
+                    { icon: Coins, color: 'text-yellow-600', label: 'Ingresos', value: formatCurrency(stats.currentMonthCommission), val1: formatCurrency(stats.thisFridayCommission), sub1: 'Viernes', isGradient: true }
                   ].map((s, i) => (
                     <Card key={i} className="bg-card/40 border-primary/20 p-4 space-y-3 hover:bg-primary/10 transition-colors duration-300 cursor-default group">
                       <div className="flex justify-between items-start"><div className={cn("p-2 rounded-lg bg-muted/20 group-hover:bg-background/50 transition-colors", s.color)}><s.icon className="w-4 h-4" /></div>{s.growth !== undefined && <span className={cn("text-[10px] font-bold flex items-center", s.growth >= 0 ? "text-green-500" : "text-destructive")}>{s.growth >= 0 ? <ArrowUpRight className="w-3 h-3"/> : <ArrowDownRight className="w-3 h-3"/>} {Math.abs(Math.round(s.growth))}%</span>}</div>
-                      <div><p className="text-[9px] uppercase font-bold text-muted-foreground">{s.label}</p><p className="text-2xl font-black truncate">{s.value}</p></div>
+                      <div>
+                        <p className="text-[9px] uppercase font-bold text-muted-foreground">{s.label}</p>
+                        <p className={cn(
+                          "text-2xl font-black truncate",
+                          s.isGradient && "bg-gradient-to-r from-[#00F5FF] via-[#1877F2] to-[#7B61FF] bg-clip-text text-transparent"
+                        )}>{s.value}</p>
+                      </div>
                       <div className="pt-2 border-t border-border/10 flex justify-between"><span className="text-[8px] font-bold text-muted-foreground uppercase">{s.sub1}</span><span className="text-xs font-bold">{s.val1}</span></div>
                     </Card>
                   ))}
@@ -160,8 +166,8 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                           <span className="text-[8px] text-green-500 font-bold uppercase">Neto tras impuestos</span>
                         </div>
                         <div>
-                          <span className="text-[10px] font-bold uppercase block text-muted-foreground mb-1">Crédito Promedio</span>
-                          <p className="text-2xl font-black text-foreground">{formatCurrency(avgCredit)}</p>
+                          <span className="text-[10px] font-bold uppercase block text-muted-foreground mb-1">Participación Promedio</span>
+                          <p className="text-2xl font-black text-foreground">{stats.avgParticipation}%</p>
                           <span className="text-[8px] text-muted-foreground font-bold uppercase">Por cada cierre</span>
                         </div>
                         <div>
@@ -206,7 +212,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                             <span className="text-[10px] font-bold uppercase text-muted-foreground">Pendiente de Conciliación</span>
                             <span className="text-sm font-black text-yellow-600">{formatCurrency(stats.overdueCommission)}</span>
                           </div>
-                          <p className="text-[9px] text-muted-foreground italic leading-tight">Recuerda que las comisiones se liquidan los viernes según el ciclo de firma (Domingo-Martes / Miércoles-Sábado).</p>
+                          <p className="text-[9px] text-muted-foreground italic leading-tight">Recuerda que las comisiones se liquidan los viernes según el ciclo de firma.</p>
                         </div>
                       </Card>
                     </div>
@@ -219,13 +225,13 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                         <Zap className="w-5 h-5 text-accent" />
                         <span className="text-[10px] font-bold uppercase text-accent/80 tracking-widest">Sugerencia Estratégica</span>
                       </div>
-                      <p className="text-sm font-bold border-l-2 border-accent/30 pl-4 leading-relaxed text-foreground/90 italic">"{getAdvice()}"</p>
+                      <p className="text-sm font-bold border-l-2 border-accent/30 pl-4 leading-relaxed text-foreground/90 italic">{getAdvice()}</p>
                       <div className="pt-2">
                         <div className="flex items-center gap-2 mb-2">
                           <Target className="w-4 h-4 text-accent/60" />
                           <span className="text-[9px] font-bold uppercase text-muted-foreground">KPI Sugerido</span>
                         </div>
-                        <p className="text-[11px] text-muted-foreground leading-relaxed">Incrementar el número de citas de seguimiento ("2da consulta") puede elevar tu conversión hasta un 15% adicional este mes.</p>
+                        <p className="text-[11px] text-muted-foreground leading-relaxed">Incrementar las citas de seguimiento puede elevar tu conversión hasta un 15% adicional.</p>
                       </div>
                     </Card>
 
@@ -248,7 +254,10 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                             <span className="text-xl font-black text-muted-foreground/60">{stats.lastMonthProspects}</span>
                           </div>
                         </div>
-                        <p className="text-[10px] text-muted-foreground leading-snug">El volumen de prospectos es la base de tu embudo. Un crecimiento sostenido garantiza estabilidad en los cierres futuros.</p>
+                        <div className="space-y-1 pt-2">
+                          <div className="flex justify-between text-[8px] font-bold uppercase"><span>Crecimiento de Embudo</span><span>{Math.abs(Math.round(monthlyGrowth))}%</span></div>
+                          <Progress value={Math.min(100, Math.abs(monthlyGrowth))} className={cn("h-1", monthlyGrowth >= 0 ? "bg-green-500/20" : "bg-destructive/20")} />
+                        </div>
                       </div>
                     </Card>
                   </div>
