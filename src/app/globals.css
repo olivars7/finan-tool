@@ -211,7 +211,7 @@
 
 /* New Animations for Panel de Inteligencia */
 @keyframes stats-box-entrance {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -228,7 +228,7 @@
 }
 
 @keyframes stats-reveal {
-  from { opacity: 0; transform: scale(0.98) translateY(10px); filter: blur(5px); }
+  from { opacity: 0; transform: scale(0.98) translateY(12px); filter: blur(5px); }
   to { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
 }
 
@@ -238,11 +238,11 @@
 }
 
 .animate-stats-reveal {
-  animation: stats-reveal 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: stats-reveal 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .animate-entrance-stagger {
-  animation: stats-box-entrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: stats-box-entrance 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .animate-staggered-periodic {

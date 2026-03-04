@@ -1,15 +1,13 @@
-
 "use client"
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
+import React from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
-  TrendingUp, BarChart3, Maximize2, X, Info, Activity, CalendarDays, Trophy, Users, History, Coins, ArrowUpRight, ArrowDownRight, Receipt, Zap, Percent
+  TrendingUp, BarChart3, Maximize2, X, Activity, CalendarDays, Trophy, Users, History, Coins, ArrowUpRight, ArrowDownRight, Zap
 } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Cell, LabelList } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
@@ -33,21 +31,6 @@ const ZeroLabel = (props: any) => {
 };
 
 export default function AdvancedStats({ stats, isExpanded = false, onExpandedChange }: AdvancedStatsProps) {
-  const [showIntro, setShowIntro] = useState(false);
-  const [showContent, setShowContent] = useState(false);
-
-  useEffect(() => {
-    if (isExpanded) {
-      setShowIntro(true);
-      setShowContent(false);
-      const timer = setTimeout(() => {
-        setShowIntro(false);
-        setShowContent(true);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [isExpanded]);
-
   const totalMonth = stats.currentMonthProspects || 0;
   const attendanceRate = totalMonth > 0 ? Math.min(95, 75 + (stats.todayConfirmed / (stats.todayCount || 1) * 10)) : 0;
   const closingRate = attendanceRate > 0 ? (stats.conversionRate / (attendanceRate / 100)) : 0;
@@ -124,46 +107,40 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
       <Dialog open={isExpanded} onOpenChange={onExpandedChange}>
         <DialogContent data-calculator-dialog="true" className="max-w-none w-screen h-screen m-0 rounded-none bg-background border-none p-0 flex flex-col overflow-hidden">
           <DialogTitle className="sr-only">Inteligencia Finanto</DialogTitle>
-          {showIntro ? (
-            <div className="flex-1 flex items-center justify-center bg-background/95 backdrop-blur-3xl z-[300]">
-              <h2 className="text-6xl md:text-8xl font-black tracking-tighter bg-gradient-to-r from-[#00F5FF] via-[#7B61FF] to-[#FF00D6] bg-clip-text text-transparent animate-intro-text text-center px-4">INTELIGENCIA FINANTO</h2>
-            </div>
-          ) : showContent ? (
-            <div className="flex-1 flex flex-col animate-stats-reveal">
-              <DialogHeader className="px-6 py-4 border-b border-border/40 flex flex-row items-center justify-between bg-card/10 shrink-0">
-                <div className="flex items-center gap-3"><div className="bg-primary/20 p-2 rounded-xl border border-primary/30"><BarChart3 className="text-primary w-6 h-6" /></div><div><h3 className="text-xl font-bold">Inteligencia Avanzada</h3><DialogDescription className="text-xs">Análisis financiero operativo.</DialogDescription></div></div>
-                <DialogClose asChild><Button variant="ghost" size="icon" className="rounded-full hover:bg-destructive/10 h-10 w-10"><X className="w-5 h-5" /></Button></DialogClose>
-              </DialogHeader>
-              <div className="flex-1 overflow-y-auto p-8 scrollbar-thin bg-muted/5">
-                <div className="max-w-[1400px] mx-auto space-y-8">
-                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                    {[
-                      { icon: CalendarDays, color: 'text-primary', label: 'Citas Hoy', value: stats.todayCount, val1: stats.todayConfirmed, sub1: 'Conf.' },
-                      { icon: TrendingUp, color: 'text-primary', label: 'Eficiencia', value: `${Math.round(closingRate)}%`, val1: 'Atendidas', sub1: 'Base' },
-                      { icon: Users, color: 'text-accent', label: 'Prospectos', value: stats.currentMonthProspects, growth: monthlyGrowth, val1: stats.lastMonthProspects, sub1: 'Mes Ant.' },
-                      { icon: Trophy, color: 'text-green-500', label: 'Cierres', value: stats.currentMonthSales, val1: stats.currentMonthOnlyCierre, sub1: 'Ventas' },
-                      { icon: Coins, color: 'text-yellow-600', label: 'Ingresos', value: formatCurrency(stats.currentMonthCommission), val1: formatCurrency(stats.thisFridayCommission), sub1: 'Viernes' }
-                    ].map((s, i) => (
-                      <Card key={i} className="bg-card/40 border-primary/20 p-4 space-y-3 animate-entrance-stagger animate-staggered-periodic" style={{ animationDelay: `${i * 0.1}s, ${i * 0.2}s` }}>
-                        <div className="flex justify-between items-start"><div className={cn("p-2 rounded-lg bg-muted/20", s.color)}><s.icon className="w-4 h-4" /></div>{s.growth !== undefined && <span className={cn("text-[10px] font-bold flex items-center", s.growth >= 0 ? "text-green-500" : "text-destructive")}>{s.growth >= 0 ? <ArrowUpRight className="w-3 h-3"/> : <ArrowDownRight className="w-3 h-3"/>} {Math.abs(Math.round(s.growth))}%</span>}</div>
-                        <div><p className="text-[9px] uppercase font-bold text-muted-foreground">{s.label}</p><p className="text-2xl font-black truncate">{s.value}</p></div>
-                        <div className="pt-2 border-t border-border/10 flex justify-between"><span className="text-[8px] font-bold text-muted-foreground uppercase">{s.sub1}</span><span className="text-xs font-bold">{s.val1}</span></div>
-                      </Card>
-                    ))}
-                  </div>
-                  <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
-                    <div className="xl:col-span-8 space-y-6"><div className="grid grid-cols-1 md:grid-cols-2 gap-6"><WeeklyChart data={stats.charts.dailyActivity} title="Actual" icon={CalendarDays} /><WeeklyChart data={stats.charts.lastWeekActivity} title="Anterior" icon={History} opacity={0.65} /></div>
-                    <Card className="bg-card border-border/40 overflow-hidden"><CardHeader className="bg-muted/30 p-4 border-b text-xs font-bold uppercase"><Zap className="w-4 h-4 text-yellow-500 inline mr-2" /> Insights</CardHeader><CardContent className="p-6 grid grid-cols-1 md:grid-cols-3 gap-8">
-                      <div><span className="text-[10px] font-bold uppercase block text-muted-foreground">Vendido</span><p className="text-2xl font-black">{formatCurrency(stats.totalCreditSold)}</p></div>
-                      <div><span className="text-[10px] font-bold uppercase block text-muted-foreground">Part. Media</span><p className="text-2xl font-black text-primary">{stats.avgParticipation}%</p></div>
-                      <div><span className="text-[10px] font-bold uppercase block text-muted-foreground">Impuestos</span><p className="text-2xl font-black text-destructive">{formatCurrency(taxImpact)}</p></div>
-                    </CardContent></Card></div>
-                    <div className="xl:col-span-4 space-y-6"><PerformanceSection /><Card className="border-accent/20 bg-accent/5 p-4"><Zap className="w-4 h-4 text-accent inline mr-2" /><span className="text-[10px] font-bold uppercase text-accent/80">Sugerencia</span><p className="text-sm mt-2 font-bold border-l-2 border-accent/30 pl-3 leading-relaxed">{getAdvice()}</p></Card></div>
-                  </div>
+          <div className="flex-1 flex flex-col animate-stats-reveal">
+            <DialogHeader className="px-6 py-4 border-b border-border/40 flex flex-row items-center justify-between bg-card/10 shrink-0">
+              <div className="flex items-center gap-3"><div className="bg-primary/20 p-2 rounded-xl border border-primary/30"><BarChart3 className="text-primary w-6 h-6" /></div><div><h3 className="text-xl font-bold">Inteligencia Avanzada</h3><DialogDescription className="text-xs">Análisis financiero operativo.</DialogDescription></div></div>
+              <DialogClose asChild><Button variant="ghost" size="icon" className="rounded-full hover:bg-destructive/10 h-10 w-10"><X className="w-5 h-5" /></Button></DialogClose>
+            </DialogHeader>
+            <div className="flex-1 overflow-y-auto p-8 scrollbar-thin bg-muted/5">
+              <div className="max-w-[1400px] mx-auto space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                  {[
+                    { icon: CalendarDays, color: 'text-primary', label: 'Citas Hoy', value: stats.todayCount, val1: stats.todayConfirmed, sub1: 'Conf.' },
+                    { icon: TrendingUp, color: 'text-primary', label: 'Eficiencia', value: `${Math.round(closingRate)}%`, val1: 'Atendidas', sub1: 'Base' },
+                    { icon: Users, color: 'text-accent', label: 'Prospectos', value: stats.currentMonthProspects, growth: monthlyGrowth, val1: stats.lastMonthProspects, sub1: 'Mes Ant.' },
+                    { icon: Trophy, color: 'text-green-500', label: 'Cierres', value: stats.currentMonthSales, val1: stats.currentMonthOnlyCierre, sub1: 'Ventas' },
+                    { icon: Coins, color: 'text-yellow-600', label: 'Ingresos', value: formatCurrency(stats.currentMonthCommission), val1: formatCurrency(stats.thisFridayCommission), sub1: 'Viernes' }
+                  ].map((s, i) => (
+                    <Card key={i} className="bg-card/40 border-primary/20 p-4 space-y-3 animate-entrance-stagger animate-staggered-periodic" style={{ animationDelay: `${i * 0.15}s, ${i * 0.25}s` }}>
+                      <div className="flex justify-between items-start"><div className={cn("p-2 rounded-lg bg-muted/20", s.color)}><s.icon className="w-4 h-4" /></div>{s.growth !== undefined && <span className={cn("text-[10px] font-bold flex items-center", s.growth >= 0 ? "text-green-500" : "text-destructive")}>{s.growth >= 0 ? <ArrowUpRight className="w-3 h-3"/> : <ArrowDownRight className="w-3 h-3"/>} {Math.abs(Math.round(s.growth))}%</span>}</div>
+                      <div><p className="text-[9px] uppercase font-bold text-muted-foreground">{s.label}</p><p className="text-2xl font-black truncate">{s.value}</p></div>
+                      <div className="pt-2 border-t border-border/10 flex justify-between"><span className="text-[8px] font-bold text-muted-foreground uppercase">{s.sub1}</span><span className="text-xs font-bold">{s.val1}</span></div>
+                    </Card>
+                  ))}
+                </div>
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+                  <div className="xl:col-span-8 space-y-6"><div className="grid grid-cols-1 md:grid-cols-2 gap-6"><WeeklyChart data={stats.charts.dailyActivity} title="Actual" icon={CalendarDays} /><WeeklyChart data={stats.charts.lastWeekActivity} title="Anterior" icon={History} opacity={0.65} /></div>
+                  <Card className="bg-card border-border/40 overflow-hidden animate-entrance-stagger" style={{ animationDelay: '0.6s' }}><CardHeader className="bg-muted/30 p-4 border-b text-xs font-bold uppercase"><Zap className="w-4 h-4 text-yellow-500 inline mr-2" /> Insights</CardHeader><CardContent className="p-6 grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div><span className="text-[10px] font-bold uppercase block text-muted-foreground">Vendido</span><p className="text-2xl font-black">{formatCurrency(stats.totalCreditSold)}</p></div>
+                    <div><span className="text-[10px] font-bold uppercase block text-muted-foreground">Part. Media</span><p className="text-2xl font-black text-primary">{stats.avgParticipation}%</p></div>
+                    <div><span className="text-[10px] font-bold uppercase block text-muted-foreground">Impuestos</span><p className="text-2xl font-black text-destructive">{formatCurrency(taxImpact)}</p></div>
+                  </CardContent></Card></div>
+                  <div className="xl:col-span-4 space-y-6 animate-entrance-stagger" style={{ animationDelay: '0.8s' }}><PerformanceSection /><Card className="border-accent/20 bg-accent/5 p-4"><Zap className="w-4 h-4 text-accent inline mr-2" /><span className="text-[10px] font-bold uppercase text-accent/80">Sugerencia</span><p className="text-sm mt-2 font-bold border-l-2 border-accent/30 pl-3 leading-relaxed">{getAdvice()}</p></Card></div>
                 </div>
               </div>
             </div>
-          ) : null}
+          </div>
         </DialogContent>
       </Dialog>
     </>

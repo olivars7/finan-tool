@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import AppointmentForm from './AppointmentForm';
 import UpcomingAppointments from './UpcomingAppointments';
 import PastAppointments from './PastAppointments';
@@ -20,8 +20,7 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { Appointment } from '@/services/appointment-service';
-import { parseISO, format, isAfter, isBefore, isToday, startOfDay } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { parseISO, isAfter, isBefore, isToday, startOfDay } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -94,7 +93,7 @@ const DashboardContent = ({
         <div className="flex flex-col gap-4 mb-6 shrink-0 bg-muted/10 p-6 rounded-2xl border border-border/30 backdrop-blur-md animate-entrance-stagger">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
             {microStats.map((s, i) => (
-              <div key={i} className="flex flex-col animate-entrance-stagger" style={{ animationDelay: `${i * 0.1}s` }}>
+              <div key={i} className="flex flex-col animate-entrance-stagger" style={{ animationDelay: `${i * 0.15}s` }}>
                 <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest mb-1">{s.label}</span>
                 <div className="flex items-center gap-2">
                   <div className={cn("p-1.5 rounded-lg border bg-muted/20", s.color, "border-current/20")}><s.icon className="w-3.5 h-3.5"/></div>
@@ -113,7 +112,7 @@ const DashboardContent = ({
         </TabsList>
       </div>
 
-      <div className="flex-1 min-h-0 animate-stats-reveal" style={{ animationDelay: '0.4s' }}>
+      <div className="flex-1 min-h-0 animate-stats-reveal" style={{ animationDelay: '0.5s' }}>
         <TabsContent value="upcoming" className="mt-0 h-full overflow-hidden">
           <UpcomingAppointments appointments={filteredUpcoming} allAppointments={appointments} formatDate={formatFriendlyDate} format12hTime={format12hTime} onSelect={handleSelect} onHighlight={handleHighlight} editAppointment={editAppointment} archiveAppointment={archiveAppointment} unarchiveAppointment={unarchiveAppointment} activeId={activeId} expanded={expanded} onCelebrate={onCelebrate} />
         </TabsContent>
@@ -169,7 +168,7 @@ export default function AppointmentsDashboard({
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          <DashboardContent activeTab={activeTab} setActiveTab={setActiveTab} appointments={appointments} editAppointment={editAppointment} archiveAppointment={archiveAppointment} unarchiveAppointment={unarchiveAppointment} formatFriendlyDate={formatFriendlyDate} format12hTime={format12hTime} handleSelect={handleSelect} handleHighlight={handleHighlight} activeId={activeId} visibleCountPast={visibleCountPast} setVisibleCountPast={setVisibleCountPast} stats={stats} searchTerm={searchTerm} onCelebrate={onCelebrate} />
+          <DashboardContent activeTab={activeTab} setActiveTab={setActiveTab} appointments={appointments} editAppointment={editAppointment} archiveAppointment={archiveAppointment} unarchiveAppointment={unarchiveAppointment} formatFriendlyDate={formatFriendlyDate} format12hTime={format12hTime} handleSelect={handleSelect} handleHighlight={handleHighlight} activeId={activeId} visibleCountPast={visibleCountPast} setVisibleCount={setVisibleCountPast} stats={stats} searchTerm={searchTerm} onCelebrate={onCelebrate} />
         </CardContent>
       </Card>
 
@@ -180,7 +179,7 @@ export default function AppointmentsDashboard({
             <div className="flex items-center gap-4"><div className="relative w-80 hidden md:block"><Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" /><Input placeholder="Búsqueda global..." className="pl-9 h-10 bg-muted/30" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} /></div><DialogClose asChild><Button variant="ghost" size="icon" className="rounded-full hover:bg-destructive/10 h-10 w-10"><X className="w-5 h-5" /></Button></DialogClose></div>
           </DialogHeader>
           <div className="flex-1 p-6 overflow-hidden flex flex-col">
-            <DashboardContent expanded={true} activeTab={activeTab} setActiveTab={setActiveTab} appointments={appointments} editAppointment={editAppointment} archiveAppointment={archiveAppointment} unarchiveAppointment={unarchiveAppointment} formatFriendlyDate={formatFriendlyDate} format12hTime={format12hTime} handleSelect={handleSelect} handleHighlight={handleHighlight} activeId={activeId} visibleCountPast={visibleCountPast} setVisibleCountPast={setVisibleCountPast} stats={stats} searchTerm={searchTerm} onCelebrate={onCelebrate} />
+            <DashboardContent expanded={true} activeTab={activeTab} setActiveTab={setActiveTab} appointments={appointments} editAppointment={editAppointment} archiveAppointment={archiveAppointment} unarchiveAppointment={unarchiveAppointment} formatFriendlyDate={formatFriendlyDate} format12hTime={format12hTime} handleSelect={handleSelect} handleHighlight={handleHighlight} activeId={activeId} visibleCountPast={visibleCountPast} setVisibleCount={setVisibleCountPast} stats={stats} searchTerm={searchTerm} onCelebrate={onCelebrate} />
           </div>
         </DialogContent>
       </Dialog>
