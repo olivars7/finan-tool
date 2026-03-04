@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -503,10 +504,6 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
                 key={i}
                 className="bg-card/30 backdrop-blur-md border-none hover:bg-card/50 cursor-default h-full transition-colors duration-300 relative overflow-hidden"
               >
-                <div 
-                  className="absolute inset-0 pointer-events-none animate-periodic-glow" 
-                  style={{ animationDelay: `${i * 0.05}s` }}
-                />
                 <CardContent className="p-4 flex items-center gap-3 relative z-10">
                   <div className={cn("p-2 rounded-full bg-muted/50", stat.color)}><stat.icon className="w-5 h-5" /></div>
                   <div className="flex-1 overflow-hidden">
