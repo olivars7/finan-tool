@@ -229,7 +229,7 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
 
   return (
     <>
-      <Card className="shadow-xl bg-card border-border overflow-hidden">
+      <Card className="shadow-xl bg-card border-border overflow-hidden animate-entrance-stagger">
         <CardHeader className="bg-primary/5 border-b border-border/50">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">

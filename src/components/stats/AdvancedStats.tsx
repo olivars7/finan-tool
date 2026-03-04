@@ -96,7 +96,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
 
   return (
     <>
-      <Card className="shadow-lg bg-card border-border overflow-hidden">
+      <Card className="shadow-lg bg-card border-border overflow-hidden animate-entrance-stagger" style={{ animationDelay: '0.6s' }}>
         <CardHeader className="bg-primary/5 border-b border-border/50 py-4 flex flex-row items-center justify-between">
           <div className="flex items-center gap-2"><BarChart3 className="text-primary w-5 h-5" /><CardTitle className="text-lg font-semibold">Stats</CardTitle></div>
           <Button variant="ghost" size="icon" onClick={() => onExpandedChange(true)} className="h-8 w-8 text-muted-foreground/60 hover:text-primary"><Maximize2 className="w-4 h-4" /></Button>

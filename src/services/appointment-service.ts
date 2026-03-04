@@ -131,6 +131,7 @@ export const generateSeedData = (): Appointment[] => {
 
   const products: AppointmentProduct[] = ['Casa', 'Departamento', 'Terreno', 'Transporte', 'Préstamo'];
   const hours = ['09:00', '10:30', '12:00', '13:30', '15:00', '16:30', '18:00'];
+  const executives = ['Marco Olivares', 'Brenda Solis', 'Kevin Castro', 'Diana Reyes', 'Andrés Luna'];
 
   const now = new Date();
 
@@ -165,15 +166,16 @@ export const generateSeedData = (): Appointment[] => {
       isConfirmed: isTodayApp ? Math.random() > 0.5 : false,
       isArchived: false,
       notes: i % 4 === 0 ? `Interés en ${products[i % products.length]} zona centro.` : '',
+      prospectorName: i % 5 === 0 ? 'Agente Externo' : undefined,
+      attendingExecutive: i % 7 === 0 ? executives[i % executives.length] : undefined
     });
   }
 
   // 35 Citas Pasadas (Historial con cierres variados)
   for (let i = 0; i < 35; i++) {
-    const pastDate = subDays(now, (i % 20) + 1);
+    const pastDate = i < 15 ? subDays(now, (i % 20) + 1) : subMonths(subDays(now, i % 10), 1);
     const globalIndex = i + 25;
     
-    // Distribuir resultados realistas
     let status: AppointmentStatus = 'Asistencia';
     if (i % 5 === 0) status = 'Cierre';
     else if (i % 7 === 0) status = 'Apartado';
@@ -197,7 +199,8 @@ export const generateSeedData = (): Appointment[] => {
       commissionStatus: isSale ? (i % 2 === 0 ? 'Pagada' : 'Pendiente') : undefined,
       commissionPercent: isSale ? (i % 3 === 0 ? 50 : 100) : undefined,
       finalCreditAmount: isSale ? Math.floor(800000 + Math.random() * 2500000) : undefined,
-      attendingExecutive: i % 10 === 0 ? 'Ejecutivo Externo' : undefined
+      attendingExecutive: i % 6 === 0 ? executives[i % executives.length] : undefined,
+      prospectorName: i % 8 === 0 ? 'Marketing FB' : undefined
     });
   }
   
@@ -221,33 +224,17 @@ export const calculateStats = (appointments: Appointment[]) => {
   const lastMonthSales = activeApps.filter(a => (a.status === 'Cierre' || a.status === 'Apartado') && isSameMonth(parseISO(a.date), lastMonth)).length;
 
   const currentMonthOnlyCierre = activeApps.filter(a => a.status === 'Cierre' && isSameMonth(parseISO(a.date), now)).length;
-  const lastMonthOnlyCierre = activeApps.filter(a => a.status === 'Cierre' && isSameMonth(parseISO(a.date), lastMonth)).length;
-
   const currentMonthApartados = activeApps.filter(a => a.status === 'Apartado' && isSameMonth(parseISO(a.date), now)).length;
-  const lastMonthApartados = activeApps.filter(a => a.status === 'Apartado' && isSameMonth(parseISO(a.date), lastMonth)).length;
 
-  // Prospectos en seguimiento
-  const currentMonthFollowUps = activeApps.filter(a => 
-    (a.status === 'Continuación en otra cita' || a.status === 'Reagendó') && 
-    isSameMonth(parseISO(a.date), now)
-  ).length;
-
-  // CRÉDITO VENDIDO
   const totalCreditSold = activeApps
     .filter(a => (a.status === 'Cierre' || a.status === 'Apartado') && isSameMonth(parseISO(a.date), now))
     .reduce((sum, a) => sum + (a.finalCreditAmount || 0), 0);
 
-  const lastMonthCreditSold = activeApps
-    .filter(a => (a.status === 'Cierre' || a.status === 'Apartado') && isSameMonth(parseISO(a.date), lastMonth))
-    .reduce((sum, a) => sum + (a.finalCreditAmount || 0), 0);
-
-  // Participación promedio en cierres
   const salesWithAmount = activeApps.filter(a => (a.status === 'Cierre' || a.status === 'Apartado') && isSameMonth(parseISO(a.date), now) && (a.commissionPercent || 0) > 0);
   const avgParticipation = salesWithAmount.length > 0 
     ? salesWithAmount.reduce((sum, a) => sum + (a.commissionPercent || 0), 0) / salesWithAmount.length 
     : 0;
 
-  // COMISIONES (Con retención del 9%)
   const currentMonthCommission = activeApps
     .filter(a => {
       if (a.status !== 'Cierre' && a.status !== 'Apartado') return false;
@@ -273,7 +260,6 @@ export const calculateStats = (appointments: Appointment[]) => {
     })
     .reduce((sum, a) => sum + ((a.finalCreditAmount || 0) * 0.007 * ((a.commissionPercent || 0) / 100)) * 0.91, 0);
 
-  // Proyecciones semanales
   const dayOfWeekToday = getDay(todayStart);
   const daysToFriday = (5 - dayOfWeekToday + 7) % 7;
   const targetFriday = addDays(todayStart, daysToFriday);
@@ -305,11 +291,9 @@ export const calculateStats = (appointments: Appointment[]) => {
   }).length;
 
   const conversionRate = currentMonthProspects > 0 ? (currentMonthSales / currentMonthProspects) * 100 : 0;
-  const lastMonthConversionRate = lastMonthProspects > 0 ? (lastMonthSales / lastMonthProspects) * 100 : 0;
 
-  // DATA PARA GRÁFICAS (Ciclo Miércoles a Martes)
   const getCycleStart = (date: Date) => {
-    const day = getDay(date); // 0=Dom, 3=Mié
+    const day = getDay(date); 
     const diff = (day - 3 + 7) % 7;
     return startOfDay(subDays(date, diff));
   };
@@ -346,7 +330,6 @@ export const calculateStats = (appointments: Appointment[]) => {
   const dailyActivity = buildCycleData(currentCycleStart, currentCycleEnd);
   const lastWeekActivity = buildCycleData(lastCycleStart, lastCycleEnd);
 
-  // Encontrar el valor máximo global para sincronizar ejes considerando las 3 variables
   const allVals = [...dailyActivity, ...lastWeekActivity].flatMap(d => [d.agendadas, d.atendidas, d.cierres]);
   const globalMax = Math.max(0, ...allVals);
 
@@ -363,12 +346,8 @@ export const calculateStats = (appointments: Appointment[]) => {
     currentMonthSales,
     lastMonthSales,
     currentMonthOnlyCierre,
-    lastMonthOnlyCierre,
     currentMonthApartados,
-    lastMonthApartados,
-    currentMonthFollowUps,
     totalCreditSold,
-    lastMonthCreditSold,
     avgParticipation: parseFloat(avgParticipation.toFixed(1)),
     currentMonthCommission,
     lastMonthCommission,
@@ -376,7 +355,6 @@ export const calculateStats = (appointments: Appointment[]) => {
     thisFridayCommission,
     overdueCommission,
     conversionRate: parseFloat(conversionRate.toFixed(1)),
-    lastMonthConversionRate: parseFloat(lastMonthConversionRate.toFixed(1)),
     charts: {
       dailyActivity,
       lastWeekActivity,

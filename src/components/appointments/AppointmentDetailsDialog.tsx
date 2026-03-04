@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -79,6 +78,7 @@ export default function AppointmentDetailsDialog({
   const [newNotes, setNewNotes] = useState('');
   const [newProduct, setNewProduct] = useState<AppointmentProduct>('Casa');
   const [newType, setNewType] = useState<AppointmentType>('2da consulta');
+  const [newAttendingExecutive, setNewAttendingExecutive] = useState('');
 
   const { toast } = useToast();
 
@@ -96,6 +96,7 @@ export default function AppointmentDetailsDialog({
       setNewProduct(appointment.product || 'Casa');
       setNewNotes(appointment.notes || '');
       setNewType(appointment.status === 'Cierre' ? 'Seguimiento' : '2da consulta');
+      setNewAttendingExecutive(appointment.attendingExecutive || '');
       setNewDate('');
       setNewTime('');
     }
@@ -136,7 +137,7 @@ export default function AppointmentDetailsDialog({
       notes: newNotes,
       prospectorName: appointment.prospectorName,
       prospectorPhone: appointment.prospectorPhone,
-      attendingExecutive: appointment.attendingExecutive
+      attendingExecutive: newAttendingExecutive || appointment.attendingExecutive
     });
 
     setIsRescheduling(false);
@@ -780,6 +781,16 @@ Hora: ${timeBold}${confirmedBold}`;
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-[10px] font-bold uppercase text-muted-foreground">Ejecutivo que atendió</Label>
+                <Input 
+                  value={newAttendingExecutive} 
+                  onChange={e => setNewAttendingExecutive(e.target.value)} 
+                  className="h-9 bg-muted/20 text-sm" 
+                  placeholder="Heredado del anterior..."
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-3">

@@ -17,7 +17,8 @@ import {
   CalendarDays,
   TrendingUp,
   Coins,
-  CheckCircle2
+  CheckCircle2,
+  Info
 } from 'lucide-react';
 import { Appointment } from '@/services/appointment-service';
 import { parseISO, isAfter, isBefore, isToday, startOfDay } from 'date-fns';
@@ -80,11 +81,11 @@ const DashboardContent = ({
   const formatCurrency = (val: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(val);
 
   const microStats = [
-    { label: 'Hoy', icon: CalendarDays, val: `${stats.todayConfirmed}/${stats.todayCount}`, color: 'text-blue-600' },
-    { label: 'Cierres Mes', icon: CheckCircle2, val: stats.currentMonthOnlyCierre, color: 'text-green-600' },
-    { label: 'Apartados', icon: Coins, val: stats.currentMonthApartados, color: 'text-blue-500' },
-    { label: 'Conversión', icon: TrendingUp, val: `${stats.conversionRate}%`, color: 'text-primary' },
-    { label: 'Ingresos Mes', icon: Coins, val: formatCurrency(stats.currentMonthCommission), color: 'text-yellow-600', isCurrency: true }
+    { label: 'Hoy', icon: CalendarDays, val: `${stats.todayConfirmed}/${stats.todayCount}`, color: 'text-blue-600', tip: "Citas confirmadas vs agendadas para hoy." },
+    { label: 'Cierres Mes', icon: CheckCircle2, val: stats.currentMonthOnlyCierre, color: 'text-green-600', tip: "Ventas cerradas en el mes actual." },
+    { label: 'Apartados', icon: Coins, val: stats.currentMonthApartados, color: 'text-blue-500', tip: "Trámites en fase de reserva/apartado." },
+    { label: 'Conversión', icon: TrendingUp, val: `${stats.conversionRate}%`, color: 'text-primary', tip: "Efectividad de cierre sobre prospectos totales." },
+    { label: 'Ingresos Mes', icon: Coins, val: formatCurrency(stats.currentMonthCommission), color: 'text-yellow-600', isCurrency: true, tip: "Total neto proyectado para este ciclo." }
   ];
 
   return (
@@ -93,13 +94,22 @@ const DashboardContent = ({
         <div className="flex flex-col gap-4 mb-6 shrink-0 bg-muted/10 p-6 rounded-2xl border border-border/30 backdrop-blur-md animate-entrance-stagger">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
             {microStats.map((s, i) => (
-              <div key={i} className="flex flex-col animate-entrance-stagger" style={{ animationDelay: `${i * 0.15}s` }}>
-                <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest mb-1">{s.label}</span>
-                <div className="flex items-center gap-2">
-                  <div className={cn("p-1.5 rounded-lg border bg-muted/20", s.color, "border-current/20")}><s.icon className="w-3.5 h-3.5"/></div>
-                  <span className={cn("text-sm font-bold truncate", s.isCurrency && stats.currentMonthCommission > 5000 && "bg-gradient-to-r from-[#00F5FF] to-[#FF00D6] bg-clip-text text-transparent")}>{s.val}</span>
-                </div>
-              </div>
+              <TooltipProvider key={i}>
+                <Tooltip delayDuration={0}>
+                  <TooltipTrigger asChild>
+                    <div className="flex flex-col animate-entrance-stagger cursor-help" style={{ animationDelay: `${i * 0.15}s` }}>
+                      <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest mb-1">{s.label}</span>
+                      <div className="flex items-center gap-2">
+                        <div className={cn("p-1.5 rounded-lg border bg-muted/20", s.color, "border-current/20")}><s.icon className="w-3.5 h-3.5"/></div>
+                        <span className={cn("text-sm font-bold truncate", s.isCurrency && stats.currentMonthCommission > 5000 && "bg-gradient-to-r from-[#00F5FF] to-[#FF00D6] bg-clip-text text-transparent")}>{s.val}</span>
+                      </div>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-card border-border shadow-xl text-[10px] font-bold p-2">
+                    {s.tip}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             ))}
           </div>
         </div>
@@ -159,7 +169,7 @@ export default function AppointmentsDashboard({
   return (
     <div className="space-y-6">
       <AppointmentForm onAdd={addAppointment} />
-      <Card className="shadow-xl bg-card border-border border-l-4 border-l-blue-600 overflow-hidden">
+      <Card className="shadow-xl bg-card border-border border-l-4 border-l-blue-600 overflow-hidden animate-entrance-stagger" style={{ animationDelay: '0.3s' }}>
         <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4"><div className="bg-blue-600/10 p-2 rounded-xl border border-blue-600/20"><CalendarClock className="text-blue-600 w-6 h-6" /></div><div><CardTitle className="text-xl font-semibold">Gestión de citas</CardTitle><CardDescription className="text-muted-foreground">Monitoreo de prospectos</CardDescription></div></div>
           <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -168,7 +178,7 @@ export default function AppointmentsDashboard({
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          <DashboardContent activeTab={activeTab} setActiveTab={setActiveTab} appointments={appointments} editAppointment={editAppointment} archiveAppointment={archiveAppointment} unarchiveAppointment={unarchiveAppointment} formatFriendlyDate={formatFriendlyDate} format12hTime={format12hTime} handleSelect={handleSelect} handleHighlight={handleHighlight} activeId={activeId} visibleCountPast={visibleCountPast} setVisibleCount={setVisibleCountPast} stats={stats} searchTerm={searchTerm} onCelebrate={onCelebrate} />
+          <DashboardContent activeTab={activeTab} setActiveTab={setActiveTab} appointments={appointments} editAppointment={editAppointment} archiveAppointment={archiveAppointment} unarchiveAppointment={unarchiveAppointment} formatFriendlyDate={formatFriendlyDate} format12hTime={format12hTime} handleSelect={handleSelect} handleHighlight={handleHighlight} activeId={activeId} visibleCountPast={visibleCountPast} setVisibleCountPast={setVisibleCountPast} stats={stats} searchTerm={searchTerm} onCelebrate={onCelebrate} />
         </CardContent>
       </Card>
 
@@ -179,7 +189,7 @@ export default function AppointmentsDashboard({
             <div className="flex items-center gap-4"><div className="relative w-80 hidden md:block"><Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" /><Input placeholder="Búsqueda global..." className="pl-9 h-10 bg-muted/30" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} /></div><DialogClose asChild><Button variant="ghost" size="icon" className="rounded-full hover:bg-destructive/10 h-10 w-10"><X className="w-5 h-5" /></Button></DialogClose></div>
           </DialogHeader>
           <div className="flex-1 p-6 overflow-hidden flex flex-col">
-            <DashboardContent expanded={true} activeTab={activeTab} setActiveTab={setActiveTab} appointments={appointments} editAppointment={editAppointment} archiveAppointment={archiveAppointment} unarchiveAppointment={unarchiveAppointment} formatFriendlyDate={formatFriendlyDate} format12hTime={format12hTime} handleSelect={handleSelect} handleHighlight={handleHighlight} activeId={activeId} visibleCountPast={visibleCountPast} setVisibleCount={setVisibleCountPast} stats={stats} searchTerm={searchTerm} onCelebrate={onCelebrate} />
+            <DashboardContent expanded={true} activeTab={activeTab} setActiveTab={setActiveTab} appointments={appointments} editAppointment={editAppointment} archiveAppointment={archiveAppointment} unarchiveAppointment={unarchiveAppointment} formatFriendlyDate={formatFriendlyDate} format12hTime={format12hTime} handleSelect={handleSelect} handleHighlight={handleHighlight} activeId={activeId} visibleCountPast={visibleCountPast} setVisibleCountPast={setVisibleCountPast} stats={stats} searchTerm={searchTerm} onCelebrate={onCelebrate} />
           </div>
         </DialogContent>
       </Dialog>
