@@ -1,3 +1,4 @@
+
 /**
  * @fileOverview Servicio de Gestión de Datos - Finanto
  * 
@@ -336,6 +337,10 @@ export const calculateStats = (appointments: Appointment[]) => {
   }).length;
 
   const conversionRate = currentMonthProspects > 0 ? (currentMonthSales / currentMonthProspects) * 100 : 0;
+  
+  const commissionGrowth = lastMonthCommission > 0 
+    ? ((currentMonthCommission - lastMonthCommission) / lastMonthCommission) * 100 
+    : 0;
 
   const buildCycleData = (start: Date, end: Date) => {
     const interval = eachDayOfInterval({ start, end });
@@ -397,11 +402,11 @@ export const calculateStats = (appointments: Appointment[]) => {
     currentMonthCommission,
     prevMonthCommissionPaidNow,
     lastMonthCommission,
-    currentMonthPaidCommission,
     thisFridayCommission,
     nextFridayCommission,
     overdueCommission,
     conversionRate: parseFloat(conversionRate.toFixed(1)),
+    commissionGrowth: parseFloat(commissionGrowth.toFixed(1)),
     charts: {
       dailyActivity,
       lastWeekActivity,

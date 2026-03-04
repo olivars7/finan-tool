@@ -1,3 +1,4 @@
+
 /**
  * @fileOverview Panel de Inteligencia Avanzada - Finanto
  */
@@ -174,7 +175,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                   { icon: TrendingUp, color: 'text-primary', label: 'Eficiencia', value: `${Math.round(closingRate)}%`, val1: 'Atendidas', sub1: 'Base' },
                   { icon: Users, color: 'text-accent', label: 'Prospectos', value: stats.currentMonthProspects, growth: monthlyGrowth, val1: stats.lastMonthProspects, sub1: 'Mes Ant.' },
                   { icon: Trophy, color: 'text-green-500', label: 'Cierres', value: stats.currentMonthOnlyCierre, val1: stats.currentMonthApartados, sub1: 'Apartados' },
-                  { icon: Coins, color: 'text-yellow-600', label: 'Ingresos', value: formatCurrency(stats.currentMonthCommission), val1: formatCurrency(stats.thisFridayCommission), sub1: 'Viernes', isGradient: true }
+                  { icon: Coins, color: 'text-yellow-600', label: 'Ingresos', value: formatCurrency(stats.currentMonthCommission), growth: stats.commissionGrowth, val1: formatCurrency(stats.lastMonthCommission), sub1: 'Mes Ant.', isGradient: true }
                 ].map((s, i) => (
                   <Card key={i} className="bg-card/40 border-primary/20 p-4 space-y-3 hover:bg-primary/10 transition-colors duration-300 cursor-default group">
                     <div className="flex justify-between items-start">
@@ -230,8 +231,8 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                           getDynamicGradient(stats.currentMonthCommission)
                         )}>{formatCurrency(stats.currentMonthCommission)}</p>
                         <div className="flex items-center gap-1">
-                          <span className="text-[8px] text-green-500 font-bold uppercase">De Mes Anterior:</span>
-                          <span className="text-[8px] font-black text-green-600">{formatCurrency(stats.prevMonthCommissionPaidNow)}</span>
+                          <span className="text-[8px] text-muted-foreground font-bold uppercase">Mes Anterior (Total):</span>
+                          <span className="text-[8px] font-black text-primary">{formatCurrency(stats.lastMonthCommission)}</span>
                         </div>
                       </div>
                       <div>
