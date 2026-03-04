@@ -215,8 +215,8 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
 
   const handleCopySummary = () => {
     if (rawP <= 0) return toast({ title: "Calculadora vacía", variant: "destructive" });
-    const text = `📊 *RESUMEN DE COTIZACIÓN - FINANTO*\n• Crédito: ${formatCurrency(rawP)}\n• Plazo: ${projectedReducedTerm} meses\n• Mensualidad: ${formatCurrency(totalMonthlyLoad)}\n💰 *PAGO INICIAL*: ${formatCurrency(totalDownPayment + totalOperatingExpenses)}`;
-    navigator.clipboard.writeText(text).then(() => toast({ title: "Resumen copiado" }));
+    const text = `📊 *COTIZACIÓN FINANTO*\n\n• Crédito: ${formatCurrency(rawP)}\n• Mensualidad: ${formatCurrency(totalMonthlyLoad)}\n• Enganche: ${formatCurrency(totalDownPayment)}`;
+    navigator.clipboard.writeText(text).then(() => toast({ title: "Cotización copiada" }));
   };
 
   return (

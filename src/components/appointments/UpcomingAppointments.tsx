@@ -10,7 +10,7 @@ import {
   Trash2, RotateCcw, Archive, CheckCircle as CheckIcon,
   Save, MessageSquare, Coins, Percent, Info, UserCog, UserCheck
 } from "lucide-react";
-import { parseISO, isToday, addDays } from 'date-fns';
+import { parseISO, isToday, addDays, isTomorrow } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -207,25 +207,35 @@ export default function UpcomingAppointments({
     });
   };
 
-  const copyDailyReport = () => {
-    const todayTotal = allAppointments.filter(a => isActuallyToday(a.date) && !a.isArchived).length;
-    const tomorrowTotal = allAppointments.filter(a => {
-      if (a.isArchived) return false;
-      const d = parseISO(a.date);
-      const tomorrow = addDays(new Date(), 1);
-      return d.getDate() === tomorrow.getDate() && d.getMonth() === tomorrow.getMonth() && d.getFullYear() === tomorrow.getFullYear();
-    }).length;
+  const getReportMetrics = () => {
+    const todayApps = allAppointments.filter(a => isActuallyToday(a.date) && !a.isArchived);
+    const tomorrowApps = allAppointments.filter(a => isTomorrow(parseISO(a.date)) && !a.isArchived);
+    
+    const atendidasToday = todayApps.filter(a => a.status && a.status !== 'No asistencia' && a.status !== 'Reagendó').length;
+    const todayTotal = todayApps.length;
+    const tomorrowTotal = tomorrowApps.length;
+    const ventasToday = todayApps.filter(a => a.status === 'Cierre' || a.status === 'Apartado').length;
 
-    const reportText = `✅ Citas para hoy: *${todayTotal}*
-✅ Citas para mañana: *${tomorrowTotal}*`;
+    return { atendidasToday, todayTotal, tomorrowTotal, ventasToday };
+  };
+
+  const copyDailyReport = () => {
+    const { atendidasToday, todayTotal, tomorrowTotal, ventasToday } = getReportMetrics();
+
+    const reportText = `✅Citas atendidas: ${atendidasToday}
+✅Citas para hoy: ${todayTotal}
+✅Citas día siguiente: ${tomorrowTotal}
+✅Ventas: ${ventasToday}`;
 
     navigator.clipboard.writeText(reportText).then(() => {
       toast({
         title: "Reporte diario copiado",
-        description: "Agenda de hoy y mañana lista para enviar.",
+        description: "Envíalo al grupo de WhatsApp ahora.",
       });
     });
   };
+
+  const metrics = getReportMetrics();
 
   return (
     <div className="space-y-4 flex flex-col h-full">
@@ -406,9 +416,36 @@ export default function UpcomingAppointments({
         )}
       </div>
       <div className="flex flex-wrap justify-end gap-3 pt-2 shrink-0">
-        <Button variant="outline" size="sm" onClick={copyDailyReport} className="text-[10px] font-bold uppercase border-primary/40 bg-primary/5 text-primary hover:bg-primary/10 h-9 gap-2 px-4">
-          <ClipboardCheck className="w-4 h-4" /> Reporte Diario
-        </Button>
+        <TooltipProvider delayDuration={0}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={copyDailyReport} 
+                className="text-[10px] font-bold uppercase border-primary/40 bg-primary/5 text-primary hover:bg-primary/10 h-9 gap-2 px-4"
+              >
+                <ClipboardCheck className="w-4 h-4" /> Reporte Diario
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="p-4 max-w-[280px] bg-card border-border shadow-2xl space-y-3">
+              <div className="space-y-1">
+                <p className="text-[10px] font-bold text-primary uppercase">Vista previa del reporte:</p>
+                <div className="bg-muted/30 p-2 rounded text-[10px] font-mono leading-tight">
+                  ✅Citas atendidas: {metrics.atendidasToday}<br />
+                  ✅Citas para hoy: {metrics.todayTotal}<br />
+                  ✅Citas día siguiente: {metrics.tomorrowTotal}<br />
+                  ✅Ventas: {metrics.ventasToday}
+                </div>
+              </div>
+              <div className="pt-2 border-t border-border/10">
+                <p className="text-[10px] font-semibold text-orange-500 leading-tight">
+                  ⚠️ Es vital mandar estos datos al grupo de WhatsApp a las 11:00 AM, 3:00 PM y 6:00 PM.
+                </p>
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       <AlertDialog open={!!confirmingApp} onOpenChange={(o) => !o && setConfirmingApp(null)}>
