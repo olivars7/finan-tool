@@ -229,7 +229,6 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
       const today = new Date();
 
       const overdueCommissions = currentApps.filter(app => {
-        // ACTUALIZADO: Los Apartados NO disparan advertencias de pago
         const isSalesStatus = app.status === 'Cierre';
         const isPending = (app.commissionStatus || 'Pendiente') === 'Pendiente';
         const notShownYet = !shownCommissionIds.current.has(app.id);
@@ -322,13 +321,19 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
   const handleGlobalReset = () => {
     resetData(); 
     setShowResetConfirm(false);
-    toast({ title: "Datos restaurados", description: "La agenda ha vuelto a su estado inicial." });
+    toast({ title: "Datos restaurados", description: "La agenda ha vuelto a su estado inicial. Recargando..." });
+    setTimeout(() => {
+      window.location.reload();
+    }, 800);
   };
 
   const handleGlobalClear = () => {
     clearAll(); 
     setShowClearConfirm(false);
-    toast({ title: "Base de datos limpia", description: "Toda la información ha sido eliminada permanentemente.", variant: "destructive" });
+    toast({ title: "Base de datos limpia", description: "Toda la información ha sido eliminada permanentemente. Recargando...", variant: "destructive" });
+    setTimeout(() => {
+      window.location.reload();
+    }, 800);
   };
 
   if (!isLoaded) return null;
