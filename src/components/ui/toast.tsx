@@ -51,9 +51,13 @@ const Toast = React.forwardRef<
     <ToastPrimitives.Root
       ref={ref}
       className={cn(toastVariants({ variant }), className)}
+      onPointerDown={(e) => {
+        // Bloquea que Radix UI Dialog detecte esto como un "click fuera"
+        e.stopPropagation();
+      }}
       onClick={(e) => {
         e.preventDefault();
-        e.stopPropagation(); // Evita que el clic cierre modales de fondo
+        e.stopPropagation(); // Evita burbujeo a la lógica SPA de Finanto
         const target = e.currentTarget as HTMLElement;
         const closeBtn = target.querySelector('[toast-close]') as HTMLButtonElement;
         if (closeBtn) closeBtn.click();
@@ -74,6 +78,7 @@ const ToastAction = React.forwardRef<
       "inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium ring-offset-background transition-colors hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-muted/40 group-[.destructive]:hover:border-destructive/30 group-[.destructive]:hover:bg-destructive group-[.destructive]:hover:text-destructive-foreground group-[.destructive]:focus:ring-destructive",
       className
     )}
+    onPointerDown={(e) => e.stopPropagation()}
     onClick={(e) => e.stopPropagation()} 
     {...props}
   />
@@ -91,6 +96,8 @@ const ToastClose = React.forwardRef<
       className
     )}
     toast-close=""
+    onPointerDown={(e) => e.stopPropagation()}
+    onClick={(e) => e.stopPropagation()}
     {...props}
   >
     <X className="h-4 w-4" />
