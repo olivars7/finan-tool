@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -52,12 +53,12 @@ const Toast = React.forwardRef<
       ref={ref}
       className={cn(toastVariants({ variant }), className)}
       onPointerDown={(e) => {
-        // Bloquea que Radix UI Dialog detecte esto como un "click fuera"
+        // Detiene la propagación para evitar que Radix detecte un "click fuera"
         e.stopPropagation();
       }}
       onClick={(e) => {
         e.preventDefault();
-        e.stopPropagation(); // Evita burbujeo a la lógica SPA de Finanto
+        e.stopPropagation(); 
         const target = e.currentTarget as HTMLElement;
         const closeBtn = target.querySelector('[toast-close]') as HTMLButtonElement;
         if (closeBtn) closeBtn.click();

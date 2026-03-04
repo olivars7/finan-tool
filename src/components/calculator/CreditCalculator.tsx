@@ -18,7 +18,7 @@ import {
   Coins,
   Settings2,
   Zap,
-  HelpCircle
+  Copy
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { 

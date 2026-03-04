@@ -52,7 +52,6 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
   const attendanceRate = totalMonth > 0 ? Math.min(95, 75 + (stats.todayConfirmed / (stats.todayCount || 1) * 10)) : 0;
   const closingRate = attendanceRate > 0 ? (stats.conversionRate / (attendanceRate / 100)) : 0;
   const monthlyGrowth = stats.lastMonthProspects > 0 ? ((stats.currentMonthProspects - stats.lastMonthProspects) / stats.lastMonthProspects) * 100 : 0;
-  const creditGrowth = stats.lastMonthCreditSold > 0 ? ((stats.totalCreditSold - stats.lastMonthCreditSold) / stats.lastMonthCreditSold) * 100 : 0;
   const taxImpact = stats.currentMonthCommission / 0.91 * 0.09;
 
   const formatCurrency = (val: number) => {

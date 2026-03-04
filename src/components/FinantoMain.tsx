@@ -128,81 +128,40 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
     pendingAppRef.current = pendingCommissionApp;
   }, [pendingCommissionApp]);
 
-  // Sincronización de URL (Solo Push si es acción de usuario)
-  const syncUrl = useCallback((path: string, push: boolean = true) => {
+  // Sincronización de URL (Unidireccional para evitar bucles)
+  const syncUrl = useCallback((path: string) => {
     if (typeof window === 'undefined') return;
-    if (window.location.pathname === path) return;
-    
-    if (push) {
+    if (window.location.pathname !== path) {
       window.history.pushState(null, '', path);
-    } else {
-      window.history.replaceState(null, '', path);
     }
   }, []);
 
-  // Handlers de apertura (Inician la navegación)
+  // Handlers de apertura (Acción del usuario)
   const handleToggleHelp = (open: boolean) => {
     setShowHelp(open);
-    if (open) {
-      syncUrl('/guia');
-      document.title = "Manual de Inicio - Finanto";
-    } else if (!isSimulatorExpanded && !isGestorExpanded && !isStatsExpanded) {
-      syncUrl('/');
-      document.title = "Finanto - Gestión Inmobiliaria";
-    }
+    if (open) { syncUrl('/guia'); document.title = "Manual - Finanto"; }
+    else if (!isSimulatorExpanded && !isGestorExpanded && !isStatsExpanded) { syncUrl('/'); document.title = "Finanto"; }
   };
 
   const handleToggleSimulator = (open: boolean) => {
     setIsSimulatorExpanded(open);
-    if (open) {
-      syncUrl('/simulador');
-      document.title = "Simulador - Finanto";
-    } else if (!showHelp && !isGestorExpanded && !isStatsExpanded) {
-      syncUrl('/');
-      document.title = "Finanto - Gestión Inmobiliaria";
-    }
+    if (open) { syncUrl('/simulador'); document.title = "Simulador - Finanto"; }
+    else if (!showHelp && !isGestorExpanded && !isStatsExpanded) { syncUrl('/'); document.title = "Finanto"; }
   };
 
   const handleToggleGestor = (open: boolean) => {
     setIsGestorExpanded(open);
-    if (open) {
-      syncUrl('/gestor');
-      document.title = "Gestor - Finanto";
-    } else if (!showHelp && !isSimulatorExpanded && !isStatsExpanded) {
-      syncUrl('/');
-      document.title = "Finanto - Gestión Inmobiliaria";
-    }
+    if (open) { syncUrl('/gestor'); document.title = "Gestor - Finanto"; }
+    else if (!showHelp && !isSimulatorExpanded && !isStatsExpanded) { syncUrl('/'); document.title = "Finanto"; }
   };
 
   const handleToggleStats = (open: boolean) => {
     setIsStatsExpanded(open);
-    if (open) {
-      syncUrl('/stats');
-      document.title = "Estadísticas - Finanto";
-    } else if (!showHelp && !isSimulatorExpanded && !isGestorExpanded) {
-      syncUrl('/');
-      document.title = "Finanto - Gestión Inmobiliaria";
-    }
+    if (open) { syncUrl('/stats'); document.title = "Stats - Finanto"; }
+    else if (!showHelp && !isSimulatorExpanded && !isGestorExpanded) { syncUrl('/'); document.title = "Finanto"; }
   };
 
-  // Inicialización basada en URL
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('finanto-theme') as Theme;
-    if (savedTheme) applyTheme(savedTheme);
-    else applyTheme('corporativo-v2');
-
-    const path = window.location.pathname;
-    if (path === '/guia') setShowHelp(true);
-    else if (path === '/simulador') setIsSimulatorExpanded(true);
-    else if (path === '/gestor') setIsGestorExpanded(true);
-    else if (path === '/stats') setIsStatsExpanded(true);
-    else if (!initialSection && !localStorage.getItem(Service.STORAGE_KEY)) {
-      setShowHelp(true);
-      syncUrl('/guia', false);
-    }
-  }, [syncUrl]);
-
-  // Manejo de navegación SPA (Popstate) - SOLO actualiza estados internos
+  // Sincronización Inicial y Popstate (Controlador de la SPA)
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname;
@@ -210,17 +169,21 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
       setIsSimulatorExpanded(path === '/simulador');
       setIsGestorExpanded(path === '/gestor');
       setIsStatsExpanded(path === '/stats');
-      setSelectedAppId(null);
-
-      // Actualizar título
-      if (path === '/guia') document.title = "Manual de Inicio - Finanto";
+      
+      if (path === '/') document.title = "Finanto - Gestión Inmobiliaria";
+      else if (path === '/guia') document.title = "Manual - Finanto";
       else if (path === '/simulador') document.title = "Simulador - Finanto";
       else if (path === '/gestor') document.title = "Gestor - Finanto";
-      else if (path === '/stats') document.title = "Estadísticas - Finanto";
-      else document.title = "Finanto - Gestión Inmobiliaria";
+      else if (path === '/stats') document.title = "Stats - Finanto";
     };
 
     window.addEventListener('popstate', handlePopState);
+    handlePopState(); // Aplicar ruta inicial
+
+    const savedTheme = localStorage.getItem('finanto-theme') as Theme;
+    if (savedTheme) applyTheme(savedTheme);
+    else applyTheme('corporativo-v2');
+
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
