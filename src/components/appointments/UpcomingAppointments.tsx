@@ -7,9 +7,11 @@ import {
   Clock, Calendar, AlertCircle, 
   CheckCircle, ClipboardCheck, Phone, Box, ChevronRight, 
   CheckCircle as CheckIcon,
-  Save, MessageSquare, Coins, Info, UserCog, UserCheck, ChevronDown
+  Save, MessageSquare, Coins, Info, UserCog, UserCheck, ChevronDown,
+  ClipboardList
 } from "lucide-react";
-import { parseISO, isToday, isTomorrow } from 'date-fns';
+import { parseISO, isToday, isTomorrow, format } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -214,6 +216,35 @@ export default function UpcomingAppointments({
     });
   };
 
+  const copyAllTodayAppointments = () => {
+    const todayApps = allAppointments
+      .filter(a => isActuallyToday(a.date) && !a.isArchived)
+      .sort((a, b) => a.time.localeCompare(b.time));
+
+    if (todayApps.length === 0) {
+      toast({ title: "Sin citas", description: "No hay citas registradas para hoy." });
+      return;
+    }
+
+    const dateStr = format(new Date(), "d 'de' MMMM", { locale: es });
+    let text = `📅 *CITAS DE HOY (${dateStr.toUpperCase()})*\n\n`;
+
+    todayApps.forEach((app, index) => {
+      const timeStr = format12hTime(app.time);
+      text += `${index + 1}. *${timeStr}* - *${app.name}*\n`;
+      text += `   • Motivo: ${app.type}\n`;
+      if (app.phone) text += `   • Tel: ${app.phone}\n`;
+      text += `\n`;
+    });
+
+    navigator.clipboard.writeText(text.trim()).then(() => {
+      toast({
+        title: "Citas copiadas",
+        description: "Listado de hoy listo para WhatsApp.",
+      });
+    });
+  };
+
   const metrics = getReportMetrics();
 
   return (
@@ -395,6 +426,24 @@ export default function UpcomingAppointments({
         )}
       </div>
       <div className="flex flex-wrap justify-end gap-3 pt-2 shrink-0">
+        <TooltipProvider delayDuration={0}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={copyAllTodayAppointments} 
+                className="text-[10px] font-bold uppercase border-blue-500/40 bg-blue-500/5 text-blue-600 hover:bg-blue-500/10 h-9 gap-2 px-4"
+              >
+                <ClipboardList className="w-4 h-4" /> Copiar Citas de Hoy
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="p-3 bg-card border-border shadow-2xl text-[10px] font-bold uppercase">
+              Copia el listado numerado de todas tus citas de hoy para WhatsApp.
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
         <TooltipProvider delayDuration={0}>
           <Tooltip>
             <TooltipTrigger asChild>

@@ -177,8 +177,8 @@
 }
 
 @keyframes periodic-glow {
-  0%, 85%, 100% { background-color: transparent; }
-  92.5% { background-color: hsl(var(--primary) / 0.12); }
+  0%, 75%, 100% { background-color: transparent; }
+  87.5% { background-color: hsl(var(--primary) / 0.15); }
 }
 
 .animate-periodic-glow {
