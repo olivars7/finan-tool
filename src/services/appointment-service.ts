@@ -114,7 +114,6 @@ export const formatPhoneNumber = (phone: string): string => {
 
 /**
  * Genera datos de prueba realistas y variados (60 registros).
- * Se asegura que un registro NO tenga prospectador y ejecutivo simultáneamente.
  */
 export const generateSeedData = (): Appointment[] => {
   const data: Appointment[] = [];
@@ -242,43 +241,33 @@ export const calculateStats = (appointments: Appointment[]) => {
   const currentMonthProspects = activeApps.filter(a => isSameMonth(parseISO(a.date), now)).length;
   const lastMonthProspects = activeApps.filter(a => isSameMonth(parseISO(a.date), lastMonth)).length;
 
-  // Solo contamos Cierres para ventas efectivas financieras
   const currentMonthOnlyCierre = activeApps.filter(a => a.status === 'Cierre' && isSameMonth(parseISO(a.date), now)).length;
   const currentMonthApartados = activeApps.filter(a => a.status === 'Apartado' && isSameMonth(parseISO(a.date), now)).length;
-  
-  // Ventas totales para indicadores operativos (Cierre + Apartado)
   const currentMonthSales = currentMonthOnlyCierre + currentMonthApartados;
-  const lastMonthSales = activeApps.filter(a => (a.status === 'Cierre' || a.status === 'Apartado') && isSameMonth(parseISO(a.date), lastMonth)).length;
 
-  // El crédito vendido SOLO cuenta los Cierres
   const totalCreditSold = activeApps
     .filter(a => a.status === 'Cierre' && isSameMonth(parseISO(a.date), now))
-    .reduce((sum, a) => sum + (a.finalCreditAmount || 0), 0);
+    .reduce((sum, a) => sum + (Number(a.finalCreditAmount) || 0), 0);
 
-  const salesWithAmount = activeApps.filter(a => a.status === 'Cierre' && isSameMonth(parseISO(a.date), now) && (a.commissionPercent || 0) > 0);
+  const salesWithAmount = activeApps.filter(a => a.status === 'Cierre' && isSameMonth(parseISO(a.date), now) && (Number(a.commissionPercent) || 0) > 0);
   const avgParticipation = salesWithAmount.length > 0 
-    ? salesWithAmount.reduce((sum, a) => sum + (a.commissionPercent || 0), 0) / salesWithAmount.length 
+    ? salesWithAmount.reduce((sum, a) => sum + (Number(a.commissionPercent) || 0), 0) / salesWithAmount.length 
     : 0;
 
-  // Comisiones que se PAGAN en el mes actual (Vengan de este mes o del anterior)
+  // Ingreso Proyectado (por fecha de pago este mes)
   const currentMonthCommission = activeApps
     .filter(a => {
       if (a.status !== 'Cierre') return false;
       const payDate = getCommissionPaymentDate(a.date);
       return isSameMonth(payDate, now);
     })
-    .reduce((sum, a) => sum + ((a.finalCreditAmount || 0) * 0.007 * ((a.commissionPercent || 0) / 100)) * 0.91, 0);
+    .reduce((sum, a) => {
+      const amount = Number(a.finalCreditAmount) || 0;
+      const percent = Number(a.commissionPercent) || 0;
+      return sum + (amount * 0.007 * (percent / 100)) * 0.91;
+    }, 0);
 
-  // Específicamente: Cuánto del ingreso actual viene de ventas del mes pasado
-  const prevMonthCommissionPaidNow = activeApps
-    .filter(a => {
-      if (a.status !== 'Cierre') return false;
-      const appointmentDate = parseISO(a.date);
-      const payDate = getCommissionPaymentDate(a.date);
-      return isSameMonth(appointmentDate, lastMonth) && isSameMonth(payDate, now);
-    })
-    .reduce((sum, a) => sum + ((a.finalCreditAmount || 0) * 0.007 * ((a.commissionPercent || 0) / 100)) * 0.91, 0);
-
+  // Ingreso Neto Recibido (pagadas este mes)
   const currentMonthPaidCommission = activeApps
     .filter(a => {
       if (a.status !== 'Cierre') return false;
@@ -286,7 +275,11 @@ export const calculateStats = (appointments: Appointment[]) => {
       const payDate = getCommissionPaymentDate(a.date);
       return isSameMonth(payDate, now);
     })
-    .reduce((sum, a) => sum + ((a.finalCreditAmount || 0) * 0.007 * ((a.commissionPercent || 0) / 100)) * 0.91, 0);
+    .reduce((sum, a) => {
+      const amount = Number(a.finalCreditAmount) || 0;
+      const percent = Number(a.commissionPercent) || 0;
+      return sum + (amount * 0.007 * (percent / 100)) * 0.91;
+    }, 0);
 
   const lastMonthCommission = activeApps
     .filter(a => {
@@ -294,7 +287,11 @@ export const calculateStats = (appointments: Appointment[]) => {
       const payDate = getCommissionPaymentDate(a.date);
       return isSameMonth(payDate, lastMonth);
     })
-    .reduce((sum, a) => sum + ((a.finalCreditAmount || 0) * 0.007 * ((a.commissionPercent || 0) / 100)) * 0.91, 0);
+    .reduce((sum, a) => {
+      const amount = Number(a.finalCreditAmount) || 0;
+      const percent = Number(a.commissionPercent) || 0;
+      return sum + (amount * 0.007 * (percent / 100)) * 0.91;
+    }, 0);
 
   const dayOfWeekToday = getDay(todayStart);
   const daysToFriday = (5 - dayOfWeekToday + 7) % 7;
@@ -308,7 +305,11 @@ export const calculateStats = (appointments: Appointment[]) => {
       const payDate = startOfDay(getCommissionPaymentDate(a.date));
       return payDate.getTime() === targetFriday.getTime();
     })
-    .reduce((sum, a) => sum + ((a.finalCreditAmount || 0) * 0.007 * ((a.commissionPercent || 0) / 100)) * 0.91, 0);
+    .reduce((sum, a) => {
+      const amount = Number(a.finalCreditAmount) || 0;
+      const percent = Number(a.commissionPercent) || 0;
+      return sum + (amount * 0.007 * (percent / 100)) * 0.91;
+    }, 0);
 
   const nextFridayCommission = activeApps
     .filter(a => {
@@ -317,7 +318,11 @@ export const calculateStats = (appointments: Appointment[]) => {
       const payDate = startOfDay(getCommissionPaymentDate(a.date));
       return payDate.getTime() === nextTargetFriday.getTime();
     })
-    .reduce((sum, a) => sum + ((a.finalCreditAmount || 0) * 0.007 * ((a.commissionPercent || 0) / 100)) * 0.91, 0);
+    .reduce((sum, a) => {
+      const amount = Number(a.finalCreditAmount) || 0;
+      const percent = Number(a.commissionPercent) || 0;
+      return sum + (amount * 0.007 * (percent / 100)) * 0.91;
+    }, 0);
 
   const overdueCommission = activeApps
     .filter(a => {
@@ -326,7 +331,11 @@ export const calculateStats = (appointments: Appointment[]) => {
       const payDate = startOfDay(getCommissionPaymentDate(a.date));
       return isBefore(payDate, todayStart);
     })
-    .reduce((sum, a) => sum + ((a.finalCreditAmount || 0) * 0.007 * ((a.commissionPercent || 0) / 100)) * 0.91, 0);
+    .reduce((sum, a) => {
+      const amount = Number(a.finalCreditAmount) || 0;
+      const percent = Number(a.commissionPercent) || 0;
+      return sum + (amount * 0.007 * (percent / 100)) * 0.91;
+    }, 0);
 
   const todayTotal = activeApps.filter(a => isToday(parseISO(a.date))).length;
   const todayConfirmed = activeApps.filter(a => isToday(parseISO(a.date)) && (a.isConfirmed || a.status)).length;
@@ -337,32 +346,16 @@ export const calculateStats = (appointments: Appointment[]) => {
   }).length;
 
   const conversionRate = currentMonthProspects > 0 ? (currentMonthSales / currentMonthProspects) * 100 : 0;
-  
-  const commissionGrowth = lastMonthCommission > 0 
-    ? ((currentMonthCommission - lastMonthCommission) / lastMonthCommission) * 100 
-    : 0;
+  const commissionGrowth = lastMonthCommission > 0 ? ((currentMonthCommission - lastMonthCommission) / lastMonthCommission) * 100 : 0;
 
   const buildCycleData = (start: Date, end: Date) => {
     const interval = eachDayOfInterval({ start, end });
     return interval.map(day => {
       const dayStr = format(day, 'eee', { locale: es });
       const agendadas = activeApps.filter(a => isSameDay(parseISO(a.date), day)).length;
-      const atendidas = activeApps.filter(a => 
-        isSameDay(parseISO(a.date), day) && 
-        a.status && 
-        a.status !== 'No asistencia'
-      ).length;
-      const cierres = activeApps.filter(a => 
-        isSameDay(parseISO(a.date), day) && 
-        a.status === 'Cierre'
-      ).length;
-      return { 
-        day: dayStr, 
-        agendadas, 
-        atendidas, 
-        cierres,
-        isToday: isToday(day)
-      };
+      const atendidas = activeApps.filter(a => isSameDay(parseISO(a.date), day) && a.status && a.status !== 'No asistencia').length;
+      const cierres = activeApps.filter(a => isSameDay(parseISO(a.date), day) && a.status === 'Cierre').length;
+      return { day: dayStr, agendadas, atendidas, cierres, isToday: isToday(day) };
     });
   };
 
@@ -394,23 +387,18 @@ export const calculateStats = (appointments: Appointment[]) => {
     currentMonthProspects,
     lastMonthProspects,
     currentMonthSales,
-    lastMonthSales,
     currentMonthOnlyCierre,
     currentMonthApartados,
     totalCreditSold,
     avgParticipation: parseFloat(avgParticipation.toFixed(1)),
     currentMonthCommission,
-    prevMonthCommissionPaidNow,
+    currentMonthPaidCommission,
     lastMonthCommission,
     thisFridayCommission,
     nextFridayCommission,
     overdueCommission,
     conversionRate: parseFloat(conversionRate.toFixed(1)),
     commissionGrowth: parseFloat(commissionGrowth.toFixed(1)),
-    charts: {
-      dailyActivity,
-      lastWeekActivity,
-      globalMax
-    }
+    charts: { dailyActivity, lastWeekActivity, globalMax }
   };
 };

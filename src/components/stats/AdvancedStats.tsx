@@ -41,9 +41,10 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
   const attendanceRate = totalMonth > 0 ? Math.min(95, 75 + (stats.todayConfirmed / (stats.todayCount || 1) * 10)) : 0;
   const closingRate = attendanceRate > 0 ? (stats.conversionRate / (attendanceRate / 100)) : 0;
   const monthlyGrowth = stats.lastMonthProspects > 0 ? ((stats.currentMonthProspects - stats.lastMonthProspects) / stats.lastMonthProspects) * 100 : 0;
-  const taxImpact = stats.currentMonthCommission / 0.91 * 0.09;
+  const taxImpact = (stats.currentMonthCommission || 0) / 0.91 * 0.09;
 
   const formatCurrency = (val: number) => {
+    if (isNaN(val) || val === null || val === undefined) return "$0";
     return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(Math.round(val));
   };
 
@@ -171,11 +172,11 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
             <div className="max-w-[1400px] mx-auto p-8 space-y-8 pb-24">
               <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                 {[
-                  { icon: CalendarDays, color: 'text-primary', label: 'Citas Hoy', value: stats.todayCount, val1: stats.todayConfirmed, sub1: 'Conf.' },
+                  { icon: CalendarDays, color: 'text-primary', label: 'Citas Hoy', value: stats.todayCount || 0, val1: stats.todayConfirmed || 0, sub1: 'Conf.' },
                   { icon: TrendingUp, color: 'text-primary', label: 'Eficiencia', value: `${Math.round(closingRate)}%`, val1: 'Atendidas', sub1: 'Base' },
-                  { icon: Users, color: 'text-accent', label: 'Prospectos', value: stats.currentMonthProspects, growth: monthlyGrowth, val1: stats.lastMonthProspects, sub1: 'Mes Ant.' },
-                  { icon: Trophy, color: 'text-green-500', label: 'Cierres', value: stats.currentMonthOnlyCierre, val1: stats.currentMonthApartados, sub1: 'Apartados' },
-                  { icon: Coins, color: 'text-yellow-600', label: 'Ingresos', value: formatCurrency(stats.currentMonthCommission), growth: stats.commissionGrowth, val1: formatCurrency(stats.lastMonthCommission), sub1: 'Mes Ant.', isGradient: true }
+                  { icon: Users, color: 'text-accent', label: 'Prospectos', value: stats.currentMonthProspects || 0, growth: monthlyGrowth, val1: stats.lastMonthProspects || 0, sub1: 'Mes Ant.' },
+                  { icon: Trophy, color: 'text-green-500', label: 'Cierres', value: stats.currentMonthOnlyCierre || 0, val1: stats.currentMonthApartados || 0, sub1: 'Apartados' },
+                  { icon: Coins, color: 'text-yellow-600', label: 'Ingresos', value: formatCurrency(stats.currentMonthCommission || 0), growth: stats.commissionGrowth, val1: formatCurrency(stats.lastMonthCommission || 0), sub1: 'Mes Ant.', isGradient: true }
                 ].map((s, i) => (
                   <Card key={i} className="bg-card/40 border-primary/20 p-4 space-y-3 hover:bg-primary/10 transition-colors duration-300 cursor-default group">
                     <div className="flex justify-between items-start">
@@ -192,7 +193,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                       <p className="text-[9px] uppercase font-bold text-muted-foreground">{s.label}</p>
                       <p className={cn(
                         "text-2xl font-black truncate",
-                        s.isGradient ? getDynamicGradient(stats.currentMonthCommission) : ""
+                        s.isGradient ? getDynamicGradient(stats.currentMonthCommission || 0) : ""
                       )}>{s.value}</p>
                     </div>
                     <div className="pt-2 border-t border-border/10 flex justify-between">
@@ -220,29 +221,29 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                         <span className="text-[10px] font-bold uppercase block text-muted-foreground mb-1">Total Vendido</span>
                         <p className={cn(
                           "text-2xl font-black",
-                          getDynamicGradient(stats.currentMonthCommission)
-                        )}>{formatCurrency(stats.totalCreditSold)}</p>
+                          getDynamicGradient(stats.currentMonthCommission || 0)
+                        )}>{formatCurrency(stats.totalCreditSold || 0)}</p>
                         <span className="text-[8px] text-muted-foreground font-bold uppercase">Solo cierres finales</span>
                       </div>
                       <div>
                         <span className="text-[10px] font-bold uppercase block text-muted-foreground mb-1">Ingreso Proyectado</span>
                         <p className={cn(
                           "text-2xl font-black",
-                          getDynamicGradient(stats.currentMonthCommission)
-                        )}>{formatCurrency(stats.currentMonthCommission)}</p>
+                          getDynamicGradient(stats.currentMonthCommission || 0)
+                        )}>{formatCurrency(stats.currentMonthCommission || 0)}</p>
                         <div className="flex items-center gap-1">
                           <span className="text-[8px] text-muted-foreground font-bold uppercase">Mes Anterior (Total):</span>
-                          <span className="text-[8px] font-black text-primary">{formatCurrency(stats.lastMonthCommission)}</span>
+                          <span className="text-[8px] font-black text-primary">{formatCurrency(stats.lastMonthCommission || 0)}</span>
                         </div>
                       </div>
                       <div>
                         <span className="text-[10px] font-bold uppercase block text-muted-foreground mb-1">Participación Promedio</span>
-                        <p className="text-2xl font-black text-foreground">{stats.avgParticipation}%</p>
+                        <p className="text-2xl font-black text-foreground">{stats.avgParticipation || 0}%</p>
                         <span className="text-[8px] text-muted-foreground font-bold uppercase">Por cada cierre</span>
                       </div>
                       <div>
                         <span className="text-[10px] font-bold uppercase block text-muted-foreground mb-1">Retención Fiscal</span>
-                        <p className="text-2xl font-black text-destructive">{formatCurrency(taxImpact)}</p>
+                        <p className="text-2xl font-black text-destructive">{formatCurrency(taxImpact || 0)}</p>
                         <span className="text-[8px] text-destructive/60 font-bold uppercase">9% ISR Estimado</span>
                       </div>
                     </CardContent>
@@ -256,13 +257,13 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                       </div>
                       <div className="space-y-4">
                         <div className="space-y-1.5">
-                          <div className="flex justify-between text-[10px] font-bold uppercase"><span>Volumen de Crédito</span><span>{Math.round((stats.totalCreditSold / 3000000) * 100)}%</span></div>
-                          <Progress value={(stats.totalCreditSold / 3000000) * 100} className="h-2" />
+                          <div className="flex justify-between text-[10px] font-bold uppercase"><span>Volumen de Crédito</span><span>{Math.round(((stats.totalCreditSold || 0) / 3000000) * 100)}%</span></div>
+                          <Progress value={((stats.totalCreditSold || 0) / 3000000) * 100} className="h-2" />
                           <p className="text-[9px] text-muted-foreground">Meta sugerida: $3,000,000 MXN mensuales</p>
                         </div>
                         <div className="space-y-1.5">
-                          <div className="flex justify-between text-[10px] font-bold uppercase"><span>Participación Promedio</span><span>{stats.avgParticipation}%</span></div>
-                          <Progress value={stats.avgParticipation} className="h-2 bg-muted" />
+                          <div className="flex justify-between text-[10px] font-bold uppercase"><span>Participación Promedio</span><span>{stats.avgParticipation || 0}%</span></div>
+                          <Progress value={stats.avgParticipation || 0} className="h-2 bg-muted" />
                           <p className="text-[9px] text-muted-foreground">Objetivo: Mantener participación arriba del 85%</p>
                         </div>
                       </div>
@@ -276,15 +277,15 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                       <div className="space-y-3">
                         <div className="flex justify-between items-center bg-muted/20 p-3 rounded-lg border border-border/50">
                           <span className="text-[10px] font-bold uppercase text-muted-foreground">Este Viernes</span>
-                          <span className="text-sm font-black text-accent">{formatCurrency(stats.thisFridayCommission)}</span>
+                          <span className="text-sm font-black text-accent">{formatCurrency(stats.thisFridayCommission || 0)}</span>
                         </div>
                         <div className="flex justify-between items-center p-3 rounded-lg border border-border/20">
                           <span className="text-[10px] font-bold uppercase text-muted-foreground">Próximo Viernes</span>
-                          <span className="text-sm font-black text-primary">{formatCurrency(stats.nextFridayCommission)}</span>
+                          <span className="text-sm font-black text-primary">{formatCurrency(stats.nextFridayCommission || 0)}</span>
                         </div>
                         <div className="flex justify-between items-center p-3 rounded-lg border border-border/20">
                           <span className="text-[10px] font-bold uppercase text-muted-foreground">Pendiente de Conciliar</span>
-                          <span className="text-sm font-black text-yellow-600">{formatCurrency(stats.overdueCommission)}</span>
+                          <span className="text-sm font-black text-yellow-600">{formatCurrency(stats.overdueCommission || 0)}</span>
                         </div>
                         <p className="text-[9px] text-muted-foreground italic leading-tight">Recuerda que las comisiones se liquidan los viernes según el ciclo de firma.</p>
                       </div>
@@ -314,11 +315,11 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                       <div className="grid grid-cols-2 gap-4">
                         <div className="p-3 bg-background/40 rounded-xl border border-primary/10">
                           <span className="text-[9px] font-bold uppercase text-muted-foreground block mb-1">Este Mes</span>
-                          <span className="text-xl font-black">{stats.currentMonthProspects}</span>
+                          <span className="text-xl font-black">{stats.currentMonthProspects || 0}</span>
                         </div>
                         <div className="p-3 bg-background/40 rounded-xl border border-primary/10">
                           <span className="text-[9px] font-bold uppercase text-muted-foreground block mb-1">Mes Pasado</span>
-                          <span className="text-xl font-black text-muted-foreground/60">{stats.lastMonthProspects}</span>
+                          <span className="text-xl font-black text-muted-foreground/60">{stats.lastMonthProspects || 0}</span>
                         </div>
                       </div>
                       <div className="space-y-1 pt-2">
