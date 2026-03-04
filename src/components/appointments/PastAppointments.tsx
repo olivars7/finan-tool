@@ -55,7 +55,7 @@ interface Props {
   activeId?: string | null;
   expanded?: boolean;
   visibleCount: number;
-  setVisibleCount: (count: number | ((prev: number) => number)) => void;
+  setVisibleCount: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export default function PastAppointments({ 
@@ -140,12 +140,14 @@ export default function PastAppointments({
               {visibleAppointments.map((app) => {
                 const appToday = isToday(parseISO(app.date));
                 const isSelected = activeId === app.id;
-                const isCierre = app.status === 'Cierre' || app.status === 'Apartado';
+                const isCierre = app.status === 'Cierre';
+                const isApartado = app.status === 'Apartado';
                 const isCommissionPaid = isCierre && app.commissionStatus === 'Pagada';
                 const isPending = isCierre && app.commissionStatus !== 'Pagada';
                 
                 const paymentDate = getCommissionPaymentDate(app.date);
-                const isCommissionOverdue = isPending && isBefore(paymentDate, new Date());
+                // Solo cierres tienen advertencia de pago vencido
+                const isCommissionOverdue = isCierre && isPending && isBefore(paymentDate, new Date());
 
                 const commissionValue = isCierre 
                   ? ((app.finalCreditAmount || 0) * 0.007 * ((app.commissionPercent || 0) / 100)) * 0.91
@@ -173,7 +175,7 @@ export default function PastAppointments({
                                     <UserCog className="w-3.5 h-3.5 text-blue-500" />
                                   </div>
                                 </TooltipTrigger>
-                                <TooltipContent className="shadow-xl border-border bg-card p-3">
+                                <TooltipContent className="shadow-xl border-border bg-card p-3 border-white">
                                   <div className="space-y-1">
                                     <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest">Prospectado por:</p>
                                     <p className="text-xs font-black text-blue-600">{app.prospectorName}</p>
@@ -190,7 +192,7 @@ export default function PastAppointments({
                                     <UserCheck className="w-3.5 h-3.5 text-purple-500" />
                                   </div>
                                 </TooltipTrigger>
-                                <TooltipContent className="shadow-xl border-border bg-card p-3">
+                                <TooltipContent className="shadow-xl border-border bg-card p-3 border-white">
                                   <div className="space-y-1">
                                     <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest">Atendido por:</p>
                                     <p className="text-xs font-black text-purple-600">{app.attendingExecutive}</p>
@@ -279,7 +281,7 @@ export default function PastAppointments({
                             </div>
                           </TooltipTrigger>
                           {isCierre && (
-                            <TooltipContent side="top" className="bg-card border-border shadow-xl p-3 min-w-[180px] z-[300]">
+                            <TooltipContent side="top" className="bg-card border-border shadow-xl p-3 min-w-[180px] z-[300] border-white">
                               <div className="space-y-2">
                                 <div className="flex items-center justify-between border-b border-border/10 pb-1">
                                   <span className="text-[8px] uppercase font-bold text-muted-foreground tracking-widest">Detalle Financiero (Neto)</span>
@@ -357,7 +359,7 @@ export default function PastAppointments({
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => setVisibleCount(p => (typeof p === 'function' ? p(visibleCount) : p) + 25)}
+            onClick={() => setVisibleCount(prev => prev + 25)}
             className="text-[10px] font-bold uppercase tracking-widest border-dashed hover:bg-primary/10 backdrop-blur-md h-9 px-6"
           >
             <ChevronDown className="mr-2 h-4 w-4" /> Cargar más historial

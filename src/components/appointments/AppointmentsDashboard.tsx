@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useMemo } from 'react';
@@ -50,7 +49,7 @@ interface DashboardContentProps {
   handleHighlight: (app: Appointment) => void;
   activeId: string | null;
   visibleCountPast: number;
-  setVisibleCountPast: (count: number | ((prev: number) => number)) => void;
+  setVisibleCountPast: React.Dispatch<React.SetStateAction<number>>;
   stats: any;
   theme?: string;
   searchTerm: string;
@@ -133,7 +132,7 @@ const DashboardContent = ({
                       </div>
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent className="bg-card border-border shadow-xl text-[10px] font-bold p-2">
+                  <TooltipContent className="bg-card border-border shadow-xl text-[10px] font-bold p-2 border-white">
                     {s.tip}
                   </TooltipContent>
                 </Tooltip>
@@ -199,10 +198,23 @@ export default function AppointmentsDashboard({
       <AppointmentForm onAdd={addAppointment} />
       <Card className="shadow-xl bg-card border-border border-l-4 border-l-blue-600 overflow-hidden">
         <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-4"><div className="bg-blue-600/10 p-2 rounded-xl border border-blue-600/20"><CalendarClock className="text-blue-600 w-6 h-6" /></div><div><CardTitle className="text-xl font-semibold">Gestión de citas</CardTitle><CardDescription className="text-muted-foreground">Monitoreo de prospectos</CardDescription></div></div>
+          <div className="flex items-center gap-4">
+            <div className="bg-blue-600/10 p-2 rounded-xl border border-blue-600/20">
+              <CalendarClock className="text-blue-600 w-6 h-6" />
+            </div>
+            <div>
+              <CardTitle className="text-xl font-semibold">Gestión de citas</CardTitle>
+              <CardDescription className="text-muted-foreground">Monitoreo de prospectos</CardDescription>
+            </div>
+          </div>
           <div className="flex items-center gap-3 w-full sm:w-auto">
-            <div className="relative w-full sm:w-64"><Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" /><Input placeholder="Buscar..." className="pl-9 h-9 bg-muted/30" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} /></div>
-            <Button variant="ghost" size="icon" onClick={() => onExpandedChange(true)} className="h-9 w-9 text-muted-foreground/60 hover:text-blue-600"><Maximize2 className="w-4 h-4" /></Button>
+            <div className="relative w-full sm:w-64">
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input placeholder="Buscar..." className="pl-9 h-9 bg-muted/30" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+            </div>
+            <Button variant="ghost" size="icon" onClick={() => onExpandedChange(true)} className="h-9 w-9 text-muted-foreground/60 hover:text-blue-600">
+              <Maximize2 className="w-4 h-4" />
+            </Button>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -213,8 +225,26 @@ export default function AppointmentsDashboard({
       <Dialog open={isExpanded} onOpenChange={onExpandedChange}>
         <DialogContent data-appointments-dialog="true" className="max-w-none w-screen h-screen m-0 rounded-none bg-background border-none p-0 flex flex-col overflow-hidden">
           <DialogHeader className="px-6 py-4 border-b border-border/40 flex flex-row items-center justify-between bg-card/10 shrink-0">
-            <div className="flex items-center gap-3"><div className="bg-blue-600/20 p-2 rounded-xl border border-blue-600/30"><LayoutDashboard className="text-blue-600 w-6 h-6" /></div><div><DialogTitle className="text-xl font-bold">Panel de Control de Citas</DialogTitle><DialogDescription className="text-xs">Vista completa del flujo.</DialogDescription></div></div>
-            <div className="flex items-center gap-4"><div className="relative w-80 hidden md:block"><Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" /><Input placeholder="Búsqueda global..." className="pl-9 h-10 bg-muted/30" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} /></div><DialogClose asChild><Button variant="ghost" size="icon" className="rounded-full hover:bg-destructive/10 h-10 w-10"><X className="w-5 h-5" /></Button></DialogClose></div>
+            <div className="flex items-center gap-3">
+              <div className="bg-blue-600/20 p-2 rounded-xl border border-blue-600/30">
+                <LayoutDashboard className="text-blue-600 w-6 h-6" />
+              </div>
+              <div>
+                <DialogTitle className="text-xl font-bold">Panel de Control de Citas</DialogTitle>
+                <DialogDescription className="text-xs">Vista completa del flujo.</DialogDescription>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="relative w-80 hidden md:block">
+                <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input placeholder="Búsqueda global..." className="pl-9 h-10 bg-muted/30" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+              </div>
+              <DialogClose asChild>
+                <Button variant="ghost" size="icon" className="rounded-full hover:bg-destructive/10 h-10 w-10">
+                  <X className="w-5 h-5" />
+                </Button>
+              </DialogClose>
+            </div>
           </DialogHeader>
           <div className="flex-1 p-6 overflow-hidden flex flex-col">
             <DashboardContent expanded={true} activeTab={activeTab} setActiveTab={setActiveTab} appointments={appointments} editAppointment={editAppointment} archiveAppointment={archiveAppointment} unarchiveAppointment={unarchiveAppointment} formatFriendlyDate={formatFriendlyDate} format12hTime={format12hTime} handleSelect={handleSelect} handleHighlight={handleHighlight} activeId={activeId} visibleCountPast={visibleCountPast} setVisibleCount={setVisibleCountPast} stats={stats} searchTerm={searchTerm} onCelebrate={onCelebrate} />

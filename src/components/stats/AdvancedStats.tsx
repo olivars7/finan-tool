@@ -1,4 +1,3 @@
-
 /**
  * @fileOverview Panel de Inteligencia Avanzada - Finanto
  */
@@ -6,7 +5,7 @@
 "use client"
 
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
   TrendingUp, BarChart3, Maximize2, X, Activity, CalendarDays, Trophy, Users, History, Coins, ArrowUpRight, ArrowDownRight, Zap, Target, Receipt, Percent, Info
@@ -68,12 +67,22 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
       )}
     >
       <CardHeader className="p-4 pb-2 border-b border-border/10 flex flex-row items-center justify-between">
-        <div className="flex items-center gap-2"><Icon className="w-4 h-4 text-primary" /><CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">{title}</CardTitle></div>
+        <div className="flex items-center gap-2">
+          <Icon className="w-4 h-4 text-primary" />
+          <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">{title}</CardTitle>
+        </div>
       </CardHeader>
       <CardContent className="p-4 h-[200px] overflow-visible">
         <ChartContainer config={chartConfig} className="h-full w-full">
           <BarChart data={data}>
-            <defs><linearGradient id="cierreGradient" x1="0" x1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00F5FF" /><stop offset="33%" stopColor="#1877F2" /><stop offset="66%" stopColor="#7B61FF" /><stop offset="100%" stopColor="#FF00D6" /></linearGradient></defs>
+            <defs>
+              <linearGradient id="cierreGradient" x1="0" x1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#00F5FF" />
+                <stop offset="33%" stopColor="#1877F2" />
+                <stop offset="66%" stopColor="#7B61FF" />
+                <stop offset="100%" stopColor="#FF00D6" />
+              </linearGradient>
+            </defs>
             <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
             <XAxis dataKey="day" tickLine={false} tickMargin={10} axisLine={false} className="text-[10px] font-bold uppercase text-muted-foreground/60" />
             <YAxis hide domain={[0, stats.charts.globalMax + 1]} />
@@ -99,11 +108,20 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
     <Card className="border-primary/20 bg-primary/5 overflow-hidden">
       <CardContent className="p-6 space-y-6">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2"><Activity className="w-5 h-5 text-primary" /><h3 className="text-xs font-bold uppercase text-primary/80">Salud Operativa</h3></div>
+          <div className="flex items-center gap-2">
+            <Activity className="w-5 h-5 text-primary" />
+            <h3 className="text-xs font-bold uppercase text-primary/80">Salud Operativa</h3>
+          </div>
           <span className="text-2xl font-black text-primary">{Math.round(attendanceRate)}% <span className="text-[8px] uppercase">Asistencia</span></span>
         </div>
         <div className="space-y-4">
-          <div className="space-y-1"><div className="flex justify-between text-[9px] uppercase font-bold"><span>Efectividad Cierre</span><span>{Math.round(closingRate)}%</span></div><Progress value={closingRate} className="h-1.5" /></div>
+          <div className="space-y-1">
+            <div className="flex justify-between text-[9px] uppercase font-bold text-muted-foreground">
+              <span>Efectividad Cierre</span>
+              <span className="text-primary">{Math.round(closingRate)}%</span>
+            </div>
+            <Progress value={closingRate} className="h-1.5" />
+          </div>
         </div>
       </CardContent>
     </Card>
@@ -113,8 +131,13 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
     <>
       <Card className="shadow-lg bg-card border-border overflow-hidden">
         <CardHeader className="bg-primary/5 border-b border-border/50 py-4 flex flex-row items-center justify-between">
-          <div className="flex items-center gap-2"><BarChart3 className="text-primary w-5 h-5" /><CardTitle className="text-lg font-semibold">Stats</CardTitle></div>
-          <Button variant="ghost" size="icon" onClick={() => onExpandedChange(true)} className="h-8 w-8 text-muted-foreground/60 hover:text-primary"><Maximize2 className="w-4 h-4" /></Button>
+          <div className="flex items-center gap-2">
+            <BarChart3 className="text-primary w-5 h-5" />
+            <CardTitle className="text-lg font-semibold">Stats</CardTitle>
+          </div>
+          <Button variant="ghost" size="icon" onClick={() => onExpandedChange(true)} className="h-8 w-8 text-muted-foreground/60 hover:text-primary">
+            <Maximize2 className="w-4 h-4" />
+          </Button>
         </CardHeader>
         <CardContent className="p-6 space-y-6">
           <WeeklyChart data={stats.charts.dailyActivity} title="Ciclo Actual" icon={CalendarDays} />
@@ -154,7 +177,16 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                   { icon: Coins, color: 'text-yellow-600', label: 'Ingresos', value: formatCurrency(stats.currentMonthCommission), val1: formatCurrency(stats.thisFridayCommission), sub1: 'Viernes', isGradient: true }
                 ].map((s, i) => (
                   <Card key={i} className="bg-card/40 border-primary/20 p-4 space-y-3 hover:bg-primary/10 transition-colors duration-300 cursor-default group">
-                    <div className="flex justify-between items-start"><div className={cn("p-2 rounded-lg bg-muted/20 group-hover:bg-background/50 transition-colors", s.color)}><s.icon className="w-4 h-4" /></div>{s.growth !== undefined && <span className={cn("text-[10px] font-bold flex items-center", s.growth >= 0 ? "text-green-500" : "text-destructive")}>{s.growth >= 0 ? <ArrowUpRight className="w-3 h-3"/> : <ArrowDownRight className="w-3 h-3"/>} {Math.abs(Math.round(s.growth))}%</span>}</div>
+                    <div className="flex justify-between items-start">
+                      <div className={cn("p-2 rounded-lg bg-muted/20 group-hover:bg-background/50 transition-colors", s.color)}>
+                        <s.icon className="w-4 h-4" />
+                      </div>
+                      {s.growth !== undefined && (
+                        <span className={cn("text-[10px] font-bold flex items-center", s.growth >= 0 ? "text-green-500" : "text-destructive")}>
+                          {s.growth >= 0 ? <ArrowUpRight className="w-3 h-3"/> : <ArrowDownRight className="w-3 h-3"/>} {Math.abs(Math.round(s.growth))}%
+                        </span>
+                      )}
+                    </div>
                     <div>
                       <p className="text-[9px] uppercase font-bold text-muted-foreground">{s.label}</p>
                       <p className={cn(
@@ -162,7 +194,10 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                         s.isGradient ? getDynamicGradient(stats.currentMonthCommission) : ""
                       )}>{s.value}</p>
                     </div>
-                    <div className="pt-2 border-t border-border/10 flex justify-between"><span className="text-[8px] font-bold text-muted-foreground uppercase">{s.sub1}</span><span className="text-xs font-bold">{s.val1}</span></div>
+                    <div className="pt-2 border-t border-border/10 flex justify-between">
+                      <span className="text-[8px] font-bold text-muted-foreground uppercase">{s.sub1}</span>
+                      <span className="text-xs font-bold">{s.val1}</span>
+                    </div>
                   </Card>
                 ))}
               </div>
