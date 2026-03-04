@@ -107,8 +107,8 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
   const appointmentState = useAppointments();
 
   const { 
-    appointments, activeAppointments, stats, isLoaded, resetData, clearAll, 
-    addAppointment, editAppointment, archiveAppointment, unarchiveAppointment, deletePermanent
+    appointments, stats, isLoaded, resetData, clearAll, 
+    editAppointment, unarchiveAppointment, deletePermanent
   } = appointmentState;
 
   const onSelectAppId = (id: string | null) => setSelectedAppId(id);
@@ -128,23 +128,69 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
     pendingAppRef.current = pendingCommissionApp;
   }, [pendingCommissionApp]);
 
-  // Sincronización de URL sin refrescar (SPA)
-  const syncUrl = useCallback((path: string) => {
-    if (typeof window !== 'undefined' && window.location.pathname !== path) {
+  // Sincronización de URL (Solo Push si es acción de usuario)
+  const syncUrl = useCallback((path: string, push: boolean = true) => {
+    if (typeof window === 'undefined') return;
+    if (window.location.pathname === path) return;
+    
+    if (push) {
       window.history.pushState(null, '', path);
+    } else {
+      window.history.replaceState(null, '', path);
     }
   }, []);
 
-  // Inicialización basada en URL y carga de tema
+  // Handlers de apertura (Inician la navegación)
+  const handleToggleHelp = (open: boolean) => {
+    setShowHelp(open);
+    if (open) {
+      syncUrl('/guia');
+      document.title = "Manual de Inicio - Finanto";
+    } else if (!isSimulatorExpanded && !isGestorExpanded && !isStatsExpanded) {
+      syncUrl('/');
+      document.title = "Finanto - Gestión Inmobiliaria";
+    }
+  };
+
+  const handleToggleSimulator = (open: boolean) => {
+    setIsSimulatorExpanded(open);
+    if (open) {
+      syncUrl('/simulador');
+      document.title = "Simulador - Finanto";
+    } else if (!showHelp && !isGestorExpanded && !isStatsExpanded) {
+      syncUrl('/');
+      document.title = "Finanto - Gestión Inmobiliaria";
+    }
+  };
+
+  const handleToggleGestor = (open: boolean) => {
+    setIsGestorExpanded(open);
+    if (open) {
+      syncUrl('/gestor');
+      document.title = "Gestor - Finanto";
+    } else if (!showHelp && !isSimulatorExpanded && !isStatsExpanded) {
+      syncUrl('/');
+      document.title = "Finanto - Gestión Inmobiliaria";
+    }
+  };
+
+  const handleToggleStats = (open: boolean) => {
+    setIsStatsExpanded(open);
+    if (open) {
+      syncUrl('/stats');
+      document.title = "Estadísticas - Finanto";
+    } else if (!showHelp && !isSimulatorExpanded && !isGestorExpanded) {
+      syncUrl('/');
+      document.title = "Finanto - Gestión Inmobiliaria";
+    }
+  };
+
+  // Inicialización basada en URL
   useEffect(() => {
     const savedTheme = localStorage.getItem('finanto-theme') as Theme;
-    if (savedTheme && ['tranquilo', 'moderno', 'discreto', 'olivares', 'corporativo-v2'].includes(savedTheme)) {
-      applyTheme(savedTheme);
-    } else {
-      applyTheme('corporativo-v2');
-    }
+    if (savedTheme) applyTheme(savedTheme);
+    else applyTheme('corporativo-v2');
 
-    // Estado inicial basado en la URL
     const path = window.location.pathname;
     if (path === '/guia') setShowHelp(true);
     else if (path === '/simulador') setIsSimulatorExpanded(true);
@@ -152,10 +198,11 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
     else if (path === '/stats') setIsStatsExpanded(true);
     else if (!initialSection && !localStorage.getItem(Service.STORAGE_KEY)) {
       setShowHelp(true);
+      syncUrl('/guia', false);
     }
-  }, []);
+  }, [syncUrl]);
 
-  // Manejo de navegación SPA (Popstate - Atrás/Adelante)
+  // Manejo de navegación SPA (Popstate) - SOLO actualiza estados internos
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname;
@@ -164,36 +211,18 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
       setIsGestorExpanded(path === '/gestor');
       setIsStatsExpanded(path === '/stats');
       setSelectedAppId(null);
+
+      // Actualizar título
+      if (path === '/guia') document.title = "Manual de Inicio - Finanto";
+      else if (path === '/simulador') document.title = "Simulador - Finanto";
+      else if (path === '/gestor') document.title = "Gestor - Finanto";
+      else if (path === '/stats') document.title = "Estadísticas - Finanto";
+      else document.title = "Finanto - Gestión Inmobiliaria";
     };
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
-
-  // Monitor de estados para sincronizar URL y Título cuando el usuario abre modales manualmente
-  useEffect(() => {
-    if (showHelp) {
-      document.title = "Manual de Inicio - Finanto";
-      syncUrl('/guia');
-    } else if (isSimulatorExpanded) {
-      document.title = "Simulador - Finanto";
-      syncUrl('/simulador');
-    } else if (isGestorExpanded) {
-      document.title = "Gestor - Finanto";
-      syncUrl('/gestor');
-    } else if (isStatsExpanded) {
-      document.title = "Estadísticas - Finanto";
-      syncUrl('/stats');
-    } else {
-      document.title = "Finanto - Gestión Inmobiliaria";
-      syncUrl('/');
-    }
-  }, [showHelp, isSimulatorExpanded, isGestorExpanded, isStatsExpanded, syncUrl]);
-
-  const handleToggleHelp = (open: boolean) => setShowHelp(open);
-  const handleToggleSimulator = (open: boolean) => setIsSimulatorExpanded(open);
-  const handleToggleGestor = (open: boolean) => setIsGestorExpanded(open);
-  const handleToggleStats = (open: boolean) => setIsStatsExpanded(open);
 
   useEffect(() => {
     if (!api) return;
@@ -574,7 +603,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
           <section className="xl:col-span-5 space-y-6">
             <CreditCalculator 
-              initialExpanded={isSimulatorExpanded} 
+              isExpanded={isSimulatorExpanded} 
               onExpandedChange={handleToggleSimulator}
             />
             <div className="p-6 border rounded-xl border-primary/20 bg-primary/5">
@@ -599,13 +628,13 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
             </div>
             <AdvancedStats 
               stats={stats} 
-              initialExpanded={isStatsExpanded}
+              isExpanded={isStatsExpanded}
               onExpandedChange={handleToggleStats}
             />
           </section>
           <section className="xl:col-span-7 pb-10 space-y-6">
             <AppointmentsDashboard 
-              initialExpanded={isGestorExpanded}
+              isExpanded={isGestorExpanded}
               onExpandedChange={handleToggleGestor}
               selectedAppId={selectedAppId}
               onSelectAppId={onSelectAppId}

@@ -1,216 +1,92 @@
+
 "use client"
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
-  TrendingUp, 
-  BarChart3, 
-  Target, 
-  Lightbulb, 
-  Maximize2, 
-  X,
-  Info,
-  Activity,
-  CalendarDays,
-  Trophy,
-  Users,
-  History,
-  Coins,
-  Wallet,
-  ArrowUpRight,
-  ArrowDownRight,
-  Receipt,
-  PieChart,
-  Zap,
-  TrendingDown,
-  Percent
+  TrendingUp, BarChart3, Maximize2, X, Info, Activity, CalendarDays, Trophy, Users, History, Coins, ArrowUpRight, ArrowDownRight, Receipt, Zap, Percent
 } from "lucide-react";
-import { 
-  Bar, 
-  BarChart, 
-  CartesianGrid, 
-  XAxis, 
-  YAxis,
-  Cell,
-  LabelList
-} from "recharts";
-import { 
-  ChartContainer, 
-  ChartTooltip, 
-  ChartTooltipContent,
-  type ChartConfig 
-} from "@/components/ui/chart";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogClose
-} from "@/components/ui/dialog";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Cell, LabelList } from "recharts";
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 
 interface AdvancedStatsProps {
   stats: any;
-  initialExpanded?: boolean;
-  onExpandedChange?: (expanded: boolean) => void;
+  isExpanded?: boolean;
+  onExpandedChange: (expanded: boolean) => void;
 }
 
 const chartConfig = {
-  agendadas: {
-    label: "Agendadas",
-    color: "hsl(var(--primary))",
-  },
-  atendidas: {
-    label: "Atendidas",
-    color: "hsl(var(--accent))",
-  },
-  cierres: {
-    label: "Cierres",
-    color: "url(#cierreGradient)",
-  },
+  agendadas: { label: "Agendadas", color: "hsl(var(--primary))" },
+  atendidas: { label: "Atendidas", color: "hsl(var(--accent))" },
+  cierres: { label: "Cierres", color: "url(#cierreGradient)" },
 } satisfies ChartConfig;
 
 const ZeroLabel = (props: any) => {
   const { x, y, width, value } = props;
   if (value > 0) return null;
-  return (
-    <text 
-      x={x + width / 2} 
-      y={y - 5} 
-      fill="currentColor" 
-      textAnchor="middle" 
-      className="text-[8px] font-bold opacity-30"
-    >
-      ×
-    </text>
-  );
+  return <text x={x + width / 2} y={y - 5} fill="currentColor" textAnchor="middle" className="text-[8px] font-bold opacity-30">×</text>;
 };
 
-export default function AdvancedStats({ stats, initialExpanded = false, onExpandedChange }: AdvancedStatsProps) {
-  const [isExpanded, setIsExpanded] = useState(initialExpanded);
+export default function AdvancedStats({ stats, isExpanded = false, onExpandedChange }: AdvancedStatsProps) {
   const [showIntro, setShowIntro] = useState(false);
   const [showContent, setShowContent] = useState(false);
-
-  useEffect(() => {
-    setIsExpanded(initialExpanded);
-  }, [initialExpanded]);
 
   useEffect(() => {
     if (isExpanded) {
       setShowIntro(true);
       setShowContent(false);
-      
-      const introTimer = setTimeout(() => {
+      const timer = setTimeout(() => {
         setShowIntro(false);
         setShowContent(true);
-      }, 3000); 
-      
-      return () => clearTimeout(introTimer);
+      }, 3000);
+      return () => clearTimeout(timer);
     }
   }, [isExpanded]);
 
   const totalMonth = stats.currentMonthProspects || 0;
   const attendanceRate = totalMonth > 0 ? Math.min(95, 75 + (stats.todayConfirmed / (stats.todayCount || 1) * 10)) : 0;
   const closingRate = attendanceRate > 0 ? (stats.conversionRate / (attendanceRate / 100)) : 0;
-  
   const monthlyGrowth = stats.lastMonthProspects > 0 ? ((stats.currentMonthProspects - stats.lastMonthProspects) / stats.lastMonthProspects) * 100 : 0;
   const creditGrowth = stats.lastMonthCreditSold > 0 ? ((stats.totalCreditSold - stats.lastMonthCreditSold) / stats.lastMonthCreditSold) * 100 : 0;
   const taxImpact = stats.currentMonthCommission / 0.91 * 0.09;
 
   const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: 'MXN',
-      maximumFractionDigits: 0
-    }).format(Math.round(val));
+    return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(Math.round(val));
   };
 
   const getAdvice = () => {
-    if (stats.conversionRate > 20) return "Tu tasa de cierre es excepcional. Es el momento de ser más selectivo: enfócate en captar perfiles de crédito más alto.";
-    if (stats.conversionRate < 8) return "La conversión está baja. Revisa la calificación de prospectos en la primera llamada antes de agendar.";
-    if (stats.currentMonthFollowUps > 5) return "Volumen alto de seguimientos. Prioriza las llamadas de cierre hoy para evitar que el interés se enfríe.";
-    if (stats.todayCount > 0 && (stats.todayConfirmed / stats.todayCount) < 0.6) return "Baja asistencia hoy. Implementa recordatorios por WhatsApp 2 horas antes.";
-    return "Tu ritmo operativo es estable. Mantén el hábito de registrar notas detalladas para asegurar el cierre.";
+    if (stats.conversionRate > 20) return "Tu tasa de cierre es excepcional. Enfócate en captar perfiles de crédito más alto.";
+    if (stats.conversionRate < 8) return "Conversión baja. Revisa la calificación de prospectos antes de agendar.";
+    return "Ritmo operativo estable. Mantén el registro de notas detalladas.";
   };
 
   const WeeklyChart = ({ data, title, icon: Icon, opacity = 1 }: { data: any, title: string, icon: any, opacity?: number }) => (
-    <Card className={cn("border-border/40 bg-card/30 backdrop-blur-md shadow-sm overflow-visible", opacity < 1 && "opacity-75")}>
-      <CardHeader className="p-4 pb-2 border-b border-border/10 flex flex-row items-center justify-between shrink-0">
-        <div className="flex items-center gap-2">
-          <Icon className="w-4 h-4 text-primary" />
-          <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">{title}</CardTitle>
-        </div>
-        <TooltipProvider>
-          <Tooltip delayDuration={0}>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-6 w-6"><Info className="w-3.5 h-3.5 text-muted-foreground/60" /></Button>
-            </TooltipTrigger>
-            <TooltipContent className="text-[10px] max-w-[200px] bg-card border-border shadow-xl p-3 z-[250]" side="top">
-              <p className="font-bold mb-1 uppercase text-primary">Comparativa Diaria</p>
-              Muestra agendadas, asistencias y ventas cerradas.
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+    <Card className={cn("border-border/40 bg-card/30 backdrop-blur-md overflow-visible", opacity < 1 && "opacity-75")}>
+      <CardHeader className="p-4 pb-2 border-b border-border/10 flex flex-row items-center justify-between">
+        <div className="flex items-center gap-2"><Icon className="w-4 h-4 text-primary" /><CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">{title}</CardTitle></div>
       </CardHeader>
       <CardContent className="p-4 h-[200px] overflow-visible">
-        <ChartContainer config={chartConfig} className="h-full w-full overflow-visible">
+        <ChartContainer config={chartConfig} className="h-full w-full">
           <BarChart data={data}>
-            <defs>
-              <linearGradient id="cierreGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#00F5FF" />
-                <stop offset="33%" stopColor="#1877F2" />
-                <stop offset="66%" stopColor="#7B61FF" />
-                <stop offset="100%" stopColor="#FF00D6" />
-              </linearGradient>
-            </defs>
+            <defs><linearGradient id="cierreGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00F5FF" /><stop offset="33%" stopColor="#1877F2" /><stop offset="66%" stopColor="#7B61FF" /><stop offset="100%" stopColor="#FF00D6" /></linearGradient></defs>
             <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
-            <XAxis 
-              dataKey="day" 
-              tickLine={false} 
-              tickMargin={10} 
-              axisLine={false} 
-              className="text-[10px] font-bold uppercase text-muted-foreground/60" 
-            />
-            <YAxis 
-              hide 
-              domain={[0, stats.charts.globalMax + 1]} 
-            />
-            <ChartTooltip content={<ChartTooltipContent className="z-[250]" />} />
+            <XAxis dataKey="day" tickLine={false} tickMargin={10} axisLine={false} className="text-[10px] font-bold uppercase text-muted-foreground/60" />
+            <YAxis hide domain={[0, stats.charts.globalMax + 1]} />
+            <ChartTooltip content={<ChartTooltipContent />} />
             <Bar dataKey="agendadas" name="Agendadas" radius={[2, 2, 0, 0]}>
-              {data.map((entry: any, index: number) => (
-                <Cell 
-                  key={`cell-age-${index}`} 
-                  fill={entry.isToday ? "hsl(var(--primary))" : "var(--color-agendadas)"}
-                  className={entry.isToday ? "stroke-primary stroke-2" : ""}
-                />
-              ))}
+              {data.map((e: any, i: number) => <Cell key={i} fill={e.isToday ? "hsl(var(--primary))" : "var(--color-agendadas)"} className={e.isToday ? "stroke-primary stroke-2" : ""} />)}
               <LabelList dataKey="agendadas" content={<ZeroLabel />} />
             </Bar>
             <Bar dataKey="atendidas" name="Atendidas" radius={[2, 2, 0, 0]}>
-              {data.map((entry: any, index: number) => (
-                <Cell 
-                  key={`cell-ate-${index}`} 
-                  fill={entry.isToday ? "hsl(var(--accent))" : "var(--color-atendidas)"}
-                />
-              ))}
+              {data.map((e: any, i: number) => <Cell key={i} fill={e.isToday ? "hsl(var(--accent))" : "var(--color-atendidas)"} />)}
               <LabelList dataKey="atendidas" content={<ZeroLabel />} />
             </Bar>
-            <Bar dataKey="cierres" name="Cierres" radius={[2, 2, 0, 0]}>
-              {data.map((entry: any, index: number) => (
-                <Cell 
-                  key={`cell-cie-${index}`} 
-                  fill="url(#cierreGradient)"
-                />
-              ))}
+            <Bar dataKey="cierres" name="Cierres" radius={[2, 2, 0, 0]} fill="url(#cierreGradient)">
               <LabelList dataKey="cierres" content={<ZeroLabel />} />
             </Bar>
           </BarChart>
@@ -220,27 +96,14 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
   );
 
   const PerformanceSection = () => (
-    <Card className="border-primary/20 bg-primary/5 shadow-lg relative overflow-hidden">
+    <Card className="border-primary/20 bg-primary/5 overflow-hidden">
       <CardContent className="p-6 space-y-6">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Activity className="w-5 h-5 text-primary animate-pulse" />
-            <h3 className="text-xs font-bold uppercase tracking-widest text-primary/80">Salud Operativa</h3>
-          </div>
-          <div className="flex flex-col items-end">
-            <span className="text-2xl font-black text-primary leading-none">{Math.round(attendanceRate)}%</span>
-            <span className="text-[7px] font-bold uppercase text-primary/40">Asistencia</span>
-          </div>
+          <div className="flex items-center gap-2"><Activity className="w-5 h-5 text-primary animate-pulse" /><h3 className="text-xs font-bold uppercase text-primary/80">Salud Operativa</h3></div>
+          <span className="text-2xl font-black text-primary">{Math.round(attendanceRate)}% <span className="text-[8px] uppercase">Asistencia</span></span>
         </div>
-
-        <div className="space-y-5">
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <span className="text-[9px] uppercase font-bold text-muted-foreground">Efectividad Cierre</span>
-              <span className="text-xs font-bold text-green-500">{Math.round(closingRate)}%</span>
-            </div>
-            <Progress value={closingRate} className="h-1.5 bg-green-500/10" />
-          </div>
+        <div className="space-y-4">
+          <div className="space-y-1"><div className="flex justify-between text-[9px] uppercase font-bold"><span>Efectividad Cierre</span><span>{Math.round(closingRate)}%</span></div><Progress value={closingRate} className="h-1.5" /></div>
         </div>
       </CardContent>
     </Card>
@@ -250,18 +113,8 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
     <>
       <Card className="shadow-lg bg-card border-border overflow-hidden">
         <CardHeader className="bg-primary/5 border-b border-border/50 py-4 flex flex-row items-center justify-between">
-          <div className="flex items-center gap-2">
-            <BarChart3 className="text-primary w-5 h-5" />
-            <CardTitle className="text-lg font-headline font-semibold">Stats</CardTitle>
-          </div>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="h-8 w-8 rounded-lg text-muted-foreground/60 hover:text-primary hover:bg-primary/10"
-            onClick={() => onExpandedChange?.(true)}
-          >
-            <Maximize2 className="w-4 h-4" />
-          </Button>
+          <div className="flex items-center gap-2"><BarChart3 className="text-primary w-5 h-5" /><CardTitle className="text-lg font-semibold">Stats</CardTitle></div>
+          <Button variant="ghost" size="icon" onClick={() => onExpandedChange(true)} className="h-8 w-8 text-muted-foreground/60 hover:text-primary"><Maximize2 className="w-4 h-4" /></Button>
         </CardHeader>
         <CardContent className="p-6 space-y-6">
           <WeeklyChart data={stats.charts.dailyActivity} title="Ciclo Actual" icon={CalendarDays} />
@@ -269,165 +122,44 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
         </CardContent>
       </Card>
 
-      <Dialog open={isExpanded} onOpenChange={(o) => onExpandedChange?.(o)}>
-        <DialogContent 
-          data-calculator-dialog="true"
-          onInteractOutside={(e) => {
-            if ((e.target as HTMLElement).closest('[role="status"]')) e.preventDefault();
-          }}
-          className="max-w-none w-screen h-screen m-0 rounded-none bg-background border-none shadow-none p-0 flex flex-col overflow-hidden"
-        >
-          {/* Título invisible pero persistente para estabilidad de Radix y accesibilidad */}
-          <DialogTitle className="sr-only">Panel de Inteligencia Finanto</DialogTitle>
-          
+      <Dialog open={isExpanded} onOpenChange={onExpandedChange}>
+        <DialogContent data-calculator-dialog="true" className="max-w-none w-screen h-screen m-0 rounded-none bg-background border-none p-0 flex flex-col overflow-hidden">
+          <DialogTitle className="sr-only">Inteligencia Finanto</DialogTitle>
           {showIntro ? (
-            <div key="intro-view" className="flex-1 flex items-center justify-center bg-background/95 backdrop-blur-3xl z-[300]">
-              <h2 className="text-6xl md:text-8xl font-black tracking-tighter bg-gradient-to-r from-[#00F5FF] via-[#7B61FF] to-[#FF00D6] bg-clip-text text-transparent animate-intro-text text-center px-4">
-                INTELIGENCIA FINANTO
-              </h2>
+            <div className="flex-1 flex items-center justify-center bg-background/95 backdrop-blur-3xl z-[300]">
+              <h2 className="text-6xl md:text-8xl font-black tracking-tighter bg-gradient-to-r from-[#00F5FF] via-[#7B61FF] to-[#FF00D6] bg-clip-text text-transparent animate-intro-text text-center px-4">INTELIGENCIA FINANTO</h2>
             </div>
           ) : showContent ? (
-            <div key="content-view" className="flex-1 flex flex-col animate-stats-reveal">
+            <div className="flex-1 flex flex-col animate-stats-reveal">
               <DialogHeader className="px-6 py-4 border-b border-border/40 flex flex-row items-center justify-between bg-card/10 shrink-0">
-                <div className="flex items-center gap-3">
-                  <div className="bg-primary/20 p-2 rounded-xl border border-primary/30">
-                    <BarChart3 className="text-primary w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-headline font-bold text-foreground">Inteligencia Avanzada</h3>
-                    <DialogDescription className="text-xs">Análisis financiero y tendencias operativos.</DialogDescription>
-                  </div>
-                </div>
-                <DialogClose asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full hover:bg-destructive/10 hover:text-destructive h-10 w-10">
-                    <X className="w-5 h-5" />
-                  </Button>
-                </DialogClose>
+                <div className="flex items-center gap-3"><div className="bg-primary/20 p-2 rounded-xl border border-primary/30"><BarChart3 className="text-primary w-6 h-6" /></div><div><h3 className="text-xl font-bold">Inteligencia Avanzada</h3><DialogDescription className="text-xs">Análisis financiero operativo.</DialogDescription></div></div>
+                <DialogClose asChild><Button variant="ghost" size="icon" className="rounded-full hover:bg-destructive/10 h-10 w-10"><X className="w-5 h-5" /></Button></DialogClose>
               </DialogHeader>
-
               <div className="flex-1 overflow-y-auto p-8 scrollbar-thin bg-muted/5">
                 <div className="max-w-[1400px] mx-auto space-y-8">
                   <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                     {[
-                      { icon: CalendarDays, color: 'text-primary', label: 'Citas Hoy', value: stats.todayCount, tag: 'HOY', sub1: 'Confirmadas', val1: stats.todayConfirmed, sub2: 'Mañana', val2: stats.tomorrowTotal },
-                      { icon: TrendingUp, color: 'text-primary', label: 'Eficiencia', value: `${Math.round(closingRate)}%`, sub1: 'Éxito Citas', val1: 'Atendidas' },
-                      { icon: Users, color: 'text-accent', label: 'Prospectos', value: stats.currentMonthProspects, growth: monthlyGrowth, sub1: 'Mes Ant.', val1: stats.lastMonthProspects, sub2: 'Seguimiento', val2: stats.currentMonthFollowUps },
-                      { icon: Trophy, color: 'text-green-500', label: 'Cierres', value: stats.currentMonthSales, sub1: 'Ventas', val1: stats.currentMonthOnlyCierre, sub2: 'Apartados', val2: stats.currentMonthApartados },
-                      { icon: Coins, color: 'text-yellow-600', label: 'Ingresos', value: formatCurrency(stats.currentMonthCommission), special: true, sub1: 'Cobrado', val1: formatCurrency(stats.currentMonthPaidCommission), sub2: 'Próx. Viernes', val2: formatCurrency(stats.thisFridayCommission) }
+                      { icon: CalendarDays, color: 'text-primary', label: 'Citas Hoy', value: stats.todayCount, val1: stats.todayConfirmed, sub1: 'Conf.' },
+                      { icon: TrendingUp, color: 'text-primary', label: 'Eficiencia', value: `${Math.round(closingRate)}%`, val1: 'Atendidas', sub1: 'Base' },
+                      { icon: Users, color: 'text-accent', label: 'Prospectos', value: stats.currentMonthProspects, growth: monthlyGrowth, val1: stats.lastMonthProspects, sub1: 'Mes Ant.' },
+                      { icon: Trophy, color: 'text-green-500', label: 'Cierres', value: stats.currentMonthSales, val1: stats.currentMonthOnlyCierre, sub1: 'Ventas' },
+                      { icon: Coins, color: 'text-yellow-600', label: 'Ingresos', value: formatCurrency(stats.currentMonthCommission), val1: formatCurrency(stats.thisFridayCommission), sub1: 'Viernes' }
                     ].map((s, i) => (
-                      <Card 
-                        key={i} 
-                        className={cn(
-                          "bg-card/40 border-primary/20 p-4 space-y-3 animate-entrance-stagger animate-staggered-periodic",
-                          s.special && stats.currentMonthCommission > 5000 && "border-primary/40 shadow-[0_0_15px_rgba(var(--primary),0.1)]"
-                        )}
-                        style={{ animationDelay: `${i * 0.1}s, ${i * 0.2}s` }}
-                      >
-                        <div className="flex justify-between items-start">
-                          <div className={cn("p-2 rounded-lg bg-muted/20", s.color)}><s.icon className="w-4 h-4" /></div>
-                          {s.tag && <span className="text-[10px] font-bold text-primary bg-primary/5 px-2 py-0.5 rounded-full border border-primary/10">{s.tag}</span>}
-                          {s.growth !== undefined && (
-                            <div className="flex items-center gap-1">
-                              {s.growth >= 0 ? <ArrowUpRight className="w-3 h-3 text-green-500"/> : <ArrowDownRight className="w-3 h-3 text-destructive"/>}
-                              <span className={cn("text-[10px] font-bold", s.growth >= 0 ? "text-green-500" : "text-destructive")}>{Math.abs(Math.round(s.growth))}%</span>
-                            </div>
-                          )}
-                        </div>
-                        <div>
-                          <p className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest">{s.label}</p>
-                          <p className={cn(
-                            "text-2xl font-black truncate",
-                            s.special && stats.currentMonthCommission > 5000 && "bg-gradient-to-r from-[#00F5FF] via-[#7B61FF] to-[#FF00D6] bg-clip-text text-transparent"
-                          )}>
-                            {s.value}
-                          </p>
-                        </div>
-                        <div className="grid grid-cols-1 gap-1 pt-2 border-t border-border/10">
-                          <div className="flex justify-between">
-                            <span className="text-[8px] font-bold text-muted-foreground uppercase">{s.sub1}</span>
-                            <span className="text-xs font-bold">{s.val1}</span>
-                          </div>
-                          {s.sub2 && (
-                            <div className="flex justify-between">
-                              <span className="text-[8px] font-bold text-muted-foreground uppercase">{s.sub2}</span>
-                              <span className="text-xs font-bold">{s.val2}</span>
-                            </div>
-                          )}
-                        </div>
+                      <Card key={i} className="bg-card/40 border-primary/20 p-4 space-y-3 animate-entrance-stagger animate-staggered-periodic" style={{ animationDelay: `${i * 0.1}s, ${i * 0.2}s` }}>
+                        <div className="flex justify-between items-start"><div className={cn("p-2 rounded-lg bg-muted/20", s.color)}><s.icon className="w-4 h-4" /></div>{s.growth !== undefined && <span className={cn("text-[10px] font-bold flex items-center", s.growth >= 0 ? "text-green-500" : "text-destructive")}>{s.growth >= 0 ? <ArrowUpRight className="w-3 h-3"/> : <ArrowDownRight className="w-3 h-3"/>} {Math.abs(Math.round(s.growth))}%</span>}</div>
+                        <div><p className="text-[9px] uppercase font-bold text-muted-foreground">{s.label}</p><p className="text-2xl font-black truncate">{s.value}</p></div>
+                        <div className="pt-2 border-t border-border/10 flex justify-between"><span className="text-[8px] font-bold text-muted-foreground uppercase">{s.sub1}</span><span className="text-xs font-bold">{s.val1}</span></div>
                       </Card>
                     ))}
                   </div>
-
-                  <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 overflow-visible">
-                    <div className="xl:col-span-8 space-y-6 overflow-visible">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 overflow-visible">
-                        <div className="animate-entrance-stagger" style={{ animationDelay: '0.6s' }}>
-                          <WeeklyChart data={stats.charts.dailyActivity} title="Actual" icon={CalendarDays} />
-                        </div>
-                        <div className="animate-entrance-stagger" style={{ animationDelay: '0.7s' }}>
-                          <WeeklyChart data={stats.charts.lastWeekActivity} title="Anterior" icon={History} opacity={0.65} />
-                        </div>
-                      </div>
-                      
-                      <Card className="bg-card border-border/40 overflow-hidden animate-entrance-stagger" style={{ animationDelay: '0.8s' }}>
-                        <CardHeader className="bg-muted/30 p-4 border-b">
-                          <div className="flex items-center gap-2">
-                            <Zap className="w-4 h-4 text-yellow-500" />
-                            <CardTitle className="text-xs font-bold uppercase tracking-wider">Insights</CardTitle>
-                          </div>
-                        </CardHeader>
-                        <CardContent className="p-6 grid grid-cols-1 md:grid-cols-3 gap-8">
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                              <Target className="w-4 h-4" />
-                              <span className="text-[10px] font-bold uppercase">Vendido</span>
-                            </div>
-                            <div className="flex items-baseline gap-2">
-                              <p className="text-2xl font-black text-foreground">{formatCurrency(stats.totalCreditSold)}</p>
-                              <div className="flex items-center text-[10px] font-bold">
-                                {creditGrowth >= 0 ? <ArrowUpRight className="w-3 h-3 text-green-500 mr-0.5" /> : <ArrowDownRight className="w-3 h-3 text-destructive mr-0.5" />}
-                                <span className={creditGrowth >= 0 ? "text-green-500" : "text-destructive"}>{Math.abs(Math.round(creditGrowth))}%</span>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                              <Percent className="w-4 h-4" />
-                              <span className="text-[10px] font-bold uppercase">Part. Media</span>
-                            </div>
-                            <p className="text-2xl font-black text-primary">{stats.avgParticipation}%</p>
-                          </div>
-
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                              <Receipt className="w-4 h-4" />
-                              <span className="text-[10px] font-bold uppercase">Impuestos</span>
-                            </div>
-                            <p className="text-2xl font-black text-destructive">{formatCurrency(taxImpact)}</p>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-
-                    <div className="xl:col-span-4 space-y-6 animate-entrance-stagger" style={{ animationDelay: '0.9s' }}>
-                      <PerformanceSection />
-                      
-                      <Card className="border-accent/20 bg-accent/5 relative overflow-hidden h-fit">
-                        <div className="absolute top-0 right-0 p-4 opacity-10">
-                          <Lightbulb className="w-24 h-24 rotate-12" />
-                        </div>
-                        <CardHeader className="p-4 pb-0 flex flex-row items-center gap-2 relative z-10">
-                          <Zap className="w-4 h-4 text-accent animate-bounce" />
-                          <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-accent/80">Sugerencia</CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-4 pt-2 relative z-10">
-                          <p className="text-sm text-foreground/90 leading-relaxed font-bold border-l-2 border-accent/30 pl-3">
-                            {getAdvice()}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    </div>
+                  <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+                    <div className="xl:col-span-8 space-y-6"><div className="grid grid-cols-1 md:grid-cols-2 gap-6"><WeeklyChart data={stats.charts.dailyActivity} title="Actual" icon={CalendarDays} /><WeeklyChart data={stats.charts.lastWeekActivity} title="Anterior" icon={History} opacity={0.65} /></div>
+                    <Card className="bg-card border-border/40 overflow-hidden"><CardHeader className="bg-muted/30 p-4 border-b text-xs font-bold uppercase"><Zap className="w-4 h-4 text-yellow-500 inline mr-2" /> Insights</CardHeader><CardContent className="p-6 grid grid-cols-1 md:grid-cols-3 gap-8">
+                      <div><span className="text-[10px] font-bold uppercase block text-muted-foreground">Vendido</span><p className="text-2xl font-black">{formatCurrency(stats.totalCreditSold)}</p></div>
+                      <div><span className="text-[10px] font-bold uppercase block text-muted-foreground">Part. Media</span><p className="text-2xl font-black text-primary">{stats.avgParticipation}%</p></div>
+                      <div><span className="text-[10px] font-bold uppercase block text-muted-foreground">Impuestos</span><p className="text-2xl font-black text-destructive">{formatCurrency(taxImpact)}</p></div>
+                    </CardContent></Card></div>
+                    <div className="xl:col-span-4 space-y-6"><PerformanceSection /><Card className="border-accent/20 bg-accent/5 p-4"><Zap className="w-4 h-4 text-accent inline mr-2" /><span className="text-[10px] font-bold uppercase text-accent/80">Sugerencia</span><p className="text-sm mt-2 font-bold border-l-2 border-accent/30 pl-3 leading-relaxed">{getAdvice()}</p></Card></div>
                   </div>
                 </div>
               </div>
