@@ -219,7 +219,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                         <span className="text-[10px] font-bold uppercase block text-muted-foreground mb-1">Total Vendido</span>
                         <p className={cn(
                           "text-2xl font-black",
-                          getDynamicGradient(stats.totalCreditSold)
+                          getDynamicGradient(stats.currentMonthCommission)
                         )}>{formatCurrency(stats.totalCreditSold)}</p>
                         <span className="text-[8px] text-muted-foreground font-bold uppercase">Solo cierres finales</span>
                       </div>

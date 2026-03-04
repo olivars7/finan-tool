@@ -707,109 +707,114 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
           onInteractOutside={(e) => {
             if ((e.target as HTMLElement).closest('[role="status"]')) e.preventDefault();
           }}
-          className="sm:max-w-[750px] h-[85vh] flex flex-col p-0 overflow-hidden bg-card shadow-2xl"
+          className="sm:max-w-[750px] h-[85vh] flex flex-col p-0 overflow-hidden bg-card shadow-2xl border-none"
         >
-          <DialogHeader className="p-6 border-b bg-primary/5 shrink-0">
-            <div className="flex items-center gap-3">
-              <div className="p-3 border border-primary/30 rounded-xl bg-primary/10">
-                <Sparkles className="w-6 h-6 text-primary" />
+          <DialogHeader className="p-8 border-b bg-primary/5 shrink-0">
+            <div className="flex items-center gap-4">
+              <div className="p-4 border-2 border-primary/30 rounded-2xl bg-primary/10 shadow-inner">
+                <Sparkles className="w-8 h-8 text-primary animate-pulse" />
               </div>
               <div>
-                <DialogTitle className="text-2xl font-bold font-headline">Guía de Inicio Rápido v1.1</DialogTitle>
-                <DialogDescription className="text-xs">Domina Finanto y maximiza tus cierres inmobiliarios</DialogDescription>
+                <DialogTitle className="text-3xl font-black font-headline tracking-tight">Guía Maestra Finanto</DialogTitle>
+                <DialogDescription className="text-sm font-medium text-muted-foreground">Tu arsenal profesional para dominar el cierre inmobiliario.</DialogDescription>
               </div>
             </div>
           </DialogHeader>
           <ScrollArea className="flex-1">
-            <div className="p-6 space-y-12 pb-20">
+            <div className="p-8 space-y-10 pb-24">
               <section className="space-y-4">
-                <div className="flex items-center gap-2 text-primary">
-                  <Calculator className="w-5 h-5" />
-                  <h3 className="text-lg font-bold">1. Calculadora y Simulador Profesional</h3>
+                <div className="flex items-center gap-3 text-primary">
+                  <div className="bg-primary/10 p-2 rounded-lg"><Calculator className="w-5 h-5" /></div>
+                  <h3 className="text-xl font-black uppercase tracking-tight">1. Calculadora y Simulador</h3>
                 </div>
-                <div className="pl-7 space-y-3 text-sm text-muted-foreground border-l-4 border-primary/40 bg-primary/5 p-4 rounded-r-xl">
-                  <p>Finanto ofrece dos niveles de análisis para tus clientes:</p>
-                  <ul className="list-disc pl-4 space-y-2">
-                    <li><strong>Calculadora Rápida:</strong> Ideal para llamadas telefónicas. Ingresa solo el monto del crédito para obtener mensualidad al instante.</li>
-                    <li><strong>Simulador Expandido:</strong> Usa el icono <Maximize2 className="inline w-3 h-3" /> para entrar en modo profesional. Aquí podrás ajustar:
-                      <ul className="pl-4 mt-1 list-circle space-y-1">
-                        <li><strong>Enganche adicional:</strong> Para clientes que desean abonar más del 3% base.</li>
-                        <li><strong>Plazos personalizados:</strong> Ajusta de 192 meses a lo que el cliente necesite.</li>
-                        <li><strong>Gastos Operativos:</strong> Proyecta automáticamente escrituración (5%) y avalúos.</li>
-                      </ul>
-                    </li>
-                    <li><strong>Cotizaciones:</strong> Usa el botón <strong>"Copiar Resumen"</strong> para generar una ficha técnica súper simple, impecable y lista para enviar por WhatsApp.</li>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-5 border-l-4 border-primary bg-primary/5 rounded-r-2xl space-y-2">
+                    <p className="font-bold text-primary text-sm">Vista Rápida</p>
+                    <p className="text-xs leading-relaxed text-muted-foreground">Perfecta para llamadas de primer contacto. Solo ingresa el crédito y obtén la mensualidad base al instante.</p>
+                  </div>
+                  <div className="p-5 border-l-4 border-primary/40 bg-card border border-border/40 rounded-r-2xl space-y-2">
+                    <p className="font-bold text-foreground text-sm">Escenarios Pro</p>
+                    <p className="text-xs leading-relaxed text-muted-foreground">Ajusta plazos, enganches extra y visualiza <strong>gastos notariales (5%)</strong> y avalúos para un perfilamiento real.</p>
+                  </div>
+                </div>
+              </section>
+
+              <section className="space-y-4">
+                <div className="flex items-center gap-3 text-blue-600">
+                  <div className="bg-blue-600/10 p-2 rounded-lg"><CalendarClock className="w-5 h-5" /></div>
+                  <h3 className="text-xl font-black uppercase tracking-tight">2. El Motor de la Agenda</h3>
+                </div>
+                <div className="bg-blue-50/50 dark:bg-blue-900/10 p-6 rounded-3xl border border-blue-200 dark:border-blue-800 space-y-4">
+                  <div className="flex items-start gap-4">
+                    <div className="bg-blue-600 text-white p-1 rounded-full shrink-0 mt-1"><ArrowRight className="w-3 h-3" /></div>
+                    <div className="space-y-1">
+                      <p className="text-sm font-bold">Pestaña Próximas</p>
+                      <p className="text-xs text-muted-foreground">Usa el indicador de <strong>Confirmación</strong> antes de tu cita. Al finalizar, registra el resultado para alimentar tus estadísticas.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <div className="bg-blue-600 text-white p-1 rounded-full shrink-0 mt-1"><ArrowRight className="w-3 h-3" /></div>
+                    <div className="space-y-1">
+                      <p className="text-sm font-bold">Reporte de Éxito</p>
+                      <p className="text-xs text-muted-foreground">Usa el botón <strong>"Reporte Diario"</strong> para copiar tus métricas y enviarlas a tu grupo de WhatsApp a las 11am, 3pm y 6pm.</p>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section className="space-y-4">
+                <div className="flex items-center gap-3 text-accent">
+                  <div className="bg-accent/10 p-2 rounded-lg"><User className="w-5 h-5" /></div>
+                  <h3 className="text-xl font-black uppercase tracking-tight">3. El Expediente CRM</h3>
+                </div>
+                <div className="p-6 border-2 border-dashed border-accent/30 rounded-3xl bg-accent/5 space-y-4">
+                  <p className="text-sm font-medium text-accent-foreground/80 leading-relaxed italic">"Cada cliente es un activo. No dejes que la información se pierda en libretas."</p>
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px] font-bold uppercase tracking-wide">
+                    <li className="flex items-center gap-2 text-accent"><CheckCircle className="w-3.5 h-3.5" /> Re-agenda en un clic</li>
+                    <li className="flex items-center gap-2 text-accent"><CheckCircle className="w-3.5 h-3.5" /> Prospectadores Externos</li>
+                    <li className="flex items-center gap-2 text-accent"><CheckCircle className="w-3.5 h-3.5" /> Notas de Seguimiento</li>
+                    <li className="flex items-center gap-2 text-accent"><CheckCircle className="w-3.5 h-3.5" /> Ficha Técnica a WhatsApp</li>
                   </ul>
                 </div>
               </section>
 
               <section className="space-y-4">
-                <div className="flex items-center gap-2 text-blue-500">
-                  <CalendarClock className="w-5 h-5" />
-                  <h3 className="text-lg font-bold">2. Gestión de Agenda Dinámica</h3>
+                <div className="flex items-center gap-3 text-green-600">
+                  <div className="bg-green-600/10 p-2 rounded-lg"><Coins className="w-5 h-5" /></div>
+                  <h3 className="text-xl font-black uppercase tracking-tight">4. Cierres y Comisiones</h3>
                 </div>
-                <div className="pl-7 space-y-3 text-sm text-muted-foreground border-l-4 border-blue-500/40 bg-blue-500/5 p-4 rounded-r-xl">
-                  <p>Organiza tus prospectos mediante las pestañas de navigation:</p>
-                  <ul className="list-disc pl-4 space-y-2">
-                    <li><strong>Pestaña Próximas:</strong> Tu centro de operaciones. Aquí verás tus citas de hoy y futuros días.
-                      <ul className="pl-4 mt-1 list-circle space-y-1">
-                        <li><strong>Confirmación:</strong> Usa el indicador de hoy para validar la asistencia del cliente.</li>
-                        <li><strong>Reporte Diario:</strong> Un solo clic para copiar tus métricas de éxito del día.</li>
-                      </ul>
-                    </li>
-                    <li><strong>Pestaña Historial:</strong> Tu CRM histórico. Consulta todos los resultados anteriores y cierres logrados.</li>
-                  </ul>
+                <div className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-2 border-green-200 dark:border-green-800 rounded-3xl space-y-4">
+                  <div className="flex justify-between items-center pb-2 border-b border-green-200 dark:border-green-800">
+                    <span className="text-xs font-black uppercase text-green-700">Lógica de Pago</span>
+                    <BadgeAlert className="w-4 h-4 text-orange-500" />
+                  </div>
+                  <p className="text-xs leading-relaxed text-muted-foreground font-medium">
+                    Al marcar <strong>Cierre</strong>, el sistema calcula automáticamente tu comisión neta (0.7% con retención del 9%). <br /><br />
+                    Recuerda el ciclo: <span className="text-green-700 font-bold">Dom-Mar</span> se paga el próximo viernes. <span className="text-green-700 font-bold">Mié-Sáb</span> se paga al subsiguiente. El sistema te avisará cuando un pago esté vencido.
+                  </p>
                 </div>
               </section>
 
               <section className="space-y-4">
-                <div className="flex items-center gap-2 text-accent">
-                  <User className="w-5 h-5" />
-                  <h3 className="text-lg font-bold">3. Expediente del Cliente y Productividad</h3>
+                <div className="flex items-center gap-3 text-primary">
+                  <div className="bg-primary/10 p-2 rounded-lg"><BarChart3 className="w-5 h-5" /></div>
+                  <h3 className="text-xl font-black uppercase tracking-tight">5. Panel de Inteligencia</h3>
                 </div>
-                <div className="pl-7 space-y-3 text-sm text-muted-foreground border-l-4 border-accent/40 bg-accent/5 p-4 rounded-r-xl">
-                  <p>Cada registro es un expediente completo con herramientas de copiado rápido:</p>
-                  <ul className="list-disc pl-4 space-y-2">
-                    <li><strong>Copiado Inteligente:</strong> Botones rápidos para copiar el nombre del cliente o la ficha completa.</li>
-                    <li><strong>Re-agendado:</strong> ¿El cliente no asistió o necesita otra cita? Usa el botón "Agendar 2da cita".</li>
-                    <li><strong>Prospectadores Externos:</strong> Registra si la cita viene de un ejecutivo externo.</li>
-                  </ul>
-                </div>
-              </section>
-
-              <section className="space-y-4">
-                <div className="flex items-center gap-2 text-green-500">
-                  <Coins className="w-5 h-5" />
-                  <h3 className="text-lg font-bold">4. Ciclo de Cierres y Comisiones</h3>
-                </div>
-                <div className="pl-7 space-y-3 text-sm text-muted-foreground border-l-4 border-green-500/40 bg-green-500/5 p-4 rounded-r-xl">
-                  <p>Control financiero total de tus ventas:</p>
-                  <ul className="list-disc pl-4 space-y-2">
-                    <li><strong>Apartado vs Cierre:</strong> Marca como "Apartado" mientras se formaliza y "Cierre" al finalizar.</li>
-                    <li><strong>Regla de Pago:</strong> Finanto calcula automáticamente tu fecha de pago.</li>
-                    <li><strong>Verificación de Pago:</strong> El sistema te alertará automáticamente cuando una comisión esté vencida.</li>
-                  </ul>
-                </div>
-              </section>
-
-              <section className="space-y-4">
-                <div className="flex items-center gap-2 text-primary">
-                  <Target className="w-5 h-5" />
-                  <h3 className="text-lg font-bold">5. Monitor de Rendimiento (Stats)</h3>
-                </div>
-                <div className="pl-7 space-y-3 text-sm text-muted-foreground border-l-4 border-primary/40 bg-primary/5 p-4 rounded-r-xl">
-                  <p>Indicadores superiores para medir tu éxito en tiempo real:</p>
-                  <ul className="list-disc pl-4 space-y-2">
-                    <li><strong>Tooltips Inteligentes:</strong> Pasa el mouse sobre cualquier estadística para ver desgloses avanzados.</li>
-                    <li><strong>Indicadores de Tendencia:</strong> Visualiza iconos <TrendingUp className="inline w-3 h-3 text-green-500" /> que te indican si estás superando tus números.</li>
-                  </ul>
+                <div className="p-6 border border-border bg-muted/20 rounded-3xl space-y-4">
+                  <div className="flex items-center gap-3">
+                    <TrendingUp className="w-6 h-6 text-primary" />
+                    <p className="text-sm font-bold">Monitor de Rendimiento</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Entra a <strong>Stats</strong> para ver tus gráficos de actividad. Busca los gradientes de color: si tus números brillan en <span className="text-blue-500 font-bold">Azul</span>, <span className="text-purple-500 font-bold">Violeta</span> o <span className="text-green-500 font-bold">Lima</span>, significa que estás superando tus metas del mes.
+                  </p>
                 </div>
               </section>
             </div>
           </ScrollArea>
-          <DialogFooter className="p-4 border-t bg-muted/20">
-            <Button onClick={() => handleToggleHelp(false)} className="w-full h-11 font-bold rounded-xl shadow-lg" type="button">
-              ¡Entendido, a cerrar ventas!
+          <DialogFooter className="p-6 border-t bg-muted/10 shrink-0">
+            <Button onClick={() => handleToggleHelp(false)} className="w-full h-14 text-lg font-black rounded-2xl shadow-xl hover:scale-[1.02] transition-transform bg-primary text-white" type="button">
+              ¡ENTENDIDO, A CERRAR VENTAS!
             </Button>
           </DialogFooter>
         </DialogContent>
