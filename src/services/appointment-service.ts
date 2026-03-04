@@ -180,7 +180,8 @@ export const generateSeedData = (): Appointment[] => {
     else if (i % 10 === 0) status = 'No asistencia';
     else if (i % 12 === 0) status = 'Reagendó';
 
-    const isSale = status === 'Cierre' || status === 'Apartado';
+    const isSale = status === 'Cierre';
+    const isApartado = status === 'Apartado';
     
     data.push({
       id: uuidv4(),
@@ -218,32 +219,46 @@ export const calculateStats = (appointments: Appointment[]) => {
   const currentMonthProspects = activeApps.filter(a => isSameMonth(parseISO(a.date), now)).length;
   const lastMonthProspects = activeApps.filter(a => isSameMonth(parseISO(a.date), lastMonth)).length;
 
-  const currentMonthSales = activeApps.filter(a => (a.status === 'Cierre' || a.status === 'Apartado') && isSameMonth(parseISO(a.date), now)).length;
-  const lastMonthSales = activeApps.filter(a => (a.status === 'Cierre' || a.status === 'Apartado') && isSameMonth(parseISO(a.date), lastMonth)).length;
-
+  // Solo contamos Cierres para ventas efectivas financieras
   const currentMonthOnlyCierre = activeApps.filter(a => a.status === 'Cierre' && isSameMonth(parseISO(a.date), now)).length;
   const currentMonthApartados = activeApps.filter(a => a.status === 'Apartado' && isSameMonth(parseISO(a.date), now)).length;
+  
+  // Ventas totales para indicadores operativos (Cierre + Apartado)
+  const currentMonthSales = currentMonthOnlyCierre + currentMonthApartados;
+  const lastMonthSales = activeApps.filter(a => (a.status === 'Cierre' || a.status === 'Apartado') && isSameMonth(parseISO(a.date), lastMonth)).length;
 
+  // El crédito vendido SOLO cuenta los Cierres
   const totalCreditSold = activeApps
-    .filter(a => (a.status === 'Cierre' || a.status === 'Apartado') && isSameMonth(parseISO(a.date), now))
+    .filter(a => a.status === 'Cierre' && isSameMonth(parseISO(a.date), now))
     .reduce((sum, a) => sum + (a.finalCreditAmount || 0), 0);
 
-  const salesWithAmount = activeApps.filter(a => (a.status === 'Cierre' || a.status === 'Apartado') && isSameMonth(parseISO(a.date), now) && (a.commissionPercent || 0) > 0);
+  const salesWithAmount = activeApps.filter(a => a.status === 'Cierre' && isSameMonth(parseISO(a.date), now) && (a.commissionPercent || 0) > 0);
   const avgParticipation = salesWithAmount.length > 0 
     ? salesWithAmount.reduce((sum, a) => sum + (a.commissionPercent || 0), 0) / salesWithAmount.length 
     : 0;
 
+  // Comisiones que se PAGAN en el mes actual (Vengan de este mes o del anterior)
   const currentMonthCommission = activeApps
     .filter(a => {
-      if (a.status !== 'Cierre' && a.status !== 'Apartado') return false;
+      if (a.status !== 'Cierre') return false;
       const payDate = getCommissionPaymentDate(a.date);
       return isSameMonth(payDate, now);
     })
     .reduce((sum, a) => sum + ((a.finalCreditAmount || 0) * 0.007 * ((a.commissionPercent || 0) / 100)) * 0.91, 0);
 
+  // Específicamente: Cuánto del ingreso actual viene de ventas del mes pasado
+  const prevMonthCommissionPaidNow = activeApps
+    .filter(a => {
+      if (a.status !== 'Cierre') return false;
+      const appointmentDate = parseISO(a.date);
+      const payDate = getCommissionPaymentDate(a.date);
+      return isSameMonth(appointmentDate, lastMonth) && isSameMonth(payDate, now);
+    })
+    .reduce((sum, a) => sum + ((a.finalCreditAmount || 0) * 0.007 * ((a.commissionPercent || 0) / 100)) * 0.91, 0);
+
   const currentMonthPaidCommission = activeApps
     .filter(a => {
-      if (a.status !== 'Cierre' && a.status !== 'Apartado') return false;
+      if (a.status !== 'Cierre') return false;
       if (a.commissionStatus !== 'Pagada') return false;
       const payDate = getCommissionPaymentDate(a.date);
       return isSameMonth(payDate, now);
@@ -252,7 +267,7 @@ export const calculateStats = (appointments: Appointment[]) => {
 
   const lastMonthCommission = activeApps
     .filter(a => {
-      if (a.status !== 'Cierre' && a.status !== 'Apartado') return false;
+      if (a.status !== 'Cierre') return false;
       const payDate = getCommissionPaymentDate(a.date);
       return isSameMonth(payDate, lastMonth);
     })
@@ -264,7 +279,7 @@ export const calculateStats = (appointments: Appointment[]) => {
 
   const thisFridayCommission = activeApps
     .filter(a => {
-      if (a.status !== 'Cierre' && a.status !== 'Apartado') return false;
+      if (a.status !== 'Cierre') return false;
       if (a.commissionStatus === 'Pagada') return false;
       const payDate = startOfDay(getCommissionPaymentDate(a.date));
       return payDate.getTime() === targetFriday.getTime();
@@ -273,7 +288,7 @@ export const calculateStats = (appointments: Appointment[]) => {
 
   const overdueCommission = activeApps
     .filter(a => {
-      if (a.status !== 'Cierre' && a.status !== 'Apartado') return false;
+      if (a.status !== 'Cierre') return false;
       if (a.commissionStatus === 'Pagada') return false;
       const payDate = startOfDay(getCommissionPaymentDate(a.date));
       return isBefore(payDate, todayStart);
@@ -348,6 +363,7 @@ export const calculateStats = (appointments: Appointment[]) => {
     totalCreditSold,
     avgParticipation: parseFloat(avgParticipation.toFixed(1)),
     currentMonthCommission,
+    prevMonthCommissionPaidNow,
     lastMonthCommission,
     currentMonthPaidCommission,
     thisFridayCommission,

@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -192,7 +193,7 @@ Hora: ${timeBold}${confirmedBold}`;
     });
   };
 
-  const showCommissionPanel = appointment.status === 'Cierre' || appointment.status === 'Apartado';
+  const showCommissionPanel = appointment.status === 'Cierre';
   const commissionValue = ((editData.finalCreditAmount || 0) * 0.007 * ((editData.commissionPercent || 0) / 100)) * 0.91;
 
   const calculatePaymentDateText = (dateStr: string) => {
@@ -221,18 +222,12 @@ Hora: ${timeBold}${confirmedBold}`;
     const newStatus = checked ? 'Pagada' : 'Pendiente';
     const updates: Partial<Appointment> = { commissionStatus: newStatus };
     
-    if (checked && editData.status === 'Apartado') {
-      updates.status = 'Cierre';
-    }
-
     setEditData(prev => ({ ...prev, ...updates }));
     onEdit(appointment.id, updates);
     
     toast({ 
-      title: updates.status === 'Cierre' ? "¡Venta Cerrada!" : (newStatus === 'Pagada' ? "Comisión Pagada" : "Comisión Pendiente"), 
-      description: updates.status === 'Cierre' 
-        ? `El apartado de ${appointment.name} ahora es Cierre tras recibir el pago.`
-        : `Estatus actualizado para ${appointment.name}.` 
+      title: newStatus === 'Pagada' ? "Comisión Pagada" : "Comisión Pendiente", 
+      description: `Estatus actualizado para ${appointment.name}.` 
     });
   };
 
@@ -349,7 +344,7 @@ Hora: ${timeBold}${confirmedBold}`;
                   </Button>
 
                   {showEditProspector && (
-                    <div className="space-y-3 animate-in slide-in-from-top-2">
+                    <div className="space-y-3">
                       <div className="space-y-1">
                         <Label className="text-[9px] font-bold uppercase text-blue-600/60">Nombre</Label>
                         <Input 
@@ -385,7 +380,7 @@ Hora: ${timeBold}${confirmedBold}`;
                   </Button>
 
                   {showEditExecutive && (
-                    <div className="space-y-3 animate-in slide-in-from-top-2">
+                    <div className="space-y-3">
                       <div className="space-y-1">
                         <Label className="text-[9px] font-bold uppercase text-purple-600/60">Atendido por</Label>
                         <Input 
@@ -568,7 +563,7 @@ Hora: ${timeBold}${confirmedBold}`;
                     <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-widest">Resultado</p>
                     <p className={cn(
                       "text-xs font-bold",
-                      appointment.status === 'Asistencia' ? "text-blue-600" : "text-green-500"
+                      appointment.status === 'Asistencia' ? "text-blue-600" : appointment.status === 'Apartado' ? "text-blue-500" : "text-green-500"
                     )}>
                       {appointment.status}
                     </p>
@@ -628,7 +623,7 @@ Hora: ${timeBold}${confirmedBold}`;
                         <TooltipTrigger asChild>
                           <Info className="w-3 h-3 text-muted-foreground/60 cursor-help" />
                         </TooltipTrigger>
-                        <TooltipContent className="max-w-[200px] text-[10px] leading-tight" side="top">
+                        <TooltipContent className="max-w-[200px] text-[10px] border-white border" side="top">
                           Define el porcentaje de la comisión total (0.7% del crédito) que te corresponde por este cierre.
                         </TooltipContent>
                       </Tooltip>
@@ -660,7 +655,7 @@ Hora: ${timeBold}${confirmedBold}`;
                         <TooltipTrigger asChild>
                           <Info className="w-3 h-3 text-muted-foreground/40 cursor-help" />
                         </TooltipTrigger>
-                        <TooltipContent className="text-[10px] p-2 bg-card border-border shadow-xl" side="top">
+                        <TooltipContent className="text-[10px] border-white border" side="top">
                           Incluye retención del 9% de impuesto al monto ganado.
                         </TooltipContent>
                       </Tooltip>
@@ -676,7 +671,7 @@ Hora: ${timeBold}${confirmedBold}`;
                         <TooltipTrigger asChild>
                           <Info className="w-3 h-3 text-muted-foreground/60 cursor-help" />
                         </TooltipTrigger>
-                        <TooltipContent className="max-w-[220px] text-[10px] leading-tight" side="top">
+                        <TooltipContent className="max-w-[220px] text-[10px] border-white border" side="top">
                           <p className="font-bold mb-1">Ciclo de Liquidación:</p>
                           Ventas de Domingo a Martes se pagan el viernes de la siguiente semana. Ventas de Miércoles a Sábado se pagan el viernes de la subsiguiente semana.
                         </TooltipContent>
@@ -733,7 +728,7 @@ Hora: ${timeBold}${confirmedBold}`;
         </DialogFooter>
 
         <AlertDialog open={showArchiveConfirm} onOpenChange={setShowArchiveConfirm}>
-          <AlertDialogContent className="z-[160]">
+          <AlertDialogContent className="z-[160] border-border">
             <AlertDialogHeader>
               <AlertDialogTitle>¿Archivar registro?</AlertDialogTitle>
               <AlertDialogDescription>

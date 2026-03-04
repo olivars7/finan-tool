@@ -139,7 +139,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                   { icon: CalendarDays, color: 'text-primary', label: 'Citas Hoy', value: stats.todayCount, val1: stats.todayConfirmed, sub1: 'Conf.' },
                   { icon: TrendingUp, color: 'text-primary', label: 'Eficiencia', value: `${Math.round(closingRate)}%`, val1: 'Atendidas', sub1: 'Base' },
                   { icon: Users, color: 'text-accent', label: 'Prospectos', value: stats.currentMonthProspects, growth: monthlyGrowth, val1: stats.lastMonthProspects, sub1: 'Mes Ant.' },
-                  { icon: Trophy, color: 'text-green-500', label: 'Cierres', value: stats.currentMonthSales, val1: stats.currentMonthOnlyCierre, sub1: 'Ventas' },
+                  { icon: Trophy, color: 'text-green-500', label: 'Cierres', value: stats.currentMonthOnlyCierre, val1: stats.currentMonthApartados, sub1: 'Apartados' },
                   { icon: Coins, color: 'text-yellow-600', label: 'Ingresos', value: formatCurrency(stats.currentMonthCommission), val1: formatCurrency(stats.thisFridayCommission), sub1: 'Viernes', isGradient: true }
                 ].map((s, i) => (
                   <Card key={i} className="bg-card/40 border-primary/20 p-4 space-y-3 hover:bg-primary/10 transition-colors duration-300 cursor-default group">
@@ -172,12 +172,15 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                       <div>
                         <span className="text-[10px] font-bold uppercase block text-muted-foreground mb-1">Total Vendido</span>
                         <p className="text-2xl font-black bg-gradient-to-r from-[#00F5FF] via-[#1877F2] to-[#FF00D6] bg-clip-text text-transparent">{formatCurrency(stats.totalCreditSold)}</p>
-                        <span className="text-[8px] text-muted-foreground font-bold uppercase">Monto de crédito total</span>
+                        <span className="text-[8px] text-muted-foreground font-bold uppercase">Solo cierres finales</span>
                       </div>
                       <div>
                         <span className="text-[10px] font-bold uppercase block text-muted-foreground mb-1">Ingreso Proyectado</span>
                         <p className="text-2xl font-black bg-gradient-to-r from-[#00F5FF] via-[#1877F2] to-[#7B61FF] bg-clip-text text-transparent">{formatCurrency(stats.currentMonthCommission)}</p>
-                        <span className="text-[8px] text-green-500 font-bold uppercase">Neto tras impuestos</span>
+                        <div className="flex items-center gap-1">
+                          <span className="text-[8px] text-green-500 font-bold uppercase">De Mes Anterior:</span>
+                          <span className="text-[8px] font-black text-green-600">{formatCurrency(stats.prevMonthCommissionPaidNow)}</span>
+                        </div>
                       </div>
                       <div>
                         <span className="text-[10px] font-bold uppercase block text-muted-foreground mb-1">Participación Promedio</span>
