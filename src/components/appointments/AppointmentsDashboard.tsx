@@ -81,25 +81,67 @@ const DashboardContent = ({
 
   const formatCurrency = (val: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(val);
 
+  const microStats = [
+    { 
+      label: 'Hoy', 
+      icon: CalendarDays, 
+      val: `${stats.todayConfirmed}/${stats.todayCount}`, 
+      color: 'text-blue-600',
+      desc: 'Citas confirmadas vs total de citas agendadas para hoy.'
+    },
+    { 
+      label: 'Cierres Mes', 
+      icon: CheckCircle2, 
+      val: stats.currentMonthOnlyCierre, 
+      color: 'text-green-600',
+      desc: 'Ventas finalizadas exitosamente durante el mes en curso.'
+    },
+    { 
+      label: 'Apartados', 
+      icon: Coins, 
+      val: stats.currentMonthApartados, 
+      color: 'text-blue-500',
+      desc: 'Trámites en reserva que están pendientes de formalización final.'
+    },
+    { 
+      label: 'Conversión', 
+      icon: TrendingUp, 
+      val: `${stats.conversionRate}%`, 
+      color: 'text-primary',
+      desc: 'Porcentaje de efectividad: Cierres logrados sobre el total de prospectos.'
+    },
+    { 
+      label: 'Ingresos Mes', 
+      icon: Coins, 
+      val: formatCurrency(stats.currentMonthCommission), 
+      color: 'text-yellow-600', 
+      isCurrency: true,
+      desc: 'Total de comisiones proyectadas (Netas tras impuestos) para este mes.'
+    }
+  ];
+
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col">
       {expanded && (
         <div className="flex flex-col gap-4 mb-6 shrink-0 bg-muted/10 p-6 rounded-2xl border border-border/30 backdrop-blur-md animate-entrance-stagger">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
-            {[
-              { label: 'Hoy', icon: CalendarDays, val: `${stats.todayConfirmed}/${stats.todayCount}`, color: 'text-blue-600' },
-              { label: 'Cierres Mes', icon: CheckCircle2, val: stats.currentMonthOnlyCierre, color: 'text-green-600' },
-              { label: 'Apartados', icon: Coins, val: stats.currentMonthApartados, color: 'text-blue-500' },
-              { label: 'Conversión', icon: TrendingUp, val: `${stats.conversionRate}%`, color: 'text-primary' },
-              { label: 'Ingresos Mes', icon: Coins, val: formatCurrency(stats.currentMonthCommission), color: 'text-yellow-600', isCurrency: true }
-            ].map((s, i) => (
-              <div key={i} className="flex flex-col animate-entrance-stagger" style={{ animationDelay: `${i * 0.1}s` }}>
-                <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest mb-1">{s.label}</span>
-                <div className="flex items-center gap-2">
-                  <div className={cn("p-1.5 rounded-lg border bg-muted/20", s.color, "border-current/20")}><s.icon className="w-3.5 h-3.5"/></div>
-                  <span className={cn("text-sm font-bold truncate", s.isCurrency && stats.currentMonthCommission > 5000 && "bg-gradient-to-r from-[#00F5FF] to-[#FF00D6] bg-clip-text text-transparent")}>{s.val}</span>
-                </div>
-              </div>
+            {microStats.map((s, i) => (
+              <TooltipProvider key={i}>
+                <Tooltip delayDuration={0}>
+                  <TooltipTrigger asChild>
+                    <div className="flex flex-col animate-entrance-stagger cursor-help" style={{ animationDelay: `${i * 0.1}s` }}>
+                      <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest mb-1">{s.label}</span>
+                      <div className="flex items-center gap-2">
+                        <div className={cn("p-1.5 rounded-lg border bg-muted/20", s.color, "border-current/20")}><s.icon className="w-3.5 h-3.5"/></div>
+                        <span className={cn("text-sm font-bold truncate", s.isCurrency && stats.currentMonthCommission > 5000 && "bg-gradient-to-r from-[#00F5FF] to-[#FF00D6] bg-clip-text text-transparent")}>{s.val}</span>
+                      </div>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="bg-card border-border shadow-xl z-[450] p-2 text-[10px] font-medium max-w-[200px]">
+                    {s.desc}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             ))}
           </div>
         </div>
