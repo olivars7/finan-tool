@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -83,10 +84,13 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showTrash, setShowTrash] = useState(false);
-  const [showHelp, setShowHelp] = useState(initialSection === 'guia');
-  const [isSimulatorExpanded, setIsSimulatorExpanded] = useState(initialSection === 'simulador');
-  const [isGestorExpanded, setIsGestorExpanded] = useState(initialSection === 'gestor');
-  const [isStatsExpanded, setIsStatsExpanded] = useState(initialSection === 'stats');
+  
+  // Estados de navegación SPA
+  const [showHelp, setShowHelp] = useState(false);
+  const [isSimulatorExpanded, setIsSimulatorExpanded] = useState(false);
+  const [isGestorExpanded, setIsGestorExpanded] = useState(false);
+  const [isStatsExpanded, setIsStatsExpanded] = useState(false);
+  
   const [selectedAppId, setSelectedAppId] = useState<string | null>(null);
   const [theme, setTheme] = useState<Theme>('corporativo-v2');
   const [api, setApi] = useState<CarouselApi>();
@@ -124,6 +128,14 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
     pendingAppRef.current = pendingCommissionApp;
   }, [pendingCommissionApp]);
 
+  // Sincronización de URL sin refrescar (SPA)
+  const syncUrl = useCallback((path: string) => {
+    if (typeof window !== 'undefined' && window.location.pathname !== path) {
+      window.history.pushState(null, '', path);
+    }
+  }, []);
+
+  // Inicialización basada en URL y carga de tema
   useEffect(() => {
     const savedTheme = localStorage.getItem('finanto-theme') as Theme;
     if (savedTheme && ['tranquilo', 'moderno', 'discreto', 'olivares', 'corporativo-v2'].includes(savedTheme)) {
@@ -132,22 +144,18 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
       applyTheme('corporativo-v2');
     }
 
-    if (!initialSection) {
-      const hasVisited = localStorage.getItem(Service.STORAGE_KEY);
-      if (!hasVisited) {
-        setShowHelp(true);
-      }
-    }
-  }, [initialSection]);
-
-  // Sincronización de URL sin refrescar (SPA)
-  const syncUrl = useCallback((path: string) => {
-    if (typeof window !== 'undefined' && window.location.pathname !== path) {
-      window.history.pushState(null, '', path);
+    // Estado inicial basado en la URL
+    const path = window.location.pathname;
+    if (path === '/guia') setShowHelp(true);
+    else if (path === '/simulador') setIsSimulatorExpanded(true);
+    else if (path === '/gestor') setIsGestorExpanded(true);
+    else if (path === '/stats') setIsStatsExpanded(true);
+    else if (!initialSection && !localStorage.getItem(Service.STORAGE_KEY)) {
+      setShowHelp(true);
     }
   }, []);
 
-  // Manejo de navegación SPA (Popstate)
+  // Manejo de navegación SPA (Popstate - Atrás/Adelante)
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname;
@@ -162,7 +170,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  // Monitor centralizado de estados para sincronizar URL y Título
+  // Monitor de estados para sincronizar URL y Título cuando el usuario abre modales manualmente
   useEffect(() => {
     if (showHelp) {
       document.title = "Manual de Inicio - Finanto";

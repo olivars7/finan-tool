@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -138,9 +139,7 @@ export default function CreditCalculator({ initialExpanded = false, onExpandedCh
   const effectiveFactor = BASE_FACTOR * (192 / currentTerm);
 
   useEffect(() => {
-    if (initialExpanded) {
-      setIsExpanded(true);
-    }
+    setIsExpanded(initialExpanded);
   }, [initialExpanded]);
 
   useEffect(() => {

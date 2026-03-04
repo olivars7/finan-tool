@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -322,19 +323,12 @@ export default function AppointmentsDashboard({
   const [visibleCountPast, setVisibleCountPast] = useState(25);
 
   useEffect(() => {
-    onExpandedChange?.(isExpanded);
-  }, [isExpanded, onExpandedChange]);
+    setIsExpanded(initialExpanded);
+  }, [initialExpanded]);
 
   useEffect(() => {
-    if (isExpanded) {
-      window.history.pushState(null, '', '/gestor');
-      return () => { 
-        if (window.location.pathname === '/gestor') {
-          window.history.pushState(null, '', '/');
-        }
-      };
-    }
-  }, [isExpanded]);
+    onExpandedChange?.(isExpanded);
+  }, [isExpanded, onExpandedChange]);
 
   const selectedApp = useMemo(() => {
     return appointments.find(app => app.id === selectedAppId) || null;
