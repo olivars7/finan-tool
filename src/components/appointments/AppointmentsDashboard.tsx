@@ -121,7 +121,7 @@ const DashboardContent = ({
   ];
 
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col">
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col flex-1 min-h-0">
       {expanded && (
         <div className="flex flex-col gap-4 mb-6 shrink-0 bg-muted/10 p-6 rounded-2xl border border-border/30 backdrop-blur-md animate-entrance-stagger">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
@@ -147,7 +147,7 @@ const DashboardContent = ({
         </div>
       )}
 
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4 shrink-0">
         <TabsList className="grid w-full sm:w-80 grid-cols-2 h-10 p-1 bg-muted/40 border border-border/20 rounded-lg">
           <TabsTrigger value="upcoming" className="text-xs font-bold data-[state=active]:bg-blue-600 data-[state=active]:text-white">Próximas ({filteredUpcoming.length})</TabsTrigger>
           <TabsTrigger value="past" className="text-xs font-bold data-[state=active]:bg-blue-600 data-[state=active]:text-white">Historial ({filteredPast.length})</TabsTrigger>
@@ -155,10 +155,10 @@ const DashboardContent = ({
       </div>
 
       <div className="flex-1 min-h-0 animate-stats-reveal" style={{ animationDelay: '0.4s' }}>
-        <TabsContent value="upcoming" className="mt-0 h-full">
+        <TabsContent value="upcoming" className="mt-0 h-full overflow-hidden">
           <UpcomingAppointments appointments={filteredUpcoming} allAppointments={appointments} formatDate={formatFriendlyDate} format12hTime={format12hTime} onSelect={handleSelect} onHighlight={handleHighlight} editAppointment={editAppointment} archiveAppointment={archiveAppointment} unarchiveAppointment={unarchiveAppointment} activeId={activeId} expanded={expanded} onCelebrate={onCelebrate} />
         </TabsContent>
-        <TabsContent value="past" className="mt-0 h-full">
+        <TabsContent value="past" className="mt-0 h-full overflow-hidden">
           <PastAppointments appointments={filteredPast} formatDate={formatFriendlyDate} format12hTime={format12hTime} onSelect={handleSelect} onHighlight={handleHighlight} archiveAppointment={archiveAppointment} unarchiveAppointment={unarchiveAppointment} activeId={activeId} expanded={expanded} visibleCount={visibleCountPast} setVisibleCount={setVisibleCountPast} />
         </TabsContent>
       </div>
