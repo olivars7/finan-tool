@@ -37,7 +37,7 @@
     --foreground: 0 0% 100%;
     --card: 197 15% 18% / 0.5;
     --card-foreground: 0 0% 100%;
-    --popover: 197 15% 12% / 0.7;
+    --popover: 197 15 12% / 0.7;
     --popover-foreground: 0 0% 100%;
     --primary: 205 71% 66%;
     --primary-foreground: 197 15% 10%;
@@ -173,6 +173,15 @@
   }
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--primary) / 0.5);
+  }
+}
+
+@layer utilities {
+  .text-gradient-performance-mid {
+    background: linear-gradient(to right, #A3E635, #00F5FF, #1877F2, #7B61FF, #FF00D6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 }
 

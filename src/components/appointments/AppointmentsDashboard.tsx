@@ -49,7 +49,7 @@ interface DashboardContentProps {
   handleHighlight: (app: Appointment) => void;
   activeId: string | null;
   visibleCountPast: number;
-  setVisibleCountPast: React.Dispatch<React.SetStateAction<number>>;
+  setVisibleCountPast: (val: number | ((p: number) => number)) => void;
   stats: any;
   theme?: string;
   searchTerm: string;
@@ -100,7 +100,7 @@ const DashboardContent = ({
   const getDynamicGradient = (val: number) => {
     if (val < 2000) return "";
     if (val < 5000) return "bg-gradient-to-r from-[#00F5FF] to-[#1877F2] bg-clip-text text-transparent";
-    if (val < 10000) return "bg-gradient-to-r from-[#00F5FF] via-[#1877F2] to-[#7B61FF] bg-clip-text text-transparent";
+    if (val < 10000) return "text-gradient-performance-mid";
     return "bg-gradient-to-r from-[#FACC15] via-[#EAB308] to-[#CA8A04] bg-clip-text text-transparent";
   };
 
