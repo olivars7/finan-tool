@@ -28,6 +28,7 @@
     --calendar-filter: none;
     --font-body: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
     --font-headline: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --tooltip-bg: 0 0% 100%;
   }
 
   [data-theme="tranquilo"] {
@@ -53,6 +54,7 @@
     --ring: 205 71% 66%;
     --radius: 0.75rem;
     --calendar-filter: invert(1);
+    --tooltip-bg: 197 15% 18%;
   }
 
   [data-theme="moderno"] {
@@ -76,6 +78,7 @@
     --ring: 210 100% 55%;
     --radius: 0.15rem;
     --calendar-filter: invert(1) hue-rotate(200deg);
+    --tooltip-bg: 222 47% 12%;
   }
 
   [data-theme="discreto"] {
@@ -100,6 +103,7 @@
     --input: 225 6% 13% / 0.5;
     --ring: 235 86% 65%;
     --calendar-filter: invert(1);
+    --tooltip-bg: 225 7% 18%;
   }
 
   [data-theme="olivares"] {
@@ -122,6 +126,7 @@
     --ring: 45 90% 50%;
     --radius: 0.5rem;
     --calendar-filter: invert(1);
+    --tooltip-bg: 222 47% 15%;
   }
 }
 
