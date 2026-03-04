@@ -71,7 +71,6 @@ export default function PastAppointments({
   visibleCount,
   setVisibleCount
 }: Props) {
-  const [archiveConfirmId, setArchiveConfirmId] = useState<string | null>(null);
   const { toast } = useToast();
 
   if (appointments.length === 0) {
@@ -94,27 +93,6 @@ export default function PastAppointments({
       case 'Continuación en otra cita': return 'text-blue-400 bg-blue-400/10 border-blue-400/20';
       default: return 'text-muted-foreground bg-muted/10 border-border/20';
     }
-  };
-
-  const handleConfirmArchive = () => {
-    if (archiveConfirmId) {
-      const app = appointments.find(a => a.id === archiveConfirmId);
-      archiveAppointment(archiveConfirmId);
-      toast({
-        title: "Cita archivada",
-        description: `${app?.name} se ha movido a archivadas.`,
-      });
-      setArchiveConfirmId(null);
-    }
-  };
-
-  const handleRestoreAction = (e: React.MouseEvent, app: Appointment) => {
-    e.stopPropagation();
-    unarchiveAppointment(app.id);
-    toast({
-      title: "Cita restaurada",
-      description: `${app.name} ha vuelto a activas.`,
-    });
   };
 
   const copyPhone = (e: React.MouseEvent, app: Appointment) => {
@@ -195,7 +173,7 @@ export default function PastAppointments({
                                     <UserCog className="w-3.5 h-3.5 text-blue-500" />
                                   </div>
                                 </TooltipTrigger>
-                                <TooltipContent className="z-[170] shadow-xl border-border bg-card p-3">
+                                <TooltipContent className="shadow-xl border-border bg-card p-3">
                                   <div className="space-y-1">
                                     <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest">Prospectado por:</p>
                                     <p className="text-xs font-black text-blue-600">{app.prospectorName}</p>
@@ -212,7 +190,7 @@ export default function PastAppointments({
                                     <UserCheck className="w-3.5 h-3.5 text-purple-500" />
                                   </div>
                                 </TooltipTrigger>
-                                <TooltipContent className="z-[170] shadow-xl border-border bg-card p-3">
+                                <TooltipContent className="shadow-xl border-border bg-card p-3">
                                   <div className="space-y-1">
                                     <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest">Atendido por:</p>
                                     <p className="text-xs font-black text-purple-600">{app.attendingExecutive}</p>
@@ -301,7 +279,7 @@ export default function PastAppointments({
                             </div>
                           </TooltipTrigger>
                           {isCierre && (
-                            <TooltipContent side="top" className="bg-card border-border shadow-xl p-3 min-w-[180px] z-[170]">
+                            <TooltipContent side="top" className="bg-card border-border shadow-xl p-3 min-w-[180px] z-[300]">
                               <div className="space-y-2">
                                 <div className="flex items-center justify-between border-b border-border/10 pb-1">
                                   <span className="text-[8px] uppercase font-bold text-muted-foreground tracking-widest">Detalle Financiero (Neto)</span>
@@ -351,22 +329,16 @@ export default function PastAppointments({
                             variant="ghost" 
                             size="icon" 
                             className="h-8 w-8 text-muted-foreground/40 hover:text-primary hover:bg-primary/10 transition-colors"
-                            onClick={(e) => handleRestoreAction(e, app)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              unarchiveAppointment(app.id);
+                              toast({ title: "Cita restaurada", description: `${app.name} ha vuelto a activas.` });
+                            }}
                             title="Restaurar"
                           >
                             <RotateCcw className="w-4 h-4" />
                           </Button>
-                        ) : (
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-8 w-8 text-muted-foreground/40 hover:text-destructive hover:bg-destructive/10 transition-colors"
-                            onClick={(e) => { e.stopPropagation(); setArchiveConfirmId(app.id); }}
-                            title="Archivar"
-                          >
-                            <Archive className="w-4 h-4" />
-                          </Button>
-                        )}
+                        ) : null}
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground/40 hover:text-primary transition-colors" onClick={() => onSelect(app)}>
                           <ChevronRight className="h-4 w-4" />
                         </Button>
@@ -392,23 +364,6 @@ export default function PastAppointments({
           </Button>
         </div>
       )}
-
-      <AlertDialog open={!!archiveConfirmId} onOpenChange={(o) => !o && setArchiveConfirmId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Archivar registro?</AlertDialogTitle>
-            <AlertDialogDescription>
-              El registro se moverá a la papelera. Podrás recuperarlo en cualquier momento desde la vista de "Archivadas".
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmArchive} className="bg-destructive hover:bg-destructive/90 text-white">
-              Sí, archivar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }

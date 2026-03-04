@@ -290,10 +290,11 @@ Hora: ${timeBold}${confirmedBold}`;
                 <Button 
                   onClick={() => setShowArchiveConfirm(true)}
                   variant="ghost" 
-                  size="icon"
-                  className="h-7 w-7 text-muted-foreground/40 hover:text-destructive hover:bg-destructive/10 transition-colors"
+                  size="sm"
+                  className="h-7 px-2 text-[9px] font-bold uppercase text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 transition-colors gap-1"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Archivar
                 </Button>
               </>
             )}
@@ -601,7 +602,7 @@ Hora: ${timeBold}${confirmedBold}`;
                         <TooltipTrigger asChild>
                           <Info className="w-3 h-3 text-muted-foreground/60 cursor-help" />
                         </TooltipTrigger>
-                        <TooltipContent className="z-[160] max-w-[200px] text-[10px] leading-tight" side="top">
+                        <TooltipContent className="max-w-[200px] text-[10px] leading-tight" side="top">
                           Define el porcentaje de la comisión total (0.7% del crédito) que te corresponde por este cierre.
                         </TooltipContent>
                       </Tooltip>
@@ -633,7 +634,7 @@ Hora: ${timeBold}${confirmedBold}`;
                         <TooltipTrigger asChild>
                           <Info className="w-3 h-3 text-muted-foreground/40 cursor-help" />
                         </TooltipTrigger>
-                        <TooltipContent className="text-[10px] p-2 bg-card border-border shadow-xl z-[160]" side="top">
+                        <TooltipContent className="text-[10px] p-2 bg-card border-border shadow-xl" side="top">
                           Incluye retención del 9% de impuesto al monto ganado.
                         </TooltipContent>
                       </Tooltip>
@@ -649,7 +650,7 @@ Hora: ${timeBold}${confirmedBold}`;
                         <TooltipTrigger asChild>
                           <Info className="w-3 h-3 text-muted-foreground/60 cursor-help" />
                         </TooltipTrigger>
-                        <TooltipContent className="z-[160] max-w-[220px] text-[10px] leading-tight" side="top">
+                        <TooltipContent className="max-w-[220px] text-[10px] leading-tight" side="top">
                           <p className="font-bold mb-1">Ciclo de Liquidación:</p>
                           Ventas de Domingo a Martes se pagan el viernes de la siguiente semana. Ventas de Miércoles a Sábado se pagan el viernes de la subsiguiente semana.
                         </TooltipContent>
@@ -666,7 +667,7 @@ Hora: ${timeBold}${confirmedBold}`;
             <Label className="flex items-center gap-2 text-muted-foreground text-[10px] font-bold uppercase tracking-wider shrink-0 mb-1">📝 Notas del cliente</Label>
             <Textarea 
               placeholder="Detalles importantes..."
-              className="bg-muted/10 border-border/30 h-[200px] resize-none text-xs backdrop-blur-sm"
+              className="bg-muted/10 border-border/30 h-[200px] resize-none text-sm backdrop-blur-sm"
               value={isEditing ? editData.notes : appointment.notes}
               onChange={e => setEditData({...editData, notes: e.target.value})}
               readOnly={!isEditing}

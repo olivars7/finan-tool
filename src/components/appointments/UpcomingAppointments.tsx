@@ -159,7 +159,6 @@ export default function UpcomingAppointments({
     if (finalizingApp) {
       const isCierre = finalStatus === 'Cierre';
       
-      // Al finalizar una cita, se marca automáticamente como confirmada
       editAppointment(finalizingApp.id, { 
         status: finalStatus, 
         notes: finalNotes,
@@ -279,7 +278,7 @@ export default function UpcomingAppointments({
                                       <UserCog className="w-3.5 h-3.5 text-blue-500" />
                                     </div>
                                   </TooltipTrigger>
-                                  <TooltipContent className="z-[170] shadow-xl border-border bg-card p-3">
+                                  <TooltipContent className="shadow-xl border-border bg-card p-3">
                                     <div className="space-y-1">
                                       <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest">Prospectado por:</p>
                                       <p className="text-xs font-black text-blue-600">{app.prospectorName}</p>
@@ -296,7 +295,7 @@ export default function UpcomingAppointments({
                                       <UserCheck className="w-3.5 h-3.5 text-purple-500" />
                                     </div>
                                   </TooltipTrigger>
-                                  <TooltipContent className="z-[170] shadow-xl border-border bg-card p-3">
+                                  <TooltipContent className="shadow-xl border-border bg-card p-3">
                                     <div className="space-y-1">
                                       <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest">Atendido por:</p>
                                       <p className="text-xs font-black text-purple-600">{app.attendingExecutive}</p>
@@ -373,7 +372,7 @@ export default function UpcomingAppointments({
                       </TableCell>
                       <TableCell className="align-middle text-center" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-center gap-1">
-                          {appToday ? (
+                          {appToday && (
                             <TooltipProvider delayDuration={0}>
                               <Tooltip>
                                 <TooltipTrigger asChild>
@@ -386,21 +385,11 @@ export default function UpcomingAppointments({
                                     <CheckIcon className="w-4 h-4" />
                                   </Button>
                                 </TooltipTrigger>
-                                <TooltipContent className="bg-card border-border shadow-xl z-[160] text-[10px] font-bold">
+                                <TooltipContent className="bg-card border-border shadow-xl text-[10px] font-bold">
                                   FINALIZAR CONSULTA
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
-                          ) : (
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-8 w-8 text-muted-foreground/40 hover:text-destructive hover:bg-destructive/10 transition-colors"
-                              onClick={(e) => { e.stopPropagation(); setArchiveConfirmId(app.id); }}
-                              title="Archivar"
-                            >
-                              <Archive className="w-4 h-4" />
-                            </Button>
                           )}
                           <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground/40 hover:text-primary transition-colors" onClick={() => onSelect(app)}>
                             <ChevronRight className="h-4 w-4" />
@@ -420,23 +409,6 @@ export default function UpcomingAppointments({
           <ClipboardCheck className="w-4 h-4" /> Reporte Diario
         </Button>
       </div>
-
-      <AlertDialog open={!!archiveConfirmId} onOpenChange={(o) => !o && setArchiveConfirmId(null)}>
-        <AlertDialogContent className="z-[160]">
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Archivar cita?</AlertDialogTitle>
-            <AlertDialogDescription>
-              La cita se moverá a la papelera. Podrás restaurarla en cualquier momento desde el selector de vista "Archivadas".
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmArchive} className="bg-destructive hover:bg-destructive/90 text-white">
-              Sí, archivar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
       <AlertDialog open={!!confirmingApp} onOpenChange={(o) => !o && setConfirmingApp(null)}>
         <AlertDialogContent className="z-[160] border-border">
@@ -538,7 +510,7 @@ export default function UpcomingAppointments({
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild><Info className="w-3.5 h-3.5 text-muted-foreground/40 cursor-help" /></TooltipTrigger>
-                        <TooltipContent className="text-[10px] z-[170]">Incluye retención del 9% de impuesto sobre el 0.7% del crédito.</TooltipContent>
+                        <TooltipContent className="text-[10px] z-[300]">Incluye retención del 9% de impuesto sobre el 0.7% del crédito.</TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
                   </div>

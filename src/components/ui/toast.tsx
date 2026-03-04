@@ -52,7 +52,8 @@ const Toast = React.forwardRef<
       ref={ref}
       className={cn(toastVariants({ variant }), className)}
       onClick={(e) => {
-        e.stopPropagation();
+        e.preventDefault();
+        e.stopPropagation(); // Evita que el clic cierre modales de fondo
         const target = e.currentTarget as HTMLElement;
         const closeBtn = target.querySelector('[toast-close]') as HTMLButtonElement;
         if (closeBtn) closeBtn.click();
