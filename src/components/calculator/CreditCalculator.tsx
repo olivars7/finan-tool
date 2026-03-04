@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -205,7 +206,6 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
   const totalMonthlyLoad = (netFinancing * effectiveFactor) + currentExtraMonthly;
   const minIncomeRequired = totalMonthlyLoad / INCOME_RATIO;
   
-  // Gastos Operativos (Impuestos y Avalúo)
   const taxesEscrituracion = netFinancing * 0.05;
   const appraisalFee = 7500;
   const totalOperatingExpenses = taxesEscrituracion + appraisalFee;
@@ -225,7 +225,9 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
     const text = `📊 *COTIZACIÓN FINANTO*\n\n` +
                  `• Crédito: *${formatCurrency(rawP)}*\n` +
                  `• Mensualidad: *${formatCurrency(totalMonthlyLoad)}*\n` +
-                 `• Enganche: *${formatCurrency(totalDownPayment)}*`;
+                 `• Enganche Base: *${formatCurrency(totalDownPayment)}*\n` +
+                 `• Escrituración (5%): *${formatCurrency(taxesEscrituracion)}*\n` +
+                 `• Avalúo (Est.): *${formatCurrency(appraisalFee)}*`;
 
     navigator.clipboard.writeText(text).then(() => {
       toast({ title: "Cotización copiada", description: "Datos listos para enviar por WhatsApp." });
@@ -316,9 +318,18 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
                 <div className="lg:col-span-4 p-6 rounded-2xl border border-accent/20 bg-accent/5 space-y-4 flex flex-col">
                   <div className="flex items-center gap-2 text-accent"><Receipt className="w-5 h-5" /><h4 className="text-[10px] font-bold uppercase">Gastos e Inversión</h4></div>
                   <div className="grid grid-cols-2 gap-4 flex-1">
-                    <div><span className="text-[10px] uppercase font-bold text-muted-foreground">Impuestos/Escrituración (5%)</span><p className="font-bold text-lg">{formatCurrency(taxesEscrituracion)}</p></div>
-                    <div><span className="text-[10px] uppercase font-bold text-muted-foreground">Inversión Total</span><p className="font-bold text-lg text-accent">{formatCurrency(totalDownPayment + totalOperatingExpenses)}</p></div>
-                    <div className="col-span-2 pt-2 border-t border-border/10"><span className="text-[10px] uppercase font-bold text-muted-foreground">Avalúo (Est. $7,500)</span><p className="font-bold text-sm text-accent/80">{formatCurrency(appraisalFee)}</p></div>
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-muted-foreground">Escrituración (5%)</span>
+                      <p className="font-bold text-lg">{formatCurrency(taxesEscrituracion)}</p>
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-muted-foreground">Inversión Total</span>
+                      <p className="font-bold text-lg text-accent">{formatCurrency(totalDownPayment + totalOperatingExpenses)}</p>
+                    </div>
+                    <div className="col-span-2 pt-2 border-t border-border/10">
+                      <span className="text-[10px] uppercase font-bold text-muted-foreground">Avalúo (Est. $7,500)</span>
+                      <p className="font-bold text-sm text-accent/80">{formatCurrency(appraisalFee)}</p>
+                    </div>
                   </div>
                   <div className="pt-4 border-t border-accent/20"><span className="text-[10px] uppercase font-bold text-accent">Saldo Líquido</span><p className="font-bold text-2xl text-accent">{formatCurrency(netLiquidCredit)}</p></div>
                 </div>
