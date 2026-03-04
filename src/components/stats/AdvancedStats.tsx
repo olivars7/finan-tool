@@ -1,6 +1,6 @@
 "use client"
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
@@ -31,6 +31,16 @@ const ZeroLabel = (props: any) => {
 };
 
 export default function AdvancedStats({ stats, isExpanded = false, onExpandedChange }: AdvancedStatsProps) {
+  const [shouldAnimate, setShouldAnimate] = useState(true);
+
+  // Solo animamos una vez por montado (al abrir el panel o la página)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShouldAnimate(false);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
   const totalMonth = stats.currentMonthProspects || 0;
   const attendanceRate = totalMonth > 0 ? Math.min(95, 75 + (stats.todayConfirmed / (stats.todayCount || 1) * 10)) : 0;
   const closingRate = attendanceRate > 0 ? (stats.conversionRate / (attendanceRate / 100)) : 0;
@@ -49,8 +59,12 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
 
   const WeeklyChart = ({ data, title, icon: Icon, opacity = 1, delay = "0s" }: { data: any, title: string, icon: any, opacity?: number, delay?: string }) => (
     <Card 
-      className={cn("border-border/40 bg-card/30 backdrop-blur-md overflow-visible animate-entrance-stagger", opacity < 1 && "opacity-75")}
-      style={{ animationDelay: delay }}
+      className={cn(
+        "border-border/40 bg-card/30 backdrop-blur-md overflow-visible",
+        shouldAnimate && "animate-entrance-stagger",
+        opacity < 1 && "opacity-75"
+      )}
+      style={{ animationDelay: shouldAnimate ? delay : '0s' }}
     >
       <CardHeader className="p-4 pb-2 border-b border-border/10 flex flex-row items-center justify-between">
         <div className="flex items-center gap-2"><Icon className="w-4 h-4 text-primary" /><CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">{title}</CardTitle></div>
@@ -81,7 +95,13 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
   );
 
   const PerformanceSection = ({ delay = "0s" }: { delay?: string }) => (
-    <Card className="border-primary/20 bg-primary/5 overflow-hidden animate-entrance-stagger" style={{ animationDelay: delay }}>
+    <Card 
+      className={cn(
+        "border-primary/20 bg-primary/5 overflow-hidden",
+        shouldAnimate && "animate-entrance-stagger"
+      )} 
+      style={{ animationDelay: shouldAnimate ? delay : '0s' }}
+    >
       <CardContent className="p-6 space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2"><Activity className="w-5 h-5 text-primary animate-pulse" /><h3 className="text-xs font-bold uppercase text-primary/80">Salud Operativa</h3></div>
@@ -127,8 +147,11 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                   ].map((s, i) => (
                     <Card 
                       key={i} 
-                      className="bg-card/40 border-primary/20 p-4 space-y-3 animate-entrance-stagger animate-staggered-periodic" 
-                      style={{ animationDelay: `${i * 0.25}s` }}
+                      className={cn(
+                        "bg-card/40 border-primary/20 p-4 space-y-3 animate-staggered-periodic",
+                        shouldAnimate && "animate-entrance-stagger"
+                      )} 
+                      style={{ animationDelay: shouldAnimate ? `${i * 0.25}s` : '0s' }}
                     >
                       <div className="flex justify-between items-start"><div className={cn("p-2 rounded-lg bg-muted/20", s.color)}><s.icon className="w-4 h-4" /></div>{s.growth !== undefined && <span className={cn("text-[10px] font-bold flex items-center", s.growth >= 0 ? "text-green-500" : "text-destructive")}>{s.growth >= 0 ? <ArrowUpRight className="w-3 h-3"/> : <ArrowDownRight className="w-3 h-3"/>} {Math.abs(Math.round(s.growth))}%</span>}</div>
                       <div><p className="text-[9px] uppercase font-bold text-muted-foreground">{s.label}</p><p className="text-2xl font-black truncate">{s.value}</p></div>
@@ -144,20 +167,26 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                       <WeeklyChart data={stats.charts.lastWeekActivity} title="Anterior" icon={History} opacity={0.65} delay="1.5s" />
                     </div>
                     
-                    <Card className="bg-card border-border/40 overflow-hidden animate-entrance-stagger" style={{ animationDelay: '1.75s' }}>
+                    <Card 
+                      className={cn(
+                        "bg-card border-border/40 overflow-hidden",
+                        shouldAnimate && "animate-entrance-stagger"
+                      )} 
+                      style={{ animationDelay: shouldAnimate ? '1.75s' : '0s' }}
+                    >
                       <CardHeader className="bg-muted/30 p-4 border-b text-xs font-bold uppercase">
                         <Zap className="w-4 h-4 text-yellow-500 inline mr-2" /> Insights
                       </CardHeader>
                       <CardContent className="p-6 grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <div className="animate-entrance-stagger" style={{ animationDelay: '2s' }}>
+                        <div className={cn(shouldAnimate && "animate-entrance-stagger")} style={{ animationDelay: shouldAnimate ? '2s' : '0s' }}>
                           <span className="text-[10px] font-bold uppercase block text-muted-foreground">Vendido</span>
                           <p className="text-2xl font-black">{formatCurrency(stats.totalCreditSold)}</p>
                         </div>
-                        <div className="animate-entrance-stagger" style={{ animationDelay: '2.2s' }}>
+                        <div className={cn(shouldAnimate && "animate-entrance-stagger")} style={{ animationDelay: shouldAnimate ? '2.2s' : '0s' }}>
                           <span className="text-[10px] font-bold uppercase block text-muted-foreground">Part. Media</span>
                           <p className="text-2xl font-black text-primary">{stats.avgParticipation}%</p>
                         </div>
-                        <div className="animate-entrance-stagger" style={{ animationDelay: '2.4s' }}>
+                        <div className={cn(shouldAnimate && "animate-entrance-stagger")} style={{ animationDelay: shouldAnimate ? '2.4s' : '0s' }}>
                           <span className="text-[10px] font-bold uppercase block text-muted-foreground">Impuestos</span>
                           <p className="text-2xl font-black text-destructive">{formatCurrency(taxImpact)}</p>
                         </div>
@@ -167,7 +196,13 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                   
                   <div className="xl:col-span-4 space-y-6">
                     <PerformanceSection delay="2.6s" />
-                    <Card className="border-accent/20 bg-accent/5 p-4 animate-entrance-stagger" style={{ animationDelay: '2.8s' }}>
+                    <Card 
+                      className={cn(
+                        "border-accent/20 bg-accent/5 p-4",
+                        shouldAnimate && "animate-entrance-stagger"
+                      )} 
+                      style={{ animationDelay: shouldAnimate ? '2.8s' : '0s' }}
+                    >
                       <Zap className="w-4 h-4 text-accent inline mr-2" />
                       <span className="text-[10px] font-bold uppercase text-accent/80">Sugerencia</span>
                       <p className="text-sm mt-2 font-bold border-l-2 border-accent/30 pl-3 leading-relaxed">{getAdvice()}</p>

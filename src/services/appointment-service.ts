@@ -120,13 +120,11 @@ export const generateSeedData = (): Appointment[] => {
   const firstNames = [
     'Juan', 'María', 'Carlos', 'Ana', 'Luis', 'Elena', 'Roberto', 'Sofía', 'Diego', 'Lucía', 
     'Fernando', 'Gabriela', 'Ricardo', 'Patricia', 'Héctor', 'Isabel', 'Jorge', 'Mónica', 'Andrés', 'Carmen',
-    'Alejandro', 'Daniela', 'Raúl', 'Verónica', 'Víctor', 'Adriana', 'Oscar', 'Paola', 'Miguel', 'Rosa',
-    'Francisco', 'Lorena', 'Eduardo', 'Ximena', 'Ramiro', 'Natalia', 'Esteban', 'Silvia', 'Javier', 'Beatriz'
+    'Alejandro', 'Daniela', 'Raúl', 'Verónica', 'Víctor', 'Adriana', 'Oscar', 'Paola', 'Miguel', 'Rosa'
   ];
   
   const lastNames = [
-    'Pérez', 'García', 'López', 'Martínez', 'Rodríguez', 'Gómez', 'Díaz', 'Ruiz', 'Torres', 'Morales', 
-    'Vázquez', 'Jiménez', 'Castro', 'Ortiz', 'Álvarez', 'Flores', 'Ramos', 'Gutiérrez', 'Reyes', 'Blanco'
+    'Pérez', 'García', 'López', 'Martínez', 'Rodríguez', 'Gómez', 'Díaz', 'Ruiz', 'Torres', 'Morales'
   ];
 
   const products: AppointmentProduct[] = ['Casa', 'Departamento', 'Terreno', 'Transporte', 'Préstamo'];
@@ -292,17 +290,6 @@ export const calculateStats = (appointments: Appointment[]) => {
 
   const conversionRate = currentMonthProspects > 0 ? (currentMonthSales / currentMonthProspects) * 100 : 0;
 
-  const getCycleStart = (date: Date) => {
-    const day = getDay(date); 
-    const diff = (day - 3 + 7) % 7;
-    return startOfDay(subDays(date, diff));
-  };
-
-  const currentCycleStart = getCycleStart(now);
-  const currentCycleEnd = addDays(currentCycleStart, 6);
-  const lastCycleStart = subDays(currentCycleStart, 7);
-  const lastCycleEnd = subDays(currentCycleStart, 1);
-
   const buildCycleData = (start: Date, end: Date) => {
     const interval = eachDayOfInterval({ start, end });
     return interval.map(day => {
@@ -326,6 +313,17 @@ export const calculateStats = (appointments: Appointment[]) => {
       };
     });
   };
+
+  const getCycleStart = (date: Date) => {
+    const day = getDay(date); 
+    const diff = (day - 3 + 7) % 7;
+    return startOfDay(subDays(date, diff));
+  };
+
+  const currentCycleStart = getCycleStart(now);
+  const currentCycleEnd = addDays(currentCycleStart, 6);
+  const lastCycleStart = subDays(currentCycleStart, 7);
+  const lastCycleEnd = subDays(currentCycleStart, 1);
 
   const dailyActivity = buildCycleData(currentCycleStart, currentCycleEnd);
   const lastWeekActivity = buildCycleData(lastCycleStart, lastCycleEnd);

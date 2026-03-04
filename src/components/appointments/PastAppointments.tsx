@@ -357,7 +357,7 @@ export default function PastAppointments({
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => setVisibleCount(p => p + 25)}
+            onClick={() => setVisibleCount(p => (typeof p === 'function' ? p(visibleCount) : p) + 25)}
             className="text-[10px] font-bold uppercase tracking-widest border-dashed hover:bg-primary/10 backdrop-blur-md h-9 px-6"
           >
             <ChevronDown className="mr-2 h-4 w-4" /> Cargar más historial

@@ -79,6 +79,8 @@ export default function AppointmentDetailsDialog({
   const [newProduct, setNewProduct] = useState<AppointmentProduct>('Casa');
   const [newType, setNewType] = useState<AppointmentType>('2da consulta');
   const [newAttendingExecutive, setNewAttendingExecutive] = useState('');
+  const [newProspectorName, setNewProspectorName] = useState('');
+  const [newProspectorPhone, setNewProspectorPhone] = useState('');
 
   const { toast } = useToast();
 
@@ -97,6 +99,8 @@ export default function AppointmentDetailsDialog({
       setNewNotes(appointment.notes || '');
       setNewType(appointment.status === 'Cierre' ? 'Seguimiento' : '2da consulta');
       setNewAttendingExecutive(appointment.attendingExecutive || '');
+      setNewProspectorName(appointment.prospectorName || '');
+      setNewProspectorPhone(appointment.prospectorPhone || '');
       setNewDate('');
       setNewTime('');
     }
@@ -135,8 +139,8 @@ export default function AppointmentDetailsDialog({
       type: newType,
       product: newProduct,
       notes: newNotes,
-      prospectorName: appointment.prospectorName,
-      prospectorPhone: appointment.prospectorPhone,
+      prospectorName: newProspectorName || appointment.prospectorName,
+      prospectorPhone: newProspectorPhone || appointment.prospectorPhone,
       attendingExecutive: newAttendingExecutive || appointment.attendingExecutive
     });
 
