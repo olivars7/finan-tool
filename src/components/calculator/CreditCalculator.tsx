@@ -16,9 +16,10 @@ import {
   Coins,
   Settings2,
   Zap,
-  Copy
+  Copy,
+  Info
 } from "lucide-react";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { 
   Dialog, 
   DialogContent, 
@@ -234,7 +235,20 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Calculator className="text-primary w-6 h-6" />
-              <CardTitle className="text-xl font-headline font-semibold">Calculadora rápida</CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-xl font-headline font-semibold">Calculadora rápida</CardTitle>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="w-4 h-4 text-muted-foreground/40 cursor-help hover:text-primary transition-colors" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-[280px] p-3 text-xs leading-relaxed">
+                      <p className="font-bold mb-1 text-primary">Modelo de Negocio Finanto</p>
+                      Simulador basado en el Plan Tradicional 12pp. Proyecta mensualidades competitivas con un enganche mínimo del 3% y plazos flexibles de hasta 192 meses.
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
             </div>
             <Button variant="ghost" size="icon" onClick={() => onExpandedChange(true)} className="h-8 w-8 text-muted-foreground/60 hover:text-primary">
               <Maximize2 className="w-4 h-4" />
