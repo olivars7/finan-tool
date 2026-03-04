@@ -272,24 +272,29 @@ export default function AdvancedStats({ stats, initialExpanded = false, onExpand
       <Dialog open={isExpanded} onOpenChange={(o) => onExpandedChange?.(o)}>
         <DialogContent 
           data-calculator-dialog="true"
+          onInteractOutside={(e) => {
+            if ((e.target as HTMLElement).closest('[role="status"]')) e.preventDefault();
+          }}
           className="max-w-none w-screen h-screen m-0 rounded-none bg-background border-none shadow-none p-0 flex flex-col overflow-hidden"
         >
+          {/* Título invisible pero persistente para estabilidad de Radix y accesibilidad */}
+          <DialogTitle className="sr-only">Panel de Inteligencia Finanto</DialogTitle>
+          
           {showIntro ? (
-            <div className="flex-1 flex items-center justify-center bg-background/95 backdrop-blur-3xl z-[300]">
-              <DialogTitle className="sr-only">Inteligencia Finanto</DialogTitle>
+            <div key="intro-view" className="flex-1 flex items-center justify-center bg-background/95 backdrop-blur-3xl z-[300]">
               <h2 className="text-6xl md:text-8xl font-black tracking-tighter bg-gradient-to-r from-[#00F5FF] via-[#7B61FF] to-[#FF00D6] bg-clip-text text-transparent animate-intro-text text-center px-4">
                 INTELIGENCIA FINANTO
               </h2>
             </div>
           ) : showContent ? (
-            <div className="flex-1 flex flex-col animate-stats-reveal">
+            <div key="content-view" className="flex-1 flex flex-col animate-stats-reveal">
               <DialogHeader className="px-6 py-4 border-b border-border/40 flex flex-row items-center justify-between bg-card/10 shrink-0">
                 <div className="flex items-center gap-3">
                   <div className="bg-primary/20 p-2 rounded-xl border border-primary/30">
                     <BarChart3 className="text-primary w-6 h-6" />
                   </div>
                   <div>
-                    <DialogTitle className="text-xl font-headline font-bold text-foreground">Inteligencia Avanzada</DialogTitle>
+                    <h3 className="text-xl font-headline font-bold text-foreground">Inteligencia Avanzada</h3>
                     <DialogDescription className="text-xs">Análisis financiero y tendencias operativos.</DialogDescription>
                   </div>
                 </div>

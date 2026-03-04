@@ -140,6 +140,13 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
     }
   }, [initialSection]);
 
+  // Sincronización de URL sin refrescar (SPA)
+  const syncUrl = useCallback((path: string) => {
+    if (typeof window !== 'undefined' && window.location.pathname !== path) {
+      window.history.pushState(null, '', path);
+    }
+  }, []);
+
   // Manejo de navegación SPA (Popstate)
   useEffect(() => {
     const handlePopState = () => {
@@ -155,56 +162,30 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  // Sincronización de URL sin refrescar
-  const syncUrl = (path: string) => {
-    if (window.location.pathname !== path) {
-      window.history.pushState(null, '', path);
-    }
-  };
-
-  const handleToggleHelp = (open: boolean) => {
-    if (open) {
+  // Monitor centralizado de estados para sincronizar URL y Título
+  useEffect(() => {
+    if (showHelp) {
       document.title = "Manual de Inicio - Finanto";
       syncUrl('/guia');
-    } else {
-      document.title = "Finanto - Gestión Inmobiliaria";
-      syncUrl('/');
-    }
-    setShowHelp(open);
-  };
-
-  const handleToggleSimulator = (open: boolean) => {
-    if (open) {
+    } else if (isSimulatorExpanded) {
       document.title = "Simulador - Finanto";
       syncUrl('/simulador');
-    } else {
-      document.title = "Finanto - Gestión Inmobiliaria";
-      syncUrl('/');
-    }
-    setIsSimulatorExpanded(open);
-  };
-
-  const handleToggleGestor = (open: boolean) => {
-    if (open) {
+    } else if (isGestorExpanded) {
       document.title = "Gestor - Finanto";
       syncUrl('/gestor');
-    } else {
-      document.title = "Finanto - Gestión Inmobiliaria";
-      syncUrl('/');
-    }
-    setIsGestorExpanded(open);
-  };
-
-  const handleToggleStats = (open: boolean) => {
-    if (open) {
+    } else if (isStatsExpanded) {
       document.title = "Estadísticas - Finanto";
       syncUrl('/stats');
     } else {
       document.title = "Finanto - Gestión Inmobiliaria";
       syncUrl('/');
     }
-    setIsStatsExpanded(open);
-  };
+  }, [showHelp, isSimulatorExpanded, isGestorExpanded, isStatsExpanded, syncUrl]);
+
+  const handleToggleHelp = (open: boolean) => setShowHelp(open);
+  const handleToggleSimulator = (open: boolean) => setIsSimulatorExpanded(open);
+  const handleToggleGestor = (open: boolean) => setIsGestorExpanded(open);
+  const handleToggleStats = (open: boolean) => setIsStatsExpanded(open);
 
   useEffect(() => {
     if (!api) return;
@@ -715,7 +696,12 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
       />
 
       <Dialog open={showHelp} onOpenChange={handleToggleHelp}>
-        <DialogContent className="sm:max-w-[750px] h-[85vh] flex flex-col p-0 overflow-hidden bg-card shadow-2xl">
+        <DialogContent 
+          onInteractOutside={(e) => {
+            if ((e.target as HTMLElement).closest('[role="status"]')) e.preventDefault();
+          }}
+          className="sm:max-w-[750px] h-[85vh] flex flex-col p-0 overflow-hidden bg-card shadow-2xl"
+        >
           <DialogHeader className="p-6 border-b bg-primary/5 shrink-0">
             <div className="flex items-center gap-3">
               <div className="p-3 border border-primary/30 rounded-xl bg-primary/10">
@@ -823,7 +809,12 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
       </Dialog>
 
       <Dialog open={!!pendingCommissionApp} onOpenChange={(open) => { if (!open) { setPendingCommissionApp(null); lastClosedTimeRef.current = Date.now(); } }}>
-        <DialogContent className="sm:max-w-[450px] border-none bg-gradient-to-br from-blue-700 to-indigo-900 shadow-2xl text-white p-0 overflow-hidden">
+        <DialogContent 
+          onInteractOutside={(e) => {
+            if ((e.target as HTMLElement).closest('[role="status"]')) e.preventDefault();
+          }}
+          className="sm:max-w-[450px] border-none bg-gradient-to-br from-blue-700 to-indigo-900 shadow-2xl text-white p-0 overflow-hidden"
+        >
           <div className="p-6 space-y-6">
             <div className="flex items-center justify-between">
               <div className="bg-white/10 p-3 rounded-full w-fit">
@@ -880,7 +871,12 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
           if (app) onSelectAppId(app.id);
         }
       }}>
-        <DialogContent className="sm:max-w-[480px] border-none bg-gradient-to-br from-green-600 to-emerald-800 shadow-2xl text-white p-0 overflow-hidden">
+        <DialogContent 
+          onInteractOutside={(e) => {
+            if ((e.target as HTMLElement).closest('[role="status"]')) e.preventDefault();
+          }}
+          className="sm:max-w-[480px] border-none bg-gradient-to-br from-green-600 to-emerald-800 shadow-2xl text-white p-0 overflow-hidden"
+        >
           <div className="relative p-8 space-y-6">
             <div className="absolute top-0 right-0 p-4 opacity-10">
               <PartyIcon className="w-32 h-32 rotate-12" />
