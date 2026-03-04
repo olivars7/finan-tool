@@ -154,7 +154,19 @@ const DashboardContent = ({
           <UpcomingAppointments appointments={filteredUpcoming} allAppointments={appointments} formatDate={formatFriendlyDate} format12hTime={format12hTime} onSelect={handleSelect} onHighlight={handleHighlight} editAppointment={editAppointment} archiveAppointment={archiveAppointment} unarchiveAppointment={unarchiveAppointment} activeId={activeId} expanded={expanded} onCelebrate={onCelebrate} />
         </TabsContent>
         <TabsContent value="past" className="mt-0 h-full overflow-hidden">
-          <PastAppointments appointments={filteredPast} formatDate={formatFriendlyDate} format12hTime={format12hTime} onSelect={handleSelect} onHighlight={handleHighlight} archiveAppointment={archiveAppointment} unarchiveAppointment={unarchiveAppointment} activeId={activeId} expanded={expanded} visibleCount={visibleCountPast} setVisibleCount={setVisibleCountPast} />
+          <PastAppointments 
+            appointments={filteredPast} 
+            formatDate={formatFriendlyDate} 
+            format12hTime={format12hTime} 
+            onSelect={handleSelect} 
+            onHighlight={handleHighlight} 
+            archiveAppointment={archiveAppointment} 
+            unarchiveAppointment={unarchiveAppointment} 
+            activeId={activeId} 
+            expanded={expanded} 
+            visibleCount={visibleCountPast} 
+            setVisibleCount={setVisibleCountPast} 
+          />
         </TabsContent>
       </div>
     </Tabs>
@@ -218,7 +230,24 @@ export default function AppointmentsDashboard({
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          <DashboardContent activeTab={activeTab} setActiveTab={setActiveTab} appointments={appointments} editAppointment={editAppointment} archiveAppointment={archiveAppointment} unarchiveAppointment={unarchiveAppointment} formatFriendlyDate={formatFriendlyDate} format12hTime={format12hTime} handleSelect={handleSelect} handleHighlight={handleHighlight} activeId={activeId} visibleCountPast={visibleCountPast} setVisibleCount={setVisibleCountPast} stats={stats} searchTerm={searchTerm} onCelebrate={onCelebrate} />
+          <DashboardContent 
+            activeTab={activeTab} 
+            setActiveTab={setActiveTab} 
+            appointments={appointments} 
+            editAppointment={editAppointment} 
+            archiveAppointment={archiveAppointment} 
+            unarchiveAppointment={unarchiveAppointment} 
+            formatFriendlyDate={formatFriendlyDate} 
+            format12hTime={format12hTime} 
+            handleSelect={handleSelect} 
+            handleHighlight={handleHighlight} 
+            activeId={activeId} 
+            visibleCountPast={visibleCountPast} 
+            setVisibleCountPast={setVisibleCountPast} 
+            stats={stats} 
+            searchTerm={searchTerm} 
+            onCelebrate={onCelebrate} 
+          />
         </CardContent>
       </Card>
 
@@ -247,7 +276,25 @@ export default function AppointmentsDashboard({
             </div>
           </DialogHeader>
           <div className="flex-1 p-6 overflow-hidden flex flex-col">
-            <DashboardContent expanded={true} activeTab={activeTab} setActiveTab={setActiveTab} appointments={appointments} editAppointment={editAppointment} archiveAppointment={archiveAppointment} unarchiveAppointment={unarchiveAppointment} formatFriendlyDate={formatFriendlyDate} format12hTime={format12hTime} handleSelect={handleSelect} handleHighlight={handleHighlight} activeId={activeId} visibleCountPast={visibleCountPast} setVisibleCount={setVisibleCountPast} stats={stats} searchTerm={searchTerm} onCelebrate={onCelebrate} />
+            <DashboardContent 
+              expanded={true} 
+              activeTab={activeTab} 
+              setActiveTab={setActiveTab} 
+              appointments={appointments} 
+              editAppointment={editAppointment} 
+              archiveAppointment={archiveAppointment} 
+              unarchiveAppointment={unarchiveAppointment} 
+              formatFriendlyDate={formatFriendlyDate} 
+              format12hTime={format12hTime} 
+              handleSelect={handleSelect} 
+              handleHighlight={handleHighlight} 
+              activeId={activeId} 
+              visibleCountPast={visibleCountPast} 
+              setVisibleCountPast={setVisibleCountPast} 
+              stats={stats} 
+              searchTerm={searchTerm} 
+              onCelebrate={onCelebrate} 
+            />
           </div>
         </DialogContent>
       </Dialog>

@@ -26,16 +26,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { useToast } from "@/hooks/use-toast";
 import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "@/components/ui/alert-dialog";
-import {
   Tooltip,
   TooltipProvider,
   TooltipTrigger,
@@ -55,7 +45,7 @@ interface Props {
   activeId?: string | null;
   expanded?: boolean;
   visibleCount: number;
-  setVisibleCount: React.Dispatch<React.SetStateAction<number>>;
+  setVisibleCount: (val: number | ((p: number) => number)) => void;
 }
 
 export default function PastAppointments({ 
@@ -359,7 +349,7 @@ export default function PastAppointments({
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => setVisibleCount(prev => prev + 25)}
+            onClick={() => setVisibleCount((prev: number) => prev + 25)}
             className="text-[10px] font-bold uppercase tracking-widest border-dashed hover:bg-primary/10 backdrop-blur-md h-9 px-6"
           >
             <ChevronDown className="mr-2 h-4 w-4" /> Cargar más historial
