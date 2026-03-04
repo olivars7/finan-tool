@@ -43,9 +43,9 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
   };
 
   const getAdvice = () => {
-    if (stats.conversionRate > 20) return "Tasa de cierre excepcional. Mantén el enfoque en prospectos de alto perfil.";
-    if (stats.conversionRate < 8) return "Conversión baja. Sugerimos revisar el protocolo de perfilamiento inicial.";
-    return "Ritmo operativo estable. Mantén el seguimiento detallado de cada prospecto.";
+    if (stats.conversionRate > 20) return "Vas muy bien con los cierres. Sigue así con los prospectos perfilados.";
+    if (stats.conversionRate < 8) return "Andamos bajos en cierres. Hay que checar si estamos perfilando bien desde el inicio.";
+    return "Vas a buen ritmo. No sueltes el seguimiento de los que ya atendiste.";
   };
 
   const WeeklyChart = ({ data, title, icon: Icon, opacity = 1 }: { data: any, title: string, icon: any, opacity?: number }) => (
@@ -157,7 +157,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                       <CardContent className="p-6 grid grid-cols-1 md:grid-cols-4 gap-8">
                         <div>
                           <span className="text-[10px] font-bold uppercase block text-muted-foreground mb-1">Total Vendido</span>
-                          <p className="text-2xl font-black bg-gradient-to-r from-[#00F5FF] via-[#7B61FF] to-[#FF00D6] bg-clip-text text-transparent">{formatCurrency(stats.totalCreditSold)}</p>
+                          <p className="text-2xl font-black bg-gradient-to-r from-[#00F5FF] via-[#1877F2] to-[#FF00D6] bg-clip-text text-transparent">{formatCurrency(stats.totalCreditSold)}</p>
                           <span className="text-[8px] text-muted-foreground font-bold uppercase">Monto de crédito total</span>
                         </div>
                         <div>
@@ -223,16 +223,9 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                     <Card className="border-accent/20 bg-accent/5 p-6 space-y-4">
                       <div className="flex items-center gap-2">
                         <Zap className="w-5 h-5 text-accent" />
-                        <span className="text-[10px] font-bold uppercase text-accent/80 tracking-widest">Sugerencia Estratégica</span>
+                        <span className="text-[10px] font-bold uppercase text-accent/80 tracking-widest">Sugerencia</span>
                       </div>
                       <p className="text-sm font-bold border-l-2 border-accent/30 pl-4 leading-relaxed text-foreground/90 italic">{getAdvice()}</p>
-                      <div className="pt-2">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Target className="w-4 h-4 text-accent/60" />
-                          <span className="text-[9px] font-bold uppercase text-muted-foreground">KPI Sugerido</span>
-                        </div>
-                        <p className="text-[11px] text-muted-foreground leading-relaxed">Incrementar las citas de seguimiento puede elevar tu conversión hasta un 15% adicional.</p>
-                      </div>
                     </Card>
 
                     <Card className="border-primary/20 bg-primary/5 p-6 overflow-hidden relative">

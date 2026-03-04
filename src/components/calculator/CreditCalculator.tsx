@@ -204,8 +204,12 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
   const currentExtraMonthly = parseNumber(extraMonthlyContribution);
   const totalMonthlyLoad = (netFinancing * effectiveFactor) + currentExtraMonthly;
   const minIncomeRequired = totalMonthlyLoad / INCOME_RATIO;
-  const estimatedClosingCosts = netFinancing * 0.05;
-  const totalOperatingExpenses = estimatedClosingCosts + 7500;
+  
+  // Gastos Operativos (Impuestos y Avalúo)
+  const taxesEscrituracion = netFinancing * 0.05;
+  const appraisalFee = 7500;
+  const totalOperatingExpenses = taxesEscrituracion + appraisalFee;
+  
   const netLiquidCredit = netFinancing > 0 ? netFinancing - totalOperatingExpenses : 0;
   const suggestedLivingBudget = minIncomeRequired > 0 ? minIncomeRequired - totalMonthlyLoad : 0;
   const baseMonthly = netFinancing * effectiveFactor;
@@ -312,8 +316,9 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
                 <div className="lg:col-span-4 p-6 rounded-2xl border border-accent/20 bg-accent/5 space-y-4 flex flex-col">
                   <div className="flex items-center gap-2 text-accent"><Receipt className="w-5 h-5" /><h4 className="text-[10px] font-bold uppercase">Gastos e Inversión</h4></div>
                   <div className="grid grid-cols-2 gap-4 flex-1">
-                    <div><span className="text-[10px] uppercase font-bold text-muted-foreground">Escrituración (5%)</span><p className="font-bold text-lg">{formatCurrency(estimatedClosingCosts)}</p></div>
+                    <div><span className="text-[10px] uppercase font-bold text-muted-foreground">Impuestos/Escrituración (5%)</span><p className="font-bold text-lg">{formatCurrency(taxesEscrituracion)}</p></div>
                     <div><span className="text-[10px] uppercase font-bold text-muted-foreground">Inversión Total</span><p className="font-bold text-lg text-accent">{formatCurrency(totalDownPayment + totalOperatingExpenses)}</p></div>
+                    <div className="col-span-2 pt-2 border-t border-border/10"><span className="text-[10px] uppercase font-bold text-muted-foreground">Avalúo (Est. $7,500)</span><p className="font-bold text-sm text-accent/80">{formatCurrency(appraisalFee)}</p></div>
                   </div>
                   <div className="pt-4 border-t border-accent/20"><span className="text-[10px] uppercase font-bold text-accent">Saldo Líquido</span><p className="font-bold text-2xl text-accent">{formatCurrency(netLiquidCredit)}</p></div>
                 </div>

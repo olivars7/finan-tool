@@ -226,15 +226,19 @@ export default function UpcomingAppointments({
       return;
     }
 
-    const dateStr = format(new Date(), "d 'de' MMMM", { locale: es });
-    let text = `📅 *CITAS DE HOY (${dateStr.toUpperCase()})*\n\n`;
+    let text = "";
 
-    todayApps.forEach((app, index) => {
-      const timeStr = format12hTime(app.time);
-      text += `${index + 1}. *${timeStr}* - *${app.name}*\n`;
-      text += `   • Motivo: ${app.type}\n`;
-      if (app.phone) text += `   • Tel: ${app.phone}\n`;
-      text += `\n`;
+    todayApps.forEach((app) => {
+      const dateObj = parseISO(app.date);
+      const dateFormatted = format(dateObj, "EEEE d 'de' MMMM yyyy", { locale: es });
+      const capitalizedDate = dateFormatted.charAt(0).toUpperCase() + dateFormatted.slice(1);
+      const timeFormatted = format12hTime(app.time);
+
+      text += `Cita: *${capitalizedDate}*\n`;
+      text += `Nombre: *${app.name}*\n`;
+      text += `Motivo: *${app.type}*\n`;
+      text += `Producto: *${app.product || 'N/A'}*\n`;
+      text += `Hora: *${timeFormatted}*\n\n`;
     });
 
     navigator.clipboard.writeText(text.trim()).then(() => {
@@ -299,7 +303,7 @@ export default function UpcomingAppointments({
                                       <UserCog className="w-3.5 h-3.5 text-blue-500" />
                                     </div>
                                   </TooltipTrigger>
-                                  <TooltipContent className="shadow-xl border-border bg-card p-3">
+                                  <TooltipContent className="shadow-xl border-border bg-card p-3 border-white">
                                     <div className="space-y-1">
                                       <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest">Prospectado por:</p>
                                       <p className="text-xs font-black text-blue-600">{app.prospectorName}</p>
@@ -316,7 +320,7 @@ export default function UpcomingAppointments({
                                       <UserCheck className="w-3.5 h-3.5 text-purple-500" />
                                     </div>
                                   </TooltipTrigger>
-                                  <TooltipContent className="shadow-xl border-border bg-card p-3">
+                                  <TooltipContent className="shadow-xl border-border bg-card p-3 border-white">
                                     <div className="space-y-1">
                                       <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest">Atendido por:</p>
                                       <p className="text-xs font-black text-purple-600">{app.attendingExecutive}</p>
@@ -406,7 +410,7 @@ export default function UpcomingAppointments({
                                     <CheckIcon className="w-4 h-4" />
                                   </Button>
                                 </TooltipTrigger>
-                                <TooltipContent className="bg-card border-border shadow-xl text-[10px] font-bold">
+                                <TooltipContent className="bg-card border-border shadow-xl text-[10px] font-bold border-white">
                                   FINALIZAR CONSULTA
                                 </TooltipContent>
                               </Tooltip>
@@ -438,8 +442,8 @@ export default function UpcomingAppointments({
                 <ClipboardList className="w-4 h-4" /> Copiar Citas de Hoy
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="top" className="p-3 bg-card border-border shadow-2xl text-[10px] font-bold uppercase">
-              Copia el listado numerado de todas tus citas de hoy para WhatsApp.
+            <TooltipContent side="top" className="p-3 bg-card border-border shadow-2xl text-[10px] font-bold uppercase border-white">
+              Copia todas las fichas de hoy para WhatsApp.
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -456,7 +460,7 @@ export default function UpcomingAppointments({
                 <ClipboardCheck className="w-4 h-4" /> Reporte Diario
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="top" className="p-4 max-w-[280px] bg-card border-border shadow-2xl space-y-3">
+            <TooltipContent side="top" className="p-4 max-w-[280px] bg-card border-border shadow-2xl space-y-3 border-white">
               <div className="space-y-1">
                 <p className="text-[10px] font-bold text-primary uppercase">Vista previa del reporte:</p>
                 <div className="bg-muted/30 p-2 rounded text-[10px] font-mono leading-tight">
@@ -576,7 +580,7 @@ export default function UpcomingAppointments({
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild><Info className="w-3.5 h-3.5 text-muted-foreground/40 cursor-help" /></TooltipTrigger>
-                        <TooltipContent className="text-[10px] z-[300]">Incluye retención del 9% de impuesto sobre el 0.7% del crédito.</TooltipContent>
+                        <TooltipContent className="text-[10px] z-[300] border-white">Incluye retención del 9% de impuesto sobre el 0.7% del crédito.</TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
                   </div>
