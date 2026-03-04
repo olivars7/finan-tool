@@ -48,9 +48,9 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
 
   const getDynamicGradient = (val: number) => {
     if (val < 2000) return "";
-    if (val < 5000) return "bg-gradient-to-r from-[#00F5FF] to-[#1877F2] bg-clip-text text-transparent";
-    if (val < 10000) return "text-gradient-performance-mid";
-    return "bg-gradient-to-r from-[#FACC15] via-[#EAB308] to-[#CA8A04] bg-clip-text text-transparent";
+    if (val < 5000) return "text-gradient-aqua-blue";
+    if (val < 10000) return "text-gradient-aqua-violet";
+    return "text-gradient-lima-blue";
   };
 
   const getAdvice = () => {
@@ -219,7 +219,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                         <span className="text-[10px] font-bold uppercase block text-muted-foreground mb-1">Total Vendido</span>
                         <p className={cn(
                           "text-2xl font-black",
-                          getDynamicGradient(stats.currentMonthCommission)
+                          getDynamicGradient(stats.totalCreditSold)
                         )}>{formatCurrency(stats.totalCreditSold)}</p>
                         <span className="text-[8px] text-muted-foreground font-bold uppercase">Solo cierres finales</span>
                       </div>

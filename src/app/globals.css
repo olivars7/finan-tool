@@ -177,8 +177,20 @@
 }
 
 @layer utilities {
-  .text-gradient-performance-mid {
-    background: linear-gradient(to right, #A3E635, #00F5FF, #1877F2, #7B61FF, #FF00D6);
+  .text-gradient-aqua-blue {
+    background: linear-gradient(to right, #00F5FF, #1877F2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .text-gradient-aqua-violet {
+    background: linear-gradient(to right, #00F5FF, #1877F2, #7B61FF, #FF00D6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .text-gradient-lima-blue {
+    background: linear-gradient(to right, #A3E635, #00F5FF, #1877F2);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;

@@ -99,9 +99,9 @@ const DashboardContent = ({
 
   const getDynamicGradient = (val: number) => {
     if (val < 2000) return "";
-    if (val < 5000) return "bg-gradient-to-r from-[#00F5FF] to-[#1877F2] bg-clip-text text-transparent";
-    if (val < 10000) return "text-gradient-performance-mid";
-    return "bg-gradient-to-r from-[#FACC15] via-[#EAB308] to-[#CA8A04] bg-clip-text text-transparent";
+    if (val < 5000) return "text-gradient-aqua-blue";
+    if (val < 10000) return "text-gradient-aqua-violet";
+    return "text-gradient-lima-blue";
   };
 
   const microStats = [
