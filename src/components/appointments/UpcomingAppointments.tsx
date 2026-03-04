@@ -7,7 +7,7 @@ import {
   Clock, Calendar, CheckCircle2, AlertCircle, 
   CheckCircle, ClipboardCheck, Phone, Box, ChevronRight, 
   Trash2, RotateCcw, Archive, CheckCircle as CheckIcon,
-  Save, MessageSquare, Coins, Percent, Info, UserCog, UserCheck
+  Save, MessageSquare, Coins, Percent, Info, UserCog, UserCheck, ChevronDown
 } from "lucide-react";
 import { parseISO, isToday, addDays, isTomorrow } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -16,6 +16,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Dialog,
   DialogContent,
@@ -90,6 +91,7 @@ export default function UpcomingAppointments({
   const [creditInput, setCreditInput] = useState('');
   const [finalCommissionPercent, setFinalCommissionPercent] = useState<number>(100);
   const [attendingExecutive, setAttendingExecutive] = useState('');
+  const [showExecutiveSection, setShowExecutiveSection] = useState(false);
 
   const { toast } = useToast();
 
@@ -153,6 +155,7 @@ export default function UpcomingAppointments({
     setCreditInput(amount > 0 ? amount.toLocaleString('en-US') : '');
     setFinalCommissionPercent(app.commissionPercent || 100);
     setAttendingExecutive(app.attendingExecutive || '');
+    setShowExecutiveSection(!!app.attendingExecutive);
   };
 
   const handleSaveFinalization = () => {
@@ -568,17 +571,28 @@ export default function UpcomingAppointments({
               />
             </div>
 
-            <div className="space-y-2 border-t border-border/10 pt-4">
-              <Label className="flex items-center gap-2 text-[10px] font-bold uppercase text-muted-foreground tracking-widest">
-                <UserCheck className="w-3.5 h-3.5 text-purple-500" /> Ejecutivo que atendió (Opcional)
-              </Label>
-              <Input 
-                placeholder="Nombre del ejecutivo que dio atención..."
-                className="bg-muted/10 border-border/40 h-10 text-sm"
-                value={attendingExecutive}
-                onChange={(e) => setAttendingExecutive(e.target.value)}
-              />
-              <p className="text-[9px] text-muted-foreground/60 italic">Solo rellena este campo si la atención NO fue dada por ti.</p>
+            <div className="space-y-3">
+              <Collapsible open={showExecutiveSection} onOpenChange={setShowExecutiveSection}>
+                <CollapsibleTrigger asChild>
+                  <Button type="button" variant="ghost" size="sm" className="h-7 text-[10px] font-bold uppercase text-purple-600 hover:bg-purple-500/10 px-0">
+                    <UserCheck className="w-3.5 h-3.5 mr-2" />
+                    {showExecutiveSection ? 'Ocultar ejecutivo' : '¿Atiende otro ejecutivo?'}
+                    <ChevronDown className={cn("ml-2 h-3.5 w-3.5 transition-transform", showExecutiveSection && "rotate-180")} />
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-2 animate-in slide-in-from-top-2">
+                  <div className="p-4 border rounded-lg bg-purple-500/5 border-purple-500/20">
+                    <Label className="text-[9px] font-bold uppercase text-purple-600/70 mb-1.5 block">Ejecutivo de atención</Label>
+                    <Input 
+                      placeholder="Nombre del ejecutivo que dio atención..."
+                      className="bg-background border-purple-500/20 h-10 text-sm"
+                      value={attendingExecutive}
+                      onChange={(e) => setAttendingExecutive(e.target.value)}
+                    />
+                    <p className="text-[9px] text-muted-foreground/60 italic mt-1">Solo rellena este campo si la atención NO fue dada por ti.</p>
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
             </div>
           </div>
 

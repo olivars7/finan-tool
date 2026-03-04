@@ -68,6 +68,7 @@ export default function AppointmentDetailsDialog({
   const [isEditing, setIsEditing] = useState(false);
   const [isRescheduling, setIsRescheduling] = useState(false);
   const [showEditProspector, setShowEditProspector] = useState(false);
+  const [showEditExecutive, setShowEditExecutive] = useState(false);
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
   const [editData, setEditData] = useState<Partial<Appointment>>({});
   
@@ -88,6 +89,7 @@ export default function AppointmentDetailsDialog({
     if (appointment) {
       setEditData(appointment);
       setShowEditProspector(!!appointment.prospectorName);
+      setShowEditExecutive(!!appointment.attendingExecutive);
     }
   }, [appointment]);
 
@@ -333,51 +335,69 @@ Hora: ${timeBold}${confirmedBold}`;
                 </div>
               </div>
 
-              <div className="p-3 border rounded-lg bg-muted/10 border-border/30 space-y-3">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowEditProspector(!showEditProspector)}
-                  className="h-7 text-[10px] font-bold uppercase text-primary hover:bg-primary/10 px-0"
-                  type="button"
-                >
-                  <UserCog className="w-3.5 h-3.5 mr-2" />
-                  {showEditProspector ? 'Ocultar prospectador' : '¿Viene de otro prospectador?'}
-                  <ChevronDown className={cn("ml-2 h-3.5 w-3.5 transition-transform", showEditProspector && "rotate-180")} />
-                </Button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="p-3 border rounded-lg bg-blue-500/5 border-blue-500/20 space-y-3">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowEditProspector(!showEditProspector)}
+                    className="h-7 text-[10px] font-bold uppercase text-blue-600 hover:bg-blue-500/10 px-0 w-full justify-between"
+                    type="button"
+                  >
+                    <span className="flex items-center"><UserCog className="w-3.5 h-3.5 mr-2" /> Prospectador</span>
+                    <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", showEditProspector && "rotate-180")} />
+                  </Button>
 
-                {showEditProspector && (
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <Label className="text-[10px] font-bold uppercase text-muted-foreground/60">Nombre Prospectador</Label>
-                      <Input 
-                        value={editData.prospectorName || ''} 
-                        onChange={e => setEditData({...editData, prospectorName: e.target.value})} 
-                        className="h-8 bg-background text-sm" 
-                        placeholder="Ej. Juan Perez"
-                      />
+                  {showEditProspector && (
+                    <div className="space-y-3 animate-in slide-in-from-top-2">
+                      <div className="space-y-1">
+                        <Label className="text-[9px] font-bold uppercase text-blue-600/60">Nombre</Label>
+                        <Input 
+                          value={editData.prospectorName || ''} 
+                          onChange={e => setEditData({...editData, prospectorName: e.target.value})} 
+                          className="h-8 bg-background border-blue-500/20 text-xs" 
+                          placeholder="Ej. Juan Perez"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-[9px] font-bold uppercase text-blue-600/60">Teléfono</Label>
+                        <Input 
+                          value={editData.prospectorPhone || ''} 
+                          onChange={e => setEditData({...editData, prospectorPhone: e.target.value})} 
+                          className="h-8 bg-background border-blue-500/20 text-xs" 
+                          placeholder="664 000 0000"
+                        />
+                      </div>
                     </div>
-                    <div className="space-y-1">
-                      <Label className="text-[10px] font-bold uppercase text-muted-foreground/60">Teléfono Prospectador</Label>
-                      <Input 
-                        value={editData.prospectorPhone || ''} 
-                        onChange={e => setEditData({...editData, prospectorPhone: e.target.value})} 
-                        className="h-8 bg-background text-sm" 
-                        placeholder="664 000 0000"
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
 
-              <div className="space-y-1">
-                <Label className="text-[10px] font-bold uppercase text-muted-foreground">Ejecutivo que atendió</Label>
-                <Input 
-                  value={editData.attendingExecutive || ''} 
-                  onChange={e => setEditData({...editData, attendingExecutive: e.target.value})} 
-                  className="h-8 bg-muted/20 text-sm" 
-                  placeholder="Opcional..."
-                />
+                <div className="p-3 border rounded-lg bg-purple-500/5 border-purple-500/20 space-y-3">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowEditExecutive(!showEditExecutive)}
+                    className="h-7 text-[10px] font-bold uppercase text-purple-600 hover:bg-purple-500/10 px-0 w-full justify-between"
+                    type="button"
+                  >
+                    <span className="flex items-center"><UserCheck className="w-3.5 h-3.5 mr-2" /> Ejecutivo</span>
+                    <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", showEditExecutive && "rotate-180")} />
+                  </Button>
+
+                  {showEditExecutive && (
+                    <div className="space-y-3 animate-in slide-in-from-top-2">
+                      <div className="space-y-1">
+                        <Label className="text-[9px] font-bold uppercase text-purple-600/60">Atendido por</Label>
+                        <Input 
+                          value={editData.attendingExecutive || ''} 
+                          onChange={e => setEditData({...editData, attendingExecutive: e.target.value})} 
+                          className="h-8 bg-background border-purple-500/20 text-xs" 
+                          placeholder="Nombre del ejecutivo..."
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
               
               <div className="grid grid-cols-2 gap-3">
