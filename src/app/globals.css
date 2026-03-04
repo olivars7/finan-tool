@@ -176,58 +176,11 @@
   }
 }
 
-@layer base {
-  body {
-    font-family: var(--font-body);
-  }
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-headline);
-  }
-}
-
-@keyframes entrance-glow {
-  0% { background-color: transparent; }
-  50% { background-color: hsl(var(--primary) / 0.2); }
-  100% { background-color: transparent; }
-}
-
 @keyframes periodic-glow {
-  0%, 85%, 100% { background-color: transparent; border-color: transparent; }
-  92.5% { background-color: hsl(var(--primary) / 0.12); border-color: hsl(var(--primary) / 0.2); }
-}
-
-/* New Animations for Panel de Inteligencia */
-@keyframes stats-box-entrance {
-  from { opacity: 0; transform: translateY(20px); filter: blur(4px); }
-  to { opacity: 1; transform: translateY(0); filter: blur(0); }
-}
-
-@keyframes staggered-periodic-bg {
-  0%, 80%, 100% { background-color: transparent; }
-  90% { background-color: hsla(var(--primary) / 0.08); }
-}
-
-@keyframes stats-reveal {
-  from { opacity: 0; transform: scale(0.98) translateY(12px); filter: blur(5px); }
-  to { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
-}
-
-.animate-stats-reveal {
-  animation: stats-reveal 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-.animate-entrance-stagger {
-  animation: stats-box-entrance 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-.animate-staggered-periodic {
-  animation: staggered-periodic-bg 8s infinite;
-}
-
-.animate-entrance-glow {
-  animation: entrance-glow 0.8s ease-in-out forwards;
+  0%, 85%, 100% { background-color: transparent; }
+  92.5% { background-color: hsl(var(--primary) / 0.12); }
 }
 
 .animate-periodic-glow {
-  animation: periodic-glow 8s ease-in-out infinite;
+  animation: periodic-glow 5s ease-in-out infinite;
 }
