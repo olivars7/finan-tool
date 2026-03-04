@@ -501,7 +501,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
             const cardContent = (
               <Card 
                 key={i}
-                className="bg-card/30 backdrop-blur-md border-border/40 hover:border-primary/50 cursor-default h-full"
+                className="bg-card/30 backdrop-blur-md border-none hover:bg-card/50 cursor-default h-full transition-colors duration-300"
               >
                 <CardContent className="p-4 flex items-center gap-3">
                   <div className={cn("p-2 rounded-full bg-muted/50", stat.color)}><stat.icon className="w-5 h-5" /></div>
