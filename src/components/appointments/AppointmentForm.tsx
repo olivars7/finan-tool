@@ -203,10 +203,10 @@ export default function AppointmentForm({ onAdd }: AppointmentFormProps) {
                 <Button type="button" variant="ghost" size="sm" className="h-7 text-[10px] font-bold uppercase text-primary hover:bg-primary/10 px-0">
                   <UserCog className="w-3.5 h-3.5 mr-2" />
                   {showProspector ? 'Ocultar prospectador' : '¿Viene de otro prospectador?'}
-                  <ChevronDown className={cn("ml-2 h-3.5 w-3.5 transition-transform", showProspector && "rotate-180")} />
+                  <ChevronDown className={cn("ml-2 h-3.5 w-3.5", showProspector && "rotate-180")} />
                 </Button>
               </CollapsibleTrigger>
-              <CollapsibleContent className="mt-2 space-y-4 animate-in slide-in-from-top-2">
+              <CollapsibleContent className="mt-2 space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 border rounded-lg bg-blue-500/5 border-blue-500/20">
                   <div className="space-y-2">
                     <Label htmlFor="prospectorName" className="text-xs uppercase font-bold text-blue-600/70">Nombre del Prospectador</Label>
@@ -237,10 +237,10 @@ export default function AppointmentForm({ onAdd }: AppointmentFormProps) {
                 <Button type="button" variant="ghost" size="sm" className="h-7 text-[10px] font-bold uppercase text-purple-500 hover:bg-purple-500/10 px-0">
                   <UserCheck className="w-3.5 h-3.5 mr-2" />
                   {showExecutive ? 'Ocultar ejecutivo' : '¿Atiende otro ejecutivo?'}
-                  <ChevronDown className={cn("ml-2 h-3.5 w-3.5 transition-transform", showExecutive && "rotate-180")} />
+                  <ChevronDown className={cn("ml-2 h-3.5 w-3.5", showExecutive && "rotate-180")} />
                 </Button>
               </CollapsibleTrigger>
-              <CollapsibleContent className="mt-2 animate-in slide-in-from-top-2">
+              <CollapsibleContent className="mt-2">
                 <div className="p-4 border rounded-lg bg-purple-500/5 border-purple-500/20">
                   <div className="space-y-2">
                     <Label htmlFor="attendingExecutive" className="text-xs uppercase font-bold text-purple-600/70">Ejecutivo de atención</Label>

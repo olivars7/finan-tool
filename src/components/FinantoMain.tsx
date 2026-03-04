@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -85,7 +84,6 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showTrash, setShowTrash] = useState(false);
   
-  // Estados de navegación SPA
   const [showHelp, setShowHelp] = useState(false);
   const [isSimulatorExpanded, setIsSimulatorExpanded] = useState(false);
   const [isGestorExpanded, setIsGestorExpanded] = useState(false);
@@ -128,7 +126,6 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
     pendingAppRef.current = pendingCommissionApp;
   }, [pendingCommissionApp]);
 
-  // Sincronización de URL (Unidireccional para evitar bucles)
   const syncUrl = useCallback((path: string) => {
     if (typeof window === 'undefined') return;
     if (window.location.pathname !== path) {
@@ -136,7 +133,6 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
     }
   }, []);
 
-  // Handlers de apertura (Acción del usuario)
   const handleToggleHelp = (open: boolean) => {
     setShowHelp(open);
     if (open) { syncUrl('/guia'); document.title = "Manual - Finanto"; }
@@ -161,7 +157,6 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
     else if (!showHelp && !isSimulatorExpanded && !isGestorExpanded) { syncUrl('/'); document.title = "Finanto"; }
   };
 
-  // Sincronización Inicial y Popstate (Controlador de la SPA)
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname;
@@ -178,7 +173,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
     };
 
     window.addEventListener('popstate', handlePopState);
-    handlePopState(); // Aplicar ruta inicial
+    handlePopState(); 
 
     const savedTheme = localStorage.getItem('finanto-theme') as Theme;
     if (savedTheme) applyTheme(savedTheme);
@@ -446,7 +441,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
       <header className="border-b border-border/40 sticky top-0 z-50 backdrop-blur-[12px] bg-card/10 shrink-0">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -506,8 +501,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
             const cardContent = (
               <Card 
                 key={i}
-                className="bg-card/30 backdrop-blur-md border-border/40 animate-periodic-glow hover:border-primary/50 transition-all cursor-default h-full"
-                style={{ animationDelay: `${i * 0.15}s` }}
+                className="bg-card/30 backdrop-blur-md border-border/40 hover:border-primary/50 cursor-default h-full"
               >
                 <CardContent className="p-4 flex items-center gap-3">
                   <div className={cn("p-2 rounded-full bg-muted/50", stat.color)}><stat.icon className="w-5 h-5" /></div>

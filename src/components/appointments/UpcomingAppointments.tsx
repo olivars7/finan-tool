@@ -1,15 +1,15 @@
 "use client"
 
 import React, { useState } from 'react';
-import { Appointment, AppointmentStatus, getCommissionPaymentDate } from '@/services/appointment-service';
+import { Appointment, AppointmentStatus } from '@/services/appointment-service';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { 
-  Clock, Calendar, CheckCircle2, AlertCircle, 
+  Clock, Calendar, AlertCircle, 
   CheckCircle, ClipboardCheck, Phone, Box, ChevronRight, 
-  Trash2, RotateCcw, Archive, CheckCircle as CheckIcon,
-  Save, MessageSquare, Coins, Percent, Info, UserCog, UserCheck, ChevronDown
+  CheckCircle as CheckIcon,
+  Save, MessageSquare, Coins, Info, UserCog, UserCheck, ChevronDown
 } from "lucide-react";
-import { parseISO, isToday, addDays, isTomorrow } from 'date-fns';
+import { parseISO, isToday, isTomorrow } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -35,13 +35,6 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import {
   Tooltip,
@@ -74,14 +67,10 @@ export default function UpcomingAppointments({
   onSelect, 
   onHighlight,
   editAppointment,
-  archiveAppointment,
-  unarchiveAppointment,
   activeId,
   expanded = false,
-  theme = 'corporativo',
   onCelebrate
 }: Props) {
-  const [archiveConfirmId, setArchiveConfirmId] = useState<string | null>(null);
   const [confirmingApp, setConfirmingApp] = useState<Appointment | null>(null);
   const [finalizingApp, setFinalizingApp] = useState<Appointment | null>(null);
   
@@ -107,18 +96,6 @@ export default function UpcomingAppointments({
     const formatted = formatWithCommas(val);
     setCreditInput(formatted);
     setFinalCreditAmount(parseInt(formatted.replace(/,/g, '')) || 0);
-  };
-
-  const handleConfirmArchive = () => {
-    if (archiveConfirmId) {
-      const app = appointments.find(a => a.id === archiveConfirmId);
-      archiveAppointment(archiveConfirmId);
-      toast({
-        title: "Cita archivada",
-        description: `${app?.name} se ha movido a archivadas.`,
-      });
-      setArchiveConfirmId(null);
-    }
   };
 
   const processConfirmation = () => {
@@ -362,7 +339,7 @@ export default function UpcomingAppointments({
                                 "h-6 px-2 text-[9px] font-bold uppercase border transition-all",
                                 app.isConfirmed 
                                   ? "bg-green-500/10 text-green-600 border-green-500/20 hover:bg-green-500/20" 
-                                  : "bg-orange-500/10 text-orange-600 border-orange-500/20 hover:bg-orange-500/20 animate-pulse"
+                                  : "bg-orange-500/10 text-orange-600 border-orange-500/20 hover:bg-orange-500/20"
                               )}
                             >
                               {app.isConfirmed ? (
@@ -505,7 +482,7 @@ export default function UpcomingAppointments({
             </div>
 
             {finalStatus === 'Cierre' && (
-              <div className="p-6 bg-green-500/5 border-2 border-green-500/20 rounded-xl space-y-6 animate-in slide-in-from-top-2 duration-300">
+              <div className="p-6 bg-green-500/5 border-2 border-green-500/20 rounded-xl space-y-6">
                 <div className="flex items-center justify-center gap-2 border-b border-green-500/10 pb-3">
                   <Coins className="w-4 h-4 text-green-600" />
                   <span className="text-[10px] font-bold uppercase tracking-widest text-green-700">Configuración Financiera</span>
@@ -577,10 +554,10 @@ export default function UpcomingAppointments({
                   <Button type="button" variant="ghost" size="sm" className="h-7 text-[10px] font-bold uppercase text-purple-600 hover:bg-purple-500/10 px-0">
                     <UserCheck className="w-3.5 h-3.5 mr-2" />
                     {showExecutiveSection ? 'Ocultar ejecutivo' : '¿Atiende otro ejecutivo?'}
-                    <ChevronDown className={cn("ml-2 h-3.5 w-3.5 transition-transform", showExecutiveSection && "rotate-180")} />
+                    <ChevronDown className={cn("ml-2 h-3.5 w-3.5", showExecutiveSection && "rotate-180")} />
                   </Button>
                 </CollapsibleTrigger>
-                <CollapsibleContent className="mt-2 animate-in slide-in-from-top-2">
+                <CollapsibleContent className="mt-2">
                   <div className="p-4 border rounded-lg bg-purple-500/5 border-purple-500/20">
                     <Label className="text-[9px] font-bold uppercase text-purple-600/70 mb-1.5 block">Ejecutivo de atención</Label>
                     <Input 

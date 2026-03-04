@@ -91,13 +91,13 @@ const DashboardContent = ({
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col flex-1 min-h-0">
       {expanded && (
-        <div className="flex flex-col gap-4 mb-6 shrink-0 bg-muted/10 p-6 rounded-2xl border border-border/30 backdrop-blur-md animate-entrance-stagger">
+        <div className="flex flex-col gap-4 mb-6 shrink-0 bg-muted/10 p-6 rounded-2xl border border-border/30 backdrop-blur-md">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
             {microStats.map((s, i) => (
               <TooltipProvider key={i}>
                 <Tooltip delayDuration={0}>
                   <TooltipTrigger asChild>
-                    <div className="flex flex-col animate-entrance-stagger cursor-help" style={{ animationDelay: `${i * 0.15}s` }}>
+                    <div className="flex flex-col cursor-help">
                       <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest mb-1">{s.label}</span>
                       <div className="flex items-center gap-2">
                         <div className={cn("p-1.5 rounded-lg border bg-muted/20", s.color, "border-current/20")}><s.icon className="w-3.5 h-3.5"/></div>
@@ -122,7 +122,7 @@ const DashboardContent = ({
         </TabsList>
       </div>
 
-      <div className="flex-1 min-h-0 animate-stats-reveal" style={{ animationDelay: '0.5s' }}>
+      <div className="flex-1 min-h-0">
         <TabsContent value="upcoming" className="mt-0 h-full overflow-hidden">
           <UpcomingAppointments appointments={filteredUpcoming} allAppointments={appointments} formatDate={formatFriendlyDate} format12hTime={format12hTime} onSelect={handleSelect} onHighlight={handleHighlight} editAppointment={editAppointment} archiveAppointment={archiveAppointment} unarchiveAppointment={unarchiveAppointment} activeId={activeId} expanded={expanded} onCelebrate={onCelebrate} />
         </TabsContent>
@@ -169,7 +169,7 @@ export default function AppointmentsDashboard({
   return (
     <div className="space-y-6">
       <AppointmentForm onAdd={addAppointment} />
-      <Card className="shadow-xl bg-card border-border border-l-4 border-l-blue-600 overflow-hidden animate-entrance-stagger" style={{ animationDelay: '0.3s' }}>
+      <Card className="shadow-xl bg-card border-border border-l-4 border-l-blue-600 overflow-hidden">
         <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4"><div className="bg-blue-600/10 p-2 rounded-xl border border-blue-600/20"><CalendarClock className="text-blue-600 w-6 h-6" /></div><div><CardTitle className="text-xl font-semibold">Gestión de citas</CardTitle><CardDescription className="text-muted-foreground">Monitoreo de prospectos</CardDescription></div></div>
           <div className="flex items-center gap-3 w-full sm:w-auto">
