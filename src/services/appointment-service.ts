@@ -298,6 +298,7 @@ export const calculateStats = (appointments: Appointment[]) => {
   const dayOfWeekToday = getDay(todayStart);
   const daysToFriday = (5 - dayOfWeekToday + 7) % 7;
   const targetFriday = addDays(todayStart, daysToFriday);
+  const nextTargetFriday = addDays(targetFriday, 7);
 
   const thisFridayCommission = activeApps
     .filter(a => {
@@ -305,6 +306,15 @@ export const calculateStats = (appointments: Appointment[]) => {
       if (a.commissionStatus === 'Pagada') return false;
       const payDate = startOfDay(getCommissionPaymentDate(a.date));
       return payDate.getTime() === targetFriday.getTime();
+    })
+    .reduce((sum, a) => sum + ((a.finalCreditAmount || 0) * 0.007 * ((a.commissionPercent || 0) / 100)) * 0.91, 0);
+
+  const nextFridayCommission = activeApps
+    .filter(a => {
+      if (a.status !== 'Cierre') return false;
+      if (a.commissionStatus === 'Pagada') return false;
+      const payDate = startOfDay(getCommissionPaymentDate(a.date));
+      return payDate.getTime() === nextTargetFriday.getTime();
     })
     .reduce((sum, a) => sum + ((a.finalCreditAmount || 0) * 0.007 * ((a.commissionPercent || 0) / 100)) * 0.91, 0);
 
@@ -389,6 +399,7 @@ export const calculateStats = (appointments: Appointment[]) => {
     lastMonthCommission,
     currentMonthPaidCommission,
     thisFridayCommission,
+    nextFridayCommission,
     overdueCommission,
     conversionRate: parseFloat(conversionRate.toFixed(1)),
     charts: {

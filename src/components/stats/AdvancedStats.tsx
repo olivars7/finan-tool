@@ -1,3 +1,6 @@
+/**
+ * @fileOverview Panel de Inteligencia Avanzada - Finanto
+ */
 
 "use client"
 
@@ -203,9 +206,9 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                       </div>
                       <div className="space-y-4">
                         <div className="space-y-1.5">
-                          <div className="flex justify-between text-[10px] font-bold uppercase"><span>Volumen de Crédito</span><span>{Math.round((stats.totalCreditSold / 5000000) * 100)}%</span></div>
-                          <Progress value={(stats.totalCreditSold / 5000000) * 100} className="h-2" />
-                          <p className="text-[9px] text-muted-foreground">Meta sugerida: $5,000,000 MXN mensuales</p>
+                          <div className="flex justify-between text-[10px] font-bold uppercase"><span>Volumen de Crédito</span><span>{Math.round((stats.totalCreditSold / 3000000) * 100)}%</span></div>
+                          <Progress value={(stats.totalCreditSold / 3000000) * 100} className="h-2" />
+                          <p className="text-[9px] text-muted-foreground">Meta sugerida: $3,000,000 MXN mensuales</p>
                         </div>
                         <div className="space-y-1.5">
                           <div className="flex justify-between text-[10px] font-bold uppercase"><span>Participación Promedio</span><span>{stats.avgParticipation}%</span></div>
@@ -222,11 +225,15 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                       </div>
                       <div className="space-y-3">
                         <div className="flex justify-between items-center bg-muted/20 p-3 rounded-lg border border-border/50">
-                          <span className="text-[10px] font-bold uppercase text-muted-foreground">Viernes de Liquidación</span>
+                          <span className="text-[10px] font-bold uppercase text-muted-foreground">Este Viernes</span>
                           <span className="text-sm font-black text-accent">{formatCurrency(stats.thisFridayCommission)}</span>
                         </div>
                         <div className="flex justify-between items-center p-3 rounded-lg border border-border/20">
-                          <span className="text-[10px] font-bold uppercase text-muted-foreground">Pendiente de Conciliación</span>
+                          <span className="text-[10px] font-bold uppercase text-muted-foreground">Próximo Viernes</span>
+                          <span className="text-sm font-black text-primary">{formatCurrency(stats.nextFridayCommission)}</span>
+                        </div>
+                        <div className="flex justify-between items-center p-3 rounded-lg border border-border/20">
+                          <span className="text-[10px] font-bold uppercase text-muted-foreground">Pendiente de Conciliar</span>
                           <span className="text-sm font-black text-yellow-600">{formatCurrency(stats.overdueCommission)}</span>
                         </div>
                         <p className="text-[9px] text-muted-foreground italic leading-tight">Recuerda que las comisiones se liquidan los viernes según el ciclo de firma.</p>
