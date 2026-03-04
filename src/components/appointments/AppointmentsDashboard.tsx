@@ -94,9 +94,16 @@ const DashboardContent = ({
   const filteredPast = filteredList.filter(a => {
     const d = startOfDay(parseISO(a.date));
     return isBefore(d, today) || !!a.status;
-  }).sort((a, b) => parseISO(b.date).getTime() - parseISO(a.date).getTime());
+  }).sort((a, b) => b.date.localeCompare(a.date));
 
   const formatCurrency = (val: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(val);
+
+  const getDynamicGradient = (val: number) => {
+    if (val < 2000) return "";
+    if (val < 5000) return "bg-gradient-to-r from-[#00F5FF] to-[#1877F2] bg-clip-text text-transparent";
+    if (val < 10000) return "bg-gradient-to-r from-[#00F5FF] via-[#1877F2] to-[#7B61FF] bg-clip-text text-transparent";
+    return "bg-gradient-to-r from-[#FACC15] via-[#EAB308] to-[#CA8A04] bg-clip-text text-transparent";
+  };
 
   const microStats = [
     { label: 'Hoy', icon: CalendarDays, val: `${stats.todayConfirmed}/${stats.todayCount}`, color: 'text-blue-600', tip: "Citas confirmadas vs agendadas para hoy." },
@@ -119,7 +126,10 @@ const DashboardContent = ({
                       <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest mb-1">{s.label}</span>
                       <div className="flex items-center gap-2">
                         <div className={cn("p-1.5 rounded-lg border bg-muted/20", s.color, "border-current/20")}><s.icon className="w-3.5 h-3.5"/></div>
-                        <span className={cn("text-sm font-bold truncate", s.isCurrency && stats.currentMonthCommission > 5000 && "bg-gradient-to-r from-[#00F5FF] to-[#FF00D6] bg-clip-text text-transparent")}>{s.val}</span>
+                        <span className={cn(
+                          "text-sm font-bold truncate", 
+                          s.isCurrency ? getDynamicGradient(stats.currentMonthCommission) : ""
+                        )}>{s.val}</span>
                       </div>
                     </div>
                   </TooltipTrigger>

@@ -346,6 +346,13 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
     }).format(Math.round(val));
   };
 
+  const getDynamicGradient = (val: number) => {
+    if (val < 2000) return "";
+    if (val < 5000) return "bg-gradient-to-r from-[#00F5FF] to-[#1877F2] bg-clip-text text-transparent";
+    if (val < 10000) return "bg-gradient-to-r from-[#00F5FF] via-[#1877F2] to-[#7B61FF] bg-clip-text text-transparent";
+    return "bg-gradient-to-r from-[#FACC15] via-[#EAB308] to-[#CA8A04] bg-clip-text text-transparent";
+  };
+
   const statsCards = [
     { 
       label: 'Citas hoy', 
@@ -504,7 +511,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
       <main className="flex-1 container mx-auto px-4 py-6 md:py-12">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
           {statsCards.map((stat, i) => {
-            const isTargetCommission = stat.label === 'Comisiones Mes' && stats.currentMonthCommission > 5000;
+            const isTargetCommission = stat.label === 'Comisiones Mes';
             const cardContent = (
               <Card 
                 key={i}
@@ -517,7 +524,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
                     <div className="flex items-baseline gap-2">
                       <p className={cn(
                         "text-lg font-bold truncate",
-                        isTargetCommission && "bg-gradient-to-r from-[#00F5FF] via-[#7B61FF] to-[#FF00D6] bg-clip-text text-transparent"
+                        isTargetCommission ? getDynamicGradient(stats.currentMonthCommission) : ""
                       )}>
                         {stat.value}
                       </p>

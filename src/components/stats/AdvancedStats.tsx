@@ -1,3 +1,4 @@
+
 /**
  * @fileOverview Panel de Inteligencia Avanzada - Finanto
  */
@@ -46,6 +47,13 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
     return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(Math.round(val));
   };
 
+  const getDynamicGradient = (val: number) => {
+    if (val < 2000) return "";
+    if (val < 5000) return "bg-gradient-to-r from-[#00F5FF] to-[#1877F2] bg-clip-text text-transparent";
+    if (val < 10000) return "bg-gradient-to-r from-[#00F5FF] via-[#1877F2] to-[#7B61FF] bg-clip-text text-transparent";
+    return "bg-gradient-to-r from-[#FACC15] via-[#EAB308] to-[#CA8A04] bg-clip-text text-transparent";
+  };
+
   const getAdvice = () => {
     if (stats.conversionRate > 20) return "Vas muy bien con los cierres. Hay que seguir enfocados en los prospectos que sí están perfilados.";
     if (stats.conversionRate < 8) return "Andamos algo bajos en cierres. Habría que checar si estamos perfilando bien desde la primera llamada.";
@@ -65,7 +73,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
       <CardContent className="p-4 h-[200px] overflow-visible">
         <ChartContainer config={chartConfig} className="h-full w-full">
           <BarChart data={data}>
-            <defs><linearGradient id="cierreGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00F5FF" /><stop offset="33%" stopColor="#1877F2" /><stop offset="66%" stopColor="#7B61FF" /><stop offset="100%" stopColor="#FF00D6" /></linearGradient></defs>
+            <defs><linearGradient id="cierreGradient" x1="0" x1="0" x2="0" y2="1"><stop offset="0%" stopColor="#00F5FF" /><stop offset="33%" stopColor="#1877F2" /><stop offset="66%" stopColor="#7B61FF" /><stop offset="100%" stopColor="#FF00D6" /></linearGradient></defs>
             <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
             <XAxis dataKey="day" tickLine={false} tickMargin={10} axisLine={false} className="text-[10px] font-bold uppercase text-muted-foreground/60" />
             <YAxis hide domain={[0, stats.charts.globalMax + 1]} />
@@ -151,7 +159,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                       <p className="text-[9px] uppercase font-bold text-muted-foreground">{s.label}</p>
                       <p className={cn(
                         "text-2xl font-black truncate",
-                        s.isGradient && "bg-gradient-to-r from-[#00F5FF] via-[#1877F2] to-[#7B61FF] bg-clip-text text-transparent"
+                        s.isGradient ? getDynamicGradient(stats.currentMonthCommission) : ""
                       )}>{s.value}</p>
                     </div>
                     <div className="pt-2 border-t border-border/10 flex justify-between"><span className="text-[8px] font-bold text-muted-foreground uppercase">{s.sub1}</span><span className="text-xs font-bold">{s.val1}</span></div>
@@ -174,12 +182,18 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                     <CardContent className="p-6 grid grid-cols-1 md:grid-cols-4 gap-8">
                       <div>
                         <span className="text-[10px] font-bold uppercase block text-muted-foreground mb-1">Total Vendido</span>
-                        <p className="text-2xl font-black bg-gradient-to-r from-[#00F5FF] via-[#1877F2] to-[#FF00D6] bg-clip-text text-transparent">{formatCurrency(stats.totalCreditSold)}</p>
+                        <p className={cn(
+                          "text-2xl font-black",
+                          getDynamicGradient(stats.currentMonthCommission)
+                        )}>{formatCurrency(stats.totalCreditSold)}</p>
                         <span className="text-[8px] text-muted-foreground font-bold uppercase">Solo cierres finales</span>
                       </div>
                       <div>
                         <span className="text-[10px] font-bold uppercase block text-muted-foreground mb-1">Ingreso Proyectado</span>
-                        <p className="text-2xl font-black bg-gradient-to-r from-[#00F5FF] via-[#1877F2] to-[#7B61FF] bg-clip-text text-transparent">{formatCurrency(stats.currentMonthCommission)}</p>
+                        <p className={cn(
+                          "text-2xl font-black",
+                          getDynamicGradient(stats.currentMonthCommission)
+                        )}>{formatCurrency(stats.currentMonthCommission)}</p>
                         <div className="flex items-center gap-1">
                           <span className="text-[8px] text-green-500 font-bold uppercase">De Mes Anterior:</span>
                           <span className="text-[8px] font-black text-green-600">{formatCurrency(stats.prevMonthCommissionPaidNow)}</span>
