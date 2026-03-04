@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState } from 'react';
@@ -222,10 +221,10 @@ export default function UpcomingAppointments({
   const copyDailyReport = () => {
     const { atendidasToday, todayTotal, tomorrowTotal, ventasToday } = getReportMetrics();
 
-    const reportText = `✅Citas atendidas: ${atendidasToday}
-✅Citas para hoy: ${todayTotal}
-✅Citas día siguiente: ${tomorrowTotal}
-✅Ventas: ${ventasToday}`;
+    const reportText = `✅Citas atendidas: ${atendidasToday}\n` +
+                       `✅Citas para hoy: ${todayTotal}\n` +
+                       `✅Citas día siguiente: ${tomorrowTotal}\n` +
+                       `✅Ventas: ${ventasToday}`;
 
     navigator.clipboard.writeText(reportText).then(() => {
       toast({

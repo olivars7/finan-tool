@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -203,20 +202,30 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
   const netFinancing = Math.max(0, rawP - extraDown);
   const totalDownPayment = (rawP * FACTOR_ENGANCHE) + extraDown;
   const currentExtraMonthly = parseNumber(extraMonthlyContribution);
-  const baseMonthly = netFinancing * effectiveFactor;
-  const totalMonthlyLoad = baseMonthly + currentExtraMonthly;
+  const totalMonthlyLoad = (netFinancing * effectiveFactor) + currentExtraMonthly;
   const minIncomeRequired = totalMonthlyLoad / INCOME_RATIO;
   const estimatedClosingCosts = netFinancing * 0.05;
   const totalOperatingExpenses = estimatedClosingCosts + 7500;
   const netLiquidCredit = netFinancing > 0 ? netFinancing - totalOperatingExpenses : 0;
   const suggestedLivingBudget = minIncomeRequired > 0 ? minIncomeRequired - totalMonthlyLoad : 0;
+  const baseMonthly = netFinancing * effectiveFactor;
   const projectedReducedTerm = currentExtraMonthly > 0 ? Math.ceil((baseMonthly * currentTerm) / totalMonthlyLoad) : currentTerm;
   const totalCostOfCredit = (totalMonthlyLoad * projectedReducedTerm) + totalDownPayment + totalOperatingExpenses;
 
   const handleCopySummary = () => {
-    if (rawP <= 0) return toast({ title: "Calculadora vacía", variant: "destructive" });
-    const text = `📊 *COTIZACIÓN FINANTO*\n\n• Crédito: ${formatCurrency(rawP)}\n• Mensualidad: ${formatCurrency(totalMonthlyLoad)}\n• Enganche: ${formatCurrency(totalDownPayment)}`;
-    navigator.clipboard.writeText(text).then(() => toast({ title: "Cotización copiada" }));
+    if (rawP <= 0) {
+      toast({ title: "Calculadora vacía", description: "Ingresa un monto para copiar la cotización.", variant: "destructive" });
+      return;
+    }
+    
+    const text = `📊 *COTIZACIÓN FINANTO*\n\n` +
+                 `• Crédito: *${formatCurrency(rawP)}*\n` +
+                 `• Mensualidad: *${formatCurrency(totalMonthlyLoad)}*\n` +
+                 `• Enganche: *${formatCurrency(totalDownPayment)}*`;
+
+    navigator.clipboard.writeText(text).then(() => {
+      toast({ title: "Cotización copiada", description: "Datos listos para enviar por WhatsApp." });
+    });
   };
 
   return (
@@ -322,7 +331,7 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
             </div>
           </TooltipProvider>
 
-          <div className="p-6 border-t border-border/20 bg-background/50 backdrop-blur-md flex items-center justify-between">
+          <div className="p-6 border-t border-border/40 bg-card/10 backdrop-blur-md flex items-center justify-between shrink-0">
             <div className="flex items-center gap-4">
               <div className="p-2 px-4 rounded-xl bg-muted border border-border/50 text-[10px] font-bold uppercase flex items-center gap-2"><Coins className="w-4 h-4 text-primary" /> Proyección Informativa</div>
             </div>
