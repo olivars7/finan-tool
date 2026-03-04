@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState } from 'react';
@@ -349,7 +350,7 @@ export default function PastAppointments({
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => setVisibleCount((prev: number) => prev + 25)}
+            onClick={() => setVisibleCount((p: number) => p + 25)}
             className="text-[10px] font-bold uppercase tracking-widest border-dashed hover:bg-primary/10 backdrop-blur-md h-9 px-6"
           >
             <ChevronDown className="mr-2 h-4 w-4" /> Cargar más historial

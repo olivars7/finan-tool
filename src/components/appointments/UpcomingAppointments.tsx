@@ -21,6 +21,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -520,19 +527,20 @@ export default function UpcomingAppointments({
           <div className="space-y-6 pt-4">
             <div className="space-y-2">
               <Label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest block text-center">Resultado de la cita</Label>
-              <select 
-                value={finalStatus} 
-                onChange={(e) => setFinalStatus(e.target.value as AppointmentStatus)}
-                className="w-full h-11 px-3 rounded-md bg-muted/20 border border-border/40 focus:ring-green-500 text-sm"
-              >
-                <option value="Asistencia">👤 Asistencia (Visto)</option>
-                <option value="Cierre">💰 CIERRE (VENTA) ✨</option>
-                <option value="Apartado">📑 Apartado (Reserva)</option>
-                <option value="No asistencia">❌ No asistencia</option>
-                <option value="Reagendó">📅 Reagendó</option>
-                <option value="Continuación en otra cita">🔄 Continuación</option>
-                <option value="Reembolso">💸 Reembolso</option>
-              </select>
+              <Select value={finalStatus} onValueChange={(v) => setFinalStatus(v as AppointmentStatus)}>
+                <SelectTrigger className="w-full h-11 bg-muted/20 border border-border/40 text-sm">
+                  <SelectValue placeholder="Selecciona el resultado" />
+                </SelectTrigger>
+                <SelectContent className="z-[200]">
+                  <SelectItem value="Asistencia">👤 Asistencia (Visto)</SelectItem>
+                  <SelectItem value="Cierre">💰 CIERRE (VENTA) ✨</SelectItem>
+                  <SelectItem value="Apartado">📑 Apartado (Reserva)</SelectItem>
+                  <SelectItem value="No asistencia">❌ No asistencia</SelectItem>
+                  <SelectItem value="Reagendó">📅 Reagendó</SelectItem>
+                  <SelectItem value="Continuación en otra cita">🔄 Continuación</SelectItem>
+                  <SelectItem value="Reembolso">💸 Reembolso</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {finalStatus === 'Cierre' && (
@@ -606,7 +614,7 @@ export default function UpcomingAppointments({
               <Collapsible open={showExecutiveSection} onOpenChange={(open) => {
                 setShowExecutiveSection(open);
                 if (open) {
-                  // Si se abre ejecutivo, se hereda exclusividad en guardado (no hay prospectador en este diálogo)
+                  // Lógica de exclusividad manejada por Service
                 }
               }}>
                 <CollapsibleTrigger asChild>
