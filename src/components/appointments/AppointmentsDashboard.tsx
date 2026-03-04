@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useMemo } from 'react';
@@ -21,7 +22,8 @@ import {
   Info
 } from 'lucide-react';
 import { Appointment } from '@/services/appointment-service';
-import { parseISO, isAfter, isBefore, isToday, startOfDay } from 'date-fns';
+import { parseISO, isAfter, isBefore, isToday, startOfDay, format } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -58,14 +60,30 @@ interface DashboardContentProps {
 const DashboardContent = ({ 
   expanded = false, activeTab, setActiveTab, appointments, editAppointment, archiveAppointment, unarchiveAppointment, formatFriendlyDate, format12hTime, handleSelect, handleHighlight, activeId, visibleCountPast, setVisibleCountPast, stats, searchTerm, onCelebrate
 }: DashboardContentProps) => {
-  const normalizeStr = (str: string) => str.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+  const normalizeStr = (str: string) => (str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
   const today = startOfDay(new Date());
 
   const filteredList = appointments.filter(a => {
     if (a.isArchived) return false;
     if (!searchTerm) return true;
+    
     const s = normalizeStr(searchTerm);
-    return normalizeStr(a.name).includes(s) || a.phone.includes(s);
+    
+    // Generar string de fecha casual (ej: "martes 3 marzo")
+    const dateObj = parseISO(a.date);
+    const casualDate = format(dateObj, "EEEE d MMMM", { locale: es });
+    
+    const searchableBuffer = [
+      a.name,
+      a.phone,
+      a.prospectorName,
+      a.attendingExecutive,
+      a.type,
+      a.status,
+      casualDate
+    ].map(val => normalizeStr(val)).join(' ');
+
+    return searchableBuffer.includes(s);
   });
 
   const filteredUpcoming = filteredList.filter(a => {
@@ -178,7 +196,7 @@ export default function AppointmentsDashboard({
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          <DashboardContent activeTab={activeTab} setActiveTab={setActiveTab} appointments={appointments} editAppointment={editAppointment} archiveAppointment={archiveAppointment} unarchiveAppointment={unarchiveAppointment} formatFriendlyDate={formatFriendlyDate} format12hTime={format12hTime} handleSelect={handleSelect} handleHighlight={handleHighlight} activeId={activeId} visibleCountPast={visibleCountPast} setVisibleCountPast={setVisibleCountPast} stats={stats} searchTerm={searchTerm} onCelebrate={onCelebrate} />
+          <DashboardContent activeTab={activeTab} setActiveTab={setActiveTab} appointments={appointments} editAppointment={editAppointment} archiveAppointment={archiveAppointment} unarchiveAppointment={unarchiveAppointment} formatFriendlyDate={formatFriendlyDate} format12hTime={format12hTime} handleSelect={handleSelect} handleHighlight={handleHighlight} activeId={activeId} visibleCountPast={visibleCountPast} setVisibleCount={setVisibleCountPast} stats={stats} searchTerm={searchTerm} onCelebrate={onCelebrate} />
         </CardContent>
       </Card>
 
@@ -189,7 +207,7 @@ export default function AppointmentsDashboard({
             <div className="flex items-center gap-4"><div className="relative w-80 hidden md:block"><Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" /><Input placeholder="Búsqueda global..." className="pl-9 h-10 bg-muted/30" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} /></div><DialogClose asChild><Button variant="ghost" size="icon" className="rounded-full hover:bg-destructive/10 h-10 w-10"><X className="w-5 h-5" /></Button></DialogClose></div>
           </DialogHeader>
           <div className="flex-1 p-6 overflow-hidden flex flex-col">
-            <DashboardContent expanded={true} activeTab={activeTab} setActiveTab={setActiveTab} appointments={appointments} editAppointment={editAppointment} archiveAppointment={archiveAppointment} unarchiveAppointment={unarchiveAppointment} formatFriendlyDate={formatFriendlyDate} format12hTime={format12hTime} handleSelect={handleSelect} handleHighlight={handleHighlight} activeId={activeId} visibleCountPast={visibleCountPast} setVisibleCountPast={setVisibleCountPast} stats={stats} searchTerm={searchTerm} onCelebrate={onCelebrate} />
+            <DashboardContent expanded={true} activeTab={activeTab} setActiveTab={setActiveTab} appointments={appointments} editAppointment={editAppointment} archiveAppointment={archiveAppointment} unarchiveAppointment={unarchiveAppointment} formatFriendlyDate={formatFriendlyDate} format12hTime={format12hTime} handleSelect={handleSelect} handleHighlight={handleHighlight} activeId={activeId} visibleCountPast={visibleCountPast} setVisibleCount={setVisibleCountPast} stats={stats} searchTerm={searchTerm} onCelebrate={onCelebrate} />
           </div>
         </DialogContent>
       </Dialog>
