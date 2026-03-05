@@ -209,7 +209,7 @@ export default function UpcomingAppointments({
     const todayConfirmed = todayApps.filter(a => a.isConfirmed || (a.status && a.status !== 'No asistencia')).length;
     const tomorrowTotal = tomorrowApps.length;
     const dayAfterTomorrowTotal = dayAfterTomorrowApps.length;
-    const dayAfterTomorrowName = format(dayAfterTomorrow, 'EEEE', { locale: es }).toUpperCase();
+    const dayAfterTomorrowName = format(dayAfterTomorrow, 'EEEE', { locale: es }).toLowerCase();
     const ventasToday = todayApps.filter(a => a.status === 'Cierre' || a.status === 'Apartado').length;
 
     return { atendidasToday, todayTotal, todayConfirmed, tomorrowTotal, dayAfterTomorrowTotal, dayAfterTomorrowName, ventasToday };
@@ -237,7 +237,7 @@ export default function UpcomingAppointments({
     const reportText = `✅Citas para hoy: ${todayTotal}\n` +
                        `✅Citas confirmadas hoy: ${todayConfirmed}\n` +
                        `✅Citas para mañana: ${tomorrowTotal}\n` +
-                       `✅ Citas ${dayAfterTomorrowName}: ${dayAfterTomorrowTotal}`;
+                       `✅Citas ${dayAfterTomorrowName}: ${dayAfterTomorrowTotal}`;
 
     navigator.clipboard.writeText(reportText).then(() => {
       toast({
@@ -498,7 +498,7 @@ export default function UpcomingAppointments({
                   ✅Citas para hoy: {metrics.todayTotal}<br />
                   ✅Citas confirmadas hoy: {metrics.todayConfirmed}<br />
                   ✅Citas para mañana: {metrics.tomorrowTotal}<br />
-                  ✅ Citas {metrics.dayAfterTomorrowName}: {metrics.dayAfterTomorrowTotal}
+                  ✅Citas {metrics.dayAfterTomorrowName}: {metrics.dayAfterTomorrowTotal}
                 </div>
               </div>
             </TooltipContent>
