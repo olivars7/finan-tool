@@ -13,6 +13,7 @@ import { Appointment } from '@/services/appointment-service';
 import { v4 as uuidv4 } from 'uuid';
 import { onAuthChange } from '@/lib/auth';
 import { User } from 'firebase/auth';
+import { ensureUserDocument } from '@/lib/user-service';
 
 export function useAppointments() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -25,13 +26,16 @@ export function useAppointments() {
       setUser(currentUser);
       
       if (currentUser) {
-        // 1. Intentar migrar datos si existen en local
+        // 1. Asegurar que el documento del usuario existe en Firestore (metadatos)
+        await ensureUserDocument(currentUser);
+
+        // 2. Intentar migrar datos si existen en local
         const migratedData = await FirebaseStore.migrateLocalAppointments(currentUser.uid);
         
         if (migratedData) {
           setAppointments(migratedData);
         } else {
-          // 2. Cargar directamente desde Firestore
+          // 3. Cargar directamente desde Firestore
           const cloudApps = await FirebaseStore.loadAppointments(currentUser.uid);
           setAppointments(cloudApps);
         }
