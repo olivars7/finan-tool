@@ -27,14 +27,14 @@ export async function ensureUserDocument(user: User) {
     // 3. Si el usuario es nuevo o no tiene fecha de creación, establecemos valores iniciales
     if (!userData || !userData.createdAt) {
       profileUpdate.createdAt = serverTimestamp();
-      profileUpdate.role = "executive";
+      profileUpdate.role = "prospectador"; // Rol predeterminado en español
     }
 
     // 4. Ejecutar la actualización/creación con merge
     await setDoc(userRef, profileUpdate, { merge: true });
     
     if (!userData) {
-      console.log(`Nuevo perfil creado para: ${user.email}`);
+      console.log(`Nuevo perfil de prospectador creado para: ${user.email}`);
     } else if (!userData.email || !userData.name) {
       console.log(`Perfil existente completado para: ${user.email}`);
     }
