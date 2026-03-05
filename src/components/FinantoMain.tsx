@@ -13,11 +13,13 @@ import {
   ClipboardList, Copy, Crown, MessageSquare, 
   CalendarClock, HandCoins, CheckCircle, BadgeAlert, 
   MoreHorizontal, ArrowUpRight, ArrowDownRight, Coins, Star, Trophy,
-  TrendingUp, Trash2, User, Receipt, BarChart3, PartyPopper as PartyIcon, ArrowRight
+  TrendingUp, Trash2, User, Receipt, BarChart3, PartyPopper as PartyIcon, ArrowRight,
+  LogOut
 } from 'lucide-react';
 import { useAppointments } from '@/hooks/use-appointments';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { logout } from '@/lib/auth';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -58,6 +60,11 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar"
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import * as Service from '@/services/appointment-service';
@@ -68,7 +75,7 @@ type Theme = 'tranquilo' | 'moderno' | 'discreto' | 'olivares' | 'corporativo-v2
 const APP_TIPS = [
   { icon: Calculator, title: "Calculadora Rápida", color: "text-primary", text: "Usa la calculadora rapida en caso de tener una llamada con un interesado que pregunte montos aproximados." },
   { icon: ClipboardList, title: "Gestión Eficiente", color: "text-accent", text: "Nunca olvides registrar todas tus citas en el gestionador de citas, para tener un orden eficiente de fechas y datos en un solo lugar." },
-  { icon: ShieldCheck, title: "Seguridad de Datos", color: "text-destructive", text: "Recuerda, tus citas se guardan localmente para tu privacidad." },
+  { icon: ShieldCheck, title: "Seguridad Cloud", color: "text-destructive", text: "Tus datos están ahora sincronizados en Firebase para tu máxima seguridad." },
   { icon: Sparkles, title: "IA Integrada", color: "text-yellow-500", text: "IA para automatización de mensajes personalizados y seguimiento de cierres." },
   { icon: Maximize2, title: "Modo Presentación", color: "text-primary", text: "Usa el icono de expansión para mostrar los números al cliente de forma limpia y profesional." },
   { icon: Palette, title: "Imagen Corporativa", color: "text-accent", text: "Usa el tema <<Corporativo V2>> para mostrar pantalla a tus clientes presenciales." },
@@ -106,7 +113,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
 
   const { 
     appointments, stats, isLoaded, resetData, clearAll, 
-    editAppointment, unarchiveAppointment, deletePermanent
+    editAppointment, unarchiveAppointment, deletePermanent, user
   } = appointmentState;
 
   const onSelectAppId = (id: string | null) => setSelectedAppId(id);
@@ -194,7 +201,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
     const welcomeTimer = setTimeout(() => {
       toast({
         title: "¡Bienvenido a Finanto!",
-        description: "Listo para el éxito inmobiliario. Tu agenda y herramientas están sincronizadas.",
+        description: `Listo para el éxito inmobiliario, ${user?.displayName || 'Ejecutivo'}.`,
       });
     }, 4000);
 
@@ -218,7 +225,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
       clearTimeout(initialTimer);
       clearInterval(intervalTimer);
     };
-  }, [isLoaded, toast]);
+  }, [isLoaded, toast, user]);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -320,19 +327,18 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
   const handleGlobalReset = () => {
     resetData(); 
     setShowResetConfirm(false);
-    toast({ title: "Datos restaurados", description: "La agenda ha vuelto a su estado inicial. Recargando..." });
-    setTimeout(() => {
-      window.location.reload();
-    }, 800);
+    toast({ title: "Datos restaurados", description: "La agenda ha vuelto a su estado inicial. Sincronizando..." });
   };
 
   const handleGlobalClear = () => {
     clearAll(); 
     setShowClearConfirm(false);
-    toast({ title: "Base de datos limpia", description: "Toda la información ha sido eliminada permanentemente. Recargando...", variant: "destructive" });
-    setTimeout(() => {
-      window.location.reload();
-    }, 800);
+    toast({ title: "Base de datos limpia", description: "Toda la información ha sido eliminada de este equipo.", variant: "destructive" });
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    window.location.reload();
   };
 
   if (!isLoaded) return null;
@@ -465,7 +471,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
                 <h1 className="text-xl font-headline font-bold tracking-tight text-foreground leading-none">
-                  Finanto <span className="text-primary">BETA</span>
+                  Finanto <span className="text-primary">CLOUD</span>
                 </h1>
                 <Button 
                   variant="ghost" 
@@ -483,13 +489,22 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
           <div className="flex items-center gap-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="w-9 h-9 rounded-full bg-muted border border-border overflow-hidden">
-                  {theme === 'moderno' ? <Cpu className="w-5 h-5 text-primary" /> : theme === 'discreto' ? <Moon className="w-5 h-5 text-primary" /> : theme === 'olivares' ? <Crown className="w-5 h-5 text-primary" /> : theme === 'corporativo-v2' ? <MessageSquare className="w-5 h-5 text-primary" /> : <Palette className="w-5 h-5 text-primary" />}
+                <Button variant="ghost" size="icon" className="w-9 h-9 rounded-full overflow-hidden border border-border/50">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={user?.photoURL || ''} />
+                    <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">
+                      {user?.displayName?.charAt(0) || 'E'}
+                    </AvatarFallback>
+                  </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 backdrop-blur-lg">
-                <DropdownMenuLabel>Temas Visuales</DropdownMenuLabel>
+              <DropdownMenuContent align="end" className="w-64 backdrop-blur-lg">
+                <DropdownMenuLabel className="flex flex-col">
+                  <span className="text-xs font-bold text-foreground">{user?.displayName}</span>
+                  <span className="text-[10px] text-muted-foreground font-medium">{user?.email}</span>
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuLabel className="text-[10px] uppercase font-bold text-muted-foreground">Temas Visuales</DropdownMenuLabel>
                 {[
                   { id: 'corporativo-v2', label: 'Corporativo V2', icon: MessageSquare, color: 'bg-[#1877F2]' },
                   { id: 'tranquilo', label: 'Tranquilo', icon: Palette, color: 'bg-primary' },
@@ -502,6 +517,11 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
                     <div className={cn("w-2 h-2 rounded-full mr-2", t.color)} /> {t.label}
                   </DropdownMenuItem>
                 ))}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive focus:text-destructive">
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Cerrar Sesión
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -520,7 +540,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
                 <CardContent className="p-4 flex items-center gap-3 relative z-10">
                   <div className={cn("p-2 rounded-full bg-muted/50", stat.color)}><stat.icon className="w-5 h-5" /></div>
                   <div className="flex-1 overflow-hidden">
-                    <p className="text-[10px] uppercase font-bold text-muted-foreground truncate">{stat.label}</p>
+                    <p className="text-[9px] uppercase font-bold text-muted-foreground truncate">{stat.label}</p>
                     <div className="flex items-baseline gap-2">
                       <p className={cn(
                         "text-lg font-bold truncate",
@@ -530,7 +550,10 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
                       </p>
                       {stat.comparison !== undefined && (
                         <div className="flex flex-col">
-                          <span className="text-[8px] font-bold flex items-center whitespace-nowrap text-muted-foreground/40">
+                          <span className={cn(
+                            "text-[8px] font-bold flex items-center whitespace-nowrap",
+                            (parseFloat(stat.value.replace(/[^0-9.-]+/g,"")) >= stat.comparison) ? "text-green-500" : "text-destructive"
+                          )}>
                             {stat.isCurrency ? (
                                <>
                                  {(stats.currentMonthCommission || 0) >= (stats.lastMonthCommission || 0) ? <ArrowUpRight className="w-2.5 h-2.5 mr-0.5" /> : <ArrowDownRight className="w-2.5 h-2.5 mr-0.5" />}
@@ -538,7 +561,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
                                </>
                             ) : (
                               <>
-                                {parseInt(stat.value) > stat.comparison ? <ArrowUpRight className="w-2.5 h-2.5 mr-0.5" /> : parseInt(stat.value) < stat.comparison ? <ArrowDownRight className="w-2.5 h-2.5 mr-0.5" /> : null}
+                                {parseInt(stat.value) >= stat.comparison ? <ArrowUpRight className="w-2.5 h-2.5 mr-0.5" /> : <ArrowDownRight className="w-2.5 h-2.5 mr-0.5" />}
                                 {stat.comparison}
                               </>
                             )}
@@ -631,7 +654,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
         <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-3">
             <span className="font-bold text-foreground">Finanto v1.1</span>
-            <span>© 2026 - Sistema de Gestión Inmobiliaria</span>
+            <span>© 2026 - Sincronizado en Firebase</span>
           </div>
           <div className="flex items-center gap-4">
             <Button 
@@ -653,11 +676,11 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => setShowResetConfirm(true)} className="cursor-pointer gap-2 py-2">
                   <RotateCcw className="w-4 h-4 text-primary" />
-                  <span className="text-xs font-semibold">Reiniciar Seed</span>
+                  <span className="text-xs font-semibold">Reiniciar Semilla</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setShowClearConfirm(true)} className="cursor-pointer gap-2 py-2 text-destructive focus:text-destructive">
                   <RotateCcw className="w-4 h-4" />
-                  <span className="text-xs font-semibold">Limpiar Datos</span>
+                  <span className="text-xs font-semibold">Limpiar Local</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -669,7 +692,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>¿Confirmar reinicio?</AlertDialogTitle>
-            <AlertDialogDescription>Se borrará tu información actual para restaurar los datos de prueba iniciales en la Agenda.</AlertDialogDescription>
+            <AlertDialogDescription>Se borrará tu información actual para restaurar los datos de prueba iniciales en la nube.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setShowResetConfirm(false)} type="button">Cancelar</AlertDialogCancel>
@@ -681,13 +704,13 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
       <AlertDialog open={showClearConfirm} onOpenChange={setShowClearConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar todo?</AlertDialogTitle>
-            <AlertDialogDescription>Esta acción borrará todas tus citas permanentemente. No se puede deshacer.</AlertDialogDescription>
+            <AlertDialogTitle>¿Eliminar todo local?</AlertDialogTitle>
+            <AlertDialogDescription>Esta acción borrará el cache local de tus citas. Los datos en la nube no se verán afectados.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setShowClearConfirm(false)} type="button">Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={handleGlobalClear} className="bg-destructive hover:bg-destructive/90 text-white" type="button">
-              Eliminar Permanentemente
+              Limpiar Local
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -756,8 +779,8 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
                   <div className="flex items-start gap-4">
                     <div className="bg-blue-600 text-white p-1 rounded-full shrink-0 mt-1"><ArrowRight className="w-3 h-3" /></div>
                     <div className="space-y-1">
-                      <p className="text-sm font-bold">Reporte de Éxito</p>
-                      <p className="text-xs text-muted-foreground">Usa el botón <strong>"Reporte Diario"</strong> para copiar tus métricas y enviarlas a tu grupo de WhatsApp a las 11am, 3pm y 6pm.</p>
+                      <p className="text-sm font-bold">Sincronización Cloud</p>
+                      <p className="text-xs text-muted-foreground">Tus citas se guardan automáticamente en tu cuenta de Google. Accede desde cualquier lugar.</p>
                     </div>
                   </div>
                 </div>

@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from 'react';
@@ -7,95 +8,129 @@ import {
 } from 'date-fns';
 import { es } from 'date-fns/locale';
 import * as Service from '@/services/appointment-service';
-import { Appointment, AppointmentStatus } from '@/services/appointment-service';
+import * as FirestoreService from '@/services/firestore-appointments';
+import { Appointment } from '@/services/appointment-service';
 import { v4 as uuidv4 } from 'uuid';
-
-const KEY = Service.STORAGE_KEY;
+import { onAuthChange } from '@/lib/auth';
+import { User } from 'firebase/auth';
 
 export function useAppointments() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
 
-  // Carga inicial única - No aplica seeds automáticamente por primera vez
+  // Escuchar cambios de auth y cargar datos
   useEffect(() => {
-    const stored = localStorage.getItem(KEY);
-    if (stored) {
-      setAppointments(JSON.parse(stored));
-    } else {
-      setAppointments([]);
-    }
-    setIsLoaded(true);
+    const unsubscribe = onAuthChange(async (currentUser) => {
+      setUser(currentUser);
+      
+      if (currentUser) {
+        // 1. Intentar migrar si es necesario
+        await FirestoreService.migrateLocalStorageAppointments(currentUser.uid);
+        
+        // 2. Cargar desde Firestore
+        try {
+          const cloudApps = await FirestoreService.getAppointmentsForUser(currentUser.uid);
+          setAppointments(cloudApps);
+        } catch (error) {
+          console.error("Fallback to local storage due to Firestore error:", error);
+          const stored = localStorage.getItem(Service.STORAGE_KEY);
+          if (stored) setAppointments(JSON.parse(stored));
+        }
+      } else {
+        // Si no hay usuario, limpiar o usar local (para offline parcial)
+        const stored = localStorage.getItem(Service.STORAGE_KEY);
+        if (stored) setAppointments(JSON.parse(stored));
+      }
+      setIsLoaded(true);
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  const addAppointment = (data: Omit<Appointment, 'id'>) => {
-    setAppointments(prev => {
-      const newApp: Appointment = {
-        ...data,
-        id: uuidv4(),
-        phone: Service.formatPhoneNumber(data.phone),
-        isArchived: false
-      };
-      const updated = [newApp, ...prev];
-      localStorage.setItem(KEY, JSON.stringify(updated));
-      return updated;
-    });
+  const addAppointment = async (data: Omit<Appointment, 'id'>) => {
+    const newApp: Appointment = {
+      ...data,
+      id: uuidv4(),
+      phone: Service.formatPhoneNumber(data.phone),
+      isArchived: false
+    };
+
+    // Optimistic Update
+    setAppointments(prev => [newApp, ...prev]);
+
+    if (user) {
+      FirestoreService.createFirestoreAppointment(newApp, user.uid).catch(err => {
+        console.error("Error sync to cloud:", err);
+      });
+    }
+    
+    // Fallback local
+    const updated = [newApp, ...appointments];
+    localStorage.setItem(Service.STORAGE_KEY, JSON.stringify(updated));
   };
 
-  const editAppointment = (id: string, partial: Partial<Appointment>) => {
+  const editAppointment = async (id: string, partial: Partial<Appointment>) => {
     setAppointments(prev => {
       const updated = prev.map(a => {
         if (a.id === id) {
           const updatedApp = { ...a, ...partial };
           if (partial.phone) updatedApp.phone = Service.formatPhoneNumber(partial.phone);
+          
+          if (user) {
+            FirestoreService.updateFirestoreAppointment(id, updatedApp).catch(err => {
+              console.error("Error updating cloud:", err);
+            });
+          }
           return updatedApp;
         }
         return a;
       });
-      localStorage.setItem(KEY, JSON.stringify(updated));
+      localStorage.setItem(Service.STORAGE_KEY, JSON.stringify(updated));
       return updated;
     });
   };
 
   const archiveAppointment = (id: string) => {
-    setAppointments(prev => {
-      const updated = prev.map(a =>
-        a.id === id ? { ...a, isArchived: true } : a
-      );
-      localStorage.setItem(KEY, JSON.stringify(updated));
-      return updated;
-    });
+    editAppointment(id, { isArchived: true });
   };
 
   const unarchiveAppointment = (id: string) => {
-    setAppointments(prev => {
-      const updated = prev.map(a =>
-        a.id === id ? { ...a, isArchived: false } : a
-      );
-      localStorage.setItem(KEY, JSON.stringify(updated));
-      return updated;
-    });
+    editAppointment(id, { isArchived: false });
   };
 
-  const deletePermanent = (id: string) => {
+  const deletePermanent = async (id: string) => {
     setAppointments(prev => {
       const updated = prev.filter(a => a.id !== id);
-      localStorage.setItem(KEY, JSON.stringify(updated));
+      if (user) {
+        FirestoreService.deleteFirestoreAppointment(id).catch(err => {
+          console.error("Error deleting from cloud:", err);
+        });
+      }
+      localStorage.setItem(Service.STORAGE_KEY, JSON.stringify(updated));
       return updated;
     });
   };
 
-  const resetData = () => {
+  const resetData = async () => {
     const seed = Service.generateSeedData();
     setAppointments(seed);
-    localStorage.setItem(KEY, JSON.stringify(seed));
+    localStorage.setItem(Service.STORAGE_KEY, JSON.stringify(seed));
+    
+    if (user) {
+      // Re-migrar o subir batch en caso de reset (opcional)
+      for (const app of seed) {
+        await FirestoreService.createFirestoreAppointment(app, user.uid);
+      }
+    }
   };
 
   const clearAll = () => {
     setAppointments([]);
-    localStorage.setItem(KEY, JSON.stringify([]));
+    localStorage.setItem(Service.STORAGE_KEY, JSON.stringify([]));
+    // Nota: Por seguridad no borramos masivamente de Firestore aquí
   };
 
-  // Filtrado de activas
   const activeAppointments = useMemo(() => appointments.filter(a => !a.isArchived), [appointments]);
 
   const upcoming = useMemo(() => {
@@ -161,6 +196,6 @@ export function useAppointments() {
     appointments, upcoming, past, activeAppointments, 
     addAppointment, editAppointment, archiveAppointment, unarchiveAppointment, deletePermanent,
     resetData, clearAll, formatFriendlyDate, format12hTime,
-    stats, isLoaded
+    stats, isLoaded, user
   };
 }
