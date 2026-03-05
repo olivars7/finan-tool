@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { 
   TrendingUp, BarChart3, Maximize2, X, Activity, CalendarDays, Trophy, Users, History, Coins, ArrowUpRight, ArrowDownRight, Zap, Target, Receipt, Percent, Info
 } from "lucide-react";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Cell, LabelList } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Cell, LabelList, ReferenceArea } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
@@ -61,50 +61,66 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
     return "Vas a un ritmo constante. Lo ideal es no soltar el seguimiento de los clientes que ya atendiste esta semana.";
   };
 
-  const WeeklyChart = ({ data, title, icon: Icon, opacity = 1 }: { data: any, title: string, icon: any, opacity?: number }) => (
-    <Card 
-      className={cn(
-        "border-border/40 bg-card/30 backdrop-blur-md overflow-visible",
-        opacity < 1 && "opacity-75"
-      )}
-    >
-      <CardHeader className="p-4 pb-2 border-b border-border/10 flex flex-row items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Icon className="w-4 h-4 text-primary" />
-          <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">{title}</CardTitle>
-        </div>
-      </CardHeader>
-      <CardContent className="p-4 h-[200px] overflow-visible">
-        <ChartContainer config={chartConfig} className="h-full w-full">
-          <BarChart data={data}>
-            <defs>
-              <linearGradient id="cierreGradient" x1="0" x1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#00F5FF" />
-                <stop offset="33%" stopColor="#1877F2" />
-                <stop offset="66%" stopColor="#7B61FF" />
-                <stop offset="100%" stopColor="#FF00D6" />
-              </linearGradient>
-            </defs>
-            <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
-            <XAxis dataKey="day" tickLine={false} tickMargin={10} axisLine={false} className="text-[10px] font-bold uppercase text-muted-foreground/60" />
-            <YAxis hide domain={[0, stats.charts.globalMax + 1]} />
-            <ChartTooltip content={<ChartTooltipContent />} />
-            <Bar dataKey="agendadas" name="Agendadas" radius={[2, 2, 0, 0]}>
-              {data.map((e: any, i: number) => <Cell key={i} fill={e.isToday ? "hsl(var(--primary))" : "var(--color-agendadas)"} className={e.isToday ? "stroke-primary stroke-2" : ""} />)}
-              <LabelList dataKey="agendadas" content={<ZeroLabel />} />
-            </Bar>
-            <Bar dataKey="atendidas" name="Atendidas" radius={[2, 2, 0, 0]}>
-              {data.map((e: any, i: number) => <Cell key={i} fill={e.isToday ? "hsl(var(--accent))" : "var(--color-atendidas)"} />)}
-              <LabelList dataKey="atendidas" content={<ZeroLabel />} />
-            </Bar>
-            <Bar dataKey="cierres" name="Cierres" radius={[2, 2, 0, 0]} fill="url(#cierreGradient)">
-              <LabelList dataKey="cierres" content={<ZeroLabel />} />
-            </Bar>
-          </BarChart>
-        </ChartContainer>
-      </CardContent>
-    </Card>
-  );
+  const WeeklyChart = ({ data, title, icon: Icon, opacity = 1 }: { data: any, title: string, icon: any, opacity?: number }) => {
+    const todayItem = data.find((d: any) => d.isToday);
+    
+    return (
+      <Card 
+        className={cn(
+          "border-border/40 bg-card/30 backdrop-blur-md overflow-visible",
+          opacity < 1 && "opacity-75"
+        )}
+      >
+        <CardHeader className="p-4 pb-2 border-b border-border/10 flex flex-row items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Icon className="w-4 h-4 text-primary" />
+            <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">{title}</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="p-4 h-[200px] overflow-visible">
+          <ChartContainer config={chartConfig} className="h-full w-full">
+            <BarChart data={data}>
+              <defs>
+                <linearGradient id="cierreGradient" x1="0" x1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#00F5FF" />
+                  <stop offset="33%" stopColor="#1877F2" />
+                  <stop offset="66%" stopColor="#7B61FF" />
+                  <stop offset="100%" stopColor="#FF00D6" />
+                </linearGradient>
+              </defs>
+              <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+              <XAxis dataKey="day" tickLine={false} tickMargin={10} axisLine={false} className="text-[10px] font-bold uppercase text-muted-foreground/60" />
+              <YAxis hide domain={[0, stats.charts.globalMax + 1]} />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              
+              {todayItem && (
+                <ReferenceArea 
+                  x1={todayItem.day} 
+                  x2={todayItem.day} 
+                  fill="hsl(var(--primary))" 
+                  fillOpacity={0.08} 
+                  stroke="hsl(var(--primary) / 0.3)"
+                  strokeWidth={1}
+                />
+              )}
+
+              <Bar dataKey="agendadas" name="Agendadas" radius={[2, 2, 0, 0]}>
+                {data.map((e: any, i: number) => <Cell key={i} fill={e.isToday ? "hsl(var(--primary))" : "var(--color-agendadas)"} className={e.isToday ? "stroke-primary stroke-2" : ""} />)}
+                <LabelList dataKey="agendadas" content={<ZeroLabel />} />
+              </Bar>
+              <Bar dataKey="atendidas" name="Atendidas" radius={[2, 2, 0, 0]}>
+                {data.map((e: any, i: number) => <Cell key={i} fill={e.isToday ? "hsl(var(--accent))" : "var(--color-atendidas)"} />)}
+                <LabelList dataKey="atendidas" content={<ZeroLabel />} />
+              </Bar>
+              <Bar dataKey="cierres" name="Cierres" radius={[2, 2, 0, 0]} fill="url(#cierreGradient)">
+                <LabelList dataKey="cierres" content={<ZeroLabel />} />
+              </Bar>
+            </BarChart>
+          </ChartContainer>
+        </CardContent>
+      </Card>
+    );
+  };
 
   const PerformanceSection = () => (
     <Card className="border-primary/20 bg-primary/5 overflow-hidden">
