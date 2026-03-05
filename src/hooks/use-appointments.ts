@@ -8,7 +8,7 @@ import {
 } from 'date-fns';
 import { es } from 'date-fns/locale';
 import * as Service from '@/services/appointment-service';
-import * as FirestoreService from '@/services/firestore-appointments';
+import * as FirebaseStore from '@/lib/firebaseAppointments';
 import { Appointment } from '@/services/appointment-service';
 import { v4 as uuidv4 } from 'uuid';
 import { onAuthChange } from '@/lib/auth';
@@ -19,34 +19,50 @@ export function useAppointments() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [user, setUser] = useState<User | null>(null);
 
-  // Escuchar cambios de auth y cargar datos
+  // Escuchar cambios de auth y cargar datos de Firestore
   useEffect(() => {
     const unsubscribe = onAuthChange(async (currentUser) => {
       setUser(currentUser);
       
       if (currentUser) {
-        // 1. Intentar migrar si es necesario
-        await FirestoreService.migrateLocalStorageAppointments(currentUser.uid);
+        // 1. Intentar migrar datos si existen en local
+        const migratedData = await FirebaseStore.migrateLocalAppointments(currentUser.uid);
         
-        // 2. Cargar desde Firestore
-        try {
-          const cloudApps = await FirestoreService.getAppointmentsForUser(currentUser.uid);
+        if (migratedData) {
+          setAppointments(migratedData);
+        } else {
+          // 2. Cargar directamente desde Firestore
+          const cloudApps = await FirebaseStore.loadAppointments(currentUser.uid);
           setAppointments(cloudApps);
-        } catch (error) {
-          console.error("Fallback to local storage due to Firestore error:", error);
-          const stored = localStorage.getItem(Service.STORAGE_KEY);
-          if (stored) setAppointments(JSON.parse(stored));
         }
       } else {
-        // Si no hay usuario, limpiar o usar local (para offline parcial)
-        const stored = localStorage.getItem(Service.STORAGE_KEY);
-        if (stored) setAppointments(JSON.parse(stored));
+        // Si no hay sesión, intentamos usar local por compatibilidad offline
+        const stored = Service.getFromDisk();
+        setAppointments(stored);
       }
       setIsLoaded(true);
     });
 
     return () => unsubscribe();
   }, []);
+
+  /**
+   * Helper para persistir cambios tanto en estado como en Firestore
+   */
+  const persistAppointments = async (updatedList: Appointment[]) => {
+    setAppointments(updatedList);
+    // Sincronizar con localStorage (offline fallback)
+    Service.saveToDisk(updatedList);
+    
+    // Sincronizar con Firestore
+    if (user) {
+      try {
+        await FirebaseStore.saveAppointments(user.uid, updatedList);
+      } catch (err) {
+        console.error("Error al sincronizar con la nube:", err);
+      }
+    }
+  };
 
   const addAppointment = async (data: Omit<Appointment, 'id'>) => {
     const newApp: Appointment = {
@@ -56,39 +72,20 @@ export function useAppointments() {
       isArchived: false
     };
 
-    // Optimistic Update
-    setAppointments(prev => [newApp, ...prev]);
-
-    if (user) {
-      FirestoreService.createFirestoreAppointment(newApp, user.uid).catch(err => {
-        console.error("Error sync to cloud:", err);
-      });
-    }
-    
-    // Fallback local
     const updated = [newApp, ...appointments];
-    localStorage.setItem(Service.STORAGE_KEY, JSON.stringify(updated));
+    await persistAppointments(updated);
   };
 
   const editAppointment = async (id: string, partial: Partial<Appointment>) => {
-    setAppointments(prev => {
-      const updated = prev.map(a => {
-        if (a.id === id) {
-          const updatedApp = { ...a, ...partial };
-          if (partial.phone) updatedApp.phone = Service.formatPhoneNumber(partial.phone);
-          
-          if (user) {
-            FirestoreService.updateFirestoreAppointment(id, updatedApp).catch(err => {
-              console.error("Error updating cloud:", err);
-            });
-          }
-          return updatedApp;
-        }
-        return a;
-      });
-      localStorage.setItem(Service.STORAGE_KEY, JSON.stringify(updated));
-      return updated;
+    const updated = appointments.map(a => {
+      if (a.id === id) {
+        const updatedApp = { ...a, ...partial };
+        if (partial.phone) updatedApp.phone = Service.formatPhoneNumber(partial.phone);
+        return updatedApp;
+      }
+      return a;
     });
+    await persistAppointments(updated);
   };
 
   const archiveAppointment = (id: string) => {
@@ -100,35 +97,23 @@ export function useAppointments() {
   };
 
   const deletePermanent = async (id: string) => {
-    setAppointments(prev => {
-      const updated = prev.filter(a => a.id !== id);
-      if (user) {
-        FirestoreService.deleteFirestoreAppointment(id).catch(err => {
-          console.error("Error deleting from cloud:", err);
-        });
-      }
-      localStorage.setItem(Service.STORAGE_KEY, JSON.stringify(updated));
-      return updated;
-    });
+    const updated = appointments.filter(a => a.id !== id);
+    await persistAppointments(updated);
   };
 
   const resetData = async () => {
     const seed = Service.generateSeedData();
-    setAppointments(seed);
-    localStorage.setItem(Service.STORAGE_KEY, JSON.stringify(seed));
-    
-    if (user) {
-      // Re-migrar o subir batch en caso de reset (opcional)
-      for (const app of seed) {
-        await FirestoreService.createFirestoreAppointment(app, user.uid);
-      }
-    }
+    await persistAppointments(seed);
+    // Forzamos recarga para asegurar sincronía total
+    window.location.reload();
   };
 
-  const clearAll = () => {
-    setAppointments([]);
-    localStorage.setItem(Service.STORAGE_KEY, JSON.stringify([]));
-    // Nota: Por seguridad no borramos masivamente de Firestore aquí
+  const clearAll = async () => {
+    await persistAppointments([]);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('FINANTO_MIGRATED');
+    }
+    window.location.reload();
   };
 
   const activeAppointments = useMemo(() => appointments.filter(a => !a.isArchived), [appointments]);
