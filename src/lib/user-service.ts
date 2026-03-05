@@ -3,35 +3,43 @@ import { db } from "@/app/lib/firebase";
 import { User } from "firebase/auth";
 
 /**
- * Verifica si el documento del usuario existe en Firestore.
- * Si no existe, crea uno nuevo con datos básicos y rol de ejecutivo.
- * Utiliza merge: true para no sobrescribir el campo de citas (appointments) si ya existe.
+ * Asegura que el perfil del usuario esté completo en Firestore.
+ * Esta función se ejecuta en cada inicio de sesión/carga para garantizar que 
+ * tanto usuarios nuevos como antiguos tengan su información sincronizada.
  */
 export async function ensureUserDocument(user: User) {
   const userRef = doc(db, "users", user.uid);
   
   try {
+    // 1. Obtener el estado actual del documento
     const userSnap = await getDoc(userRef);
-    
-    // Si el documento no existe o le faltan campos básicos de perfil
-    if (!userSnap.exists() || !userSnap.data().email) {
-      await setDoc(userRef, {
-        name: user.displayName || "Sin nombre",
-        email: user.email || "Sin email",
-        role: "executive",
-        photoURL: user.photoURL || "",
-        createdAt: serverTimestamp(),
-        lastLogin: serverTimestamp()
-      }, { merge: true });
-      
-      console.log(`Usuario ${user.email} registrado exitosamente en Firestore.`);
-    } else {
-      // Actualizar último acceso si ya existe
-      await setDoc(userRef, {
-        lastLogin: serverTimestamp()
-      }, { merge: true });
+    const userData = userSnap.exists() ? userSnap.data() : null;
+
+    // 2. Preparar los datos básicos que siempre queremos mantener actualizados
+    // Usamos merge: true para no tocar el array de 'appointments'
+    const profileUpdate: any = {
+      name: user.displayName || "Sin nombre",
+      email: user.email || "Sin email",
+      photoURL: user.photoURL || "",
+      lastLogin: serverTimestamp(),
+    };
+
+    // 3. Si el usuario es nuevo o no tiene fecha de creación, establecemos valores iniciales
+    if (!userData || !userData.createdAt) {
+      profileUpdate.createdAt = serverTimestamp();
+      profileUpdate.role = "executive";
     }
+
+    // 4. Ejecutar la actualización/creación con merge
+    await setDoc(userRef, profileUpdate, { merge: true });
+    
+    if (!userData) {
+      console.log(`Nuevo perfil creado para: ${user.email}`);
+    } else if (!userData.email || !userData.name) {
+      console.log(`Perfil existente completado para: ${user.email}`);
+    }
+
   } catch (error) {
-    console.error("Error al asegurar documento de usuario en Firestore:", error);
+    console.error("Error al sincronizar el perfil de usuario en Firestore:", error);
   }
 }
