@@ -8,9 +8,9 @@ import {
   CheckCircle, ClipboardCheck, Phone, Box, ChevronRight, 
   CheckCircle as CheckIcon,
   Save, MessageSquare, Coins, Info, UserCog, UserCheck, ChevronDown,
-  ClipboardList
+  ClipboardList, Users
 } from "lucide-react";
-import { parseISO, isToday, isTomorrow, format } from 'date-fns';
+import { parseISO, isToday, isTomorrow, format, addDays, isSameDay, startOfDay } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -196,15 +196,23 @@ export default function UpcomingAppointments({
   };
 
   const getReportMetrics = () => {
-    const todayApps = allAppointments.filter(a => isActuallyToday(a.date) && !a.isArchived);
-    const tomorrowApps = allAppointments.filter(a => isTomorrow(parseISO(a.date)) && !a.isArchived);
+    const today = startOfDay(new Date());
+    const tomorrow = addDays(today, 1);
+    const dayAfterTomorrow = addDays(today, 2);
+
+    const todayApps = allAppointments.filter(a => isSameDay(parseISO(a.date), today) && !a.isArchived);
+    const tomorrowApps = allAppointments.filter(a => isSameDay(parseISO(a.date), tomorrow) && !a.isArchived);
+    const dayAfterTomorrowApps = allAppointments.filter(a => isSameDay(parseISO(a.date), dayAfterTomorrow) && !a.isArchived);
     
     const atendidasToday = todayApps.filter(a => a.status && a.status !== 'No asistencia' && a.status !== 'Reagendó').length;
     const todayTotal = todayApps.length;
+    const todayConfirmed = todayApps.filter(a => a.isConfirmed || (a.status && a.status !== 'No asistencia')).length;
     const tomorrowTotal = tomorrowApps.length;
+    const dayAfterTomorrowTotal = dayAfterTomorrowApps.length;
+    const dayAfterTomorrowName = format(dayAfterTomorrow, 'EEEE', { locale: es }).toUpperCase();
     const ventasToday = todayApps.filter(a => a.status === 'Cierre' || a.status === 'Apartado').length;
 
-    return { atendidasToday, todayTotal, tomorrowTotal, ventasToday };
+    return { atendidasToday, todayTotal, todayConfirmed, tomorrowTotal, dayAfterTomorrowTotal, dayAfterTomorrowName, ventasToday };
   };
 
   const copyDailyReport = () => {
@@ -219,6 +227,22 @@ export default function UpcomingAppointments({
       toast({
         title: "Reporte diario copiado",
         description: "Envíalo al grupo de WhatsApp ahora.",
+      });
+    });
+  };
+
+  const copyProspectorReport = () => {
+    const { todayTotal, todayConfirmed, tomorrowTotal, dayAfterTomorrowTotal, dayAfterTomorrowName } = getReportMetrics();
+
+    const reportText = `✅Citas para hoy: ${todayTotal}\n` +
+                       `✅Citas confirmadas hoy: ${todayConfirmed}\n` +
+                       `✅Citas para mañana: ${tomorrowTotal}\n` +
+                       `✅ Citas ${dayAfterTomorrowName}: ${dayAfterTomorrowTotal}`;
+
+    navigator.clipboard.writeText(reportText).then(() => {
+      toast({
+        title: "Reporte de prospectores copiado",
+        description: "Datos de flujo listos para enviar.",
       });
     });
   };
@@ -451,6 +475,32 @@ export default function UpcomingAppointments({
             </TooltipTrigger>
             <TooltipContent side="top">
               Copia todas las fichas de hoy para WhatsApp.
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider delayDuration={0}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={copyProspectorReport} 
+                className="text-[10px] font-bold uppercase border-blue-600/40 bg-blue-600/5 text-blue-700 hover:bg-blue-600/10 h-9 gap-2 px-4"
+              >
+                <Users className="w-4 h-4" /> Reporte prospectores
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-[280px]">
+              <div className="space-y-1">
+                <p className="text-[10px] font-bold text-blue-700 uppercase">Vista previa del reporte:</p>
+                <div className="bg-muted/30 p-2 rounded text-[10px] font-mono leading-tight">
+                  ✅Citas para hoy: {metrics.todayTotal}<br />
+                  ✅Citas confirmadas hoy: {metrics.todayConfirmed}<br />
+                  ✅Citas para mañana: {metrics.tomorrowTotal}<br />
+                  ✅ Citas {metrics.dayAfterTomorrowName}: {metrics.dayAfterTomorrowTotal}
+                </div>
+              </div>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
