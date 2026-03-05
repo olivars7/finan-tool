@@ -14,11 +14,14 @@ import { v4 as uuidv4 } from 'uuid';
 import { onAuthChange } from '@/lib/auth';
 import { User } from 'firebase/auth';
 import { ensureUserDocument } from '@/lib/user-service';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/app/lib/firebase';
 
 export function useAppointments() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<any>(null);
 
   // Escuchar cambios de auth y cargar datos de Firestore
   useEffect(() => {
@@ -29,13 +32,24 @@ export function useAppointments() {
         // 1. Asegurar que el documento del usuario existe en Firestore (metadatos)
         await ensureUserDocument(currentUser);
 
-        // 2. Intentar migrar datos si existen en local
+        // 2. Obtener el perfil completo del usuario (incluyendo rol)
+        try {
+          const userRef = doc(db, "users", currentUser.uid);
+          const userSnap = await getDoc(userRef);
+          if (userSnap.exists()) {
+            setProfile(userSnap.data());
+          }
+        } catch (err) {
+          console.error("Error al cargar perfil de usuario:", err);
+        }
+
+        // 3. Intentar migrar datos si existen en local
         const migratedData = await FirebaseStore.migrateLocalAppointments(currentUser.uid);
         
         if (migratedData) {
           setAppointments(migratedData);
         } else {
-          // 3. Cargar directamente desde Firestore
+          // 4. Cargar directamente desde Firestore
           const cloudApps = await FirebaseStore.loadAppointments(currentUser.uid);
           setAppointments(cloudApps);
         }
@@ -43,6 +57,7 @@ export function useAppointments() {
         // Si no hay sesión, intentamos usar local por compatibilidad offline
         const stored = Service.getFromDisk();
         setAppointments(stored);
+        setProfile(null);
       }
       setIsLoaded(true);
     });
@@ -185,6 +200,6 @@ export function useAppointments() {
     appointments, upcoming, past, activeAppointments, 
     addAppointment, editAppointment, archiveAppointment, unarchiveAppointment, deletePermanent,
     resetData, clearAll, formatFriendlyDate, format12hTime,
-    stats, isLoaded, user
+    stats, isLoaded, user, profile
   };
 }

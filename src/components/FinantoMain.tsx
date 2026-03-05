@@ -65,6 +65,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import * as Service from '@/services/appointment-service';
@@ -113,7 +114,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
 
   const { 
     appointments, stats, isLoaded, resetData, clearAll, 
-    editAppointment, unarchiveAppointment, deletePermanent, user
+    editAppointment, unarchiveAppointment, deletePermanent, user, profile
   } = appointmentState;
 
   const onSelectAppId = (id: string | null) => setSelectedAppId(id);
@@ -487,6 +488,11 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
           </div>
           
           <div className="flex items-center gap-4">
+            {profile?.role && (
+              <Badge variant="outline" className="hidden sm:flex text-[9px] font-bold uppercase tracking-tighter bg-primary/5 text-primary border-primary/20 px-2 py-0.5 rounded-full">
+                {profile.role}
+              </Badge>
+            )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="w-9 h-9 rounded-full overflow-hidden border border-border/50">
@@ -500,8 +506,11 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-64 backdrop-blur-lg">
                 <DropdownMenuLabel className="flex flex-col">
-                  <span className="text-xs font-bold text-foreground">{user?.displayName}</span>
-                  <span className="text-[10px] text-muted-foreground font-medium">{user?.email}</span>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-bold text-foreground truncate">{user?.displayName}</span>
+                    <Badge className="text-[8px] h-4 px-1.5 font-black uppercase bg-primary/10 text-primary border-none">{profile?.role || 'Prospectador'}</Badge>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground font-medium truncate">{user?.email}</span>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuLabel className="text-[10px] uppercase font-bold text-muted-foreground">Temas Visuales</DropdownMenuLabel>
