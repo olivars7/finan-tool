@@ -5,21 +5,52 @@ import { Appointment, STORAGE_KEY, calculateStats } from "@/services/appointment
 
 /**
  * Carga las citas desde el documento del usuario en Firestore.
- * users/{userId} -> { appointments: [] }
+ * users/{userId} -> { appointments: [], statsSummary: [] }
+ * 
+ * Implementa detección automática de campos faltantes para cuentas antiguas.
  */
 export const loadAppointments = async (userId: string): Promise<Appointment[]> => {
   const docRef = doc(db, "users", userId);
   try {
     const docSnap = await getDoc(docRef);
+    
     if (docSnap.exists()) {
-      return docSnap.data().appointments || [];
+      const data = docSnap.data();
+      const appointments = data.appointments || [];
+      
+      // REPARACIÓN AUTOMÁTICA: Si la cuenta existía pero no tenía statsSummary
+      if (!data.statsSummary) {
+        const stats = calculateStats(appointments);
+        const statsSummary = [
+          Math.round(stats.currentMonthCommission || 0),
+          Math.round(stats.totalCreditSold || 0),
+          stats.currentMonthProspects || 0
+        ];
+        
+        // Guardamos el campo faltante de forma silenciosa
+        await setDoc(docRef, { 
+          statsSummary,
+          updatedAt: new Date().toISOString()
+        }, { merge: true });
+        
+        console.log("StatsSummary generado automáticamente para cuenta existente.");
+      }
+      
+      return appointments;
     } else {
-      // Si el documento no existe, lo creamos vacío
-      await setDoc(docRef, { appointments: [] });
+      // USUARIO NUEVO: Creamos el documento con valores por defecto (ceros)
+      const initialStats = [0, 0, 0];
+      await setDoc(docRef, { 
+        appointments: [], 
+        statsSummary: initialStats,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
+      
       return [];
     }
   } catch (error) {
-    console.error("Error al cargar citas desde Firestore:", error);
+    console.error("Error al cargar citas o inicializar stats desde Firestore:", error);
     return [];
   }
 };
