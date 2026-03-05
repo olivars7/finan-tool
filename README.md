@@ -1,75 +1,88 @@
-# Finanto - Tutorial de Inicio Rápido (v1.1)
+# Finanto v1.1 - Sistema de Gestión Inmobiliaria Profesional
 
-Bienvenido a tu nueva herramienta de productividad. Finanto está diseñado para que te veas como un experto frente a tus clientes y no pierdas ni un solo prospecto.
-
-## 🚀 Paso 1: Perfilamiento Profesional (Calculadora)
-Cuando tengas un interesado, no adivines números. Usa la **Calculadora Rápida**:
-*   **Ingresa el crédito**: El sistema te dará el enganche, la mensualidad y el ingreso mínimo al instante.
-*   **Modo Pantalla Completa**: Usa el icono de expansión para mostrarle los números al cliente en una vista limpia y profesional.
-*   **Copia y Envía**: Usa el botón "Copiar Resumen" para mandar una ficha técnica impecable por WhatsApp.
-
-## 📅 Paso 2: Control de tu Agenda (Gestor)
-No confíes en tu memoria o en papeles sueltos. Registra cada cita:
-*   **Botón Registrar**: Anota nombre, teléfono y el motivo (1ra consulta, seguimiento, etc.).
-*   **Confirma tu Asistencia**: Antes de salir a la financiera, usa el botón de confirmación en las citas de "Hoy" para asegurar que el cliente asistirá.
-*   **Reporte Diario**: Haz clic en "Reporte Diario" para copiar tus estadísticas del día y pegarlas en tu grupo de equipo.
-
-## ✨ Paso 3: El Sello del Cierre
-Cuando logres una venta, haz que cuente:
-*   **Finalizar Consulta**: Selecciona el estatus "Cierre".
-*   **Registro Administrativo**: Al marcar cierre, el sistema te pedirá notas. Anota aquí el Monto Final, la Comisión y la Fecha de Firma.
-*   **Historial**: Todas tus ventas y seguimientos quedan guardados en la pestaña "Historial" para que nunca pierdas el hilo de un cliente.
-
-## 🎨 Tips de Personalización
-*   **Temas**: Cambia el color del sistema en el icono de la esquina superior. Usa el tema **"Corporativo"** para mostrar la pantalla a tus clientes.
-*   **Notas**: El área de notas tiene espacio extendido (300px) para que escribas todo lo que pactaste con el cliente.
-
----
-**Nota de Seguridad**: Tus datos se guardan **solo en este navegador**. No borres el historial ni el caché del navegador para no perder tus registros.
+Finanto es una herramienta de alta productividad diseñada específicamente para ejecutivos de financiamiento inmobiliario. Este sistema permite centralizar el perfilamiento financiero, la agenda de citas y el control de comisiones en una interfaz moderna y eficiente.
 
 ---
 
-# 🛠 Documentación Técnica para Ingenieros e IA
+## 🔄 1. Flujo de Trabajo y Capacidades
 
-Esta sección describe la arquitectura y capacidades técnicas de **Finanto v1.1** para facilitar el mantenimiento o la integración con otros sistemas.
+El sistema está diseñado para acompañar al ejecutivo en cada etapa del embudo de ventas, desde el primer contacto hasta el cobro de la comisión.
 
-## 🏗 Stack Tecnológico
+### 📈 Fase 1: Perfilamiento y Simulación
+*   **Calculadora Rápida**: Ubicada en el panel lateral, permite ingresar un monto de crédito y obtener instantáneamente la mensualidad proyectada y el ingreso mínimo requerido.
+*   **Simulador Profesional**: Al expandir la calculadora, el ejecutivo puede ajustar plazos (hasta 192 meses), enganches extra y visualizar gastos operativos como escrituración (5%) y avalúos.
+*   **Modo Presentación**: Ideal para citas presenciales, el simulador se limpia de distracciones para mostrar números profesionales al cliente.
+*   **Ficha Técnica**: Botón "Copiar Resumen" para enviar una cotización impecable por WhatsApp con un solo clic.
+
+### 📅 Fase 2: Gestión de Agenda (CRM)
+*   **Registro de Citas**: Formulario robusto que captura nombre, teléfono, producto (Casa, Terreno, etc.) y motivo de consulta.
+*   **Confirmación de Asistencia**: Botón de validación para citas de "Hoy", permitiendo al ejecutivo saber quiénes realmente asistirán antes de salir a la oficina.
+*   **Reporte de Prospectores**: Genera un mensaje estructurado con las métricas de flujo (hoy, confirmadas, mañana y pasado mañana) para grupos de coordinación.
+*   **Búsqueda Global**: Filtro inteligente que busca por nombre, teléfono o incluso fechas casuales (ej. "martes").
+
+### 💰 Fase 3: Cierre y Motor Financiero
+*   **Finalizar Consulta**: Al marcar un "Cierre", el sistema solicita el monto de crédito final y el porcentaje de participación.
+*   **Cálculo Automático**: El sistema deduce automáticamente la retención fiscal del 9% sobre la comisión bruta (0.7% del crédito) para mostrar el **Ingreso Neto Real**.
+*   **Ciclos de Pago**: Basado en el día de cierre, el sistema proyecta la fecha de cobro (viernes de la siguiente o subsiguiente semana) y lanza alertas si un pago está vencido.
+*   **Celebración de Cierre**: Interfaz especial con recomendaciones post-venta al concretar un trámite.
+
+### 🤖 Fase 4: Seguimiento e Inteligencia
+*   **IA de Seguimiento**: Integración con Google Genkit para generar mensajes personalizados basados en el resultado de la cita (Cierre, Reagendó, No asistió).
+*   **Panel de Stats**: Gráficas de barras que comparan el ciclo actual vs el anterior, resaltando el día de hoy y mostrando el crecimiento de ingresos proyectados.
+*   **Papelera de Reciclaje**: Sistema de archivado para mantener la agenda limpia sin perder datos históricos.
+
+---
+
+## 🛠 2. Documentación Técnica (Ingenieros e IA)
+
+### 🏗 Stack Tecnológico
 - **Framework**: Next.js 15 (App Router).
-- **Lenguaje**: TypeScript.
+- **Lenguaje**: TypeScript (Strict Mode).
 - **Estilos**: Tailwind CSS + Shadcn UI (Radix Primitives).
-- **Iconografía**: Lucide React.
 - **Persistencia**: LocalStorage API (`FINANTO_DATA_V1.1_50SEED`).
-- **GenAI**: Google Genkit para generación de mensajes de seguimiento (Gemini 2.5 Flash).
+- **GenAI**: Google Genkit (Gemini 2.5 Flash) para flujos de texto.
+- **Gráficas**: Recharts (Customized charts).
 
-## 📊 Capacidades del Sistema
+### 🧮 Lógica de Negocio Central (`appointment-service.ts`)
+1.  **Algoritmo de Comisiones**: 
+    - `Comisión Bruta = (Crédito Final * 0.007) * (Participación / 100)`
+    - `Comisión Neta (Liquidada) = Comisión Bruta * 0.91` (Retención ISR del 9%).
+2.  **Ciclo Administrativo de Pagos**:
+    - Ventas de **Domingo a Martes**: Liquidación el viernes de la semana siguiente (+10 a +12 días).
+    - Ventas de **Miércoles a Sábado**: Liquidación el viernes de la semana subsiguiente (+13 a +16 días).
+3.  **Simulador Hipotecario**: 
+    - Factor base: `0.006982` (normalizado a 192 meses).
+    - Ratio de Ingresos: 35% (Capacidad de pago).
 
-### 1. Gestión de Datos y CRM
-- **Persistencia Local**: Sistema diseñado para operar sin base de datos centralizada, utilizando almacenamiento local persistente.
-- **Esquema de Datos**: Interfaz `Appointment` robusta que soporta:
-    - Seguimiento de prospectadores externos.
-    - Datos financieros de cierre (Montos de crédito, porcentajes de comisión).
-    - Gestión de estados de vida del cliente (CRM).
-- **Soft Delete**: Implementación de un campo `isArchived` para ocultar registros sin eliminarlos físicamente de la memoria del navegador.
+### 📊 Estructura de Datos (`Appointment` Interface)
+```typescript
+interface Appointment {
+  id: string;
+  name: string;
+  phone: string;
+  date: string; // ISO String
+  time: string; // HH:mm (24h)
+  status?: AppointmentStatus; // Cierre, Apartado, etc.
+  isConfirmed?: boolean;
+  finalCreditAmount?: number;
+  commissionPercent?: number;
+  commissionStatus?: 'Pagada' | 'Pendiente';
+  prospectorName?: string;
+  attendingExecutive?: string;
+  isArchived?: boolean;
+}
+```
 
-### 2. Motor Financiero e Inteligencia de Negocio
-- **Cálculo de Comisiones**: Lógica automatizada basada en el 0.7% del monto de crédito neto, restando el 9% de retención fiscal automáticamente.
-- **Algoritmo de Ciclos de Pago**: Proyecta fechas de liquidación basadas en cortes administrativos:
-    - Ventas de Domingo a Martes -> Liquidación el viernes de la siguiente semana.
-    - Ventas de Miércoles a Sábado -> Liquidación el viernes de la subsiguiente semana.
-- **Simulador de Crédito**: Implementación de factores financieros (`BASE_FACTOR: 0.006982`) para proyecciones de mensualidad, gastos notariales (5% est.) y perfilamiento de ingresos (ratio 35%).
+### 🧠 Implementación de IA
+El sistema utiliza un flujo de Genkit (`generate-follow-up-message.ts`) que recibe el `status` de la cita y el contexto del cliente para devolver una plantilla adaptada al tono de voz de Finanto. Utiliza Handlebars para el templating del prompt sistemático.
 
-### 3. Automatización y Monitoreo (Background Tasks)
-- **Monitoreo de Comisiones**: Un motor que se activa a los 15s del inicio de sesión y corre cada 60s, comparando fechas de pago proyectadas contra la fecha actual para lanzar alertas de conciliación.
-- **Recordatorios de Asistencia**: Notificaciones de advertencia proactivas para citas del día de hoy no confirmadas.
-- **IA Generativa**: Flujos de Genkit para transformar el estado de una cita en un mensaje profesional de WhatsApp adaptado al contexto del cliente.
+### 🎨 Sistema de Temas y UI
+- **Temas Dinámicos**: Implementados mediante atributos `data-theme` en el elemento raíz, controlados por variables CSS en `globals.css`.
+- **Z-Index Layering**: 
+    - Header: 50
+    - Dialogs: 150 (para asegurar superposición sobre modales de stats).
+    - Tooltips: 400 (siempre visibles).
+- **Tooltips**: Configurables con transparencia (85%) y bordes de 1px gris en temas oscuros, y fondo blanco sólido en el tema Corporativo.
 
-### 4. Lógica de UI Especializada
-- **Regla de los 6 Días**: Lógica de formateo de fechas que evita el uso de descriptores como "Pasado" o "Este" si la fecha está dentro de un rango de 6 días, priorizando la claridad casual.
-- **Encabezados Fijos (Sticky)**: Tablas con cabeceras persistentes mediante CSS `sticky` y control de `z-index` para navegación fluida en grandes volúmenes de datos.
-- **Jerarquía de Capas**: Manejo estricto de `z-index` para asegurar que las confirmaciones de acción y diálogos de error siempre se superpongan correctamente a los expedientes.
-
-## 📂 Estructura de Archivos Clave
-- `src/services/appointment-service.ts`: Lógica central de negocio, cálculos financieros y persistencia.
-- `src/hooks/use-appointments.ts`: Hook de estado global para la sincronización de citas y estadísticas.
-- `src/ai/flows/`: Definición de procesos de IA para comunicación con el cliente.
-- `src/components/calculator/`: Lógica del simulador de crédito hipotecario.
+---
+**Nota para IA**: Al realizar cambios en las fórmulas financieras, siempre referenciar `appointment-service.ts` para mantener la integridad de los ciclos de pago y retenciones fiscales.
