@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { 
   TrendingUp, BarChart3, Maximize2, X, Activity, CalendarDays, Trophy, Users, History, Coins, ArrowUpRight, ArrowDownRight, Zap, Target, Receipt, Percent, Info, LineChart as LineIcon
 } from "lucide-react";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Cell, LabelList, ReferenceArea, Line, LineChart, ResponsiveContainer } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Cell, LabelList, ReferenceArea, ReferenceLine, Line, LineChart, ResponsiveContainer } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
@@ -164,7 +164,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
           <ChartContainer config={chartConfig} className="h-full w-full">
             <LineChart data={stats.charts.weeklyIncomeHistory} margin={{ left: 10, right: 10, top: 20, bottom: 10 }}>
               <defs>
-                <linearGradient id="historyLineGradient" x1="0" y1="0" x2="1" y2="0">
+                <linearGradient id="historyLineGradient" x1="0" x1="0" x2="1" y2="0">
                   <stop offset="0%" stopColor="#00F5FF" />
                   <stop offset="50%" stopColor="#1877F2" />
                   <stop offset="100%" stopColor="#7B61FF" />
@@ -175,14 +175,21 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
               <YAxis hide />
               
               {currentWeekData && (
-                <ReferenceArea 
-                  x1={currentWeekData.week} 
-                  x2={currentWeekData.week} 
-                  fill="hsl(var(--primary))" 
-                  fillOpacity={0.08} 
-                  stroke="hsl(var(--primary) / 0.2)"
-                  strokeWidth={1}
-                />
+                <>
+                  <ReferenceArea 
+                    x1={currentWeekData.week} 
+                    x2={currentWeekData.week} 
+                    fill="hsl(var(--muted-foreground))" 
+                    fillOpacity={0.1} 
+                  />
+                  <ReferenceLine 
+                    x={currentWeekData.week} 
+                    stroke="hsl(var(--muted-foreground))" 
+                    strokeDasharray="3 3"
+                    strokeWidth={1}
+                    opacity={0.5}
+                  />
+                </>
               )}
 
               <ChartTooltip 
@@ -222,7 +229,23 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                 dataKey="income" 
                 stroke="url(#historyLineGradient)" 
                 strokeWidth={3} 
-                dot={{ r: 4, fill: "hsl(var(--background))", strokeWidth: 2, stroke: "#1877F2" }}
+                dot={(props: any) => {
+                  const { cx, cy, payload } = props;
+                  if (payload.isCurrentWeek) {
+                    return (
+                      <circle 
+                        key={`dot-${payload.week}`} 
+                        cx={cx} 
+                        cy={cy} 
+                        r={6} 
+                        fill="#EAB308" 
+                        stroke="#1877F2" 
+                        strokeWidth={2} 
+                      />
+                    );
+                  }
+                  return <circle key={`dot-${payload.week}`} cx={cx} cy={cy} r={2} fill="#1877F2" fillOpacity={0.5} />;
+                }}
                 activeDot={{ r: 6, strokeWidth: 0 }}
               />
             </LineChart>
