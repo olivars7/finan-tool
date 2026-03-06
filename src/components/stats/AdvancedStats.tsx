@@ -169,10 +169,6 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                   <stop offset="50%" stopColor="#1877F2" />
                   <stop offset="100%" stopColor="#7B61FF" />
                 </linearGradient>
-                <radialGradient id="currentWeekDotGradient">
-                  <stop offset="0%" stopColor="#00F5FF" />
-                  <stop offset="100%" stopColor="#1877F2" />
-                </radialGradient>
               </defs>
               <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.2} />
               <XAxis dataKey="week" tickLine={false} axisLine={false} tickMargin={10} className="text-[10px] font-bold text-muted-foreground/60" />
@@ -204,7 +200,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                       <div className={cn(
                         "bg-card/95 p-3 rounded-lg shadow-2xl backdrop-blur-xl space-y-2 border-2",
                         data.isCurrentWeek 
-                          ? "border-primary shadow-[0_0_20px_rgba(24,119,242,0.4)] scale-105 transition-transform" 
+                          ? "border-primary border-[2px] shadow-[0_0_20px_rgba(24,119,242,0.4)] scale-105 transition-transform" 
                           : "border-border/50"
                       )}>
                         <p className={cn(
@@ -247,9 +243,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                         cx={cx} 
                         cy={cy} 
                         r={7} 
-                        fill="url(#currentWeekDotGradient)" 
-                        stroke="white" 
-                        strokeWidth={1.5} 
+                        fill="#1877F2" 
                       />
                     );
                   }
