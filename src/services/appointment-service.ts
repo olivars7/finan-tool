@@ -16,6 +16,7 @@ import {
   isSameMonth, 
   subDays, 
   addDays, 
+  addWeeks,
   getDay,
   format,
   eachDayOfInterval,
@@ -378,35 +379,50 @@ export const calculateStats = (appointments: Appointment[]) => {
   const dailyActivity = buildCycleData(currentCycleStart, currentCycleEnd);
   const lastWeekActivity = buildCycleData(lastCycleStart, lastCycleEnd);
 
-  // Historial de 3 meses para la gráfica de líneas (Semanal)
-  const threeMonthsAgo = subMonths(now, 3);
-  const weeks = eachWeekOfInterval({ start: threeMonthsAgo, end: now }, { weekStartsOn: 1 });
+  // Historial de 4 meses anteriores + 3 semanas a futuro (Lógica de Cobro)
+  const startDate = subMonths(now, 4);
+  const endDate = addWeeks(now, 3);
+  const weeks = eachWeekOfInterval({ start: startDate, end: endDate }, { weekStartsOn: 1 });
   
   const weeklyIncomeHistory = weeks.map(weekStart => {
     const weekEnd = addDays(weekStart, 6);
     const weekLabel = format(weekStart, 'd MMM', { locale: es });
     
-    const weekApps = activeApps.filter(a => {
+    // Citas atendidas EN ESTA SEMANA (Productividad)
+    const weekAtendidas = activeApps.filter(a => {
       const d = parseISO(a.date);
-      return (isSameDay(d, weekStart) || isAfter(d, weekStart)) && (isSameDay(d, weekEnd) || isBefore(d, weekEnd));
-    });
+      const inWeek = (isSameDay(d, weekStart) || isAfter(d, weekStart)) && (isSameDay(d, weekEnd) || isBefore(d, weekEnd));
+      return inWeek && !!a.status && a.status !== 'No asistencia';
+    }).length;
 
-    const income = weekApps
-      .filter(a => a.status === 'Cierre')
+    // Ingreso LIQUIDADO/COBRADO EN ESTA SEMANA (Financiero)
+    const income = activeApps
+      .filter(a => {
+        if (a.status !== 'Cierre') return false;
+        const payDate = getCommissionPaymentDate(a.date);
+        return (isSameDay(payDate, weekStart) || isAfter(payDate, weekStart)) && (isSameDay(payDate, weekEnd) || isBefore(payDate, weekEnd));
+      })
       .reduce((sum, a) => {
         const amount = Number(a.finalCreditAmount) || 0;
         const percent = Number(a.commissionPercent) || 0;
         return sum + (amount * 0.007 * (percent / 100)) * 0.91;
       }, 0);
 
-    const cierres = weekApps.filter(a => a.status === 'Cierre').length;
-    const apartados = weekApps.filter(a => a.status === 'Apartado').length;
+    const cierres = activeApps.filter(a => {
+      const d = parseISO(a.date);
+      const inWeek = (isSameDay(d, weekStart) || isAfter(d, weekStart)) && (isSameDay(d, weekEnd) || isBefore(d, weekEnd));
+      return inWeek && a.status === 'Cierre';
+    }).length;
+
+    // Detectar si hoy cae en este intervalo semanal
+    const isCurrentWeek = (isSameDay(now, weekStart) || isAfter(now, weekStart)) && (isSameDay(now, weekEnd) || isBefore(now, weekEnd));
 
     return {
       week: weekLabel,
       income: Math.round(income),
       cierres,
-      apartados
+      atendidas: weekAtendidas,
+      isCurrentWeek
     };
   });
 

@@ -146,63 +146,91 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
     </Card>
   );
 
-  const WeeklyHistoryChart = () => (
-    <Card className="border-border/40 bg-card/30 backdrop-blur-md overflow-hidden">
-      <CardHeader className="p-6 pb-2 border-b border-border/10 flex flex-row items-center justify-between">
-        <div className="flex items-center gap-2">
-          <LineIcon className="w-5 h-5 text-primary" />
-          <div>
-            <CardTitle className="text-[11px] font-bold uppercase tracking-widest">Rendimiento Semanal (3 Meses)</CardTitle>
-            <CardDescription className="text-[9px]">Ingreso neto acumulado por semana</CardDescription>
+  const WeeklyHistoryChart = () => {
+    const currentWeekData = stats.charts.weeklyIncomeHistory.find((d: any) => d.isCurrentWeek);
+    
+    return (
+      <Card className="border-border/40 bg-card/30 backdrop-blur-md overflow-hidden">
+        <CardHeader className="p-6 pb-2 border-b border-border/10 flex flex-row items-center justify-between">
+          <div className="flex items-center gap-2">
+            <LineIcon className="w-5 h-5 text-primary" />
+            <div>
+              <CardTitle className="text-[11px] font-bold uppercase tracking-widest">Flujo de Cobro Semanal (Proyectado)</CardTitle>
+              <CardDescription className="text-[9px]">Ingreso liquidado por semana de pago (4m atrás - 3s futuro)</CardDescription>
+            </div>
           </div>
-        </div>
-      </CardHeader>
-      <CardContent className="p-6 h-[300px]">
-        <ChartContainer config={chartConfig} className="h-full w-full">
-          <LineChart data={stats.charts.weeklyIncomeHistory} margin={{ left: 10, right: 10, top: 20, bottom: 10 }}>
-            <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.2} />
-            <XAxis dataKey="week" tickLine={false} axisLine={false} tickMargin={10} className="text-[10px] font-bold text-muted-foreground/60" />
-            <YAxis hide />
-            <ChartTooltip 
-              content={({ active, payload }) => {
-                if (active && payload && payload.length) {
-                  const data = payload[0].payload;
-                  return (
-                    <div className="bg-card/95 border border-border/50 p-3 rounded-lg shadow-2xl backdrop-blur-xl space-y-2">
-                      <p className="text-[10px] font-black uppercase text-primary border-b border-primary/20 pb-1 mb-1">Semana: {data.week}</p>
-                      <div className="space-y-1">
-                        <p className="text-xs font-bold text-foreground flex items-center justify-between gap-4">
-                          <span className="opacity-60 text-[9px] uppercase">Ingreso:</span>
-                          <span className="text-primary">{formatCurrency(data.income)}</span>
+        </CardHeader>
+        <CardContent className="p-6 h-[300px]">
+          <ChartContainer config={chartConfig} className="h-full w-full">
+            <LineChart data={stats.charts.weeklyIncomeHistory} margin={{ left: 10, right: 10, top: 20, bottom: 10 }}>
+              <defs>
+                <linearGradient id="historyLineGradient" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stopColor="#00F5FF" />
+                  <stop offset="50%" stopColor="#1877F2" />
+                  <stop offset="100%" stopColor="#7B61FF" />
+                </linearGradient>
+              </defs>
+              <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.2} />
+              <XAxis dataKey="week" tickLine={false} axisLine={false} tickMargin={10} className="text-[10px] font-bold text-muted-foreground/60" />
+              <YAxis hide />
+              
+              {currentWeekData && (
+                <ReferenceArea 
+                  x1={currentWeekData.week} 
+                  x2={currentWeekData.week} 
+                  fill="hsl(var(--primary))" 
+                  fillOpacity={0.08} 
+                  stroke="hsl(var(--primary) / 0.2)"
+                  strokeWidth={1}
+                />
+              )}
+
+              <ChartTooltip 
+                content={({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    const data = payload[0].payload;
+                    return (
+                      <div className="bg-card/95 border border-border/50 p-3 rounded-lg shadow-2xl backdrop-blur-xl space-y-2">
+                        <p className={cn(
+                          "text-[10px] font-black uppercase border-b border-border/20 pb-1 mb-1",
+                          data.isCurrentWeek ? "text-primary" : "opacity-60"
+                        )}>
+                          Semana: {data.week} {data.isCurrentWeek ? "(Actual)" : ""}
                         </p>
-                        <p className="text-[10px] font-bold flex items-center justify-between gap-4">
-                          <span className="opacity-60 uppercase text-[8px]">Cierres:</span>
-                          <span className="text-green-500">{data.cierres}</span>
-                        </p>
-                        <p className="text-[10px] font-bold flex items-center justify-between gap-4">
-                          <span className="opacity-60 uppercase text-[8px]">Apartados:</span>
-                          <span className="text-blue-500">{data.apartados}</span>
-                        </p>
+                        <div className="space-y-1">
+                          <p className="text-xs font-bold text-foreground flex items-center justify-between gap-4">
+                            <span className="opacity-60 text-[9px] uppercase">Cobro Semanal:</span>
+                            <span className="text-primary">{formatCurrency(data.income)}</span>
+                          </p>
+                          <p className="text-[10px] font-bold flex items-center justify-between gap-4">
+                            <span className="opacity-60 uppercase text-[8px]">Citas Atendidas:</span>
+                            <span className="text-accent">{data.atendidas}</span>
+                          </p>
+                          <p className="text-[10px] font-bold flex items-center justify-between gap-4">
+                            <span className="opacity-60 uppercase text-[8px]">Ventas Cerradas:</span>
+                            <span className="text-green-500">{data.cierres}</span>
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  );
-                }
-                return null;
-              }}
-            />
-            <Line 
-              type="monotone" 
-              dataKey="income" 
-              stroke="hsl(var(--primary))" 
-              strokeWidth={3} 
-              dot={{ r: 4, fill: "hsl(var(--background))", strokeWidth: 2, stroke: "hsl(var(--primary))" }}
-              activeDot={{ r: 6, strokeWidth: 0 }}
-            />
-          </LineChart>
-        </ChartContainer>
-      </CardContent>
-    </Card>
-  );
+                    );
+                  }
+                  return null;
+                }}
+              />
+              <Line 
+                type="linear" 
+                dataKey="income" 
+                stroke="url(#historyLineGradient)" 
+                strokeWidth={3} 
+                dot={{ r: 4, fill: "hsl(var(--background))", strokeWidth: 2, stroke: "#1877F2" }}
+                activeDot={{ r: 6, strokeWidth: 0 }}
+              />
+            </LineChart>
+          </ChartContainer>
+        </CardContent>
+      </Card>
+    );
+  };
 
   return (
     <>
