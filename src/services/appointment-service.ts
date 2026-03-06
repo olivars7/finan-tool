@@ -19,7 +19,8 @@ import {
   getDay,
   format,
   eachDayOfInterval,
-  isSameDay
+  isSameDay,
+  eachWeekOfInterval
 } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -245,6 +246,10 @@ export const calculateStats = (appointments: Appointment[]) => {
   const currentMonthApartados = activeApps.filter(a => a.status === 'Apartado' && isSameMonth(parseISO(a.date), now)).length;
   const currentMonthSales = currentMonthOnlyCierre + currentMonthApartados;
 
+  const lastMonthOnlyCierre = activeApps.filter(a => a.status === 'Cierre' && isSameMonth(parseISO(a.date), lastMonth)).length;
+  const lastMonthApartados = activeApps.filter(a => a.status === 'Apartado' && isSameMonth(parseISO(a.date), lastMonth)).length;
+  const lastMonthSales = lastMonthOnlyCierre + lastMonthApartados;
+
   const totalCreditSold = activeApps
     .filter(a => a.status === 'Cierre' && isSameMonth(parseISO(a.date), now))
     .reduce((sum, a) => sum + (Number(a.finalCreditAmount) || 0), 0);
@@ -371,7 +376,39 @@ export const calculateStats = (appointments: Appointment[]) => {
   const lastCycleEnd = subDays(currentCycleStart, 1);
 
   const dailyActivity = buildCycleData(currentCycleStart, currentCycleEnd);
-  const lastWeekActivity = buildCycleData(lastCycleStart, lastCycleEnd);
+  const lastWeekActivity = buildCycleData(lastCycleStart, lastWeekActivity);
+
+  // Historial de 3 meses para la gráfica de líneas (Semanal)
+  const threeMonthsAgo = subMonths(now, 3);
+  const weeks = eachWeekOfInterval({ start: threeMonthsAgo, end: now }, { weekStartsOn: 1 });
+  
+  const weeklyIncomeHistory = weeks.map(weekStart => {
+    const weekEnd = addDays(weekStart, 6);
+    const weekLabel = format(weekStart, 'd MMM', { locale: es });
+    
+    const weekApps = activeApps.filter(a => {
+      const d = parseISO(a.date);
+      return (isSameDay(d, weekStart) || isAfter(d, weekStart)) && (isSameDay(d, weekEnd) || isBefore(d, weekEnd));
+    });
+
+    const income = weekApps
+      .filter(a => a.status === 'Cierre')
+      .reduce((sum, a) => {
+        const amount = Number(a.finalCreditAmount) || 0;
+        const percent = Number(a.commissionPercent) || 0;
+        return sum + (amount * 0.007 * (percent / 100)) * 0.91;
+      }, 0);
+
+    const cierres = weekApps.filter(a => a.status === 'Cierre').length;
+    const apartados = weekApps.filter(a => a.status === 'Apartado').length;
+
+    return {
+      week: weekLabel,
+      income: Math.round(income),
+      cierres,
+      apartados
+    };
+  });
 
   const allVals = [...dailyActivity, ...lastWeekActivity].flatMap(d => [d.agendadas, d.atendidas, d.cierres]);
   const globalMax = Math.max(0, ...allVals);
@@ -387,6 +424,7 @@ export const calculateStats = (appointments: Appointment[]) => {
     currentMonthProspects,
     lastMonthProspects,
     currentMonthSales,
+    lastMonthSales,
     currentMonthOnlyCierre,
     currentMonthApartados,
     totalCreditSold,
@@ -399,6 +437,6 @@ export const calculateStats = (appointments: Appointment[]) => {
     overdueCommission,
     conversionRate: parseFloat(conversionRate.toFixed(1)),
     commissionGrowth: parseFloat(commissionGrowth.toFixed(1)),
-    charts: { dailyActivity, lastWeekActivity, globalMax }
+    charts: { dailyActivity, lastWeekActivity, globalMax, weeklyIncomeHistory }
   };
 };

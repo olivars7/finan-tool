@@ -9,9 +9,9 @@ import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
-  TrendingUp, BarChart3, Maximize2, X, Activity, CalendarDays, Trophy, Users, History, Coins, ArrowUpRight, ArrowDownRight, Zap, Target, Receipt, Percent, Info
+  TrendingUp, BarChart3, Maximize2, X, Activity, CalendarDays, Trophy, Users, History, Coins, ArrowUpRight, ArrowDownRight, Zap, Target, Receipt, Percent, Info, LineChart as LineIcon
 } from "lucide-react";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Cell, LabelList, ReferenceArea } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Cell, LabelList, ReferenceArea, Line, LineChart, ResponsiveContainer } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
@@ -28,6 +28,7 @@ const chartConfig = {
   agendadas: { label: "Agendadas", color: "hsl(var(--primary))" },
   atendidas: { label: "Atendidas", color: "hsl(var(--accent))" },
   cierres: { label: "Cierres", color: "url(#cierreGradient)" },
+  income: { label: "Ingresos", color: "hsl(var(--primary))" }
 } satisfies ChartConfig;
 
 const ZeroLabel = (props: any) => {
@@ -145,6 +146,64 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
     </Card>
   );
 
+  const WeeklyHistoryChart = () => (
+    <Card className="border-border/40 bg-card/30 backdrop-blur-md overflow-hidden">
+      <CardHeader className="p-6 pb-2 border-b border-border/10 flex flex-row items-center justify-between">
+        <div className="flex items-center gap-2">
+          <LineIcon className="w-5 h-5 text-primary" />
+          <div>
+            <CardTitle className="text-[11px] font-bold uppercase tracking-widest">Rendimiento Semanal (3 Meses)</CardTitle>
+            <CardDescription className="text-[9px]">Ingreso neto acumulado por semana</CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="p-6 h-[300px]">
+        <ChartContainer config={chartConfig} className="h-full w-full">
+          <LineChart data={stats.charts.weeklyIncomeHistory} margin={{ left: 10, right: 10, top: 20, bottom: 10 }}>
+            <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.2} />
+            <XAxis dataKey="week" tickLine={false} axisLine={false} tickMargin={10} className="text-[10px] font-bold text-muted-foreground/60" />
+            <YAxis hide />
+            <ChartTooltip 
+              content={({ active, payload }) => {
+                if (active && payload && payload.length) {
+                  const data = payload[0].payload;
+                  return (
+                    <div className="bg-card/95 border border-border/50 p-3 rounded-lg shadow-2xl backdrop-blur-xl space-y-2">
+                      <p className="text-[10px] font-black uppercase text-primary border-b border-primary/20 pb-1 mb-1">Semana: {data.week}</p>
+                      <div className="space-y-1">
+                        <p className="text-xs font-bold text-foreground flex items-center justify-between gap-4">
+                          <span className="opacity-60 text-[9px] uppercase">Ingreso:</span>
+                          <span className="text-primary">{formatCurrency(data.income)}</span>
+                        </p>
+                        <p className="text-[10px] font-bold flex items-center justify-between gap-4">
+                          <span className="opacity-60 uppercase text-[8px]">Cierres:</span>
+                          <span className="text-green-500">{data.cierres}</span>
+                        </p>
+                        <p className="text-[10px] font-bold flex items-center justify-between gap-4">
+                          <span className="opacity-60 uppercase text-[8px]">Apartados:</span>
+                          <span className="text-blue-500">{data.apartados}</span>
+                        </p>
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              }}
+            />
+            <Line 
+              type="monotone" 
+              dataKey="income" 
+              stroke="hsl(var(--primary))" 
+              strokeWidth={3} 
+              dot={{ r: 4, fill: "hsl(var(--background))", strokeWidth: 2, stroke: "hsl(var(--primary))" }}
+              activeDot={{ r: 6, strokeWidth: 0 }}
+            />
+          </LineChart>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+
   return (
     <>
       <Card className="shadow-lg bg-card border-border overflow-hidden">
@@ -191,7 +250,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                   { icon: CalendarDays, color: 'text-primary', label: 'Citas Hoy', value: stats.todayCount || 0, val1: stats.todayConfirmed || 0, sub1: 'Conf.' },
                   { icon: TrendingUp, color: 'text-primary', label: 'Eficiencia', value: `${Math.round(closingRate)}%`, val1: 'Atendidas', sub1: 'Base' },
                   { icon: Users, color: 'text-accent', label: 'Prospectos', value: stats.currentMonthProspects || 0, growth: monthlyGrowth, val1: stats.lastMonthProspects || 0, sub1: 'Mes Ant.' },
-                  { icon: Trophy, color: 'text-green-500', label: 'Cierres', value: stats.currentMonthOnlyCierre || 0, val1: stats.currentMonthApartados || 0, sub1: 'Apartados' },
+                  { icon: Trophy, color: 'text-green-500', label: 'Cierres', value: stats.currentMonthOnlyCierre || 0, val1: stats.lastMonthSales || 0, sub1: 'Mes Ant.' },
                   { icon: Coins, color: 'text-yellow-600', label: 'Ingresos', value: formatCurrency(stats.currentMonthCommission || 0), growth: stats.commissionGrowth, val1: formatCurrency(stats.lastMonthCommission || 0), sub1: 'Mes Ant.', isGradient: true }
                 ].map((s, i) => (
                   <Card key={i} className="bg-card/40 border-primary/20 p-4 space-y-3 hover:bg-primary/10 transition-colors duration-300 cursor-default group">
@@ -222,6 +281,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
               
               <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
                 <div className="xl:col-span-8 space-y-6">
+                  <WeeklyHistoryChart />
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <WeeklyChart data={stats.charts.dailyActivity} title="Ciclo Actual (Operativo)" icon={CalendarDays} />
                     <WeeklyChart data={stats.charts.lastWeekActivity} title="Ciclo Anterior (Histórico)" icon={History} opacity={0.65} />
@@ -264,49 +324,6 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                       </div>
                     </CardContent>
                   </Card>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Card className="bg-card border-border/40 p-6 space-y-4">
-                      <div className="flex items-center gap-3 border-b border-border/10 pb-3">
-                        <Target className="w-5 h-5 text-primary" />
-                        <span className="text-xs font-bold uppercase">Objetivos de Ventas</span>
-                      </div>
-                      <div className="space-y-4">
-                        <div className="space-y-1.5">
-                          <div className="flex justify-between text-[10px] font-bold uppercase"><span>Volumen de Crédito</span><span>{Math.round(((stats.totalCreditSold || 0) / 3000000) * 100)}%</span></div>
-                          <Progress value={((stats.totalCreditSold || 0) / 3000000) * 100} className="h-2" />
-                          <p className="text-[9px] text-muted-foreground">Meta sugerida: $3,000,000 MXN mensuales</p>
-                        </div>
-                        <div className="space-y-1.5">
-                          <div className="flex justify-between text-[10px] font-bold uppercase"><span>Participación Promedio</span><span>{stats.avgParticipation || 0}%</span></div>
-                          <Progress value={stats.avgParticipation || 0} className="h-2 bg-muted" />
-                          <p className="text-[9px] text-muted-foreground">Objetivo: Mantener participación arriba del 85%</p>
-                        </div>
-                      </div>
-                    </Card>
-
-                    <Card className="bg-card border-border/40 p-6 space-y-4">
-                      <div className="flex items-center gap-3 border-b border-border/10 pb-3">
-                        <Receipt className="w-5 h-5 text-accent" />
-                        <span className="text-xs font-bold uppercase">Detalle de Cobro Próximo</span>
-                      </div>
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center bg-muted/20 p-3 rounded-lg border border-border/50">
-                          <span className="text-[10px] font-bold uppercase text-muted-foreground">Este Viernes</span>
-                          <span className="text-sm font-black text-accent">{formatCurrency(stats.thisFridayCommission || 0)}</span>
-                        </div>
-                        <div className="flex justify-between items-center p-3 rounded-lg border border-border/20">
-                          <span className="text-[10px] font-bold uppercase text-muted-foreground">Próximo Viernes</span>
-                          <span className="text-sm font-black text-primary">{formatCurrency(stats.nextFridayCommission || 0)}</span>
-                        </div>
-                        <div className="flex justify-between items-center p-3 rounded-lg border border-border/20">
-                          <span className="text-[10px] font-bold uppercase text-muted-foreground">Pendiente de Conciliar</span>
-                          <span className="text-sm font-black text-yellow-600">{formatCurrency(stats.overdueCommission || 0)}</span>
-                        </div>
-                        <p className="text-[9px] text-muted-foreground italic leading-tight">Recuerda que las comisiones se liquidan los viernes según el ciclo de firma.</p>
-                      </div>
-                    </Card>
-                  </div>
                 </div>
                 
                 <div className="xl:col-span-4 space-y-6">
