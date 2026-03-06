@@ -169,6 +169,10 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                   <stop offset="50%" stopColor="#1877F2" />
                   <stop offset="100%" stopColor="#7B61FF" />
                 </linearGradient>
+                <radialGradient id="currentWeekDotGradient">
+                  <stop offset="0%" stopColor="#00F5FF" />
+                  <stop offset="100%" stopColor="#1877F2" />
+                </radialGradient>
               </defs>
               <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.2} />
               <XAxis dataKey="week" tickLine={false} axisLine={false} tickMargin={10} className="text-[10px] font-bold text-muted-foreground/60" />
@@ -180,7 +184,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                     x1={currentWeekData.week} 
                     x2={currentWeekData.week} 
                     fill="hsl(var(--muted-foreground))" 
-                    fillOpacity={0.1} 
+                    fillOpacity={0.15} 
                   />
                   <ReferenceLine 
                     x={currentWeekData.week} 
@@ -197,7 +201,12 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                   if (active && payload && payload.length) {
                     const data = payload[0].payload;
                     return (
-                      <div className="bg-card/95 border border-border/50 p-3 rounded-lg shadow-2xl backdrop-blur-xl space-y-2">
+                      <div className={cn(
+                        "bg-card/95 p-3 rounded-lg shadow-2xl backdrop-blur-xl space-y-2 border-2",
+                        data.isCurrentWeek 
+                          ? "border-primary shadow-[0_0_20px_rgba(24,119,242,0.4)] scale-105 transition-transform" 
+                          : "border-border/50"
+                      )}>
                         <p className={cn(
                           "text-[10px] font-black uppercase border-b border-border/20 pb-1 mb-1",
                           data.isCurrentWeek ? "text-primary" : "opacity-60"
@@ -237,10 +246,11 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                         key={`dot-${payload.week}`} 
                         cx={cx} 
                         cy={cy} 
-                        r={6} 
-                        fill="#EAB308" 
-                        stroke="#1877F2" 
-                        strokeWidth={2} 
+                        r={7} 
+                        fill="url(#currentWeekDotGradient)" 
+                        stroke="white" 
+                        strokeWidth={1.5} 
+                        className="drop-shadow-[0_0_8px_rgba(0,245,255,0.8)]"
                       />
                     );
                   }
