@@ -243,7 +243,9 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                         cx={cx} 
                         cy={cy} 
                         r={7} 
-                        fill="#1877F2" 
+                        fill="none" 
+                        stroke="#1877F2"
+                        strokeWidth={3}
                       />
                     );
                   }
