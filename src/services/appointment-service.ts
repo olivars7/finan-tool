@@ -376,7 +376,7 @@ export const calculateStats = (appointments: Appointment[]) => {
   const lastCycleEnd = subDays(currentCycleStart, 1);
 
   const dailyActivity = buildCycleData(currentCycleStart, currentCycleEnd);
-  const lastWeekActivity = buildCycleData(lastCycleStart, lastWeekActivity);
+  const lastWeekActivity = buildCycleData(lastCycleStart, lastCycleEnd);
 
   // Historial de 3 meses para la gráfica de líneas (Semanal)
   const threeMonthsAgo = subMonths(now, 3);
