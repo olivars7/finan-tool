@@ -250,7 +250,6 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                         fill="url(#currentWeekDotGradient)" 
                         stroke="white" 
                         strokeWidth={1.5} 
-                        className="drop-shadow-[0_0_8px_rgba(0,245,255,0.8)]"
                       />
                     );
                   }
