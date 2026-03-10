@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -225,6 +226,13 @@
 
   .animate-finanto-reveal {
     animation: finanto-reveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  /* Custom Loading Animation */
+  @keyframes loading-bar {
+    0% { transform: translateX(-100%); }
+    50% { transform: translateX(50%); }
+    100% { transform: translateX(200%); }
   }
 
   .delay-100 { animation-delay: 100ms; }
