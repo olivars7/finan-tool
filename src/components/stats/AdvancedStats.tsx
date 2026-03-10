@@ -1,4 +1,3 @@
-
 /**
  * @fileOverview Panel de Inteligencia Avanzada - Finanto
  */
@@ -309,7 +308,10 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                   { icon: Trophy, color: 'text-green-500', label: 'Cierres', value: stats.currentMonthOnlyCierre || 0, val1: stats.lastMonthSales || 0, sub1: 'Mes Ant.' },
                   { icon: Coins, color: 'text-yellow-600', label: 'Ingresos', value: formatCurrency(stats.currentMonthCommission || 0), growth: stats.commissionGrowth, val1: formatCurrency(stats.lastMonthCommission || 0), sub1: 'Mes Ant.', isGradient: true }
                 ].map((s, i) => (
-                  <Card key={i} className="bg-card/40 border-primary/20 p-4 space-y-3 hover:bg-primary/10 transition-colors duration-300 cursor-default group">
+                  <Card key={i} className={cn(
+                    "bg-card/40 border-primary/20 p-4 space-y-3 hover:bg-primary/10 transition-all duration-300 cursor-default group animate-finanto-reveal opacity-0",
+                    i === 0 ? "delay-100" : i === 1 ? "delay-200" : i === 2 ? "delay-300" : i === 3 ? "delay-400" : "delay-500"
+                  )}>
                     <div className="flex justify-between items-start">
                       <div className={cn("p-2 rounded-lg bg-muted/20 group-hover:bg-background/50 transition-colors", s.color)}>
                         <s.icon className="w-4 h-4" />
@@ -337,13 +339,19 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
               
               <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
                 <div className="xl:col-span-8 space-y-6">
-                  <WeeklyHistoryChart />
+                  <div className="animate-finanto-reveal opacity-0 delay-200">
+                    <WeeklyHistoryChart />
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <WeeklyChart data={stats.charts.dailyActivity} title="Ciclo Actual (Operativo)" icon={CalendarDays} />
-                    <WeeklyChart data={stats.charts.lastWeekActivity} title="Ciclo Anterior (Histórico)" icon={History} opacity={0.65} />
+                    <div className="animate-finanto-reveal opacity-0 delay-300">
+                      <WeeklyChart data={stats.charts.dailyActivity} title="Ciclo Actual (Operativo)" icon={CalendarDays} />
+                    </div>
+                    <div className="animate-finanto-reveal opacity-0 delay-400">
+                      <WeeklyChart data={stats.charts.lastWeekActivity} title="Ciclo Anterior (Histórico)" icon={History} opacity={0.65} />
+                    </div>
                   </div>
                   
-                  <Card className="bg-card border-border/40 overflow-hidden">
+                  <Card className="bg-card border-border/40 overflow-hidden animate-finanto-reveal opacity-0 delay-500">
                     <CardHeader className="bg-muted/30 p-4 border-b text-xs font-bold uppercase flex items-center justify-between">
                       <div className="flex items-center gap-2"><Zap className="w-4 h-4 text-yellow-500" /> Rendimiento Financiero del Mes</div>
                       <span className="text-[9px] text-muted-foreground font-medium">Actualizado en tiempo real</span>
@@ -383,8 +391,10 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                 </div>
                 
                 <div className="xl:col-span-4 space-y-6">
-                  <PerformanceSection />
-                  <Card className="border-accent/20 bg-accent/5 p-6 space-y-4">
+                  <div className="animate-finanto-reveal opacity-0 delay-300">
+                    <PerformanceSection />
+                  </div>
+                  <Card className="border-accent/20 bg-accent/5 p-6 space-y-4 animate-finanto-reveal opacity-0 delay-400">
                     <div className="flex items-center gap-2">
                       <Zap className="w-5 h-5 text-accent" />
                       <span className="text-[10px] font-bold uppercase text-accent/80 tracking-widest">Observación</span>
@@ -392,7 +402,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                     <p className="text-sm font-bold border-l-2 border-accent/30 pl-4 leading-relaxed text-foreground/90 italic">{getAdvice()}</p>
                   </Card>
 
-                  <Card className="border-primary/20 bg-primary/5 p-6 overflow-hidden relative">
+                  <Card className="border-primary/20 bg-primary/5 p-6 overflow-hidden relative animate-finanto-reveal opacity-0 delay-500">
                     <div className="absolute top-0 right-0 opacity-10 p-4">
                       <Activity className="w-24 h-24 rotate-12" />
                     </div>

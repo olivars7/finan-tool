@@ -296,12 +296,12 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
 
           <TooltipProvider>
             <div className="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-thin">
-              <section className="bg-muted/30 p-6 rounded-2xl border border-border/50 shadow-inner">
+              <section className="bg-muted/30 p-6 rounded-2xl border border-border/50 shadow-inner animate-finanto-reveal opacity-0 delay-100">
                 <CalculatorInputs isModal totalPrice={totalPrice} monthlyPayment={monthlyPayment} onPriceChange={handleTotalPriceChange} onMonthlyChange={handleMonthlyPaymentChange} formatWithCommas={formatWithCommas} customTerm={customTerm} />
               </section>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-                <div className="lg:col-span-5 p-6 rounded-2xl border border-primary/20 bg-primary/5 space-y-4 flex flex-col">
+                <div className="lg:col-span-5 p-6 rounded-2xl border border-primary/20 bg-primary/5 space-y-4 flex flex-col animate-finanto-reveal opacity-0 delay-200">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2 text-primary"><TrendingUp className="w-5 h-5" /><h4 className="text-[10px] font-bold uppercase">Estructura del Crédito</h4></div>
                     {currentExtraMonthly > 0 && <span className="text-[10px] font-black text-green-600 uppercase flex items-center gap-1"><Zap className="w-3 h-3" /> Optimizado: {projectedReducedTerm} m</span>}
@@ -314,7 +314,7 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
                   <div className="pt-4 border-t border-primary/20"><span className="text-[10px] uppercase font-bold text-primary">Inversión Final Proyectada</span><p className="font-bold text-2xl text-primary">{formatCurrency(totalCostOfCredit)}</p></div>
                 </div>
 
-                <div className="lg:col-span-4 p-6 rounded-2xl border border-accent/20 bg-accent/5 space-y-4 flex flex-col">
+                <div className="lg:col-span-4 p-6 rounded-2xl border border-accent/20 bg-accent/5 space-y-4 flex flex-col animate-finanto-reveal opacity-0 delay-300">
                   <div className="flex items-center gap-2 text-accent"><Receipt className="w-5 h-5" /><h4 className="text-[10px] font-bold uppercase">Gastos e Inversión</h4></div>
                   <div className="grid grid-cols-2 gap-4 flex-1">
                     <div>
@@ -333,7 +333,7 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
                   <div className="pt-4 border-t border-accent/20"><span className="text-[10px] uppercase font-bold text-accent">Saldo Líquido</span><p className="font-bold text-2xl text-accent">{formatCurrency(netLiquidCredit)}</p></div>
                 </div>
 
-                <div className="lg:col-span-3">
+                <div className="lg:col-span-3 animate-finanto-reveal opacity-0 delay-400">
                   <div className="p-6 rounded-2xl border-2 border-secondary bg-secondary/20 h-full flex flex-col justify-center">
                     <p className="text-[10px] text-primary uppercase font-bold mb-1">Ingreso mín. requerido</p>
                     <p className="text-2xl font-bold">{formatCurrency(minIncomeRequired)}</p>
@@ -342,7 +342,7 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
                 </div>
               </div>
 
-              <Accordion type="single" collapsible className="w-full">
+              <Accordion type="single" collapsible className="w-full animate-finanto-reveal opacity-0 delay-500">
                 <AccordionItem value="ajustes" className="border rounded-2xl px-6 bg-card/50 overflow-hidden">
                   <AccordionTrigger className="hover:no-underline py-4">
                     <div className="flex items-center gap-3 text-primary"><Settings2 className="w-5 h-5" /><span className="text-sm font-bold uppercase">Ajustes de Escenario</span></div>
@@ -359,7 +359,7 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
             </div>
           </TooltipProvider>
 
-          <div className="p-6 border-t border-border/40 bg-card/10 backdrop-blur-md flex items-center justify-between shrink-0">
+          <div className="p-6 border-t border-border/40 bg-card/10 backdrop-blur-md flex items-center justify-between shrink-0 animate-in fade-in slide-in-from-bottom duration-500">
             <div className="flex items-center gap-4">
               <div className="p-2 px-4 rounded-xl bg-muted border border-border/50 text-[10px] font-bold uppercase flex items-center gap-2"><Coins className="w-4 h-4 text-primary" /> Proyección Informativa</div>
             </div>

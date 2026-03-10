@@ -115,7 +115,7 @@ const DashboardContent = ({
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col flex-1 min-h-0">
       {expanded && (
-        <div className="flex flex-col gap-4 mb-6 shrink-0 bg-muted/10 p-6 rounded-2xl border border-border/30 backdrop-blur-md">
+        <div className="flex flex-col gap-4 mb-6 shrink-0 bg-muted/10 p-6 rounded-2xl border border-border/30 backdrop-blur-md animate-finanto-reveal opacity-0 delay-100">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
             {microStats.map((s, i) => (
               <TooltipProvider key={i}>
@@ -142,14 +142,14 @@ const DashboardContent = ({
         </div>
       )}
 
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4 shrink-0">
+      <div className={cn("flex flex-col sm:flex-row items-center justify-between gap-4 mb-4 shrink-0", expanded ? "animate-finanto-reveal opacity-0 delay-200" : "")}>
         <TabsList className="grid w-full sm:w-80 grid-cols-2 h-10 p-1 bg-muted/40 border border-border/20 rounded-lg">
           <TabsTrigger value="upcoming" className="text-xs font-bold data-[state=active]:bg-blue-600 data-[state=active]:text-white">Próximas ({filteredUpcoming.length})</TabsTrigger>
           <TabsTrigger value="past" className="text-xs font-bold data-[state=active]:bg-blue-600 data-[state=active]:text-white">Historial ({filteredPast.length})</TabsTrigger>
         </TabsList>
       </div>
 
-      <div className="flex-1 min-h-0">
+      <div className={cn("flex-1 min-h-0", expanded ? "animate-finanto-reveal opacity-0 delay-300" : "")}>
         <TabsContent value="upcoming" className="mt-0 h-full overflow-hidden">
           <UpcomingAppointments appointments={filteredUpcoming} allAppointments={appointments} formatDate={formatFriendlyDate} format12hTime={format12hTime} onSelect={handleSelect} onHighlight={handleHighlight} editAppointment={editAppointment} archiveAppointment={archiveAppointment} unarchiveAppointment={unarchiveAppointment} activeId={activeId} expanded={expanded} onCelebrate={onCelebrate} />
         </TabsContent>

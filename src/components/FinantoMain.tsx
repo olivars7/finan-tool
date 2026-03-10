@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -463,7 +462,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <header className="border-b border-border/40 sticky top-0 z-50 backdrop-blur-[12px] bg-card/10 shrink-0">
+      <header className="border-b border-border/40 sticky top-0 z-50 backdrop-blur-[12px] bg-card/10 shrink-0 animate-in slide-in-from-top duration-700">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="bg-primary/20 p-1.5 rounded-lg border border-primary/30">
@@ -544,7 +543,10 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
             const cardContent = (
               <Card 
                 key={i}
-                className="bg-card/30 backdrop-blur-md border-none hover:bg-card/50 cursor-default h-full transition-colors duration-300 relative overflow-hidden"
+                className={cn(
+                  "bg-card/30 backdrop-blur-md border-none hover:bg-card/50 cursor-default h-full transition-all duration-300 relative overflow-hidden animate-finanto-reveal opacity-0",
+                  i === 0 ? "delay-100" : i === 1 ? "delay-200" : i === 2 ? "delay-300" : i === 3 ? "delay-400" : "delay-500"
+                )}
               >
                 <CardContent className="p-4 flex items-center gap-3 relative z-10">
                   <div className={cn("p-2 rounded-full bg-muted/50", stat.color)}><stat.icon className="w-5 h-5" /></div>
@@ -604,12 +606,12 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
-          <section className="xl:col-span-5 space-y-6">
+          <section className="xl:col-span-5 space-y-6 animate-finanto-reveal opacity-0 delay-300">
             <CreditCalculator 
               isExpanded={isSimulatorExpanded} 
               onExpandedChange={handleToggleSimulator}
             />
-            <div className="p-6 border rounded-xl border-primary/20 bg-primary/5">
+            <div className="p-6 border rounded-xl border-primary/20 bg-primary/5 animate-finanto-reveal opacity-0 delay-400">
               <Carousel setApi={setApi} className="w-full" opts={{ loop: true }}>
                 <CarouselContent>
                   {APP_TIPS.map((tip, index) => (
@@ -635,7 +637,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
               onExpandedChange={handleToggleStats}
             />
           </section>
-          <section className="xl:col-span-7 pb-10 space-y-6">
+          <section className="xl:col-span-7 pb-10 space-y-6 animate-finanto-reveal opacity-0 delay-500">
             <AppointmentsDashboard 
               isExpanded={isGestorExpanded}
               onExpandedChange={handleToggleGestor}
@@ -659,7 +661,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
         </div>
       </main>
 
-      <footer className="border-t border-border/40 py-6 bg-card/10 backdrop-blur-md">
+      <footer className="border-t border-border/40 py-6 bg-card/10 backdrop-blur-md animate-in fade-in slide-in-from-bottom duration-700">
         <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-3">
             <span className="font-bold text-foreground">Finanto v1.1</span>
