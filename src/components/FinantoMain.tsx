@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -8,8 +7,9 @@ import AppointmentForm from '@/components/appointments/AppointmentForm';
 import AdvancedStats from '@/components/stats/AdvancedStats';
 import TrashDialog from '@/components/appointments/TrashDialog';
 import { Card, CardContent } from '@/components/ui/card';
+import Image from 'next/image';
 import { 
-  Wallet, CalendarDays, Users, CheckCircle2, ShieldCheck, RotateCcw,
+  Wallet, CalendarDays, Users, CheckCircle2, RotateCcw,
   Palette, Moon, Sun, Cpu, BookOpen, Calculator, Maximize2, Sparkles,
   ClipboardList, Copy, Crown, MessageSquare, 
   CalendarClock, HandCoins, CheckCircle, BadgeAlert, 
@@ -79,7 +79,7 @@ type Theme = 'tranquilo' | 'moderno' | 'discreto' | 'olivares' | 'corporativo-v2
 const APP_TIPS = [
   { icon: Calculator, title: "Calculadora Rápida", color: "text-primary", text: "Usa la calculadora rapida en caso de tener una llamada con un interesado que pregunte montos aproximados." },
   { icon: ClipboardList, title: "Gestión Eficiente", color: "text-accent", text: "Nunca olvides registrar todas tus citas en el gestionador de citas, para tener un orden eficiente de fechas y datos en un solo lugar." },
-  { icon: ShieldCheck, title: "Seguridad Cloud", color: "text-destructive", text: "Tus datos están ahora sincronizados en Firebase para tu máxima seguridad." },
+  { icon: Sparkles, title: "Seguridad Cloud", color: "text-destructive", text: "Tus datos están ahora sincronizados en Firebase para tu máxima seguridad." },
   { icon: Sparkles, title: "IA Integrada", color: "text-yellow-500", text: "IA para automatización de mensajes personalizados y seguimiento de cierres." },
   { icon: Maximize2, title: "Modo Presentación", color: "text-primary", text: "Usa el icono de expansión para mostrar los números al cliente de forma limpia y profesional." },
   { icon: Palette, title: "Imagen Corporativa", color: "text-accent", text: "Usa el tema <<Corporativo V2>> para mostrar pantalla a tus clientes presenciales." },
@@ -470,8 +470,14 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
       <header className="border-b border-border/40 sticky top-0 z-50 backdrop-blur-[12px] bg-card/10 shrink-0 animate-in slide-in-from-top duration-700">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="bg-primary/20 p-1.5 rounded-lg border border-primary/30">
-              <ShieldCheck className="text-primary w-6 h-6" />
+            <div className="bg-primary/20 p-1.5 rounded-lg border border-primary/30 flex items-center justify-center overflow-hidden">
+              <Image 
+                src="/favicon.ico" 
+                alt="Finanto Logo" 
+                width={24} 
+                height={24} 
+                className="object-contain"
+              />
             </div>
             <div className="flex flex-col">
               <div className="flex items-center gap-2">

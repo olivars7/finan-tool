@@ -2,9 +2,9 @@
   "placeholderImages": [
     {
       "id": "app-logo",
-      "description": "Minimalist financial logo",
-      "imageUrl": "https://picsum.photos/seed/credi/100/100",
-      "imageHint": "finance logo"
+      "description": "Logotipo oficial de Finanto",
+      "imageUrl": "/favicon.ico",
+      "imageHint": "financial logo"
     }
   ]
 }

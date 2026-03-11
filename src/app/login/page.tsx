@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState } from 'react';
@@ -6,8 +5,9 @@ import { useRouter } from 'next/navigation';
 import { loginWithGoogle } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ShieldCheck, LogIn, Loader2 } from 'lucide-react';
+import { LogIn, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import Image from 'next/image';
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
@@ -38,8 +38,14 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-slate-950 p-4">
       <Card className="w-full max-w-md bg-slate-900 border-slate-800 shadow-2xl">
         <CardHeader className="text-center space-y-4">
-          <div className="mx-auto bg-primary/20 p-4 rounded-3xl w-fit border border-primary/30">
-            <ShieldCheck className="w-12 h-12 text-primary" />
+          <div className="mx-auto bg-primary/20 p-4 rounded-3xl w-fit border border-primary/30 flex items-center justify-center overflow-hidden">
+            <Image 
+              src="/favicon.ico" 
+              alt="Finanto Logo" 
+              width={48} 
+              height={48} 
+              className="object-contain"
+            />
           </div>
           <div className="space-y-1">
             <CardTitle className="text-3xl font-black tracking-tighter text-white">FINANTO</CardTitle>

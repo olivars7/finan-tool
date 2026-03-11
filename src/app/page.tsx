@@ -1,11 +1,10 @@
-
 "use client"
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { onAuthChange } from '@/lib/auth';
 import FinantoMain from '@/components/FinantoMain';
-import { ShieldCheck } from 'lucide-react';
+import Image from 'next/image';
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
@@ -44,8 +43,14 @@ export default function Home() {
           {/* Logo animado */}
           <div className="relative">
             <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full animate-pulse" />
-            <div className="relative bg-slate-900 border border-white/10 p-6 rounded-[2rem] shadow-2xl animate-in zoom-in duration-700">
-              <ShieldCheck className="w-12 h-12 text-primary animate-[bounce_3s_infinite]" />
+            <div className="relative bg-slate-900 border border-white/10 p-6 rounded-[2rem] shadow-2xl animate-in zoom-in duration-700 flex items-center justify-center">
+              <Image 
+                src="/favicon.ico" 
+                alt="Logo" 
+                width={48} 
+                height={48} 
+                className="animate-[bounce_3s_infinite] object-contain"
+              />
             </div>
           </div>
 
