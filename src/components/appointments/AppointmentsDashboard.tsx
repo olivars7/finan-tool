@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useMemo } from 'react';
@@ -114,6 +115,7 @@ const DashboardContent = ({
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col flex-1 min-h-0">
+      {/* Micro stats only show on desktop when expanded */}
       {expanded && (
         <div className="hidden md:flex flex-col gap-4 mb-6 shrink-0 bg-muted/10 p-6 rounded-2xl border border-border/30 backdrop-blur-md animate-finanto-reveal opacity-0 delay-100">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
@@ -207,7 +209,11 @@ export default function AppointmentsDashboard({
 
   return (
     <div className="space-y-6">
-      <AppointmentForm onAdd={addAppointment} />
+      {/* On desktop we show form inline, but on mobile mosaic we have a separate button */}
+      <div className="hidden md:block">
+        <AppointmentForm onAdd={addAppointment} />
+      </div>
+      
       <Card className="shadow-xl bg-card border-border border-l-4 border-l-blue-600 overflow-hidden">
         <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
@@ -275,7 +281,7 @@ export default function AppointmentsDashboard({
               </DialogClose>
             </div>
           </DialogHeader>
-          <div className="flex-1 p-6 overflow-hidden flex flex-col">
+          <div className="flex-1 p-4 md:p-6 overflow-hidden flex flex-col">
             <DashboardContent 
               expanded={true} 
               activeTab={activeTab} 

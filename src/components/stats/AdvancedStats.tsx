@@ -1,3 +1,4 @@
+
 /**
  * @fileOverview Panel de Inteligencia Avanzada - Finanto
  */
@@ -61,14 +62,15 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
     return "Vas a un ritmo constante. Lo ideal es no soltar el seguimiento de los clientes que ya atendiste esta semana.";
   };
 
-  const WeeklyChart = ({ data, title, icon: Icon, opacity = 1 }: { data: any, title: string, icon: any, opacity?: number }) => {
+  const WeeklyChart = ({ data, title, icon: Icon, opacity = 1, hideOnMobile = false }: { data: any, title: string, icon: any, opacity?: number, hideOnMobile?: boolean }) => {
     const todayItem = data.find((d: any) => d.isToday);
     
     return (
       <Card 
         className={cn(
           "border-border/40 bg-card/30 backdrop-blur-md overflow-visible",
-          opacity < 1 && "opacity-75"
+          opacity < 1 && "opacity-75",
+          hideOnMobile && "hidden md:flex"
         )}
       >
         <CardHeader className="p-4 pb-2 border-b border-border/10 flex flex-row items-center justify-between">
@@ -155,7 +157,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
             <LineIcon className="w-5 h-5 text-primary" />
             <div>
               <CardTitle className="text-[11px] font-bold uppercase tracking-widest">Flujo de Cobro Semanal (Proyectado)</CardTitle>
-              <CardDescription className="text-[9px]">Ingreso liquidado por semana de pago (4m atrás - 3s futuro)</CardDescription>
+              <CardDescription className="text-[9px]">Ingreso liquidado por semana de pago</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -273,7 +275,10 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
         </CardHeader>
         <CardContent className="p-6 space-y-6">
           <WeeklyChart data={stats.charts.dailyActivity} title="Ciclo Actual" icon={CalendarDays} />
-          <PerformanceSection />
+          {/* Hide complex section on mobile preview cards */}
+          <div className="hidden md:block">
+            <PerformanceSection />
+          </div>
         </CardContent>
       </Card>
 
@@ -299,8 +304,9 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
           </DialogHeader>
 
           <div className="flex-1 overflow-y-auto scrollbar-thin bg-muted/5">
-            <div className="max-w-[1400px] mx-auto p-8 space-y-8 pb-24">
-              <div className="flex overflow-x-auto gap-3 pb-4 md:grid md:grid-cols-5 md:pb-0 scrollbar-thin">
+            <div className="max-w-[1400px] mx-auto p-4 md:p-8 space-y-8 pb-24">
+              {/* Single row scrollable metrics for mobile */}
+              <div className="flex overflow-x-auto gap-3 pb-4 scrollbar-thin md:grid md:grid-cols-5 md:pb-0">
                 {[
                   { icon: CalendarDays, color: 'text-primary', label: 'Citas Hoy', value: stats.todayCount || 0, val1: stats.todayConfirmed || 0, sub1: 'Conf.' },
                   { icon: TrendingUp, color: 'text-primary', label: 'Eficiencia', value: `${Math.round(closingRate)}%`, val1: 'Atendidas', sub1: 'Base' },
@@ -310,7 +316,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                 ].map((s, i) => (
                   <Card key={i} className={cn(
                     "min-w-[160px] md:min-w-0 bg-card/40 border-primary/20 p-4 space-y-3 hover:bg-primary/10 transition-all duration-300 cursor-default group animate-finanto-reveal opacity-0 shrink-0",
-                    i === 0 ? "delay-100" : i === 1 ? "delay-200" : i === 2 ? "delay-300" : i === 3 ? "delay-400" : "delay-500"
+                    i === 0 ? "delay-100" : i === 1 ? "delay-200" : i === 2 ? "delay-300" : i === 3 ? "delay-400" : i === 4 ? "delay-500" : ""
                   )}>
                     <div className="flex justify-between items-start">
                       <div className={cn("p-2 rounded-lg bg-muted/20 group-hover:bg-background/50 transition-colors", s.color)}>
@@ -346,8 +352,8 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                     <div className="animate-finanto-reveal opacity-0 delay-300">
                       <WeeklyChart data={stats.charts.dailyActivity} title="Ciclo Actual (Operativo)" icon={CalendarDays} />
                     </div>
-                    <div className="animate-finanto-reveal opacity-0 delay-400 hidden md:block">
-                      <WeeklyChart data={stats.charts.lastWeekActivity} title="Ciclo Anterior (Histórico)" icon={History} opacity={0.65} />
+                    <div className="animate-finanto-reveal opacity-0 delay-400">
+                      <WeeklyChart data={stats.charts.lastWeekActivity} title="Ciclo Anterior (Histórico)" icon={History} opacity={0.65} hideOnMobile />
                     </div>
                   </div>
                   
@@ -376,7 +382,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                           <span className="text-[8px] font-black text-primary">{formatCurrency(stats.lastMonthCommission || 0)}</span>
                         </div>
                       </div>
-                      <div>
+                      <div className="hidden md:block">
                         <span className="text-[10px] font-bold uppercase block text-muted-foreground mb-1">Participación Promedio</span>
                         <p className="text-2xl font-black text-foreground">{stats.avgParticipation || 0}%</p>
                         <span className="text-[8px] text-muted-foreground font-bold uppercase">Por cada cierre</span>

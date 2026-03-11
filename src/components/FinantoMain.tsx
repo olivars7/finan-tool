@@ -1,8 +1,10 @@
+
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import CreditCalculator from '@/components/calculator/CreditCalculator';
 import AppointmentsDashboard from '@/components/appointments/AppointmentsDashboard';
+import AppointmentForm from '@/components/appointments/AppointmentForm';
 import AdvancedStats from '@/components/stats/AdvancedStats';
 import TrashDialog from '@/components/appointments/TrashDialog';
 import { Card, CardContent } from '@/components/ui/card';
@@ -13,7 +15,7 @@ import {
   CalendarClock, HandCoins, CheckCircle, BadgeAlert, 
   MoreHorizontal, ArrowUpRight, ArrowDownRight, Coins, Star, Trophy,
   TrendingUp, Trash2, User, Receipt, BarChart3, PartyPopper as PartyIcon, ArrowRight,
-  LogOut
+  LogOut, UserPlus, X
 } from 'lucide-react';
 import { useAppointments } from '@/hooks/use-appointments';
 import { Button } from '@/components/ui/button';
@@ -36,6 +38,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogClose
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -96,6 +99,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
   const [isSimulatorExpanded, setIsSimulatorExpanded] = useState(false);
   const [isGestorExpanded, setIsGestorExpanded] = useState(false);
   const [isStatsExpanded, setIsStatsExpanded] = useState(false);
+  const [isNewAppExpanded, setIsNewAppExpanded] = useState(false);
   
   const [selectedAppId, setSelectedAppId] = useState<string | null>(null);
   const [theme, setTheme] = useState<Theme>('corporativo-v2');
@@ -144,25 +148,25 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
   const handleToggleHelp = (open: boolean) => {
     setShowHelp(open);
     if (open) { syncUrl('/guia'); document.title = "Manual - Finanto"; }
-    else if (!isSimulatorExpanded && !isGestorExpanded && !isStatsExpanded) { syncUrl('/'); document.title = "Finanto"; }
+    else if (!isSimulatorExpanded && !isGestorExpanded && !isStatsExpanded && !isNewAppExpanded) { syncUrl('/'); document.title = "Finanto"; }
   };
 
   const handleToggleSimulator = (open: boolean) => {
     setIsSimulatorExpanded(open);
     if (open) { syncUrl('/simulador'); document.title = "Simulador - Finanto"; }
-    else if (!showHelp && !isGestorExpanded && !isStatsExpanded) { syncUrl('/'); document.title = "Finanto"; }
+    else if (!showHelp && !isGestorExpanded && !isStatsExpanded && !isNewAppExpanded) { syncUrl('/'); document.title = "Finanto"; }
   };
 
   const handleToggleGestor = (open: boolean) => {
     setIsGestorExpanded(open);
     if (open) { syncUrl('/gestor'); document.title = "Agenda - Finanto"; }
-    else if (!showHelp && !isSimulatorExpanded && !isStatsExpanded) { syncUrl('/'); document.title = "Finanto"; }
+    else if (!showHelp && !isSimulatorExpanded && !isStatsExpanded && !isNewAppExpanded) { syncUrl('/'); document.title = "Finanto"; }
   };
 
   const handleToggleStats = (open: boolean) => {
     setIsStatsExpanded(open);
     if (open) { syncUrl('/stats'); document.title = "Stats - Finanto"; }
-    else if (!showHelp && !isSimulatorExpanded && !isGestorExpanded) { syncUrl('/'); document.title = "Finanto"; }
+    else if (!showHelp && !isSimulatorExpanded && !isGestorExpanded && !isNewAppExpanded) { syncUrl('/'); document.title = "Finanto"; }
   };
 
   useEffect(() => {
@@ -541,6 +545,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
       </header>
 
       <main className="flex-1 container mx-auto px-2 sm:px-4 py-4 md:py-12">
+        {/* Micro Stats Row (Horizontal Scroll on Mobile) */}
         <div className="flex overflow-x-auto pb-4 md:pb-0 md:grid md:grid-cols-5 gap-2 sm:gap-4 mb-6 sm:mb-8 scrollbar-thin">
           {statsCards.map((stat, i) => {
             const isTargetCommission = stat.label === 'Comisiones Mes';
@@ -609,7 +614,44 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
           })}
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 sm:gap-8 items-start">
+        {/* MOBILE MOSAIC VIEW */}
+        <div className="grid grid-cols-2 gap-3 mb-8 md:hidden px-2 animate-finanto-reveal opacity-0 delay-200">
+          <Button 
+            variant="outline" 
+            onClick={() => handleToggleSimulator(true)}
+            className="h-32 flex flex-col items-center justify-center gap-3 bg-card/40 border-primary/20 rounded-3xl shadow-lg active:scale-95 transition-all"
+          >
+            <div className="p-3 bg-primary/10 rounded-2xl text-primary"><Calculator className="w-8 h-8" /></div>
+            <span className="text-[10px] font-black uppercase tracking-widest">Calculadora</span>
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={() => setIsNewAppExpanded(true)}
+            className="h-32 flex flex-col items-center justify-center gap-3 bg-card/40 border-accent/20 rounded-3xl shadow-lg active:scale-95 transition-all"
+          >
+            <div className="p-3 bg-accent/10 rounded-2xl text-accent"><UserPlus className="w-8 h-8" /></div>
+            <span className="text-[10px] font-black uppercase tracking-widest">Nueva Cita</span>
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={() => handleToggleGestor(true)}
+            className="h-32 flex flex-col items-center justify-center gap-3 bg-card/40 border-blue-600/20 rounded-3xl shadow-lg active:scale-95 transition-all"
+          >
+            <div className="p-3 bg-blue-600/10 rounded-2xl text-blue-600"><CalendarClock className="w-8 h-8" /></div>
+            <span className="text-[10px] font-black uppercase tracking-widest">Agenda</span>
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={() => handleToggleStats(true)}
+            className="h-32 flex flex-col items-center justify-center gap-3 bg-card/40 border-yellow-500/20 rounded-3xl shadow-lg active:scale-95 transition-all"
+          >
+            <div className="p-3 bg-yellow-500/10 rounded-2xl text-yellow-600"><BarChart3 className="w-8 h-8" /></div>
+            <span className="text-[10px] font-black uppercase tracking-widest">Stats Pro</span>
+          </Button>
+        </div>
+
+        {/* DESKTOP LAYOUT & MAIN GRID */}
+        <div className="hidden md:grid grid-cols-1 xl:grid-cols-12 gap-4 sm:gap-8 items-start">
           <section className="xl:col-span-5 space-y-4 sm:space-y-6 animate-finanto-reveal opacity-0 delay-300">
             <CreditCalculator 
               isExpanded={isSimulatorExpanded} 
@@ -703,6 +745,27 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
         </div>
       </footer>
 
+      {/* NEW APPOINTMENT DIALOG (MOBILE MOSAIC) */}
+      <Dialog open={isNewAppExpanded} onOpenChange={setIsNewAppExpanded}>
+        <DialogContent data-appointments-dialog="true" className="max-w-none w-screen h-screen m-0 rounded-none bg-background border-none p-0 flex flex-col overflow-hidden">
+          <DialogHeader className="px-6 py-4 border-b border-border/40 flex flex-row items-center justify-between bg-card/10 shrink-0">
+            <div className="flex items-center gap-3">
+              <div className="bg-accent/20 p-2 rounded-xl border border-accent/30"><UserPlus className="text-accent w-6 h-6" /></div>
+              <div>
+                <DialogTitle className="text-xl font-bold">Nueva Cita</DialogTitle>
+                <DialogDescription className="text-xs">Registro rápido de prospecto comercial.</DialogDescription>
+              </div>
+            </div>
+            <DialogClose asChild><Button variant="ghost" size="icon" className="rounded-full hover:bg-destructive/10 h-10 w-10"><X className="w-5 h-5" /></Button></DialogClose>
+          </DialogHeader>
+          <div className="flex-1 p-4 overflow-y-auto bg-muted/5 scrollbar-thin">
+            <div className="max-w-2xl mx-auto py-6">
+              <AppointmentForm onAdd={(data) => { appointmentState.addAppointment(data); setIsNewAppExpanded(false); }} />
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <AlertDialog open={showResetConfirm} onOpenChange={setShowResetConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -710,8 +773,8 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
             <AlertDialogDescription>Se borrará tu información actual para restaurar los datos de prueba iniciales en la nube.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setShowResetConfirm(false)} type="button">Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={handleGlobalReset} type="button">Sí, reiniciar</AlertDialogAction>
+            <AlertDialogCancel onClick={() => setShowResetConfirm(false)} type="button">Cancelar</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -723,10 +786,10 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
             <AlertDialogDescription>Esta acción borrará el cache local de tus citas. Los datos en la nube no se verán afectados.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setShowClearConfirm(false)} type="button">Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={handleGlobalClear} className="bg-destructive hover:bg-destructive/90 text-white" type="button">
               Limpiar Local
             </AlertDialogAction>
+            <AlertDialogCancel onClick={() => setShowClearConfirm(false)} type="button">Cancelar</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
