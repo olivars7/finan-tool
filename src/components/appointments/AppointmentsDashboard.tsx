@@ -115,7 +115,7 @@ const DashboardContent = ({
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col flex-1 min-h-0">
       {expanded && (
-        <div className="flex flex-col gap-4 mb-6 shrink-0 bg-muted/10 p-6 rounded-2xl border border-border/30 backdrop-blur-md animate-finanto-reveal opacity-0 delay-100">
+        <div className="hidden md:flex flex-col gap-4 mb-6 shrink-0 bg-muted/10 p-6 rounded-2xl border border-border/30 backdrop-blur-md animate-finanto-reveal opacity-0 delay-100">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
             {microStats.map((s, i) => (
               <TooltipProvider key={i}>

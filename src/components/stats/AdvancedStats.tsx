@@ -300,7 +300,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
 
           <div className="flex-1 overflow-y-auto scrollbar-thin bg-muted/5">
             <div className="max-w-[1400px] mx-auto p-8 space-y-8 pb-24">
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <div className="flex overflow-x-auto gap-3 pb-4 md:grid md:grid-cols-5 md:pb-0 scrollbar-thin">
                 {[
                   { icon: CalendarDays, color: 'text-primary', label: 'Citas Hoy', value: stats.todayCount || 0, val1: stats.todayConfirmed || 0, sub1: 'Conf.' },
                   { icon: TrendingUp, color: 'text-primary', label: 'Eficiencia', value: `${Math.round(closingRate)}%`, val1: 'Atendidas', sub1: 'Base' },
@@ -309,7 +309,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                   { icon: Coins, color: 'text-yellow-600', label: 'Ingresos', value: formatCurrency(stats.currentMonthCommission || 0), growth: stats.commissionGrowth, val1: formatCurrency(stats.lastMonthCommission || 0), sub1: 'Mes Ant.', isGradient: true }
                 ].map((s, i) => (
                   <Card key={i} className={cn(
-                    "bg-card/40 border-primary/20 p-4 space-y-3 hover:bg-primary/10 transition-all duration-300 cursor-default group animate-finanto-reveal opacity-0",
+                    "min-w-[160px] md:min-w-0 bg-card/40 border-primary/20 p-4 space-y-3 hover:bg-primary/10 transition-all duration-300 cursor-default group animate-finanto-reveal opacity-0 shrink-0",
                     i === 0 ? "delay-100" : i === 1 ? "delay-200" : i === 2 ? "delay-300" : i === 3 ? "delay-400" : "delay-500"
                   )}>
                     <div className="flex justify-between items-start">
@@ -325,7 +325,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                     <div>
                       <p className="text-[9px] uppercase font-bold text-muted-foreground">{s.label}</p>
                       <p className={cn(
-                        "text-2xl font-black truncate",
+                        "text-lg md:text-2xl font-black truncate",
                         s.isGradient ? getDynamicGradient(stats.currentMonthCommission || 0) : ""
                       )}>{s.value}</p>
                     </div>
@@ -346,7 +346,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                     <div className="animate-finanto-reveal opacity-0 delay-300">
                       <WeeklyChart data={stats.charts.dailyActivity} title="Ciclo Actual (Operativo)" icon={CalendarDays} />
                     </div>
-                    <div className="animate-finanto-reveal opacity-0 delay-400">
+                    <div className="animate-finanto-reveal opacity-0 delay-400 hidden md:block">
                       <WeeklyChart data={stats.charts.lastWeekActivity} title="Ciclo Anterior (Histórico)" icon={History} opacity={0.65} />
                     </div>
                   </div>
@@ -390,7 +390,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                   </Card>
                 </div>
                 
-                <div className="xl:col-span-4 space-y-6">
+                <div className="xl:col-span-4 space-y-6 hidden md:block">
                   <div className="animate-finanto-reveal opacity-0 delay-300">
                     <PerformanceSection />
                   </div>
