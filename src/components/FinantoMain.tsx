@@ -541,15 +541,15 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
       </header>
 
       <main className="flex-1 container mx-auto px-2 sm:px-4 py-4 md:py-12">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-2 sm:gap-4 mb-6 sm:mb-8">
+        <div className="flex overflow-x-auto pb-4 md:pb-0 md:grid md:grid-cols-5 gap-2 sm:gap-4 mb-6 sm:mb-8 scrollbar-thin">
           {statsCards.map((stat, i) => {
             const isTargetCommission = stat.label === 'Comisiones Mes';
             const cardContent = (
               <Card 
                 key={i}
                 className={cn(
-                  "bg-card/30 backdrop-blur-md border-none hover:bg-card/50 cursor-default h-full transition-all duration-300 relative overflow-hidden animate-finanto-reveal opacity-0",
-                  i === 0 ? "delay-100" : i === 1 ? "delay-200" : i === 2 ? "delay-300" : i === 3 ? "delay-400" : i === 4 ? "delay-500 col-span-2 md:col-span-1" : ""
+                  "bg-card/30 backdrop-blur-md border-none hover:bg-card/50 cursor-default h-full transition-all duration-300 relative overflow-hidden animate-finanto-reveal opacity-0 min-w-[150px] md:min-w-0",
+                  i === 0 ? "delay-100" : i === 1 ? "delay-200" : i === 2 ? "delay-300" : i === 3 ? "delay-400" : i === 4 ? "delay-500" : ""
                 )}
               >
                 <CardContent className="p-3 sm:p-4 flex items-center gap-2 sm:gap-3 relative z-10">
@@ -594,7 +594,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
               return (
                 <TooltipProvider key={i}>
                   <Tooltip delayDuration={0}>
-                    <TooltipTrigger asChild className={i === 4 ? "col-span-2 md:col-span-1" : ""}>
+                    <TooltipTrigger asChild>
                       {cardContent}
                     </TooltipTrigger>
                     <TooltipContent side="bottom" sideOffset={1}>
@@ -605,7 +605,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
               );
             }
 
-            return <div key={i} className={i === 4 ? "col-span-2 md:col-span-1" : ""}>{cardContent}</div>;
+            return <div key={i}>{cardContent}</div>;
           })}
         </div>
 
