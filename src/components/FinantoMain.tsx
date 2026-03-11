@@ -65,6 +65,7 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import * as Service from '@/services/appointment-service';
@@ -476,7 +477,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="h-7 px-2 text-[10px] font-bold uppercase border border-primary/20" 
+                  className="h-7 px-2 text-[10px] font-bold uppercase border border-primary/20 hidden sm:flex" 
                   onClick={() => handleToggleHelp(true)}
                 >
                   <BookOpen className="w-3.5 h-3.5 mr-1" /> Tutorial
@@ -486,12 +487,15 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
             </div>
           </div>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {profile?.role && (
               <Badge variant="outline" className="hidden sm:flex text-[9px] font-bold uppercase tracking-tighter bg-primary/5 text-primary border-primary/20 px-2 py-0.5 rounded-full">
                 {profile.role}
               </Badge>
             )}
+            
+            <Separator orientation="vertical" className="h-6 mx-1 hidden sm:block" />
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="w-9 h-9 rounded-full overflow-hidden border border-border/50">
@@ -536,8 +540,8 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
         </div>
       </header>
 
-      <main className="flex-1 container mx-auto px-4 py-6 md:py-12">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+      <main className="flex-1 container mx-auto px-2 sm:px-4 py-4 md:py-12">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-2 sm:gap-4 mb-6 sm:mb-8">
           {statsCards.map((stat, i) => {
             const isTargetCommission = stat.label === 'Comisiones Mes';
             const cardContent = (
@@ -545,22 +549,22 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
                 key={i}
                 className={cn(
                   "bg-card/30 backdrop-blur-md border-none hover:bg-card/50 cursor-default h-full transition-all duration-300 relative overflow-hidden animate-finanto-reveal opacity-0",
-                  i === 0 ? "delay-100" : i === 1 ? "delay-200" : i === 2 ? "delay-300" : i === 3 ? "delay-400" : "delay-500"
+                  i === 0 ? "delay-100" : i === 1 ? "delay-200" : i === 2 ? "delay-300" : i === 3 ? "delay-400" : i === 4 ? "delay-500" : ""
                 )}
               >
-                <CardContent className="p-4 flex items-center gap-3 relative z-10">
-                  <div className={cn("p-2 rounded-full bg-muted/50", stat.color)}><stat.icon className="w-5 h-5" /></div>
+                <CardContent className="p-3 sm:p-4 flex items-center gap-2 sm:gap-3 relative z-10">
+                  <div className={cn("p-1.5 sm:p-2 rounded-full bg-muted/50", stat.color)}><stat.icon className="w-4 h-4 sm:w-5 sm:h-5" /></div>
                   <div className="flex-1 overflow-hidden">
-                    <p className="text-[9px] uppercase font-bold text-muted-foreground truncate">{stat.label}</p>
-                    <div className="flex items-baseline gap-2">
+                    <p className="text-[8px] sm:text-[9px] uppercase font-bold text-muted-foreground truncate">{stat.label}</p>
+                    <div className="flex items-baseline gap-1 sm:gap-2">
                       <p className={cn(
-                        "text-lg font-bold truncate",
+                        "text-sm sm:text-lg font-bold truncate",
                         isTargetCommission ? getDynamicGradient(stats.currentMonthCommission || 0) : ""
                       )}>
                         {stat.value}
                       </p>
                       {stat.comparison !== undefined && (
-                        <div className="flex flex-col">
+                        <div className="flex flex-col hidden sm:flex">
                           <span className={cn(
                             "text-[8px] font-bold flex items-center whitespace-nowrap",
                             (parseFloat(stat.value.replace(/[^0-9.-]+/g,"")) >= stat.comparison) ? "text-green-500" : "text-destructive"
@@ -605,13 +609,13 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
           })}
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
-          <section className="xl:col-span-5 space-y-6 animate-finanto-reveal opacity-0 delay-300">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 sm:gap-8 items-start">
+          <section className="xl:col-span-5 space-y-4 sm:space-y-6 animate-finanto-reveal opacity-0 delay-300">
             <CreditCalculator 
               isExpanded={isSimulatorExpanded} 
               onExpandedChange={handleToggleSimulator}
             />
-            <div className="p-6 border rounded-xl border-primary/20 bg-primary/5 animate-finanto-reveal opacity-0 delay-400">
+            <div className="p-4 sm:p-6 border rounded-xl border-primary/20 bg-primary/5 animate-finanto-reveal opacity-0 delay-400">
               <Carousel setApi={setApi} className="w-full" opts={{ loop: true }}>
                 <CarouselContent>
                   {APP_TIPS.map((tip, index) => (
@@ -620,7 +624,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
                         <h3 className={cn("text-xs font-bold flex items-center gap-2", tip.color)}>
                           <tip.icon className="w-3.5 h-3.5" /> {tip.title}
                         </h3>
-                        <p className="text-[11px] text-muted-foreground">{tip.text}</p>
+                        <p className="text-[10px] sm:text-[11px] text-muted-foreground">{tip.text}</p>
                       </div>
                     </CarouselItem>
                   ))}
@@ -637,7 +641,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
               onExpandedChange={handleToggleStats}
             />
           </section>
-          <section className="xl:col-span-7 pb-10 space-y-6 animate-finanto-reveal opacity-0 delay-500">
+          <section className="xl:col-span-7 pb-10 space-y-4 sm:space-y-6 animate-finanto-reveal opacity-0 delay-500">
             <AppointmentsDashboard 
               isExpanded={isGestorExpanded}
               onExpandedChange={handleToggleGestor}
@@ -661,20 +665,20 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
         </div>
       </main>
 
-      <footer className="border-t border-border/40 py-6 bg-card/10 backdrop-blur-md animate-in fade-in slide-in-from-bottom duration-700">
+      <footer className="border-t border-border/40 py-4 sm:py-6 bg-card/10 backdrop-blur-md animate-in fade-in slide-in-from-bottom duration-700">
         <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-3">
             <span className="font-bold text-foreground">Finanto v1.1</span>
-            <span>© 2026 - Sincronizado en Firebase</span>
+            <span className="hidden sm:inline">© 2026 - Sincronizado en Firebase</span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={() => setShowTrash(true)} 
-              className="text-muted-foreground hover:text-destructive gap-2 h-8 px-3"
+              className="text-muted-foreground hover:text-destructive gap-2 h-8 px-2 sm:px-3"
             >
-              <Trash2 className="w-4 h-4" /> Papelera ({appointments.filter(a => a.isArchived).length})
+              <Trash2 className="w-4 h-4" /> <span className="hidden sm:inline">Papelera</span> ({appointments.filter(a => a.isArchived).length})
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -744,19 +748,19 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
           }}
           className="sm:max-w-[750px] h-[85vh] flex flex-col p-0 overflow-hidden bg-card shadow-2xl border-none"
         >
-          <DialogHeader className="p-8 border-b bg-primary/5 shrink-0">
+          <DialogHeader className="p-6 sm:p-8 border-b bg-primary/5 shrink-0">
             <div className="flex items-center gap-4">
-              <div className="p-4 border-2 border-primary/30 rounded-2xl bg-primary/10 shadow-inner">
-                <Sparkles className="w-8 h-8 text-primary animate-pulse" />
+              <div className="p-3 sm:p-4 border-2 border-primary/30 rounded-2xl bg-primary/10 shadow-inner">
+                <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-primary animate-pulse" />
               </div>
               <div>
-                <DialogTitle className="text-3xl font-black font-headline tracking-tight">Guía Maestra Finanto</DialogTitle>
-                <DialogDescription className="text-sm font-medium text-muted-foreground">Tu arsenal profesional para dominar el cierre inmobiliario.</DialogDescription>
+                <DialogTitle className="text-2xl sm:text-3xl font-black font-headline tracking-tight">Guía Maestra Finanto</DialogTitle>
+                <DialogDescription className="text-xs sm:text-sm font-medium text-muted-foreground">Tu arsenal profesional para dominar el cierre inmobiliario.</DialogDescription>
               </div>
             </div>
           </DialogHeader>
           <ScrollArea className="flex-1">
-            <div className="p-8 space-y-10 pb-24">
+            <div className="p-6 sm:p-8 space-y-10 pb-24">
               <section className="space-y-4">
                 <div className="flex items-center gap-3 text-primary">
                   <div className="bg-primary/10 p-2 rounded-lg"><Calculator className="w-5 h-5" /></div>
@@ -924,23 +928,23 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
           }}
           className="sm:max-w-[480px] border-none bg-gradient-to-br from-green-600 to-emerald-800 shadow-2xl text-white p-0 overflow-hidden"
         >
-          <div className="relative p-8 space-y-6">
+          <div className="relative p-6 sm:p-8 space-y-6">
             <div className="absolute top-0 right-0 p-4 opacity-10">
-              <PartyIcon className="w-32 h-32 rotate-12" />
+              <PartyIcon className="w-24 h-24 sm:w-32 sm:h-32 rotate-12" />
             </div>
             
             <div className="flex items-center gap-4 relative z-10">
-              <div className="bg-white/20 p-4 rounded-2xl shadow-inner">
-                <Trophy className="w-10 h-10 text-yellow-300 animate-bounce" />
+              <div className="bg-white/20 p-3 sm:p-4 rounded-2xl shadow-inner">
+                <Trophy className="w-8 h-8 sm:w-10 sm:h-10 text-yellow-300 animate-bounce" />
               </div>
               <div className="space-y-1">
-                <DialogTitle className="text-3xl font-headline font-black text-white tracking-tight">¡CIERRE EXITOSO!</DialogTitle>
+                <DialogTitle className="text-2xl sm:text-3xl font-headline font-black text-white tracking-tight">¡CIERRE EXITOSO!</DialogTitle>
                 <DialogDescription className="text-green-100/80 font-medium">Felicidades por concretar esta venta, {celebrationApp?.name} es ahora tu cierre oficial.</DialogDescription>
               </div>
             </div>
 
             <div className="space-y-4 relative z-10">
-              <div className="p-5 bg-white/10 rounded-2xl border border-white/20 backdrop-blur-md space-y-4">
+              <div className="p-4 sm:p-5 bg-white/10 rounded-2xl border border-white/20 backdrop-blur-md space-y-4">
                 <div className="flex items-center gap-3 border-b border-white/10 pb-3">
                   <Star className="w-5 h-5 text-yellow-300 fill-yellow-300" />
                   <span className="text-xs font-bold uppercase tracking-widest">Próximos Pasos Recomendados</span>

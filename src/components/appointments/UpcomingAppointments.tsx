@@ -8,7 +8,7 @@ import {
   CheckCircle, ClipboardCheck, Phone, Box, ChevronRight, 
   CheckCircle as CheckIcon,
   Save, MessageSquare, Coins, Info, UserCog, UserCheck, ChevronDown,
-  ClipboardList, Users
+  ClipboardList, Users, MoreVertical
 } from "lucide-react";
 import { parseISO, isToday, isTomorrow, format, addDays, isSameDay, startOfDay } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -44,6 +44,12 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import {
   Tooltip,
@@ -118,7 +124,7 @@ export default function UpcomingAppointments({
     }
   };
 
-  const handleToggleConfirmation = (e: React.MouseEvent, app: Appointment) => {
+  const handleToggleConfirmation = (e: React.MouseEvent | React.TouchEvent, app: Appointment) => {
     e.stopPropagation();
     if (app.isConfirmed) {
       editAppointment(app.id, { isConfirmed: false });
@@ -131,7 +137,7 @@ export default function UpcomingAppointments({
     }
   };
 
-  const handleOpenFinalize = (e: React.MouseEvent, app: Appointment) => {
+  const handleOpenFinalize = (e: React.MouseEvent | React.TouchEvent, app: Appointment) => {
     e.stopPropagation();
     setFinalizingApp(app);
     setFinalStatus('Asistencia');
@@ -184,7 +190,7 @@ export default function UpcomingAppointments({
 
   const calculatedCommission = (finalCreditAmount * 0.007 * (finalCommissionPercent / 100)) * 0.91;
 
-  const copyPhone = (e: React.MouseEvent, app: Appointment) => {
+  const copyPhone = (e: React.MouseEvent | React.TouchEvent, app: Appointment) => {
     e.stopPropagation();
     onHighlight(app);
     navigator.clipboard.writeText(app.phone).then(() => {
@@ -295,280 +301,259 @@ export default function UpcomingAppointments({
           </div>
         ) : (
           <ScrollArea className="flex-1 scrollbar-thin">
-            <Table className="border-collapse separate border-spacing-0">
-              <TableHeader className="sticky top-0 z-30 bg-card shadow-sm border-b">
-                <TableRow className="hover:bg-transparent">
-                  <TableHead className={cn("bg-card pl-4", expanded ? "w-[180px]" : "")}>Nombre / Teléfono</TableHead>
-                  {expanded && <TableHead className="bg-card w-[140px]">Contacto</TableHead>}
-                  <TableHead className="bg-card">Motivo</TableHead>
-                  {expanded && <TableHead className="bg-card">Producto</TableHead>}
-                  <TableHead className="bg-card">Fecha</TableHead>
-                  <TableHead className="bg-card">Hora</TableHead>
-                  <TableHead className="bg-card w-24 text-center">Acción</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {appointments.map((app) => {
-                  const appToday = isActuallyToday(app.date);
-                  const isSelected = activeId === app.id;
-                  
-                  return (
-                    <TableRow 
-                      key={app.id} 
-                      onClick={() => onSelect(app)}
-                      className={cn(
-                        "hover:bg-primary/10 transition-colors cursor-pointer group relative h-16",
-                        appToday && "bg-primary/10",
-                        isSelected && "bg-primary/20 z-10"
-                      )}
-                    >
-                      <TableCell className="align-middle pl-4">
-                        <div className="flex items-center gap-2">
-                          <div className="font-bold text-sm leading-tight text-foreground">{app.name}</div>
-                          <div className="flex gap-1">
-                            {app.prospectorName && (
-                              <TooltipProvider delayDuration={0}>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <div className="p-1 rounded-md bg-blue-500/10 hover:bg-blue-500/20 transition-colors cursor-help">
-                                      <UserCog className="w-3.5 h-3.5 text-blue-500" />
-                                    </div>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <div className="space-y-1">
-                                      <p className="text-[9px] font-bold uppercase opacity-60 tracking-widest">Prospectado por:</p>
-                                      <p className="text-xs font-black text-blue-600">{app.prospectorName}</p>
-                                    </div>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            )}
-                            {app.attendingExecutive && (
-                              <TooltipProvider delayDuration={0}>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <div className="p-1 rounded-md bg-purple-500/10 hover:bg-purple-500/20 transition-colors cursor-help">
-                                      <UserCheck className="w-3.5 h-3.5 text-purple-500" />
-                                    </div>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <div className="space-y-1">
-                                      <p className="text-[9px] font-bold uppercase opacity-60 tracking-widest">Atendido por:</p>
-                                      <p className="text-xs font-black text-purple-600">{app.attendingExecutive}</p>
-                                    </div>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            )}
-                          </div>
-                        </div>
-                        {!expanded && (
-                          <div className="text-[10px] text-muted-foreground inline-flex items-center gap-1 mt-0.5">
-                            <Phone className="w-2.5 h-2.5 ml-4" /> 
-                            <span 
-                              onClick={(e) => copyPhone(e, app)} 
-                              className="hover:text-primary transition-colors cursor-pointer font-medium"
-                            >
-                              {app.phone}
-                            </span>
-                          </div>
+            {/* Desktop Table View */}
+            <div className="hidden md:block">
+              <Table className="border-collapse separate border-spacing-0">
+                <TableHeader className="sticky top-0 z-30 bg-card shadow-sm border-b">
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className={cn("bg-card pl-4", expanded ? "w-[180px]" : "")}>Nombre / Teléfono</TableHead>
+                    {expanded && <TableHead className="bg-card w-[140px]">Contacto</TableHead>}
+                    <TableHead className="bg-card">Motivo</TableHead>
+                    {expanded && <TableHead className="bg-card">Producto</TableHead>}
+                    <TableHead className="bg-card">Fecha</TableHead>
+                    <TableHead className="bg-card">Hora</TableHead>
+                    <TableHead className="bg-card w-24 text-center">Acción</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {appointments.map((app) => {
+                    const appToday = isActuallyToday(app.date);
+                    const isSelected = activeId === app.id;
+                    
+                    return (
+                      <TableRow 
+                        key={app.id} 
+                        onClick={() => onSelect(app)}
+                        className={cn(
+                          "hover:bg-primary/10 transition-colors cursor-pointer group relative h-16",
+                          appToday && "bg-primary/10",
+                          isSelected && "bg-primary/20 z-10"
                         )}
-                      </TableCell>
-                      {expanded && (
+                      >
+                        <TableCell className="align-middle pl-4">
+                          <div className="flex items-center gap-2">
+                            <div className="font-bold text-sm leading-tight text-foreground">{app.name}</div>
+                            <div className="flex gap-1">
+                              {app.prospectorName && <UserCog className="w-3.5 h-3.5 text-blue-500" />}
+                              {app.attendingExecutive && <UserCheck className="w-3.5 h-3.5 text-purple-500" />}
+                            </div>
+                          </div>
+                          {!expanded && (
+                            <div className="text-[10px] text-muted-foreground inline-flex items-center gap-1 mt-0.5">
+                              <Phone className="w-2.5 h-2.5" /> 
+                              <span onClick={(e) => copyPhone(e, app)} className="hover:text-primary transition-colors cursor-pointer font-medium">
+                                {app.phone}
+                              </span>
+                            </div>
+                          )}
+                        </TableCell>
+                        {expanded && (
+                          <TableCell className="align-middle">
+                            <div className="flex items-center gap-2 text-xs font-medium">
+                              <Phone className="w-3.5 h-3.5 text-primary" />
+                              <span onClick={(e) => copyPhone(e, app)} className="hover:text-primary transition-colors cursor-pointer font-bold">
+                                {app.phone}
+                              </span>
+                            </div>
+                          </TableCell>
+                        )}
+                        <TableCell className="align-middle text-[10px] font-bold text-muted-foreground uppercase">{app.type}</TableCell>
+                        {expanded && (
+                          <TableCell className="align-middle">
+                            <div className="flex items-center gap-2 text-xs font-semibold"><Box className="w-3.5 h-3.5 text-accent" /> {app.product || 'N/A'}</div>
+                          </TableCell>
+                        )}
                         <TableCell className="align-middle">
-                          <div className="flex items-center gap-2 text-xs font-medium">
-                            <div className="p-1.5 rounded-lg bg-primary/10 text-primary"><Phone className="w-3.5 h-3.5" /></div>
-                            <span 
-                              onClick={(e) => copyPhone(e, app)} 
-                              className="hover:text-primary transition-colors cursor-pointer font-bold"
-                            >
-                              {app.phone}
-                            </span>
+                          <div className="flex flex-col gap-1.5">
+                            <span className={cn("text-[10px] font-bold uppercase", appToday ? "text-primary" : "text-muted-foreground")}>{formatDate(app.date)}</span>
+                            {appToday && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={(e) => handleToggleConfirmation(e, app)}
+                                className={cn(
+                                  "h-6 px-2 text-[9px] font-bold uppercase border",
+                                  app.isConfirmed ? "bg-green-500/10 text-green-600" : "bg-orange-500/10 text-orange-600"
+                                )}
+                              >
+                                {app.isConfirmed ? <CheckCircle className="w-3 h-3 mr-1" /> : <AlertCircle className="w-3 h-3 mr-1" />}
+                                {app.isConfirmed ? 'Confirmado' : 'Confirmar'}
+                              </Button>
+                            )}
                           </div>
                         </TableCell>
-                      )}
-                      <TableCell className="align-middle text-[10px] font-bold text-muted-foreground uppercase">{app.type}</TableCell>
-                      {expanded && (
                         <TableCell className="align-middle">
-                          <div className="flex items-center gap-2 text-xs font-semibold"><Box className="w-3.5 h-3.5 text-accent" /> {app.product || 'N/A'}</div>
+                          <div className="flex items-center gap-1.5 text-accent font-bold text-[10px] bg-accent/5 w-fit px-2 py-1 rounded-md border border-accent/20">
+                            <Clock className="w-3 h-3" /> {format12hTime(app.time)}
+                          </div>
                         </TableCell>
-                      )}
-                      <TableCell className="align-middle">
-                        <div className="flex flex-col gap-1.5">
-                          <span className={cn("text-[10px] font-bold uppercase", appToday ? "text-primary" : "text-muted-foreground")}>{formatDate(app.date)}</span>
-                          {appToday && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={(e) => handleToggleConfirmation(e, app)}
-                              className={cn(
-                                "h-6 px-2 text-[9px] font-bold uppercase border transition-all",
-                                app.isConfirmed 
-                                  ? "bg-green-500/10 text-green-600 border-green-500/20 hover:bg-green-500/20" 
-                                  : "bg-orange-500/10 text-orange-600 border-orange-500/20 hover:bg-orange-500/20"
-                              )}
-                            >
-                              {app.isConfirmed ? (
-                                <>
-                                  <CheckCircle className="w-3 h-3 mr-1" /> Confirmado
-                                </>
-                              ) : (
-                                <>
-                                  <AlertCircle className="w-3 h-3 mr-1" /> Confirmar
-                                </>
-                              )}
+                        <TableCell className="align-middle text-center" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center justify-center gap-1">
+                            {appToday && (
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground/40 hover:text-green-500" onClick={(e) => handleOpenFinalize(e, app)}>
+                                <CheckIcon className="w-4 h-4" />
+                              </Button>
+                            )}
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground/40 hover:text-primary transition-colors" onClick={() => onSelect(app)}>
+                              <ChevronRight className="h-4 w-4" />
                             </Button>
-                          )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="block md:hidden divide-y divide-border/10">
+              {appointments.map((app) => {
+                const appToday = isActuallyToday(app.date);
+                const isSelected = activeId === app.id;
+                return (
+                  <div 
+                    key={app.id} 
+                    onClick={() => onSelect(app)}
+                    className={cn(
+                      "p-4 flex flex-col gap-3 transition-colors active:bg-muted/50",
+                      appToday && "bg-primary/5",
+                      isSelected && "bg-primary/10"
+                    )}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-bold text-base leading-tight">{app.name}</h4>
+                          <div className="flex gap-1">
+                            {app.prospectorName && <UserCog className="w-3 h-3 text-blue-500" />}
+                            {app.attendingExecutive && <UserCheck className="w-3 h-3 text-purple-500" />}
+                          </div>
                         </div>
-                      </TableCell>
-                      <TableCell className="align-middle">
-                        <div className="flex items-center gap-1.5 text-accent font-bold text-[10px] bg-accent/5 w-fit px-2 py-1 rounded-md border border-accent/20">
-                          <Clock className="w-3 h-3" /> {format12hTime(app.time)}
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{app.type} • {app.product}</p>
+                      </div>
+                      <div className="flex flex-col items-end gap-1">
+                        <div className="text-[10px] font-black text-accent bg-accent/5 px-2 py-1 rounded border border-accent/20">
+                          {format12hTime(app.time)}
                         </div>
-                      </TableCell>
-                      <TableCell className="align-middle text-center" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center justify-center gap-1">
-                          {appToday && (
-                            <TooltipProvider delayDuration={0}>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button 
-                                    variant="ghost" 
-                                    size="icon" 
-                                    className="h-8 w-8 text-muted-foreground/40 hover:text-green-500 hover:bg-green-500/10 transition-colors"
-                                    onClick={(e) => handleOpenFinalize(e, app)}
-                                  >
-                                    <CheckIcon className="w-4 h-4" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  FINALIZAR CONSULTA
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          )}
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground/40 hover:text-primary transition-colors" onClick={() => onSelect(app)}>
-                            <ChevronRight className="h-4 w-4" />
+                        <span className={cn("text-[9px] font-bold uppercase", appToday ? "text-primary" : "text-muted-foreground")}>
+                          {formatDate(app.date)}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2 mt-1">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="h-8 text-[10px] font-bold uppercase gap-2 flex-1 border-primary/20 bg-primary/5 text-primary"
+                        onClick={(e) => copyPhone(e, app)}
+                      >
+                        <Phone className="w-3 h-3" /> Llamar
+                      </Button>
+                      
+                      {appToday && (
+                        <>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className={cn(
+                              "h-8 text-[10px] font-bold uppercase flex-1 border-dashed",
+                              app.isConfirmed ? "bg-green-500/10 text-green-600 border-green-500/30" : "bg-orange-500/10 text-orange-600 border-orange-500/30"
+                            )}
+                            onClick={(e) => handleToggleConfirmation(e, app)}
+                          >
+                            {app.isConfirmed ? 'Confirmado' : 'Confirmar'}
                           </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+                          <Button 
+                            variant="secondary" 
+                            size="sm" 
+                            className="h-8 text-[10px] font-bold uppercase gap-2 flex-1 border border-border/50"
+                            onClick={(e) => handleOpenFinalize(e, app)}
+                          >
+                            <CheckIcon className="w-3 h-3 text-green-600" /> Finalizar
+                          </Button>
+                        </>
+                      )}
+                      
+                      {!appToday && (
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8 text-muted-foreground/40"
+                          onClick={(e) => { e.stopPropagation(); onSelect(app); }}
+                        >
+                          <ChevronRight className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </ScrollArea>
         )}
       </div>
-      <div className="flex flex-wrap justify-end gap-3 pt-2 shrink-0">
-        <TooltipProvider delayDuration={0}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={copyAllTodayAppointments} 
-                className="text-[10px] font-bold uppercase border-blue-500/40 bg-blue-500/5 text-blue-600 hover:bg-blue-500/10 h-9 gap-2 px-4"
-              >
-                <ClipboardList className="w-4 h-4" /> Copiar Citas de Hoy
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="top">
-              Copia todas las fichas de hoy para WhatsApp.
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
 
-        <TooltipProvider delayDuration={0}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={copyProspectorReport} 
-                className="text-[10px] font-bold uppercase border-blue-600/40 bg-blue-600/5 text-blue-700 hover:bg-blue-600/10 h-9 gap-2 px-4"
-              >
-                <Users className="w-4 h-4" /> Reporte prospectores
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="top" className="max-w-[280px]">
-              <div className="space-y-1">
-                <p className="text-[10px] font-bold text-blue-700 uppercase">Vista previa del reporte:</p>
-                <div className="bg-muted/30 p-2 rounded text-[10px] font-mono leading-tight">
-                  ✅Citas para hoy: {metrics.todayTotal}<br />
-                  ✅Citas confirmadas hoy: {metrics.todayConfirmed}<br />
-                  ✅Citas para mañana: {metrics.tomorrowTotal}<br />
-                  ✅Citas {metrics.dayAfterTomorrowName}: {metrics.dayAfterTomorrowTotal}
-                </div>
-              </div>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+      <div className="flex flex-wrap justify-center sm:justify-end gap-2 sm:gap-3 pt-2 shrink-0">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={copyAllTodayAppointments} 
+          className="text-[10px] font-bold uppercase border-blue-500/40 bg-blue-500/5 text-blue-600 h-9 gap-2 px-3 sm:px-4 flex-1 sm:flex-none"
+        >
+          <ClipboardList className="w-4 h-4" /> <span className="hidden sm:inline">Citas Hoy</span>
+        </Button>
 
-        <TooltipProvider delayDuration={0}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={copyDailyReport} 
-                className="text-[10px] font-bold uppercase border-primary/40 bg-primary/5 text-primary hover:bg-primary/10 h-9 gap-2 px-4"
-              >
-                <ClipboardCheck className="w-4 h-4" /> Reporte Diario
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="top" className="max-w-[280px] space-y-3">
-              <div className="space-y-1">
-                <p className="text-[10px] font-bold text-primary uppercase">Vista previa del reporte:</p>
-                <div className="bg-muted/30 p-2 rounded text-[10px] font-mono leading-tight">
-                  ✅Citas atendidas: {metrics.atendidasToday}<br />
-                  ✅Citas para hoy: {metrics.todayTotal}<br />
-                  ✅Citas día siguiente: {metrics.tomorrowTotal}<br />
-                  ✅Ventas: {metrics.ventasToday}
-                </div>
-              </div>
-              <div className="pt-2 border-t border-border/10">
-                <p className="text-[10px] font-semibold text-orange-500 leading-tight">
-                  ⚠️ Es vital mandar estos datos al grupo de WhatsApp a las 11:00 AM, 3:00 PM y 6:00 PM.
-                </p>
-              </div>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={copyProspectorReport} 
+          className="text-[10px] font-bold uppercase border-blue-600/40 bg-blue-600/5 text-blue-700 h-9 gap-2 px-3 sm:px-4 flex-1 sm:flex-none"
+        >
+          <Users className="w-4 h-4" /> <span className="hidden sm:inline">Reporte Prospectores</span>
+        </Button>
+
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={copyDailyReport} 
+          className="text-[10px] font-bold uppercase border-primary/40 bg-primary/5 text-primary h-9 gap-2 px-3 sm:px-4 flex-1 sm:flex-none"
+        >
+          <ClipboardCheck className="w-4 h-4" /> <span className="hidden sm:inline">Reporte Diario</span>
+        </Button>
       </div>
 
       <AlertDialog open={!!confirmingApp} onOpenChange={(o) => !o && setConfirmingApp(null)}>
-        <AlertDialogContent className="z-[160] border-border">
+        <AlertDialogContent>
           <AlertDialogHeader>
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-primary/10 rounded-full">
-                <AlertCircle className="w-6 h-6 text-primary" />
-              </div>
-              <AlertDialogTitle className="text-foreground">Confirmar Asistencia</AlertDialogTitle>
+              <AlertCircle className="w-6 h-6 text-primary" />
+              <AlertDialogTitle>Confirmar Asistencia</AlertDialogTitle>
             </div>
-            <AlertDialogDescription className="text-muted-foreground">
-              ¿Confirmas que el cliente <strong>{confirmingApp?.name}</strong> asistirá a su cita el día de hoy? Esta acción se reflejará en tus estadísticas de cierre.
+            <AlertDialogDescription>
+              ¿Confirmas que el cliente <strong>{confirmingApp?.name}</strong> asistirá el día de hoy?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-border text-foreground hover:bg-muted">Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={processConfirmation} className="bg-primary hover:bg-primary/90 text-white">
-              Sí, confirmar asistencia
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={processConfirmation} className="bg-primary text-white">
+              Sí, confirmar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
       <Dialog open={!!finalizingApp} onOpenChange={(o) => !o && setFinalizingApp(null)}>
-        <DialogContent className="sm:max-w-[500px] border-green-200 bg-card shadow-2xl z-[160] max-h-[90vh] overflow-y-auto scrollbar-thin">
-          <DialogHeader className="bg-green-500/5 p-4 -m-6 mb-4 border-b border-green-500/20 shrink-0">
+        <DialogContent className="sm:max-w-[500px] z-[160] overflow-y-auto">
+          <DialogHeader className="bg-green-500/5 p-4 -m-6 mb-4 border-b border-green-500/20">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-green-500/20 rounded-xl">
                 <CheckIcon className="w-6 h-6 text-green-600" />
               </div>
               <div>
-                <DialogTitle className="text-foreground">Finalizar Consulta</DialogTitle>
-                <DialogDescription className="text-muted-foreground text-xs">Registrando resultado para {finalizingApp?.name}</DialogDescription>
+                <DialogTitle>Finalizar Consulta</DialogTitle>
+                <DialogDescription className="text-xs">Registrando resultado para {finalizingApp?.name}</DialogDescription>
               </div>
             </div>
           </DialogHeader>
@@ -577,7 +562,7 @@ export default function UpcomingAppointments({
             <div className="space-y-2">
               <Label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest block text-center">Resultado de la cita</Label>
               <Select value={finalStatus} onValueChange={(v) => setFinalStatus(v as AppointmentStatus)}>
-                <SelectTrigger className="w-full h-11 bg-muted/20 border border-border/40 text-sm">
+                <SelectTrigger className="w-full h-11 bg-muted/20 border-border/40 text-sm">
                   <SelectValue placeholder="Selecciona el resultado" />
                 </SelectTrigger>
                 <SelectContent className="z-[200]">
@@ -593,7 +578,7 @@ export default function UpcomingAppointments({
             </div>
 
             {finalStatus === 'Cierre' && (
-              <div className="p-6 bg-green-500/5 border-2 border-green-500/20 rounded-xl space-y-6">
+              <div className="p-4 sm:p-6 bg-green-500/5 border-2 border-green-500/20 rounded-xl space-y-6">
                 <div className="flex items-center justify-center gap-2 border-b border-green-500/10 pb-3">
                   <Coins className="w-4 h-4 text-green-600" />
                   <span className="text-[10px] font-bold uppercase tracking-widest text-green-700">Configuración Financiera</span>
@@ -601,16 +586,14 @@ export default function UpcomingAppointments({
                 
                 <div className="grid grid-cols-1 gap-6">
                   <div className="space-y-2 text-center">
-                    <Label className="text-[10px] font-bold uppercase text-muted-foreground block">
-                      Monto de Crédito Final
-                    </Label>
+                    <Label className="text-[10px] font-bold uppercase text-muted-foreground block">Monto de Crédito Final</Label>
                     <div className="relative max-w-[240px] mx-auto">
                       <span className="absolute left-4 top-2.5 text-xs font-bold text-green-600">$</span>
                       <Input 
                         type="text" 
                         value={creditInput} 
                         onChange={e => handleCreditChange(e.target.value)}
-                        className="h-10 pl-8 pr-4 bg-background border-green-500/30 text-sm font-black text-center focus:ring-green-500"
+                        className="h-10 pl-8 pr-4 bg-background border-green-500/30 text-sm font-black text-center"
                         placeholder="0"
                       />
                     </div>
@@ -624,7 +607,7 @@ export default function UpcomingAppointments({
                         max={100}
                         value={finalCommissionPercent || ''} 
                         onChange={e => setFinalCommissionPercent(parseFloat(e.target.value) || 0)}
-                        className="h-10 pr-8 bg-background border-green-500/30 text-sm font-black text-center focus:ring-green-500"
+                        className="h-10 pr-8 bg-background border-green-500/30 text-sm font-black text-center"
                         placeholder="100"
                       />
                       <span className="absolute right-4 top-2.5 text-xs font-bold text-green-600">%</span>
@@ -635,14 +618,9 @@ export default function UpcomingAppointments({
                 <div className="pt-4 border-t border-green-500/20 flex flex-col items-center gap-1">
                   <div className="flex items-center gap-1.5">
                     <span className="text-[9px] font-bold uppercase text-muted-foreground">Comisión Proyectada (Neto):</span>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild><Info className="w-3.5 h-3.5 opacity-40 cursor-help" /></TooltipTrigger>
-                        <TooltipContent className="text-[10px] z-[300]">Incluye retención del 9% de impuesto sobre el 0.7% del crédito.</TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                    <Info className="w-3.5 h-3.5 opacity-40" />
                   </div>
-                  <span className="text-2xl font-black text-green-600 tracking-tight">{formatCurrency(calculatedCommission)}</span>
+                  <span className="text-xl sm:text-2xl font-black text-green-600 tracking-tight">{formatCurrency(calculatedCommission)}</span>
                 </div>
               </div>
             )}
@@ -652,47 +630,39 @@ export default function UpcomingAppointments({
                 <MessageSquare className="w-3.5 h-3.5" /> Notas del resultado
               </Label>
               <Textarea 
-                placeholder="Escribe aquí los acuerdos, dudas o detalles del cierre..."
-                className="bg-muted/10 border-border/40 min-h-[120px] resize-none text-sm"
+                placeholder="Escribe aquí los acuerdos o detalles..."
+                className="bg-muted/10 border-border/40 min-h-[100px] resize-none text-sm"
                 value={finalNotes}
                 onChange={(e) => setFinalNotes(e.target.value)}
               />
             </div>
 
-            <div className="space-y-3">
-              <Collapsible open={showExecutiveSection} onOpenChange={(open) => {
-                setShowExecutiveSection(open);
-                if (open) {
-                  // Lógica de exclusividad manejada por Service
-                }
-              }}>
-                <CollapsibleTrigger asChild>
-                  <Button type="button" variant="ghost" size="sm" className="h-7 text-[10px] font-bold uppercase text-purple-600 hover:bg-purple-500/10 px-0">
-                    <UserCheck className="w-3.5 h-3.5 mr-2" />
-                    {showExecutiveSection ? 'Ocultar ejecutivo' : '¿Atiende otro ejecutivo?'}
-                    <ChevronDown className={cn("ml-2 h-3.5 w-3.5", showExecutiveSection && "rotate-180")} />
-                  </Button>
-                </CollapsibleTrigger>
-                <CollapsibleContent className="mt-2">
-                  <div className="p-4 border rounded-lg bg-purple-500/5 border-purple-500/20">
-                    <Label className="text-[9px] font-bold uppercase text-purple-600/70 mb-1.5 block">Ejecutivo de atención</Label>
-                    <Input 
-                      placeholder="Nombre del ejecutivo que dio atención..."
-                      className="bg-background border-purple-500/20 h-10 text-sm"
-                      value={attendingExecutive}
-                      onChange={(e) => setAttendingExecutive(e.target.value)}
-                    />
-                    <p className="text-[9px] text-muted-foreground/60 italic mt-1">Solo rellena este campo si la atención NO fue dada por ti.</p>
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-            </div>
+            <Collapsible open={showExecutiveSection} onOpenChange={setShowExecutiveSection}>
+              <CollapsibleTrigger asChild>
+                <Button type="button" variant="ghost" size="sm" className="h-7 text-[10px] font-bold uppercase text-purple-600 hover:bg-purple-500/10 px-0">
+                  <UserCheck className="w-3.5 h-3.5 mr-2" />
+                  {showExecutiveSection ? 'Ocultar ejecutivo' : '¿Atiende otro ejecutivo?'}
+                  <ChevronDown className={cn("ml-2 h-3.5 w-3.5", showExecutiveSection && "rotate-180")} />
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-2">
+                <div className="p-4 border rounded-lg bg-purple-500/5 border-purple-500/20">
+                  <Label className="text-[9px] font-bold uppercase text-purple-600/70 mb-1.5 block">Ejecutivo de atención</Label>
+                  <Input 
+                    placeholder="Nombre del ejecutivo..."
+                    className="bg-background border-purple-500/20 h-10 text-sm"
+                    value={attendingExecutive}
+                    onChange={(e) => setAttendingExecutive(e.target.value)}
+                  />
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
           </div>
 
-          <DialogFooter className="gap-2 mt-4 shrink-0">
-            <Button variant="ghost" onClick={() => setFinalizingApp(null)} className="h-11 px-6 font-bold uppercase text-xs">Cancelar</Button>
-            <Button onClick={handleSaveFinalization} className="bg-green-600 hover:bg-green-700 text-white h-11 flex-1 font-bold shadow-lg gap-2">
-              <Save className="w-4 h-4" /> Guardar Resultado
+          <DialogFooter className="gap-2 mt-4 shrink-0 flex-row">
+            <Button variant="ghost" onClick={() => setFinalizingApp(null)} className="h-11 px-4 font-bold uppercase text-xs flex-1">Cancelar</Button>
+            <Button onClick={handleSaveFinalization} className="bg-green-600 hover:bg-green-700 text-white h-11 font-bold shadow-lg gap-2 flex-[2]">
+              <Save className="w-4 h-4" /> Guardar
             </Button>
           </DialogFooter>
         </DialogContent>
