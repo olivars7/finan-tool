@@ -280,8 +280,9 @@
     @apply px-3;
   }
 
-  /* Notificaciones móviles más compactas */
+  /* Notificaciones móviles en la parte superior y deslizables */
   [role="status"] {
-    @apply !fixed !bottom-4 !left-4 !right-4 !w-auto !max-w-none !mb-0 !rounded-2xl !p-4;
+    @apply !fixed !top-4 !bottom-auto !left-4 !right-4 !w-auto !max-w-none !mb-0 !rounded-2xl !p-4;
+    transition: transform 200ms ease-out !important;
   }
 }

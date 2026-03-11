@@ -1,8 +1,8 @@
-
 "use client"
 
 import { useEffect, useRef } from "react"
 import { useToast } from "@/hooks/use-toast"
+import { useIsMobile } from "@/hooks/use-mobile"
 import {
   Toast,
   ToastClose,
@@ -14,6 +14,7 @@ import {
 
 export function Toaster() {
   const { toasts } = useToast()
+  const isMobile = useIsMobile()
   const processedToastIds = useRef(new Set<string>())
 
   useEffect(() => {
@@ -37,15 +38,12 @@ export function Toaster() {
         let volume = 0.3;
 
         if (isWelcome) {
-          // Sonido de bienvenida simple (un ding elegante)
           soundUrl = "https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3"; 
           volume = 0.8; 
         } else if (isActionRequired) {
-          // Sonido de aviso del sistema
           soundUrl = "https://assets.mixkit.co/active_storage/sfx/2356/2356-preview.mp3"; 
           volume = 0.4;
         } else if (t.variant === 'destructive' || isCopyAction) {
-          // Sonido de acción corta/error
           soundUrl = "https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3"; 
           volume = 0.5;
         }
@@ -65,7 +63,7 @@ export function Toaster() {
   }, [toasts])
 
   return (
-    <ToastProvider>
+    <ToastProvider swipeDirection={isMobile ? "up" : "right"}>
       {toasts.map(function ({ id, title, description, action, ...props }) {
         return (
           <Toast key={id} {...props}>
