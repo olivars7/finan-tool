@@ -267,10 +267,6 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
         if (nextApp) {
           shownCommissionIds.current.add(nextApp.id);
           setPendingCommissionApp(nextApp);
-          
-          const audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3");
-          audio.volume = 0.4;
-          audio.play().catch(() => {});
         }
       }
     };
@@ -324,9 +320,6 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
 
   const handleCelebration = (app: Service.Appointment) => {
     setCelebrationApp(app);
-    const audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3");
-    audio.volume = 0.6;
-    audio.play().catch(() => {});
   };
 
   const handleGlobalReset = () => {
@@ -634,9 +627,9 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
             <Button 
               variant="outline" 
               onClick={() => handleToggleSimulator(true)}
-              className="h-40 flex flex-col items-center justify-center gap-4 bg-primary/5 border-primary/20 rounded-[2.5rem] shadow-[0_8px_30px_rgb(var(--primary)/0.1)] active:scale-95 transition-all group overflow-hidden relative"
+              className="h-40 flex flex-col items-center justify-center gap-4 bg-primary/[0.03] border-primary/10 rounded-[2.5rem] shadow-[0_8px_30px_rgb(var(--primary)/0.05)] active:scale-[0.98] active:bg-primary/[0.06] transition-all group overflow-hidden relative"
             >
-              <div className="absolute top-0 right-0 w-16 h-16 bg-primary/10 rounded-bl-full opacity-50 group-active:scale-150 transition-transform" />
+              <div className="absolute top-0 right-0 w-16 h-16 bg-primary/10 rounded-bl-full opacity-50 group-active:scale-125 transition-transform" />
               <div className="p-4 bg-primary/10 rounded-2xl text-primary shadow-inner"><Calculator className="w-8 h-8" /></div>
               <div className="space-y-1 text-center">
                 <span className="text-[11px] font-black uppercase tracking-widest block">Calculadora</span>
@@ -647,9 +640,9 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
             <Button 
               variant="outline" 
               onClick={() => setIsNewAppExpanded(true)}
-              className="h-40 flex flex-col items-center justify-center gap-4 bg-accent/5 border-accent/20 rounded-[2.5rem] shadow-[0_8px_30px_rgb(var(--accent)/0.1)] active:scale-95 transition-all group overflow-hidden relative"
+              className="h-40 flex flex-col items-center justify-center gap-4 bg-accent/[0.03] border-accent/10 rounded-[2.5rem] shadow-[0_8px_30px_rgb(var(--accent)/0.05)] active:scale-[0.98] active:bg-accent/[0.06] transition-all group overflow-hidden relative"
             >
-              <div className="absolute top-0 right-0 w-16 h-16 bg-accent/10 rounded-bl-full opacity-50 group-active:scale-150 transition-transform" />
+              <div className="absolute top-0 right-0 w-16 h-16 bg-accent/10 rounded-bl-full opacity-50 group-active:scale-125 transition-transform" />
               <div className="p-4 bg-accent/10 rounded-2xl text-accent shadow-inner"><UserPlus className="w-8 h-8" /></div>
               <div className="space-y-1 text-center">
                 <span className="text-[11px] font-black uppercase tracking-widest block">Nueva Cita</span>
@@ -660,9 +653,9 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
             <Button 
               variant="outline" 
               onClick={() => handleToggleGestor(true)}
-              className="h-40 flex flex-col items-center justify-center gap-4 bg-blue-600/5 border-blue-600/20 rounded-[2.5rem] shadow-[0_8px_30px_rgb(37,99,235,0.1)] active:scale-95 transition-all group overflow-hidden relative"
+              className="h-40 flex flex-col items-center justify-center gap-4 bg-blue-600/[0.03] border-blue-600/10 rounded-[2.5rem] shadow-[0_8px_30px_rgb(37,99,235,0.05)] active:scale-[0.98] active:bg-blue-600/[0.06] transition-all group overflow-hidden relative"
             >
-              <div className="absolute top-0 right-0 w-16 h-16 bg-blue-600/10 rounded-bl-full opacity-50 group-active:scale-150 transition-transform" />
+              <div className="absolute top-0 right-0 w-16 h-16 bg-blue-600/10 rounded-bl-full opacity-50 group-active:scale-125 transition-transform" />
               <div className="p-4 bg-blue-600/10 rounded-2xl text-blue-600 shadow-inner"><CalendarClock className="w-8 h-8" /></div>
               <div className="space-y-1 text-center">
                 <span className="text-[11px] font-black uppercase tracking-widest block">Agenda</span>
@@ -673,9 +666,9 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
             <Button 
               variant="outline" 
               onClick={() => handleToggleStats(true)}
-              className="h-40 flex flex-col items-center justify-center gap-4 bg-yellow-500/5 border-yellow-500/20 rounded-[2.5rem] shadow-[0_8px_30px_rgb(234,179,8,0.1)] active:scale-95 transition-all group overflow-hidden relative"
+              className="h-40 flex flex-col items-center justify-center gap-4 bg-yellow-500/[0.03] border-yellow-500/10 rounded-[2.5rem] shadow-[0_8px_30px_rgb(234,179,8,0.05)] active:scale-[0.98] active:bg-yellow-500/[0.06] transition-all group overflow-hidden relative"
             >
-              <div className="absolute top-0 right-0 w-16 h-16 bg-yellow-500/10 rounded-bl-full opacity-50 group-active:scale-150 transition-transform" />
+              <div className="absolute top-0 right-0 w-16 h-16 bg-yellow-500/10 rounded-bl-full opacity-50 group-active:scale-125 transition-transform" />
               <div className="p-4 bg-yellow-500/10 rounded-2xl text-yellow-600 shadow-inner"><BarChart3 className="w-8 h-8" /></div>
               <div className="space-y-1 text-center">
                 <span className="text-[11px] font-black uppercase tracking-widest block">Stats Pro</span>

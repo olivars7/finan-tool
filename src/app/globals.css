@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -153,9 +152,15 @@
   header { @apply backdrop-blur-[12px] bg-card/10 !important; }
   
   /* Generic Transparent Glass Style for small Dialogs and Toasts */
-  [role="dialog"]:not([data-calculator-dialog="true"]):not([data-appointments-dialog="true"]), 
-  [role="status"] { 
+  [role="dialog"]:not([data-calculator-dialog="true"]):not([data-appointments-dialog="true"]) { 
     @apply backdrop-blur-[16px] shadow-2xl border border-border/40 rounded-xl !important; 
+    background-color: hsl(var(--card) / 0.8) !important;
+    color: hsl(var(--foreground)) !important;
+  }
+
+  /* Toasts (Notifications) specifically without borders as requested */
+  [role="status"] { 
+    @apply backdrop-blur-[16px] shadow-2xl border-none rounded-xl !important; 
     background-color: hsl(var(--card) / 0.8) !important;
     color: hsl(var(--foreground)) !important;
   }
@@ -283,7 +288,7 @@
 
   /* Notificaciones móviles en la parte superior y deslizables */
   [role="status"] {
-    @apply !fixed !top-4 !bottom-auto !left-4 !right-4 !w-auto !max-w-none !mb-0 !rounded-2xl !p-4;
+    @apply !fixed !top-4 !bottom-auto !left-4 !right-4 !w-auto !max-w-none !mb-0 !rounded-2xl !p-4 !border-none;
     transition: transform 200ms ease-out !important;
   }
 }
