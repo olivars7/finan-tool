@@ -39,6 +39,10 @@ const ZeroLabel = (props: any) => {
 
 const CustomBarLabel = (props: any) => {
   const { x, y, width, value, payload } = props;
+  
+  // VALIDACIÓN DE SEGURIDAD: Evitar crash si payload no está definido durante la animación o carga
+  if (!payload) return null;
+
   if (payload.isPaga && payload.projectedPay > 0) {
     return (
       <g>
@@ -90,7 +94,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
             <Icon className="w-4 h-4 text-primary" />
             <div className="flex flex-col">
               <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">{title}</CardTitle>
-              <span className="text-[8px] font-medium text-muted-foreground/40 uppercase">Monitor de 15 días • Hoy es el día 8</span>
+              <span className="text-[8px] font-medium text-muted-foreground/40 uppercase">Monitor de 15 días • El día 8 es Hoy</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -352,6 +356,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
 
           <div className="flex-1 overflow-y-auto scrollbar-thin bg-muted/5">
             <div className="max-w-[1400px] mx-auto p-4 md:p-8 space-y-8 pb-24">
+              {/* MICRO STATS ROW (Always first in expanded view) */}
               <div className="flex overflow-x-auto gap-3 pb-4 scrollbar-thin md:grid md:grid-cols-5 md:pb-0">
                 {[
                   { icon: CalendarDays, color: 'text-primary', label: 'Citas Hoy', value: stats.todayCount || 0, val1: stats.todayConfirmed || 0, sub1: 'Conf.' },
@@ -391,14 +396,17 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
               
               <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
                 <div className="xl:col-span-8 space-y-6">
+                  {/* WEEKLY HISTORY (Visible in both) */}
                   <div className="animate-finanto-reveal opacity-0 delay-200">
                     <WeeklyHistoryChart />
                   </div>
                   
+                  {/* FORTNIGHT MONITOR (Main chart) */}
                   <div className="animate-finanto-reveal opacity-0 delay-300">
                     <FortnightMonitor data={stats.charts.fortnightActivity} title="Monitor Operativo de 15 Días" icon={CalendarDays} expanded />
                   </div>
                   
+                  {/* FINANCIAL SUMMARY TABLE (Visible in both) */}
                   <Card className="bg-card border-border/40 overflow-hidden animate-finanto-reveal opacity-0 delay-500">
                     <CardHeader className="bg-muted/30 p-4 border-b text-xs font-bold uppercase flex items-center justify-between">
                       <div className="flex items-center gap-2"><Zap className="w-4 h-4 text-yellow-500" /> Rendimiento Financiero del Mes</div>
@@ -438,6 +446,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                   </Card>
                 </div>
                 
+                {/* SIDEBAR (Desktop Only) */}
                 <div className="xl:col-span-4 space-y-6 hidden md:block">
                   <div className="animate-finanto-reveal opacity-0 delay-300">
                     <PerformanceSection />
