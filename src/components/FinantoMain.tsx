@@ -549,7 +549,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
                 key={i}
                 className={cn(
                   "bg-card/30 backdrop-blur-md border-none hover:bg-card/50 cursor-default h-full transition-all duration-300 relative overflow-hidden animate-finanto-reveal opacity-0",
-                  i === 0 ? "delay-100" : i === 1 ? "delay-200" : i === 2 ? "delay-300" : i === 3 ? "delay-400" : i === 4 ? "delay-500" : ""
+                  i === 0 ? "delay-100" : i === 1 ? "delay-200" : i === 2 ? "delay-300" : i === 3 ? "delay-400" : i === 4 ? "delay-500 col-span-2 md:col-span-1" : ""
                 )}
               >
                 <CardContent className="p-3 sm:p-4 flex items-center gap-2 sm:gap-3 relative z-10">
@@ -594,7 +594,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
               return (
                 <TooltipProvider key={i}>
                   <Tooltip delayDuration={0}>
-                    <TooltipTrigger asChild>
+                    <TooltipTrigger asChild className={i === 4 ? "col-span-2 md:col-span-1" : ""}>
                       {cardContent}
                     </TooltipTrigger>
                     <TooltipContent side="bottom" sideOffset={1}>
@@ -605,7 +605,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
               );
             }
 
-            return <div key={i}>{cardContent}</div>;
+            return <div key={i} className={i === 4 ? "col-span-2 md:col-span-1" : ""}>{cardContent}</div>;
           })}
         </div>
 
@@ -746,7 +746,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
           onInteractOutside={(e) => {
             if ((e.target as HTMLElement).closest('[role="status"]')) e.preventDefault();
           }}
-          className="sm:max-w-[750px] h-[85vh] flex flex-col p-0 overflow-hidden bg-card shadow-2xl border-none"
+          className="sm:max-w-[750px] h-screen sm:h-[85vh] flex flex-col p-0 overflow-hidden bg-card shadow-2xl border-none"
         >
           <DialogHeader className="p-6 sm:p-8 border-b bg-primary/5 shrink-0">
             <div className="flex items-center gap-4">
@@ -864,7 +864,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
           onInteractOutside={(e) => {
             if ((e.target as HTMLElement).closest('[role="status"]')) e.preventDefault();
           }}
-          className="sm:max-w-[450px] border-none bg-gradient-to-br from-blue-700 to-indigo-900 shadow-2xl text-white p-0 overflow-hidden"
+          className="sm:max-w-[450px] border-none bg-gradient-to-br from-blue-700 to-indigo-900 shadow-2xl text-white p-0 overflow-hidden h-screen sm:h-auto"
         >
           <div className="p-6 space-y-6">
             <div className="flex items-center justify-between">
@@ -926,7 +926,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
           onInteractOutside={(e) => {
             if ((e.target as HTMLElement).closest('[role="status"]')) e.preventDefault();
           }}
-          className="sm:max-w-[480px] border-none bg-gradient-to-br from-green-600 to-emerald-800 shadow-2xl text-white p-0 overflow-hidden"
+          className="sm:max-w-[480px] border-none bg-gradient-to-br from-green-600 to-emerald-800 shadow-2xl text-white p-0 overflow-hidden h-screen sm:h-auto"
         >
           <div className="relative p-6 sm:p-8 space-y-6">
             <div className="absolute top-0 right-0 p-4 opacity-10">

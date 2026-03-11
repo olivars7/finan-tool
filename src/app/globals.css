@@ -263,15 +263,16 @@
 
 /* Mobile Responsive Overrides */
 @media (max-width: 768px) {
-  /* Diálogos Estilo Bottom Sheet */
+  /* Diálogos Full Screen en Móvil */
   [role="dialog"] {
-    @apply !rounded-t-[2rem] !rounded-b-none !bottom-0 !top-auto !translate-y-0 !left-0 !right-0 !max-w-none !w-full !max-h-[92vh] !duration-300 !translate-x-0;
+    @apply !rounded-none !inset-0 !translate-y-0 !translate-x-0 !max-w-none !w-full !h-full !max-h-none !duration-200 !border-none;
     margin: 0 !important;
     padding-bottom: env(safe-area-inset-bottom) !important;
+    background-color: hsl(var(--background)) !important;
   }
 
   [data-state="open"][role="dialog"] {
-    animation: slide-in-from-bottom 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    animation: finanto-reveal 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
   }
 
   /* Ajustes de espaciado móvil */
@@ -279,19 +280,8 @@
     @apply px-3;
   }
 
-  /* Tarjetas de estadísticas compactas */
-  .grid-cols-2 {
-    @apply gap-2;
-  }
-
-  /* Notificaciones móviles */
+  /* Notificaciones móviles más compactas */
   [role="status"] {
-    @apply !fixed !bottom-4 !left-4 !right-4 !w-auto !max-w-none !mb-0 !rounded-2xl;
+    @apply !fixed !bottom-4 !left-4 !right-4 !w-auto !max-w-none !mb-0 !rounded-2xl !p-4;
   }
-}
-
-/* Keyframes para Hojas Deslizables */
-@keyframes slide-in-from-bottom {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
 }
