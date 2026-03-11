@@ -5,6 +5,11 @@ import { Toaster } from "@/components/ui/toaster";
 export const metadata: Metadata = {
   title: 'Finanto - Gestión de Financiamiento Inmobiliario',
   description: 'Sistema especializado en financiamiento inmobiliario y gestión de prospectos para ejecutivos profesionales.',
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/favicon.ico',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',

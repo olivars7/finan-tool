@@ -16,15 +16,15 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: '#1877F2',
     icons: [
       {
-        src: 'https://picsum.photos/seed/finanto-pwa-192/192/192',
-        sizes: '192x192',
-        type: 'image/png',
+        src: '/favicon.ico',
+        sizes: 'any',
+        type: 'image/x-icon',
         purpose: 'maskable',
       },
       {
-        src: 'https://picsum.photos/seed/finanto-pwa-512/512/512',
-        sizes: '512x512',
-        type: 'image/png',
+        src: '/favicon.ico',
+        sizes: 'any',
+        type: 'image/x-icon',
         purpose: 'any',
       },
     ],
