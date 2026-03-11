@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState } from 'react';
@@ -9,9 +8,9 @@ import {
   CheckCircle, ClipboardCheck, Phone, Box, ChevronRight, 
   CheckCircle as CheckIcon,
   Save, MessageSquare, Coins, Info, UserCog, UserCheck, ChevronDown,
-  ClipboardList, Users, MoreVertical
+  ClipboardList
 } from "lucide-react";
-import { parseISO, isToday, isTomorrow, format, addDays, isSameDay, startOfDay } from 'date-fns';
+import { parseISO, isToday, format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -45,19 +44,7 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 interface Props {
   appointments: Appointment[];
@@ -248,7 +235,6 @@ export default function UpcomingAppointments({
           </div>
         ) : (
           <ScrollArea className="flex-1 scrollbar-thin">
-            {/* Desktop Table View */}
             <div className="hidden md:block">
               <Table className="border-collapse separate border-spacing-0">
                 <TableHeader className="sticky top-0 z-30 bg-card shadow-sm border-b">
@@ -353,7 +339,6 @@ export default function UpcomingAppointments({
               </Table>
             </div>
 
-            {/* Mobile Card View */}
             <div className="block md:hidden divide-y divide-border/10">
               {appointments.map((app) => {
                 const appToday = isActuallyToday(app.date);
@@ -449,7 +434,7 @@ export default function UpcomingAppointments({
           onClick={copyAllTodayAppointments} 
           className="text-[10px] font-bold uppercase border-blue-500/40 bg-blue-500/5 text-blue-600 h-9 gap-2 px-3 sm:px-4 flex-1 sm:flex-none"
         >
-          <ClipboardList className="w-4 h-4" /> <span className="hidden sm:inline">Citas Hoy</span>
+          <ClipboardList className="w-4 h-4" /> <span>Citas Hoy</span>
         </Button>
       </div>
 
@@ -488,8 +473,8 @@ export default function UpcomingAppointments({
           </DialogHeader>
           
           <div className="space-y-6 pt-4">
-            <div className="space-y-2">
-              <Label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest block text-center">Resultado de la cita</Label>
+            <div className="space-y-2 text-center">
+              <Label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest block">Resultado de la cita</Label>
               <Select value={finalStatus} onValueChange={(v) => setFinalStatus(v as AppointmentStatus)}>
                 <SelectTrigger className="w-full h-11 bg-muted/20 border-border/40 text-sm">
                   <SelectValue placeholder="Selecciona el resultado" />
@@ -560,7 +545,7 @@ export default function UpcomingAppointments({
               </Label>
               <Textarea 
                 placeholder="Escribe aquí los acuerdos o detalles..."
-                className="bg-muted/10 border-border/40 min-h-[100px] resize-none text-sm"
+                className="bg-muted/10 border-border/40 min-h-[100px] resize-none text-sm w-full"
                 value={finalNotes}
                 onChange={(e) => setFinalNotes(e.target.value)}
               />

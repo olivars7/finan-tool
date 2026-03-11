@@ -31,16 +31,9 @@ const chartConfig = {
   income: { label: "Ingresos", color: "hsl(var(--primary))" }
 } satisfies ChartConfig;
 
-const ZeroLabel = (props: any) => {
-  const { x, y, width, value } = props;
-  if (value > 0) return null;
-  return <text x={x + width / 2} y={y - 5} fill="currentColor" textAnchor="middle" className="text-[8px] font-bold opacity-30">×</text>;
-};
-
 const CustomBarLabel = (props: any) => {
   const { x, y, width, value, payload } = props;
   
-  // VALIDACIÓN DE SEGURIDAD: Evitar crash si payload no está definido durante la animación o carga
   if (!payload) return null;
 
   if (payload.isPaga && payload.projectedPay > 0) {
@@ -65,9 +58,33 @@ const CustomBarLabel = (props: any) => {
   return null;
 };
 
+const CustomXAxisTick = (props: any) => {
+  const { x, y, payload, data } = props;
+  const item = data[payload.index];
+  if (!item) return null;
+
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text x={0} y={0} dy={16} textAnchor="middle" fill="currentColor" className="text-[9px] font-bold opacity-60 uppercase">
+        {item.day}
+      </text>
+      <g transform="translate(0, 32)">
+        <text x={0} y={0} textAnchor="middle" fill="currentColor" className="text-[10px] font-black">
+          {item.dayInitial}
+        </text>
+        {item.isCorte && (
+          <circle cx={10} cy={-3} r={2.5} fill="#ef4444" />
+        )}
+        {item.isPaga && (
+          <circle cx={10} cy={-3} r={2.5} fill="#1877f2" />
+        )}
+      </g>
+    </g>
+  );
+};
+
 export default function AdvancedStats({ stats, isExpanded = false, onExpandedChange }: AdvancedStatsProps) {
-  const totalMonth = stats.currentMonthProspects || 0;
-  const attendanceRate = totalMonth > 0 ? Math.min(95, 75 + (stats.todayConfirmed / (stats.todayCount || 1) * 10)) : 0;
+  const attendanceRate = (stats.todayConfirmed / (stats.todayCount || 1)) * 100;
   const closingRate = attendanceRate > 0 ? (stats.conversionRate / (attendanceRate / 100)) : 0;
   const monthlyGrowth = stats.lastMonthProspects > 0 ? ((stats.currentMonthProspects - stats.lastMonthProspects) / stats.lastMonthProspects) * 100 : 0;
   const taxImpact = (stats.currentMonthCommission || 0) / 0.91 * 0.09;
@@ -98,13 +115,13 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
             </div>
           </div>
           <div className="flex items-center gap-3">
-             <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-destructive/40" /> <span className="text-[8px] font-bold uppercase opacity-60">Corte Martes</span></div>
-             <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-primary/40" /> <span className="text-[8px] font-bold uppercase opacity-60">Paga Viernes</span></div>
+             <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-destructive/40" /> <span className="text-[8px] font-bold uppercase opacity-60">Corte</span></div>
+             <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-primary/40" /> <span className="text-[8px] font-bold uppercase opacity-60">Paga</span></div>
           </div>
         </CardHeader>
-        <CardContent className={cn("p-4 overflow-visible", expanded ? "h-[350px]" : "h-[220px]")}>
+        <CardContent className={cn("p-4 overflow-visible", expanded ? "h-[380px]" : "h-[250px]")}>
           <ChartContainer config={chartConfig} className="h-full w-full">
-            <BarChart data={data} margin={{ top: 30, right: 10, left: 10, bottom: 5 }}>
+            <BarChart data={data} margin={{ top: 30, right: 10, left: 10, bottom: 40 }}>
               <defs>
                 <linearGradient id="cierreGradient" x1="0" x1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#00F5FF" />
@@ -114,7 +131,13 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                 </linearGradient>
               </defs>
               <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
-              <XAxis dataKey="day" tickLine={false} tickMargin={10} axisLine={false} className="text-[10px] font-bold uppercase text-muted-foreground/60" />
+              <XAxis 
+                dataKey="day" 
+                tickLine={false} 
+                axisLine={false} 
+                interval={0}
+                tick={<CustomXAxisTick data={data} />} 
+              />
               <YAxis hide domain={[0, stats.charts.globalMax + 3]} />
               <ChartTooltip 
                 content={({ active, payload }) => {
@@ -448,10 +471,6 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                 
                 {/* SIDEBAR (Desktop Only) */}
                 <div className="xl:col-span-4 space-y-6 hidden md:block">
-                  <div className="animate-finanto-reveal opacity-0 delay-300">
-                    <PerformanceSection />
-                  </div>
-                  
                   <Card className="border-accent/20 bg-accent/5 p-6 space-y-4 animate-finanto-reveal opacity-0 delay-400">
                     <div className="flex items-center gap-2">
                       <AlertCircle className="w-5 h-5 text-accent" />

@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -22,7 +23,7 @@ import {
   User, Phone, Clock, Edit2, Save, Copy, ClipboardList, 
   CheckCircle2, Box, CalendarPlus, Receipt, Coins, 
   CalendarDays, UserCog, ChevronDown, History as HistoryIcon, 
-  Info, Trash2, Archive, UserCheck
+  Info, Trash2, UserCheck
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { parseISO, format, isToday, isTomorrow, isYesterday, differenceInCalendarDays, startOfDay } from 'date-fns';
@@ -101,7 +102,6 @@ export default function AppointmentDetailsDialog({
       setNewNotes(appointment.notes || '');
       setNewType(appointment.status === 'Cierre' ? 'Seguimiento' : '2da consulta');
       
-      // Herencia mutua exclusiva
       if (appointment.prospectorName) {
         setNewProspectorName(appointment.prospectorName);
         setNewProspectorPhone(appointment.prospectorPhone || '');
@@ -712,7 +712,7 @@ Hora: ${timeBold}${confirmedBold}`;
             <Label className="flex items-center gap-2 text-muted-foreground text-[10px] font-bold uppercase tracking-wider shrink-0 mb-1">📝 Notas del cliente</Label>
             <Textarea 
               placeholder="Detalles importantes..."
-              className="bg-muted/10 border-border/30 h-[200px] resize-none text-sm backdrop-blur-sm"
+              className="bg-muted/10 border-border/30 h-[180px] resize-none text-sm backdrop-blur-sm w-full"
               value={isEditing ? editData.notes : appointment.notes}
               onChange={e => setEditData({...editData, notes: e.target.value})}
               readOnly={!isEditing}
@@ -852,7 +852,7 @@ Hora: ${timeBold}${confirmedBold}`;
                 <Textarea 
                   value={newNotes} 
                   onChange={e => setNewNotes(e.target.value)} 
-                  className="bg-muted/10 border-border/40 h-24 resize-none text-xs" 
+                  className="bg-muted/10 border-border/40 h-24 resize-none text-xs w-full" 
                   placeholder="Escribe acuerdos previos o temas a tratar..."
                 />
               </div>

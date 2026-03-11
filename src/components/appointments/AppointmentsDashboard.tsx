@@ -2,7 +2,6 @@
 "use client"
 
 import React, { useState, useMemo } from 'react';
-import AppointmentForm from './AppointmentForm';
 import UpcomingAppointments from './UpcomingAppointments';
 import PastAppointments from './PastAppointments';
 import AppointmentDetailsDialog from './AppointmentDetailsDialog';
@@ -18,8 +17,7 @@ import {
   CalendarDays,
   TrendingUp,
   Coins,
-  CheckCircle2,
-  Info
+  CheckCircle2
 } from 'lucide-react';
 import { Appointment } from '@/services/appointment-service';
 import { parseISO, isAfter, isBefore, isToday, startOfDay, format } from 'date-fns';
@@ -35,6 +33,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from '@/lib/utils';
+import AppointmentForm from './AppointmentForm';
 
 interface DashboardContentProps {
   expanded?: boolean;
@@ -68,8 +67,6 @@ const DashboardContent = ({
     if (!searchTerm) return true;
     
     const s = normalizeStr(searchTerm);
-    
-    // Generar string de fecha casual (ej: "martes 3 marzo")
     const dateObj = parseISO(a.date);
     const casualDate = format(dateObj, "EEEE d MMMM", { locale: es });
     
@@ -115,7 +112,6 @@ const DashboardContent = ({
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col flex-1 min-h-0">
-      {/* Micro stats only show on desktop when expanded */}
       {expanded && (
         <div className="hidden md:flex flex-col gap-4 mb-6 shrink-0 bg-muted/10 p-6 rounded-2xl border border-border/30 backdrop-blur-md animate-finanto-reveal opacity-0 delay-100">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
@@ -209,7 +205,6 @@ export default function AppointmentsDashboard({
 
   return (
     <div className="space-y-6">
-      {/* On desktop we show form inline, but on mobile mosaic we have a separate button */}
       <div className="hidden md:block">
         <AppointmentForm onAdd={addAppointment} />
       </div>
@@ -258,21 +253,25 @@ export default function AppointmentsDashboard({
       </Card>
 
       <Dialog open={isExpanded} onOpenChange={onExpandedChange}>
-        <DialogContent data-appointments-dialog="true" className="max-w-none w-screen h-screen m-0 rounded-none bg-background border-none p-0 flex flex-col overflow-hidden">
+        <DialogContent 
+          onOpenAutoFocus={(e) => e.preventDefault()}
+          data-appointments-dialog="true" 
+          className="max-w-none w-screen h-screen m-0 rounded-none bg-background border-none p-0 flex flex-col overflow-hidden"
+        >
           <DialogHeader className="px-6 py-4 border-b border-border/40 flex flex-row items-center justify-between bg-card/10 shrink-0">
             <div className="flex items-center gap-3">
               <div className="bg-blue-600/20 p-2 rounded-xl border border-blue-600/30">
                 <LayoutDashboard className="text-blue-600 w-6 h-6" />
               </div>
-              <div>
+              <div className="hidden sm:block">
                 <DialogTitle className="text-xl font-bold">Agenda</DialogTitle>
                 <DialogDescription className="text-xs">Vista completa del flujo.</DialogDescription>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="relative w-80 md:w-80">
-                <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Buscar cliente..." className="pl-9 h-10 bg-muted/10 border-border/40" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+            <div className="flex items-center gap-2 sm:gap-4 flex-1 justify-end px-2">
+              <div className="relative w-full max-w-[200px] sm:max-w-xs">
+                <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-muted-foreground" />
+                <Input placeholder="Buscar..." className="pl-8 h-8 bg-muted/10 border-border/40 text-sm focus-visible:ring-blue-600" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
               </div>
               <DialogClose asChild>
                 <Button variant="ghost" size="icon" className="rounded-full hover:bg-destructive/10 h-10 w-10">

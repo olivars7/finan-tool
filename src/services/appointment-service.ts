@@ -370,6 +370,7 @@ export const calculateStats = (appointments: Appointment[]) => {
     const start = subDays(todayStart, 7);
     const end = addDays(todayStart, 7);
     const interval = eachDayOfInterval({ start, end });
+    const dayInitials = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
     
     return interval.map(day => {
       const dayStr = format(day, 'd MMM', { locale: es });
@@ -397,6 +398,7 @@ export const calculateStats = (appointments: Appointment[]) => {
 
       return { 
         day: dayStr, 
+        dayInitial: dayInitials[dayOfWeek],
         agendadas, 
         atendidas, 
         cierres, 
