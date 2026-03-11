@@ -9,7 +9,7 @@ import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
-  TrendingUp, BarChart3, Maximize2, X, Activity, CalendarDays, Trophy, Users, History, Coins, ArrowUpRight, ArrowDownRight, Zap, Target, Receipt, Percent, Info, LineChart as LineIcon
+  TrendingUp, BarChart3, Maximize2, X, Activity, CalendarDays, Trophy, Users, History, Coins, ArrowUpRight, ArrowDownRight, Zap, Target, Receipt, Percent, Info, LineChart as LineIcon, AlertCircle
 } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Cell, LabelList, ReferenceArea, ReferenceLine, Line, LineChart, ResponsiveContainer } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
@@ -37,6 +37,30 @@ const ZeroLabel = (props: any) => {
   return <text x={x + width / 2} y={y - 5} fill="currentColor" textAnchor="middle" className="text-[8px] font-bold opacity-30">×</text>;
 };
 
+const CustomBarLabel = (props: any) => {
+  const { x, y, width, value, payload } = props;
+  if (payload.isPaga && payload.projectedPay > 0) {
+    return (
+      <g>
+        <text x={x + width / 2} y={y - 25} fill="hsl(var(--primary))" textAnchor="middle" className="text-[9px] font-black">
+          ${(payload.projectedPay / 1000).toFixed(1)}k
+        </text>
+        <text x={x + width / 2} y={y - 12} fill="hsl(var(--primary))" textAnchor="middle" className="text-[7px] font-bold uppercase opacity-60">
+          PAGA
+        </text>
+      </g>
+    );
+  }
+  if (payload.isCorte) {
+    return (
+      <text x={x + width / 2} y={y - 12} fill="hsl(var(--destructive))" textAnchor="middle" className="text-[7px] font-bold uppercase opacity-60">
+        CORTE
+      </text>
+    );
+  }
+  return null;
+};
+
 export default function AdvancedStats({ stats, isExpanded = false, onExpandedChange }: AdvancedStatsProps) {
   const totalMonth = stats.currentMonthProspects || 0;
   const attendanceRate = totalMonth > 0 ? Math.min(95, 75 + (stats.todayConfirmed / (stats.todayCount || 1) * 10)) : 0;
@@ -56,32 +80,27 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
     return "text-gradient-lima-blue";
   };
 
-  const getAdvice = () => {
-    if (stats.conversionRate > 20) return "Vas muy bien con los cierres. Hay que seguir enfocados en los prospectos que sí están perfilados.";
-    if (stats.conversionRate < 8) return "Andamos algo bajos en cierres. Habría que checar si estamos perfilando bien desde la primera llamada.";
-    return "Vas a un ritmo constante. Lo ideal es no soltar el seguimiento de los clientes que ya atendiste esta semana.";
-  };
-
-  const WeeklyChart = ({ data, title, icon: Icon, opacity = 1, hideOnMobile = false }: { data: any, title: string, icon: any, opacity?: number, hideOnMobile?: boolean }) => {
+  const FortnightMonitor = ({ data, title, icon: Icon, expanded = false }: { data: any, title: string, icon: any, expanded?: boolean }) => {
     const todayItem = data.find((d: any) => d.isToday);
     
     return (
-      <Card 
-        className={cn(
-          "border-border/40 bg-card/30 backdrop-blur-md overflow-visible",
-          opacity < 1 && "opacity-75",
-          hideOnMobile && "hidden md:flex"
-        )}
-      >
+      <Card className="border-border/40 bg-card/30 backdrop-blur-md overflow-visible relative">
         <CardHeader className="p-4 pb-2 border-b border-border/10 flex flex-row items-center justify-between">
           <div className="flex items-center gap-2">
             <Icon className="w-4 h-4 text-primary" />
-            <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">{title}</CardTitle>
+            <div className="flex flex-col">
+              <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">{title}</CardTitle>
+              <span className="text-[8px] font-medium text-muted-foreground/40 uppercase">Monitor de 15 días • Hoy es el día 8</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+             <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-destructive/40" /> <span className="text-[8px] font-bold uppercase opacity-60">Corte Martes</span></div>
+             <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-primary/40" /> <span className="text-[8px] font-bold uppercase opacity-60">Paga Viernes</span></div>
           </div>
         </CardHeader>
-        <CardContent className="p-4 h-[200px] overflow-visible">
+        <CardContent className={cn("p-4 overflow-visible", expanded ? "h-[350px]" : "h-[220px]")}>
           <ChartContainer config={chartConfig} className="h-full w-full">
-            <BarChart data={data}>
+            <BarChart data={data} margin={{ top: 30, right: 10, left: 10, bottom: 5 }}>
               <defs>
                 <linearGradient id="cierreGradient" x1="0" x1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#00F5FF" />
@@ -92,31 +111,60 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
               </defs>
               <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
               <XAxis dataKey="day" tickLine={false} tickMargin={10} axisLine={false} className="text-[10px] font-bold uppercase text-muted-foreground/60" />
-              <YAxis hide domain={[0, stats.charts.globalMax + 1]} />
-              <ChartTooltip content={<ChartTooltipContent />} />
+              <YAxis hide domain={[0, stats.charts.globalMax + 3]} />
+              <ChartTooltip 
+                content={({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    const d = payload[0].payload;
+                    return (
+                      <div className={cn(
+                        "bg-card/95 p-3 rounded-lg shadow-2xl border-2 space-y-2 backdrop-blur-xl",
+                        d.isToday ? "border-primary shadow-[0_0_15px_rgba(24,119,242,0.3)]" : "border-border/50"
+                      )}>
+                        <p className="text-[10px] font-black uppercase flex items-center justify-between gap-4">
+                          {d.day} {d.isToday && <span className="text-primary">(HOY)</span>}
+                        </p>
+                        <div className="space-y-1">
+                          {payload.map((p: any, i: number) => (
+                            <div key={i} className="flex items-center justify-between gap-6 text-[10px] font-bold">
+                              <span className="opacity-60">{p.name}:</span>
+                              <span style={{ color: p.color }}>{p.value}</span>
+                            </div>
+                          ))}
+                          {(d.isPaga || d.isCorte) && (
+                            <div className={cn("mt-2 pt-2 border-t border-border/20 text-[10px] font-black uppercase flex items-center gap-2", d.isPaga ? "text-primary" : "text-destructive")}>
+                              {d.isPaga ? <Coins className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
+                              {d.isPaga ? `PAGA: ${formatCurrency(d.projectedPay)}` : "CORTE SEMANAL"}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  }
+                  return null;
+                }}
+              />
               
               {todayItem && (
                 <ReferenceArea 
                   x1={todayItem.day} 
                   x2={todayItem.day} 
                   fill="hsl(var(--primary))" 
-                  fillOpacity={0.08} 
-                  stroke="hsl(var(--primary) / 0.3)"
-                  strokeWidth={1}
+                  fillOpacity={0.1} 
+                  stroke="hsl(var(--primary) / 0.4)"
+                  strokeWidth={2}
+                  className="animate-periodic-glow"
                 />
               )}
 
               <Bar dataKey="agendadas" name="Agendadas" radius={[2, 2, 0, 0]}>
-                {data.map((e: any, i: number) => <Cell key={i} fill={e.isToday ? "hsl(var(--primary))" : "var(--color-agendadas)"} className={e.isToday ? "stroke-primary stroke-2" : ""} />)}
-                <LabelList dataKey="agendadas" content={<ZeroLabel />} />
+                {data.map((e: any, i: number) => <Cell key={i} fill={e.isToday ? "hsl(var(--primary))" : "var(--color-agendadas)"} />)}
+                <LabelList dataKey="agendadas" content={<CustomBarLabel />} />
               </Bar>
               <Bar dataKey="atendidas" name="Atendidas" radius={[2, 2, 0, 0]}>
                 {data.map((e: any, i: number) => <Cell key={i} fill={e.isToday ? "hsl(var(--accent))" : "var(--color-atendidas)"} />)}
-                <LabelList dataKey="atendidas" content={<ZeroLabel />} />
               </Bar>
-              <Bar dataKey="cierres" name="Cierres" radius={[2, 2, 0, 0]} fill="url(#cierreGradient)">
-                <LabelList dataKey="cierres" content={<ZeroLabel />} />
-              </Bar>
+              <Bar dataKey="cierres" name="Cierres" radius={[2, 2, 0, 0]} fill="url(#cierreGradient)" />
             </BarChart>
           </ChartContainer>
         </CardContent>
@@ -274,8 +322,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
           </Button>
         </CardHeader>
         <CardContent className="p-6 space-y-6">
-          <WeeklyChart data={stats.charts.dailyActivity} title="Ciclo Actual" icon={CalendarDays} />
-          {/* Hide complex section on mobile preview cards */}
+          <FortnightMonitor data={stats.charts.fortnightActivity} title="Monitor 15 Días" icon={CalendarDays} />
           <div className="hidden md:block">
             <PerformanceSection />
           </div>
@@ -293,7 +340,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
               </div>
               <div>
                 <h3 className="text-xl font-bold">Inteligencia Avanzada</h3>
-                <DialogDescription className="text-xs">Análisis financiero operativo y perfilamiento de éxito.</DialogDescription>
+                <DialogDescription className="text-xs">Análisis financiero operativo y monitor de 15 días.</DialogDescription>
               </div>
             </div>
             <DialogClose asChild>
@@ -305,7 +352,6 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
 
           <div className="flex-1 overflow-y-auto scrollbar-thin bg-muted/5">
             <div className="max-w-[1400px] mx-auto p-4 md:p-8 space-y-8 pb-24">
-              {/* Single row scrollable metrics for mobile */}
               <div className="flex overflow-x-auto gap-3 pb-4 scrollbar-thin md:grid md:grid-cols-5 md:pb-0">
                 {[
                   { icon: CalendarDays, color: 'text-primary', label: 'Citas Hoy', value: stats.todayCount || 0, val1: stats.todayConfirmed || 0, sub1: 'Conf.' },
@@ -348,13 +394,9 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                   <div className="animate-finanto-reveal opacity-0 delay-200">
                     <WeeklyHistoryChart />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="animate-finanto-reveal opacity-0 delay-300">
-                      <WeeklyChart data={stats.charts.dailyActivity} title="Ciclo Actual (Operativo)" icon={CalendarDays} />
-                    </div>
-                    <div className="animate-finanto-reveal opacity-0 delay-400">
-                      <WeeklyChart data={stats.charts.lastWeekActivity} title="Ciclo Anterior (Histórico)" icon={History} opacity={0.65} hideOnMobile />
-                    </div>
+                  
+                  <div className="animate-finanto-reveal opacity-0 delay-300">
+                    <FortnightMonitor data={stats.charts.fortnightActivity} title="Monitor Operativo de 15 Días" icon={CalendarDays} expanded />
                   </div>
                   
                   <Card className="bg-card border-border/40 overflow-hidden animate-finanto-reveal opacity-0 delay-500">
@@ -400,12 +442,27 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                   <div className="animate-finanto-reveal opacity-0 delay-300">
                     <PerformanceSection />
                   </div>
+                  
                   <Card className="border-accent/20 bg-accent/5 p-6 space-y-4 animate-finanto-reveal opacity-0 delay-400">
                     <div className="flex items-center gap-2">
-                      <Zap className="w-5 h-5 text-accent" />
-                      <span className="text-[10px] font-bold uppercase text-accent/80 tracking-widest">Observación</span>
+                      <AlertCircle className="w-5 h-5 text-accent" />
+                      <span className="text-[10px] font-bold uppercase text-accent/80 tracking-widest">Información de Ciclos</span>
                     </div>
-                    <p className="text-sm font-bold border-l-2 border-accent/30 pl-4 leading-relaxed text-foreground/90 italic">{getAdvice()}</p>
+                    <div className="space-y-3">
+                      <p className="text-xs font-bold leading-relaxed text-foreground/90 italic border-l-2 border-accent/30 pl-4">
+                        "Recuerda que el cierre del ciclo operativo es cada martes. Los cierres registrados hasta ese día se liquidan el viernes de la semana entrante."
+                      </p>
+                      <div className="p-3 bg-card/50 rounded-lg border border-border/20 space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-[9px] font-bold uppercase opacity-60">Próximo Corte:</span>
+                          <span className="text-[10px] font-black text-destructive">Martes</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-[9px] font-bold uppercase opacity-60">Próxima Paga:</span>
+                          <span className="text-[10px] font-black text-primary">Viernes</span>
+                        </div>
+                      </div>
+                    </div>
                   </Card>
 
                   <Card className="border-primary/20 bg-primary/5 p-6 overflow-hidden relative animate-finanto-reveal opacity-0 delay-500">
