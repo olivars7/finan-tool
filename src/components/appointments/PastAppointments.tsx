@@ -131,7 +131,6 @@ export default function PastAppointments({
                   const isPending = isCierre && app.commissionStatus !== 'Pagada';
                   const paymentDate = getCommissionPaymentDate(app.date);
                   const isCommissionOverdue = isCierre && isPending && isBefore(paymentDate, new Date());
-                  const commissionValue = isCierre ? ((app.finalCreditAmount || 0) * 0.007 * ((app.commissionPercent || 0) / 100)) * 0.91 : 0;
                   
                   return (
                     <TableRow 
@@ -146,8 +145,30 @@ export default function PastAppointments({
                         <div className="flex items-center gap-2">
                           <div className="font-bold text-sm text-foreground">{app.name}</div>
                           <div className="flex gap-1">
-                            {app.prospectorName && <UserCog className="w-3.5 h-3.5 text-blue-500" />}
-                            {app.attendingExecutive && <UserCheck className="w-3.5 h-3.5 text-purple-500" />}
+                            {app.prospectorName && (
+                              <TooltipProvider>
+                                <Tooltip delayDuration={0}>
+                                  <TooltipTrigger asChild>
+                                    <UserCog className="w-3.5 h-3.5 text-blue-500" />
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="text-[10px] font-bold">
+                                    Prospectado por: {app.prospectorName}
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
+                            {app.attendingExecutive && (
+                              <TooltipProvider>
+                                <Tooltip delayDuration={0}>
+                                  <TooltipTrigger asChild>
+                                    <UserCheck className="w-3.5 h-3.5 text-purple-500" />
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="text-[10px] font-bold">
+                                    Atendido por: {app.attendingExecutive}
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
                           </div>
                         </div>
                         {!expanded && (
@@ -223,6 +244,32 @@ export default function PastAppointments({
                       <div className="flex items-center gap-2">
                         <h4 className="font-bold text-base leading-tight">{app.name}</h4>
                         {isCommissionPaid && <CheckCircle2 className="w-3 h-3 text-green-500" />}
+                        <div className="flex gap-1 ml-1">
+                          {app.prospectorName && (
+                            <TooltipProvider>
+                              <Tooltip delayDuration={0}>
+                                <TooltipTrigger asChild>
+                                  <UserCog className="w-3 h-3 text-blue-500" />
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="text-[10px] font-bold">
+                                  {app.prospectorName}
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
+                          {app.attendingExecutive && (
+                            <TooltipProvider>
+                              <Tooltip delayDuration={0}>
+                                <TooltipTrigger asChild>
+                                  <UserCheck className="w-3 h-3 text-purple-500" />
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="text-[10px] font-bold">
+                                  {app.attendingExecutive}
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
+                        </div>
                       </div>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mt-1">
                         {app.type} • {app.product || 'N/A'}

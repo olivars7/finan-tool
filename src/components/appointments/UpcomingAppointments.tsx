@@ -44,6 +44,12 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 
 interface Props {
@@ -267,8 +273,30 @@ export default function UpcomingAppointments({
                           <div className="flex items-center gap-2">
                             <div className="font-bold text-sm leading-tight text-foreground">{app.name}</div>
                             <div className="flex gap-1">
-                              {app.prospectorName && <UserCog className="w-3.5 h-3.5 text-blue-500" />}
-                              {app.attendingExecutive && <UserCheck className="w-3.5 h-3.5 text-purple-500" />}
+                              {app.prospectorName && (
+                                <TooltipProvider>
+                                  <Tooltip delayDuration={0}>
+                                    <TooltipTrigger asChild>
+                                      <UserCog className="w-3.5 h-3.5 text-blue-500" />
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" className="text-[10px] font-bold">
+                                      Prospectado por: {app.prospectorName}
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              )}
+                              {app.attendingExecutive && (
+                                <TooltipProvider>
+                                  <Tooltip delayDuration={0}>
+                                    <TooltipTrigger asChild>
+                                      <UserCheck className="w-3.5 h-3.5 text-purple-500" />
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" className="text-[10px] font-bold">
+                                      Atendido por: {app.attendingExecutive}
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              )}
                             </div>
                           </div>
                           {!expanded && (
@@ -358,8 +386,30 @@ export default function UpcomingAppointments({
                         <div className="flex items-center gap-2">
                           <h4 className="font-bold text-base leading-tight">{app.name}</h4>
                           <div className="flex gap-1">
-                            {app.prospectorName && <UserCog className="w-3.5 h-3.5 text-blue-500" />}
-                            {app.attendingExecutive && <UserCheck className="w-3.5 h-3.5 text-purple-500" />}
+                            {app.prospectorName && (
+                              <TooltipProvider>
+                                <Tooltip delayDuration={0}>
+                                  <TooltipTrigger asChild>
+                                    <UserCog className="w-3.5 h-3.5 text-blue-500" />
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="text-[10px] font-bold">
+                                    {app.prospectorName}
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
+                            {app.attendingExecutive && (
+                              <TooltipProvider>
+                                <Tooltip delayDuration={0}>
+                                  <TooltipTrigger asChild>
+                                    <UserCheck className="w-3.5 h-3.5 text-purple-500" />
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="text-[10px] font-bold">
+                                    {app.attendingExecutive}
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
                           </div>
                         </div>
                         <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{app.type} • {app.product}</p>
