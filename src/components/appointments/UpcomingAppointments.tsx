@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState } from 'react';
@@ -201,58 +202,6 @@ export default function UpcomingAppointments({
     });
   };
 
-  const getReportMetrics = () => {
-    const today = startOfDay(new Date());
-    const tomorrow = addDays(today, 1);
-    const dayAfterTomorrow = addDays(today, 2);
-
-    const todayApps = allAppointments.filter(a => isSameDay(parseISO(a.date), today) && !a.isArchived);
-    const tomorrowApps = allAppointments.filter(a => isSameDay(parseISO(a.date), tomorrow) && !a.isArchived);
-    const dayAfterTomorrowApps = allAppointments.filter(a => isSameDay(parseISO(a.date), dayAfterTomorrow) && !a.isArchived);
-    
-    const atendidasToday = todayApps.filter(a => a.status && a.status !== 'No asistencia' && a.status !== 'Reagendó').length;
-    const todayTotal = todayApps.length;
-    const todayConfirmed = todayApps.filter(a => a.isConfirmed || (a.status && a.status !== 'No asistencia')).length;
-    const tomorrowTotal = tomorrowApps.length;
-    const dayAfterTomorrowTotal = dayAfterTomorrowApps.length;
-    const dayAfterTomorrowName = format(dayAfterTomorrow, 'EEEE', { locale: es }).toLowerCase();
-    const ventasToday = todayApps.filter(a => a.status === 'Cierre' || a.status === 'Apartado').length;
-
-    return { atendidasToday, todayTotal, todayConfirmed, tomorrowTotal, dayAfterTomorrowTotal, dayAfterTomorrowName, ventasToday };
-  };
-
-  const copyDailyReport = () => {
-    const { atendidasToday, todayTotal, tomorrowTotal, ventasToday } = getReportMetrics();
-
-    const reportText = `✅Citas atendidas: ${atendidasToday}\n` +
-                       `✅Citas para hoy: ${todayTotal}\n` +
-                       `✅Citas día siguiente: ${tomorrowTotal}\n` +
-                       `✅Ventas: ${ventasToday}`;
-
-    navigator.clipboard.writeText(reportText).then(() => {
-      toast({
-        title: "Reporte diario copiado",
-        description: "Envíalo al grupo de WhatsApp ahora.",
-      });
-    });
-  };
-
-  const copyProspectorReport = () => {
-    const { todayTotal, todayConfirmed, tomorrowTotal, dayAfterTomorrowTotal, dayAfterTomorrowName } = getReportMetrics();
-
-    const reportText = `✅Citas para hoy: ${todayTotal}\n` +
-                       `✅Citas confirmadas hoy: ${todayConfirmed}\n` +
-                       `✅Citas para mañana: ${tomorrowTotal}\n` +
-                       `✅Citas ${dayAfterTomorrowName}: ${dayAfterTomorrowTotal}`;
-
-    navigator.clipboard.writeText(reportText).then(() => {
-      toast({
-        title: "Reporte de prospectores copiado",
-        description: "Datos de flujo listos para enviar.",
-      });
-    });
-  };
-
   const copyAllTodayAppointments = () => {
     const todayApps = allAppointments
       .filter(a => isActuallyToday(a.date) && !a.isArchived)
@@ -285,8 +234,6 @@ export default function UpcomingAppointments({
       });
     });
   };
-
-  const metrics = getReportMetrics();
 
   return (
     <div className="space-y-4 flex flex-col h-full">
@@ -426,8 +373,8 @@ export default function UpcomingAppointments({
                         <div className="flex items-center gap-2">
                           <h4 className="font-bold text-base leading-tight">{app.name}</h4>
                           <div className="flex gap-1">
-                            {app.prospectorName && <UserCog className="w-3 h-3 text-blue-500" />}
-                            {app.attendingExecutive && <UserCheck className="w-3 h-3 text-purple-500" />}
+                            {app.prospectorName && <UserCog className="w-3.5 h-3.5 text-blue-500" />}
+                            {app.attendingExecutive && <UserCheck className="w-3.5 h-3.5 text-purple-500" />}
                           </div>
                         </div>
                         <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{app.type} • {app.product}</p>
@@ -503,24 +450,6 @@ export default function UpcomingAppointments({
           className="text-[10px] font-bold uppercase border-blue-500/40 bg-blue-500/5 text-blue-600 h-9 gap-2 px-3 sm:px-4 flex-1 sm:flex-none"
         >
           <ClipboardList className="w-4 h-4" /> <span className="hidden sm:inline">Citas Hoy</span>
-        </Button>
-
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={copyProspectorReport} 
-          className="text-[10px] font-bold uppercase border-blue-600/40 bg-blue-600/5 text-blue-700 h-9 gap-2 px-3 sm:px-4 flex-1 sm:flex-none"
-        >
-          <Users className="w-4 h-4" /> <span className="hidden sm:inline">Reporte Prospectores</span>
-        </Button>
-
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={copyDailyReport} 
-          className="text-[10px] font-bold uppercase border-primary/40 bg-primary/5 text-primary h-9 gap-2 px-3 sm:px-4 flex-1 sm:flex-none"
-        >
-          <ClipboardCheck className="w-4 h-4" /> <span className="hidden sm:inline">Reporte Diario</span>
         </Button>
       </div>
 

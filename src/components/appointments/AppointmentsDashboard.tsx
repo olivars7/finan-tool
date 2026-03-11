@@ -270,9 +270,9 @@ export default function AppointmentsDashboard({
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <div className="relative w-80 hidden md:block">
+              <div className="relative w-80 md:w-80">
                 <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Búsqueda global..." className="pl-9 h-10 bg-muted/30" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                <Input placeholder="Buscar cliente..." className="pl-9 h-10 bg-muted/10 border-border/40" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
               </div>
               <DialogClose asChild>
                 <Button variant="ghost" size="icon" className="rounded-full hover:bg-destructive/10 h-10 w-10">

@@ -15,7 +15,7 @@ import {
   CalendarClock, HandCoins, CheckCircle, BadgeAlert, 
   MoreHorizontal, ArrowUpRight, ArrowDownRight, Coins, Star, Trophy,
   TrendingUp, Trash2, User, Receipt, BarChart3, PartyPopper as PartyIcon, ArrowRight,
-  LogOut, UserPlus, X
+  LogOut, UserPlus, X, Search, Bell
 } from 'lucide-react';
 import { useAppointments } from '@/hooks/use-appointments';
 import { Button } from '@/components/ui/button';
@@ -615,39 +615,85 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
         </div>
 
         {/* MOBILE MOSAIC VIEW */}
-        <div className="grid grid-cols-2 gap-3 mb-8 md:hidden px-2 animate-finanto-reveal opacity-0 delay-200">
-          <Button 
-            variant="outline" 
-            onClick={() => handleToggleSimulator(true)}
-            className="h-32 flex flex-col items-center justify-center gap-3 bg-card/40 border-primary/20 rounded-3xl shadow-lg active:scale-95 transition-all"
-          >
-            <div className="p-3 bg-primary/10 rounded-2xl text-primary"><Calculator className="w-8 h-8" /></div>
-            <span className="text-[10px] font-black uppercase tracking-widest">Calculadora</span>
-          </Button>
-          <Button 
-            variant="outline" 
-            onClick={() => setIsNewAppExpanded(true)}
-            className="h-32 flex flex-col items-center justify-center gap-3 bg-card/40 border-accent/20 rounded-3xl shadow-lg active:scale-95 transition-all"
-          >
-            <div className="p-3 bg-accent/10 rounded-2xl text-accent"><UserPlus className="w-8 h-8" /></div>
-            <span className="text-[10px] font-black uppercase tracking-widest">Nueva Cita</span>
-          </Button>
-          <Button 
-            variant="outline" 
-            onClick={() => handleToggleGestor(true)}
-            className="h-32 flex flex-col items-center justify-center gap-3 bg-card/40 border-blue-600/20 rounded-3xl shadow-lg active:scale-95 transition-all"
-          >
-            <div className="p-3 bg-blue-600/10 rounded-2xl text-blue-600"><CalendarClock className="w-8 h-8" /></div>
-            <span className="text-[10px] font-black uppercase tracking-widest">Agenda</span>
-          </Button>
-          <Button 
-            variant="outline" 
-            onClick={() => handleToggleStats(true)}
-            className="h-32 flex flex-col items-center justify-center gap-3 bg-card/40 border-yellow-500/20 rounded-3xl shadow-lg active:scale-95 transition-all"
-          >
-            <div className="p-3 bg-yellow-500/10 rounded-2xl text-yellow-600"><BarChart3 className="w-8 h-8" /></div>
-            <span className="text-[10px] font-black uppercase tracking-widest">Stats Pro</span>
-          </Button>
+        <div className="md:hidden space-y-6 px-2 animate-finanto-reveal opacity-0 delay-200">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-black tracking-tighter text-foreground">Hola, {user?.displayName?.split(' ')[0]}</h2>
+            <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+              Sincronizado en la nube
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Button 
+              variant="outline" 
+              onClick={() => handleToggleSimulator(true)}
+              className="h-40 flex flex-col items-center justify-center gap-4 bg-primary/5 border-primary/20 rounded-[2.5rem] shadow-[0_8px_30px_rgb(var(--primary)/0.1)] active:scale-95 transition-all group overflow-hidden relative"
+            >
+              <div className="absolute top-0 right-0 w-16 h-16 bg-primary/10 rounded-bl-full opacity-50 group-active:scale-150 transition-transform" />
+              <div className="p-4 bg-primary/10 rounded-2xl text-primary shadow-inner"><Calculator className="w-8 h-8" /></div>
+              <div className="space-y-1 text-center">
+                <span className="text-[11px] font-black uppercase tracking-widest block">Calculadora</span>
+                <span className="text-[8px] font-bold text-muted-foreground/60 uppercase">Financiera</span>
+              </div>
+            </Button>
+
+            <Button 
+              variant="outline" 
+              onClick={() => setIsNewAppExpanded(true)}
+              className="h-40 flex flex-col items-center justify-center gap-4 bg-accent/5 border-accent/20 rounded-[2.5rem] shadow-[0_8px_30px_rgb(var(--accent)/0.1)] active:scale-95 transition-all group overflow-hidden relative"
+            >
+              <div className="absolute top-0 right-0 w-16 h-16 bg-accent/10 rounded-bl-full opacity-50 group-active:scale-150 transition-transform" />
+              <div className="p-4 bg-accent/10 rounded-2xl text-accent shadow-inner"><UserPlus className="w-8 h-8" /></div>
+              <div className="space-y-1 text-center">
+                <span className="text-[11px] font-black uppercase tracking-widest block">Nueva Cita</span>
+                <span className="text-[8px] font-bold text-muted-foreground/60 uppercase">Registro</span>
+              </div>
+            </Button>
+
+            <Button 
+              variant="outline" 
+              onClick={() => handleToggleGestor(true)}
+              className="h-40 flex flex-col items-center justify-center gap-4 bg-blue-600/5 border-blue-600/20 rounded-[2.5rem] shadow-[0_8px_30px_rgb(37,99,235,0.1)] active:scale-95 transition-all group overflow-hidden relative"
+            >
+              <div className="absolute top-0 right-0 w-16 h-16 bg-blue-600/10 rounded-bl-full opacity-50 group-active:scale-150 transition-transform" />
+              <div className="p-4 bg-blue-600/10 rounded-2xl text-blue-600 shadow-inner"><CalendarClock className="w-8 h-8" /></div>
+              <div className="space-y-1 text-center">
+                <span className="text-[11px] font-black uppercase tracking-widest block">Agenda</span>
+                <span className="text-[8px] font-bold text-muted-foreground/60 uppercase">CRM Clientes</span>
+              </div>
+            </Button>
+
+            <Button 
+              variant="outline" 
+              onClick={() => handleToggleStats(true)}
+              className="h-40 flex flex-col items-center justify-center gap-4 bg-yellow-500/5 border-yellow-500/20 rounded-[2.5rem] shadow-[0_8px_30px_rgb(234,179,8,0.1)] active:scale-95 transition-all group overflow-hidden relative"
+            >
+              <div className="absolute top-0 right-0 w-16 h-16 bg-yellow-500/10 rounded-bl-full opacity-50 group-active:scale-150 transition-transform" />
+              <div className="p-4 bg-yellow-500/10 rounded-2xl text-yellow-600 shadow-inner"><BarChart3 className="w-8 h-8" /></div>
+              <div className="space-y-1 text-center">
+                <span className="text-[11px] font-black uppercase tracking-widest block">Stats Pro</span>
+                <span className="text-[8px] font-bold text-muted-foreground/60 uppercase">Inteligencia</span>
+              </div>
+            </Button>
+          </div>
+
+          <div className="p-6 border border-border/40 bg-card/20 rounded-[2rem] backdrop-blur-xl space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-xl"><Bell className="w-4 h-4 text-primary" /></div>
+              <span className="text-xs font-bold uppercase tracking-tight">Actividad de hoy</span>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <span className="text-[9px] font-bold text-muted-foreground uppercase">Confirmadas</span>
+                <p className="text-xl font-black text-green-500">{stats.todayConfirmed || 0}</p>
+              </div>
+              <div className="space-y-1">
+                <span className="text-[9px] font-bold text-muted-foreground uppercase">Total Citas</span>
+                <p className="text-xl font-black text-primary">{stats.todayCount || 0}</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* DESKTOP LAYOUT & MAIN GRID */}
