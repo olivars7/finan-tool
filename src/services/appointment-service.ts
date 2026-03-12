@@ -373,7 +373,8 @@ export const calculateStats = (appointments: Appointment[]) => {
     const dayInitials = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
     
     return interval.map(day => {
-      const dayStr = format(day, 'd MMM', { locale: es });
+      const dayNumber = format(day, 'd');
+      const dayFull = format(day, "EEEE d 'de' MMMM", { locale: es });
       const dayOfWeek = getDay(day); 
       
       const agendadas = activeApps.filter(a => isSameDay(parseISO(a.date), day)).length;
@@ -397,7 +398,8 @@ export const calculateStats = (appointments: Appointment[]) => {
       }
 
       return { 
-        day: dayStr, 
+        dayNumber,
+        dayFull,
         dayInitial: dayInitials[dayOfWeek],
         agendadas, 
         atendidas, 

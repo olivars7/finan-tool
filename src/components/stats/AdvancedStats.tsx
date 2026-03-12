@@ -66,7 +66,7 @@ const CustomXAxisTick = (props: any) => {
   return (
     <g transform={`translate(${x},${y})`}>
       <text x={0} y={0} dy={16} textAnchor="middle" fill="currentColor" className="text-[9px] font-bold opacity-60 uppercase">
-        {item.day}
+        {item.dayNumber}
       </text>
       <g transform="translate(0, 32)">
         <text x={0} y={0} textAnchor="middle" fill="currentColor" className="text-[10px] font-black">
@@ -132,7 +132,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
               </defs>
               <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
               <XAxis 
-                dataKey="day" 
+                dataKey="dayNumber" 
                 tickLine={false} 
                 axisLine={false} 
                 interval={0}
@@ -149,7 +149,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                         d.isToday ? "border-primary shadow-[0_0_15px_rgba(24,119,242,0.3)]" : "border-border/50"
                       )}>
                         <p className="text-[10px] font-black uppercase flex items-center justify-between gap-4">
-                          {d.day} {d.isToday && <span className="text-primary">(HOY)</span>}
+                          {d.dayFull} {d.isToday && <span className="text-primary">(HOY)</span>}
                         </p>
                         <div className="space-y-1">
                           {payload.map((p: any, i: number) => (
@@ -174,8 +174,8 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
               
               {todayItem && (
                 <ReferenceArea 
-                  x1={todayItem.day} 
-                  x2={todayItem.day} 
+                  x1={todayItem.dayNumber} 
+                  x2={todayItem.dayNumber} 
                   fill="hsl(var(--primary))" 
                   fillOpacity={0.1} 
                   stroke="hsl(var(--primary) / 0.4)"
