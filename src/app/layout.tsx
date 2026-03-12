@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'Finanto - Gestión de Financiamiento Inmobiliario',
+  title: 'Finanto - Gestor de citas y comisiones',
   description: 'Sistema especializado en financiamiento inmobiliario y gestión de prospectos para ejecutivos profesionales.',
   icons: {
     icon: '/favicon.ico',

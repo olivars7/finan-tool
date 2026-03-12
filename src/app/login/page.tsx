@@ -87,7 +87,7 @@ export default function LoginPage() {
             )}
           </Button>
           <p className="text-center text-[10px] text-slate-500 mt-8 uppercase font-bold tracking-[0.2em]">
-            Acceso Seguro • Cloud Sync v1.1
+            Acceso Seguro • CRM v2.0
           </p>
         </CardContent>
       </Card>

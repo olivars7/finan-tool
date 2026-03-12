@@ -1,6 +1,6 @@
-# Finanto v1.1 - Sistema de Gestión Inmobiliaria Profesional
+# Finanto v2.0 - Sistema CRM Inmobiliario Profesional
 
-Finanto es una herramienta de alta productividad diseñada específicamente para ejecutivos de financiamiento inmobiliario. Este sistema permite centralizar el perfilamiento financiero, la agenda de citas y el control de comisiones en una interfaz moderna y eficiente.
+Finanto CRM es una herramienta de alta productividad diseñada específicamente para ejecutivos de financiamiento inmobiliario. Este sistema permite centralizar el perfilamiento financiero, la agenda de citas y el control de comisiones en una interfaz moderna y eficiente.
 
 ---
 
@@ -39,7 +39,7 @@ El sistema está diseñado para acompañar al ejecutivo en cada etapa del embudo
 - **Framework**: Next.js 15 (App Router).
 - **Lenguaje**: TypeScript (Strict Mode).
 - **Estilos**: Tailwind CSS + Shadcn UI (Radix Primitives).
-- **Persistencia**: LocalStorage API (`FINANTO_DATA_V1.1_50SEED`).
+- **Persistencia**: Firebase Firestore (Cloud Sync).
 - **GenAI**: Google Genkit (Gemini 2.5 Flash) para flujos de texto.
 - **Gráficas**: Recharts (Customized charts).
 

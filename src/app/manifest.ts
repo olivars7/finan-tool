@@ -1,4 +1,4 @@
-import type { MetadataRoute } from 'next'
+import { MetadataRoute } from 'next'
 
 /**
  * @fileOverview Manifiesto de la PWA para Finanto.
@@ -7,7 +7,7 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Finanto Cloud',
+    name: 'Finanto CRM',
     short_name: 'Finanto',
     description: 'Sistema de Gestión Inmobiliaria Profesional',
     start_url: '/',

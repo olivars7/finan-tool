@@ -297,7 +297,6 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
   const handleThemeChange = (themeId: Theme) => {
     applyTheme(themeId);
     localStorage.setItem('finanto-theme', themeId);
-    // Notificación eliminada por solicitud del usuario para mayor fluidez
   };
 
   const handleConfirmCommissionPayment = () => {
@@ -475,7 +474,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
                 <h1 className="text-xl font-headline font-bold tracking-tight text-foreground leading-none">
-                  Finanto <span className="text-primary">CLOUD</span>
+                  FINANTO <span className="text-accent">CRM</span>
                 </h1>
                 <Button 
                   variant="ghost" 
@@ -755,7 +754,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
       <footer className="border-t border-border/40 py-4 sm:py-6 bg-card/10 backdrop-blur-md animate-in fade-in slide-in-from-bottom duration-700">
         <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-3">
-            <span className="font-bold text-foreground">Finanto v1.1</span>
+            <span className="font-bold text-foreground">Finanto v2.0</span>
             <span className="hidden sm:inline">© 2026 - Sincronizado en Firebase</span>
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
