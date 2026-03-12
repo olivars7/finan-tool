@@ -297,7 +297,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
   const handleThemeChange = (themeId: Theme) => {
     applyTheme(themeId);
     localStorage.setItem('finanto-theme', themeId);
-    toast({ title: "Tema actualizado", description: `Tema ${themeId.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} aplicado.` });
+    // Notificación eliminada por solicitud del usuario para mayor fluidez
   };
 
   const handleConfirmCommissionPayment = () => {
