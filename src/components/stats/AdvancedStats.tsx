@@ -219,7 +219,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                 type="monotone" dataKey="income" stroke="url(#historyLineGradient)" strokeWidth={3} 
                 dot={(props: any) => {
                   const { cx, cy, payload } = props;
-                  if (payload.isCurrentWeek) return <circle key={`dot-${payload.week}`} cx={cx} cy={cy} r={6} fill="none" stroke="#1877F2" strokeWidth={3} />;
+                  if (payload.isCurrentWeek) return <circle key={`dot-${payload.week}`} cx={cx} cy={cy} r={6} fill="#1877F2" stroke="#1877F2" strokeWidth={3} />;
                   return <circle key={`dot-${payload.week}`} cx={cx} cy={cy} r={2} fill="#1877F2" fillOpacity={0.3} />;
                 }}
                 activeDot={{ r: 6, strokeWidth: 0 }}
