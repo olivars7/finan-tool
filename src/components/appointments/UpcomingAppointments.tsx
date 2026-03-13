@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState } from 'react';
@@ -215,6 +216,7 @@ export default function UpcomingAppointments({
 
       text += `Cita: *${capitalizedDate}*\n`;
       text += `Nombre: *${app.name}*\n`;
+      text += `Teléfono: *${app.phone || 'N/A'}*\n`;
       text += `Motivo: *${app.type}*\n`;
       text += `Producto: *${app.product || 'N/A'}*\n`;
       text += `Hora: *${timeFormatted}*\n\n`;

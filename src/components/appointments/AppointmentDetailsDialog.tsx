@@ -209,6 +209,7 @@ export default function AppointmentDetailsDialog({
 
     const text = `Cita: ${dateBold}
 Nombre: *${appointment.name}*
+Teléfono: *${appointment.phone || 'N/A'}*
 ${motivoLine}Producto: *${appointment.product || 'N/A'}*
 Hora: ${timeBold}${confirmedBold}`;
 
