@@ -9,9 +9,9 @@ import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
-  TrendingUp, BarChart3, Maximize2, X, Activity, CalendarDays, Trophy, Users, History, Coins, ArrowUpRight, ArrowDownRight, Zap, Target, Receipt, Percent, Info, LineChart as LineIcon, AlertCircle
+  TrendingUp, BarChart3, Maximize2, X, Activity, CalendarDays, Trophy, Users, History, Coins, ArrowUpRight, ArrowDownRight, Zap, Target, Receipt, Percent, Info, LineChart as LineIcon, AlertCircle, PieChart as PieIcon, LayoutGrid, Lightbulb
 } from "lucide-react";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Cell, LabelList, ReferenceArea, ReferenceLine, Line, LineChart, ResponsiveContainer } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Cell, LabelList, ReferenceArea, ReferenceLine, Line, LineChart, ResponsiveContainer, Pie, PieChart, Tooltip as RechartsTooltip } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
@@ -30,6 +30,14 @@ const chartConfig = {
   cierres: { label: "Cierres", color: "url(#cierreGradient)" },
   income: { label: "Ingresos", color: "hsl(var(--primary))" }
 } satisfies ChartConfig;
+
+const PRODUCT_COLORS = [
+  '#1877F2', // Blue
+  '#00F5FF', // Aqua
+  '#7B61FF', // Violet
+  '#FF00D6', // Pink
+  '#A3E635', // Lima
+];
 
 const CustomBarLabel = (props: any) => {
   const { x, y, width, value, payload } = props;
@@ -336,6 +344,99 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
     );
   };
 
+  const ConversionFunnelChart = () => (
+    <Card className="border-border/40 bg-card/30 backdrop-blur-md overflow-hidden">
+      <CardHeader className="p-6 pb-2 border-b border-border/10">
+        <div className="flex items-center gap-2">
+          <LayoutGrid className="w-5 h-5 text-accent" />
+          <div>
+            <CardTitle className="text-[11px] font-bold uppercase tracking-widest">Etapas de Conversión</CardTitle>
+            <CardDescription className="text-[9px]">Prospectos totales por etapa del embudo</CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="p-6 h-[250px]">
+        <ChartContainer config={chartConfig} className="h-full w-full">
+          <BarChart 
+            layout="vertical" 
+            data={stats.charts.typeDistribution} 
+            margin={{ left: 40, right: 20 }}
+          >
+            <CartesianGrid horizontal={false} strokeDasharray="3 3" opacity={0.1} />
+            <XAxis type="number" hide />
+            <YAxis 
+              dataKey="stage" 
+              type="category" 
+              tick={{ fontSize: 10, fontWeight: 700 }} 
+              axisLine={false} 
+              tickLine={false}
+            />
+            <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+            <Bar dataKey="count" radius={[0, 4, 4, 0]}>
+              {stats.charts.typeDistribution.map((entry: any, index: number) => (
+                <Cell key={`cell-${index}`} fill={PRODUCT_COLORS[index % PRODUCT_COLORS.length]} />
+              ))}
+              <LabelList dataKey="count" position="right" className="text-[10px] font-bold" />
+            </Bar>
+          </BarChart>
+        </ChartContainer>
+      </CardContent>
+    </Card>
+  );
+
+  const ProductMixChart = () => (
+    <Card className="border-border/40 bg-card/30 backdrop-blur-md overflow-hidden">
+      <CardHeader className="p-6 pb-2 border-b border-border/10">
+        <div className="flex items-center gap-2">
+          <PieIcon className="w-5 h-5 text-primary" />
+          <div>
+            <CardTitle className="text-[11px] font-bold uppercase tracking-widest">Mix de Productos</CardTitle>
+            <CardDescription className="text-[9px]">Distribución de cierres por categoría</CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="p-6 h-[250px] flex items-center">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={stats.charts.productDistribution}
+              cx="50%"
+              cy="50%"
+              innerRadius={60}
+              outerRadius={80}
+              paddingAngle={5}
+              dataKey="value"
+            >
+              {stats.charts.productDistribution.map((entry: any, index: number) => (
+                <Cell key={`cell-${index}`} fill={PRODUCT_COLORS[index % PRODUCT_COLORS.length]} />
+              ))}
+            </Pie>
+            <RechartsTooltip 
+              content={({ active, payload }) => {
+                if (active && payload && payload.length) {
+                  return (
+                    <div className="bg-card/95 p-2 rounded border border-border/50 text-[10px] font-bold shadow-xl">
+                      <p className="uppercase">{payload[0].name}: {payload[0].value}</p>
+                    </div>
+                  );
+                }
+                return null;
+              }}
+            />
+          </PieChart>
+        </ResponsiveContainer>
+        <div className="flex flex-col gap-2 ml-4">
+          {stats.charts.productDistribution.map((entry: any, index: number) => (
+            <div key={index} className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: PRODUCT_COLORS[index % PRODUCT_COLORS.length] }} />
+              <span className="text-[9px] font-bold uppercase opacity-70">{entry.name}</span>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+
   return (
     <>
       <Card className="shadow-lg bg-card border-border overflow-hidden">
@@ -379,7 +480,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
 
           <div className="flex-1 overflow-y-auto scrollbar-thin bg-muted/5">
             <div className="max-w-[1400px] mx-auto p-4 md:p-8 space-y-8 pb-24">
-              {/* MICRO STATS ROW (Always first in expanded view) */}
+              {/* MICRO STATS ROW */}
               <div className="flex overflow-x-auto gap-3 pb-4 scrollbar-thin md:grid md:grid-cols-5 md:pb-0">
                 {[
                   { icon: CalendarDays, color: 'text-primary', label: 'Citas Hoy', value: stats.todayCount || 0, val1: stats.todayConfirmed || 0, sub1: 'Conf.' },
@@ -419,17 +520,23 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
               
               <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
                 <div className="xl:col-span-8 space-y-6">
-                  {/* WEEKLY HISTORY (Visible in both) */}
+                  {/* WEEKLY HISTORY */}
                   <div className="animate-finanto-reveal opacity-0 delay-200">
                     <WeeklyHistoryChart />
                   </div>
                   
-                  {/* FORTNIGHT MONITOR (Main chart) */}
+                  {/* FORTNIGHT MONITOR */}
                   <div className="animate-finanto-reveal opacity-0 delay-300">
                     <FortnightMonitor data={stats.charts.fortnightActivity} title="Monitor Operativo de 15 Días" icon={CalendarDays} expanded />
                   </div>
+
+                  {/* NUEVA FILA: Mix de Productos y Conversión */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-finanto-reveal opacity-0 delay-400">
+                    <ProductMixChart />
+                    <ConversionFunnelChart />
+                  </div>
                   
-                  {/* FINANCIAL SUMMARY TABLE (Visible in both) */}
+                  {/* FINANCIAL SUMMARY TABLE */}
                   <Card className="bg-card border-border/40 overflow-hidden animate-finanto-reveal opacity-0 delay-500">
                     <CardHeader className="bg-muted/30 p-4 border-b text-xs font-bold uppercase flex items-center justify-between">
                       <div className="flex items-center gap-2"><Zap className="w-4 h-4 text-yellow-500" /> Rendimiento Financiero del Mes</div>
@@ -469,8 +576,31 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                   </Card>
                 </div>
                 
-                {/* SIDEBAR (Desktop Only) */}
-                <div className="xl:col-span-4 space-y-6 hidden md:block">
+                {/* SIDEBAR */}
+                <div className="xl:col-span-4 space-y-6">
+                  {/* NUEVA SECCIÓN: Insights de IA / Operativos */}
+                  <Card className="border-yellow-500/20 bg-yellow-500/5 p-6 space-y-4 animate-finanto-reveal opacity-0 delay-100">
+                    <div className="flex items-center gap-2">
+                      <Lightbulb className="w-5 h-5 text-yellow-600" />
+                      <span className="text-[10px] font-bold uppercase text-yellow-700 tracking-widest">Insights del Mes</span>
+                    </div>
+                    <div className="space-y-4">
+                      {closingRate > 30 ? (
+                        <p className="text-xs font-medium leading-relaxed text-yellow-900/80">
+                          Tu tasa de cierre es <strong>excepcional</strong>. Mantén el enfoque en prospectos de tipo <strong>{stats.charts.productDistribution[0]?.name || 'Casa'}</strong> para maximizar el ticket.
+                        </p>
+                      ) : (
+                        <p className="text-xs font-medium leading-relaxed text-yellow-900/80">
+                          Tu embudo muestra una alta caída en la <strong>2da consulta</strong>. Refuerza el seguimiento post-cotización para mejorar el cierre.
+                        </p>
+                      )}
+                      <div className="pt-2 border-t border-yellow-500/10 flex items-center justify-between">
+                        <span className="text-[9px] font-bold uppercase opacity-60">Ticket Promedio:</span>
+                        <span className="text-[10px] font-black">{formatCurrency(stats.totalCreditSold / (stats.currentMonthOnlyCierre || 1))}</span>
+                      </div>
+                    </div>
+                  </Card>
+
                   <Card className="border-accent/20 bg-accent/5 p-6 space-y-4 animate-finanto-reveal opacity-0 delay-400">
                     <div className="flex items-center gap-2">
                       <AlertCircle className="w-5 h-5 text-accent" />
