@@ -93,10 +93,13 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
     return "text-gradient-lima-blue";
   };
 
-  const FortnightMonitor = ({ data, title, icon: Icon, expanded = false }: { data: any, title: string, icon: any, expanded?: boolean }) => {
+  const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBorder = false }: { data: any, title: string, icon: any, expanded?: boolean, markedBorder?: boolean }) => {
     const todayItem = data.find((d: any) => d.isToday);
     return (
-      <div className="bg-muted/5 rounded-2xl p-4 md:p-6 space-y-4 border border-border/10">
+      <div className={cn(
+        "bg-muted/5 rounded-2xl p-4 md:p-6 space-y-4",
+        markedBorder ? "border border-white/20 shadow-sm" : "border border-border/5"
+      )}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-primary/10 rounded-xl"><Icon className="w-4 h-4 text-primary" /></div>
@@ -167,9 +170,12 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
     );
   };
 
-  const WeeklyHistoryChart = () => {
+  const WeeklyHistoryChart = ({ markedBorder = false }: { markedBorder?: boolean }) => {
     return (
-      <div className="bg-muted/5 rounded-2xl p-6 space-y-6 border border-border/10">
+      <div className={cn(
+        "bg-muted/5 rounded-2xl p-6 space-y-6",
+        markedBorder ? "border border-white/20 shadow-sm" : "border border-border/5"
+      )}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-primary/10 rounded-xl"><LineIcon className="w-5 h-5 text-primary" /></div>
@@ -227,7 +233,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
 
   const PaydayTimeline = () => (
     <div className="flex flex-col gap-4">
-      <div className="bg-primary/[0.03] p-5 rounded-2xl space-y-3 border border-primary/10">
+      <div className="bg-primary/[0.03] p-5 rounded-2xl space-y-3 border border-border/5">
         <div className="flex items-center gap-2 text-primary/60">
           <CalendarClock className="w-4 h-4" />
           <span className="text-[9px] font-black uppercase tracking-widest">Liquidación Este Viernes</span>
@@ -239,7 +245,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
           {stats.thisFridayCommission > 0 && <span className="text-[10px] font-bold text-primary animate-pulse uppercase">Pendiente</span>}
         </div>
       </div>
-      <div className="bg-muted/5 p-5 rounded-2xl space-y-3 border border-border/10">
+      <div className="bg-muted/5 p-5 rounded-2xl space-y-3 border border-border/5">
         <div className="flex items-center gap-2 text-muted-foreground/60">
           <CalendarClock className="w-4 h-4" />
           <span className="text-[9px] font-black uppercase tracking-widest">Siguiente Viernes</span>
@@ -251,8 +257,11 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
     </div>
   );
 
-  const SummarySection = () => (
-    <div className="bg-muted/5 rounded-2xl p-6 space-y-6 border border-border/10">
+  const SummarySection = ({ markedBorder = false }: { markedBorder?: boolean }) => (
+    <div className={cn(
+      "bg-muted/5 rounded-2xl p-6 space-y-6",
+      markedBorder ? "border border-white/20 shadow-sm" : "border border-border/5"
+    )}>
       <div className="space-y-6">
         <div>
           <span className="text-[9px] font-black uppercase block text-muted-foreground/60 mb-1 tracking-widest">Volumen Vendido (Mes)</span>
@@ -321,16 +330,16 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
           </DialogHeader>
           <div className="flex-1 overflow-y-auto scrollbar-thin bg-background/50">
             <div className="max-w-[1400px] mx-auto p-4 md:p-10 space-y-10 pb-32">
-              {/* TOP METRICS ROW */}
+              {/* TOP METRICS ROW (Borderless Minimalist) */}
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 {[
-                  { icon: CalendarDays, color: 'text-primary', label: 'Citas Hoy', value: stats.todayCount || 0, val1: stats.todayConfirmed || 0, sub1: 'Conf.', bg: 'bg-primary/5', border: 'border-primary/10' },
-                  { icon: TrendingUp, color: 'text-primary', label: 'Eficiencia', value: `${Math.round(closingRate)}%`, val1: 'Atendidas', sub1: 'Base', bg: 'bg-muted/5', border: 'border-border/10' },
-                  { icon: Users, color: 'text-accent', label: 'Prospectos', value: stats.currentMonthProspects || 0, growth: monthlyGrowth, val1: stats.lastMonthProspects || 0, sub1: 'Mes Ant.', bg: 'bg-accent/5', border: 'border-accent/10' },
-                  { icon: Trophy, color: 'text-green-500', label: 'Cierres', value: stats.currentMonthOnlyCierre || 0, val1: stats.lastMonthSales || 0, sub1: 'Mes Ant.', bg: 'bg-green-500/5', border: 'border-green-500/10' },
-                  { icon: Coins, color: 'text-yellow-600', label: 'Ingresos', value: formatCurrency(stats.currentMonthCommission || 0), growth: stats.commissionGrowth, val1: formatCurrency(stats.lastMonthCommission || 0), sub1: 'Mes Ant.', isGradient: true, bg: 'bg-yellow-500/5', border: 'border-yellow-500/10' }
+                  { icon: CalendarDays, color: 'text-primary', label: 'Citas Hoy', value: stats.todayCount || 0, val1: stats.todayConfirmed || 0, sub1: 'Conf.', bg: 'bg-primary/5' },
+                  { icon: TrendingUp, color: 'text-primary', label: 'Eficiencia', value: `${Math.round(closingRate)}%`, val1: 'Atendidas', sub1: 'Base', bg: 'bg-muted/5' },
+                  { icon: Users, color: 'text-accent', label: 'Prospectos', value: stats.currentMonthProspects || 0, growth: monthlyGrowth, val1: stats.lastMonthProspects || 0, sub1: 'Mes Ant.', bg: 'bg-accent/5' },
+                  { icon: Trophy, color: 'text-green-500', label: 'Cierres', value: stats.currentMonthOnlyCierre || 0, val1: stats.lastMonthSales || 0, sub1: 'Mes Ant.', bg: 'bg-green-500/5' },
+                  { icon: Coins, color: 'text-yellow-600', label: 'Ingresos', value: formatCurrency(stats.currentMonthCommission || 0), growth: stats.commissionGrowth, val1: formatCurrency(stats.lastMonthCommission || 0), sub1: 'Mes Ant.', isGradient: true, bg: 'bg-yellow-500/5' }
                 ].map((s, i) => (
-                  <div key={i} className={cn("p-5 rounded-2xl space-y-4 hover:brightness-110 transition-all cursor-default group animate-finanto-reveal opacity-0 shrink-0 border", s.bg, s.border, i === 0 ? "delay-100" : i === 1 ? "delay-200" : i === 2 ? "delay-300" : i === 3 ? "delay-400" : i === 4 ? "delay-500" : "")}>
+                  <div key={i} className={cn("p-5 rounded-2xl space-y-4 hover:brightness-110 transition-all cursor-default group animate-finanto-reveal opacity-0 shrink-0 border-none shadow-none", s.bg, i === 0 ? "delay-100" : i === 1 ? "delay-200" : i === 2 ? "delay-300" : i === 3 ? "delay-400" : i === 4 ? "delay-500" : "")}>
                     <div className="flex justify-between items-start">
                       <div className={cn("p-2 rounded-xl bg-background/50 shadow-sm", s.color)}><s.icon className="w-4 h-4" /></div>
                       {s.growth !== undefined && <span className={cn("text-[10px] font-bold flex items-center", s.growth >= 0 ? "text-green-500" : "text-destructive")}>{s.growth >= 0 ? <ArrowUpRight className="w-3 h-3"/> : <ArrowDownRight className="w-3 h-3"/>} {Math.abs(Math.round(s.growth))}%</span>}
@@ -347,10 +356,10 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                 {/* MAIN COLUMN (60-70%) */}
                 <div className="lg:col-span-8 space-y-8">
                   <div className="animate-finanto-reveal opacity-0 delay-200">
-                    <WeeklyHistoryChart />
+                    <WeeklyHistoryChart markedBorder />
                   </div>
                   <div className="animate-finanto-reveal opacity-0 delay-300">
-                    <FortnightMonitor data={stats.charts.fortnightActivity} title="Monitor Operativo de 15 Días" icon={CalendarDays} expanded />
+                    <FortnightMonitor data={stats.charts.fortnightActivity} title="Monitor Operativo de 15 Días" icon={CalendarDays} expanded markedBorder />
                   </div>
                 </div>
 
@@ -360,7 +369,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                     <PaydayTimeline />
                   </div>
 
-                  <div className="animate-finanto-reveal opacity-0 delay-500 border border-yellow-500/10 bg-yellow-500/[0.03] p-6 rounded-2xl space-y-4">
+                  <div className="animate-finanto-reveal opacity-0 delay-500 border border-yellow-500/5 bg-yellow-500/[0.03] p-6 rounded-2xl space-y-4">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-yellow-500/10 rounded-xl"><Lightbulb className="w-5 h-5 text-yellow-600" /></div>
                       <span className="text-[10px] font-black uppercase text-yellow-700 tracking-widest">Insights Operativos</span>
@@ -385,7 +394,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                   </div>
 
                   <div className="animate-finanto-reveal opacity-0 delay-600">
-                    <SummarySection />
+                    <SummarySection markedBorder />
                   </div>
                 </div>
 
