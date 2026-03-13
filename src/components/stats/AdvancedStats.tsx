@@ -8,9 +8,9 @@ import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
-  TrendingUp, BarChart3, Maximize2, X, Activity, CalendarDays, Trophy, Users, History, Coins, ArrowUpRight, ArrowDownRight, Zap, Target, Receipt, Percent, Info, LineChart as LineIcon, AlertCircle, PieChart as PieIcon, LayoutGrid, Lightbulb, UserCheck, CalendarClock
+  TrendingUp, BarChart3, Maximize2, X, Activity, CalendarDays, Trophy, Users, Coins, ArrowUpRight, ArrowDownRight, Zap, Target, Receipt, Percent, Info, LineChart as LineIcon, AlertCircle, Lightbulb, CalendarClock
 } from "lucide-react";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Cell, LabelList, ReferenceArea, ReferenceLine, Line, LineChart, ResponsiveContainer } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Cell, LabelList, ReferenceArea, Line, LineChart, ResponsiveContainer } from "recharts";
 import { ChartContainer, ChartTooltip, type ChartConfig } from "@/components/ui/chart";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
@@ -189,7 +189,6 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
   );
 
   const WeeklyHistoryChart = () => {
-    const currentWeekData = stats.charts.weeklyIncomeHistory.find((d: any) => d.isCurrentWeek);
     return (
       <div className="bg-muted/5 rounded-2xl p-6 space-y-6">
         <div className="flex items-center justify-between">
@@ -247,52 +246,9 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
     );
   };
 
-  const ExecutiveRanking = () => (
-    <div className="bg-muted/5 rounded-2xl p-6 h-full flex flex-col space-y-6">
-      <div className="flex items-center gap-3">
-        <div className="p-2 bg-yellow-500/10 rounded-xl"><Trophy className="w-5 h-5 text-yellow-500" /></div>
-        <div>
-          <h4 className="text-[11px] font-bold uppercase tracking-widest">Ranking del Mes</h4>
-          <p className="text-[9px] text-muted-foreground/60 uppercase">Todos los usuarios registrados</p>
-        </div>
-      </div>
-      <div className="flex-1 overflow-y-auto scrollbar-thin pr-2">
-        <div className="space-y-6">
-          {stats.executiveRanking.map((exec: any, i: number) => {
-            const maxSales = Math.max(...stats.executiveRanking.map((e: any) => e.sales)) || 1;
-            return (
-              <div key={i} className="flex flex-col gap-2.5 group">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={cn(
-                      "w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black border-none shrink-0 transition-colors",
-                      i === 0 ? "bg-yellow-500 text-yellow-950" : "bg-muted/40 text-muted-foreground"
-                    )}>
-                      {i + 1}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-xs font-bold truncate group-hover:text-primary transition-colors">{exec.name}</p>
-                      <p className="text-[9px] text-muted-foreground uppercase font-bold">{exec.sales} cierres • {formatCurrency(exec.amount)}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="h-1 w-full bg-muted/20 rounded-full overflow-hidden">
-                  <div 
-                    className={cn("h-full transition-all duration-700", i === 0 ? "bg-primary" : "bg-muted-foreground/30")} 
-                    style={{ width: `${(exec.sales / maxSales) * 100}%` }} 
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
-
   const PaydayTimeline = () => (
     <div className="grid grid-cols-2 gap-4">
-      <div className="bg-primary/[0.03] p-4 rounded-2xl space-y-2 border-none">
+      <div className="bg-primary/[0.03] p-4 rounded-2xl space-y-2 border border-primary/10">
         <div className="flex items-center gap-2 text-primary/60">
           <CalendarClock className="w-3.5 h-3.5" />
           <span className="text-[8px] font-black uppercase tracking-widest">Este Viernes</span>
@@ -301,7 +257,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
           {formatCurrency(stats.thisFridayCommission)}
         </p>
       </div>
-      <div className="bg-muted/5 p-4 rounded-2xl space-y-2 border-none">
+      <div className="bg-muted/5 p-4 rounded-2xl space-y-2 border border-border/10">
         <div className="flex items-center gap-2 text-muted-foreground/60">
           <CalendarClock className="w-3.5 h-3.5" />
           <span className="text-[8px] font-black uppercase tracking-widest">Siguiente</span>
@@ -347,15 +303,15 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
             <div className="max-w-[1400px] mx-auto p-4 md:p-10 space-y-10 pb-32">
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 {[
-                  { icon: CalendarDays, color: 'text-primary', label: 'Citas Hoy', value: stats.todayCount || 0, val1: stats.todayConfirmed || 0, sub1: 'Conf.' },
-                  { icon: TrendingUp, color: 'text-primary', label: 'Eficiencia', value: `${Math.round(closingRate)}%`, val1: 'Atendidas', sub1: 'Base' },
-                  { icon: Users, color: 'text-accent', label: 'Prospectos', value: stats.currentMonthProspects || 0, growth: monthlyGrowth, val1: stats.lastMonthProspects || 0, sub1: 'Mes Ant.' },
-                  { icon: Trophy, color: 'text-green-500', label: 'Cierres', value: stats.currentMonthOnlyCierre || 0, val1: stats.lastMonthSales || 0, sub1: 'Mes Ant.' },
-                  { icon: Coins, color: 'text-yellow-600', label: 'Ingresos', value: formatCurrency(stats.currentMonthCommission || 0), growth: stats.commissionGrowth, val1: formatCurrency(stats.lastMonthCommission || 0), sub1: 'Mes Ant.', isGradient: true }
+                  { icon: CalendarDays, color: 'text-primary', label: 'Citas Hoy', value: stats.todayCount || 0, val1: stats.todayConfirmed || 0, sub1: 'Conf.', bg: 'bg-primary/5', border: 'border-primary/10' },
+                  { icon: TrendingUp, color: 'text-primary', label: 'Eficiencia', value: `${Math.round(closingRate)}%`, val1: 'Atendidas', sub1: 'Base', bg: 'bg-muted/10', border: 'border-border/10' },
+                  { icon: Users, color: 'text-accent', label: 'Prospectos', value: stats.currentMonthProspects || 0, growth: monthlyGrowth, val1: stats.lastMonthProspects || 0, sub1: 'Mes Ant.', bg: 'bg-accent/5', border: 'border-accent/10' },
+                  { icon: Trophy, color: 'text-green-500', label: 'Cierres', value: stats.currentMonthOnlyCierre || 0, val1: stats.lastMonthSales || 0, sub1: 'Mes Ant.', bg: 'bg-green-500/5', border: 'border-green-500/10' },
+                  { icon: Coins, color: 'text-yellow-600', label: 'Ingresos', value: formatCurrency(stats.currentMonthCommission || 0), growth: stats.commissionGrowth, val1: formatCurrency(stats.lastMonthCommission || 0), sub1: 'Mes Ant.', isGradient: true, bg: 'bg-yellow-500/5', border: 'border-yellow-500/10' }
                 ].map((s, i) => (
-                  <div key={i} className={cn("bg-muted/5 p-5 rounded-2xl space-y-4 hover:bg-muted/10 transition-all cursor-default group animate-finanto-reveal opacity-0 shrink-0", i === 0 ? "delay-100" : i === 1 ? "delay-200" : i === 2 ? "delay-300" : i === 3 ? "delay-400" : i === 4 ? "delay-500" : "")}>
+                  <div key={i} className={cn("p-5 rounded-2xl space-y-4 hover:brightness-110 transition-all cursor-default group animate-finanto-reveal opacity-0 shrink-0 border", s.bg, s.border, i === 0 ? "delay-100" : i === 1 ? "delay-200" : i === 2 ? "delay-300" : i === 3 ? "delay-400" : i === 4 ? "delay-500" : "")}>
                     <div className="flex justify-between items-start">
-                      <div className={cn("p-2 rounded-xl bg-muted/20 group-hover:bg-background/50 transition-colors", s.color)}><s.icon className="w-4 h-4" /></div>
+                      <div className={cn("p-2 rounded-xl bg-background/50 shadow-sm", s.color)}><s.icon className="w-4 h-4" /></div>
                       {s.growth !== undefined && <span className={cn("text-[10px] font-bold flex items-center", s.growth >= 0 ? "text-green-500" : "text-destructive")}>{s.growth >= 0 ? <ArrowUpRight className="w-3 h-3"/> : <ArrowDownRight className="w-3 h-3"/>} {Math.abs(Math.round(s.growth))}%</span>}
                     </div>
                     <div><p className="text-[9px] uppercase font-black text-muted-foreground/60 tracking-widest">{s.label}</p><p className={cn("text-xl md:text-2xl font-black truncate", s.isGradient ? getDynamicGradient(stats.currentMonthCommission || 0) : "")}>{s.value}</p></div>
@@ -364,40 +320,29 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                 ))}
               </div>
 
-              <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 items-stretch">
-                <div className="xl:col-span-8 space-y-8">
+              <div className="grid grid-cols-1 gap-10 items-start">
+                <div className="space-y-8">
                   <div className="animate-finanto-reveal opacity-0 delay-200"><WeeklyHistoryChart /></div>
                   <div className="animate-finanto-reveal opacity-0 delay-300"><FortnightMonitor data={stats.charts.fortnightActivity} title="Monitor Operativo de 15 Días" icon={CalendarDays} expanded /></div>
-                  <div className="animate-finanto-reveal opacity-0 delay-400"><PaydayTimeline /></div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="animate-finanto-reveal opacity-0 delay-400"><PaydayTimeline /></div>
+                    <div className="bg-yellow-500/[0.03] p-6 rounded-2xl space-y-4 animate-finanto-reveal opacity-0 delay-200 border border-yellow-500/10">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-yellow-500/10 rounded-xl"><Lightbulb className="w-5 h-5 text-yellow-600" /></div>
+                        <span className="text-[10px] font-black uppercase text-yellow-700 tracking-widest">Insights Operativos</span>
+                      </div>
+                      <div className="space-y-4">
+                        {closingRate > 30 ? <p className="text-xs font-medium leading-relaxed opacity-80">Tu tasa de cierre es <strong>excepcional</strong>. Mantén el ritmo de prospección.</p> : <p className="text-xs font-medium leading-relaxed opacity-80">Tu tasa de cierre puede mejorar. Revisa tus simulaciones post-cita.</p>}
+                        <div className="pt-3 border-t border-yellow-500/10 flex items-center justify-between"><span className="text-[9px] font-bold uppercase opacity-40">Ticket Promedio:</span><span className="text-[10px] font-black">{formatCurrency(stats.totalCreditSold / (stats.currentMonthOnlyCierre || 1))}</span></div>
+                      </div>
+                    </div>
+                  </div>
                   
-                  <div className="bg-muted/5 rounded-2xl p-8 grid grid-cols-1 md:grid-cols-4 gap-10 animate-finanto-reveal opacity-0 delay-500">
+                  <div className="bg-muted/5 rounded-2xl p-8 grid grid-cols-1 md:grid-cols-4 gap-10 animate-finanto-reveal opacity-0 delay-500 border border-border/10">
                     <div><span className="text-[10px] font-black uppercase block text-muted-foreground/60 mb-2 tracking-widest">Total Vendido</span><p className={cn("text-2xl font-black", getDynamicGradient(stats.currentMonthCommission || 0))}>{formatCurrency(stats.totalCreditSold || 0)}</p><span className="text-[8px] text-muted-foreground font-bold uppercase opacity-40">Cierres finales</span></div>
                     <div><span className="text-[10px] font-black uppercase block text-muted-foreground/60 mb-2 tracking-widest">Ingreso Neto</span><p className={cn("text-2xl font-black", getDynamicGradient(stats.currentMonthCommission || 0))}>{formatCurrency(stats.currentMonthCommission || 0)}</p><div className="flex items-center gap-1 opacity-40"><span className="text-[8px] font-bold uppercase">Anterior:</span><span className="text-[8px] font-black">{formatCurrency(stats.lastMonthCommission || 0)}</span></div></div>
                     <div className="hidden md:block"><span className="text-[10px] font-black uppercase block text-muted-foreground/60 mb-2 tracking-widest">Participación</span><p className="text-2xl font-black">{stats.avgParticipation || 0}%</p><span className="text-[8px] text-muted-foreground font-bold uppercase opacity-40">Promedio por cierre</span></div>
                     <div><span className="text-[10px] font-black uppercase block text-muted-foreground/60 mb-2 tracking-widest">Retención</span><p className="text-2xl font-black text-destructive/60">{formatCurrency(taxImpact || 0)}</p><span className="text-[8px] text-destructive/40 font-bold uppercase">9% ISR Estimado</span></div>
-                  </div>
-                </div>
-
-                <div className="xl:col-span-4 flex flex-col gap-8">
-                  <div className="flex-1 min-h-[500px] animate-finanto-reveal opacity-0 delay-100">
-                    <ExecutiveRanking />
-                  </div>
-                  <div className="bg-yellow-500/[0.03] p-6 rounded-2xl space-y-4 animate-finanto-reveal opacity-0 delay-200">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-yellow-500/10 rounded-xl"><Lightbulb className="w-5 h-5 text-yellow-600" /></div>
-                      <span className="text-[10px] font-black uppercase text-yellow-700 tracking-widest">Insights</span>
-                    </div>
-                    <div className="space-y-4">
-                      {closingRate > 30 ? <p className="text-xs font-medium leading-relaxed opacity-80">Tu tasa de cierre es <strong>excepcional</strong>. Mantén el ritmo de prospección.</p> : <p className="text-xs font-medium leading-relaxed opacity-80">Tu tasa de cierre puede mejorar. Revisa tus simulaciones post-cita.</p>}
-                      <div className="pt-3 border-t border-yellow-500/10 flex items-center justify-between"><span className="text-[9px] font-bold uppercase opacity-40">Ticket Promedio:</span><span className="text-[10px] font-black">{formatCurrency(stats.totalCreditSold / (stats.currentMonthOnlyCierre || 1))}</span></div>
-                    </div>
-                  </div>
-                  <div className="bg-primary/[0.03] p-6 rounded-2xl space-y-4 animate-finanto-reveal opacity-0 delay-400">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-primary/10 rounded-xl"><AlertCircle className="w-5 h-5 text-primary" /></div>
-                      <span className="text-[10px] font-black uppercase text-primary tracking-widest">Ciclo Operativo</span>
-                    </div>
-                    <p className="text-xs font-medium leading-relaxed italic border-l-2 border-primary/20 pl-4 opacity-80">"Cierre de ciclo cada martes. Liquidación el viernes de la semana entrante."</p>
                   </div>
                 </div>
               </div>
