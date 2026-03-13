@@ -457,20 +457,25 @@ export const calculateStats = (appointments: Appointment[]) => {
     };
   });
 
+  // Cálculo de Ranking Real de Ejecutivos (Mes actual)
+  const rankingMap = new Map<string, { sales: number, amount: number }>();
+  activeApps
+    .filter(a => a.status === 'Cierre' && isSameMonth(parseISO(a.date), now) && a.attendingExecutive)
+    .forEach(a => {
+      const exec = a.attendingExecutive!;
+      const current = rankingMap.get(exec) || { sales: 0, amount: 0 };
+      rankingMap.set(exec, {
+        sales: current.sales + 1,
+        amount: current.amount + (Number(a.finalCreditAmount) || 0)
+      });
+    });
+
+  const executiveRanking = Array.from(rankingMap.entries())
+    .map(([name, stats]) => ({ name, ...stats }))
+    .sort((a, b) => b.sales - a.sales || b.amount - a.amount);
+
   const allVals = fortnightActivity.flatMap(d => [d.agendadas, d.atendidas, d.cierres]);
   const globalMax = Math.max(0, ...allVals);
-
-  // NUEVAS MÉTRICAS: Distribución por producto (solo cierres)
-  const productDistribution = ['Casa', 'Departamento', 'Terreno', 'Transporte', 'Préstamo'].map(p => {
-    const count = activeApps.filter(a => a.status === 'Cierre' && a.product === p).length;
-    return { name: p, value: count };
-  }).filter(item => item.value > 0);
-
-  // NUEVAS MÉTRICAS: Distribución por motivo (todos los prospectos)
-  const typeDistribution = ['1ra consulta', '2da consulta', 'Cierre', 'Seguimiento'].map(t => {
-    const count = activeApps.filter(a => a.type === t).length;
-    return { stage: t, count };
-  });
 
   return {
     todayCount: todayTotal,
@@ -496,12 +501,11 @@ export const calculateStats = (appointments: Appointment[]) => {
     overdueCommission,
     conversionRate: parseFloat(conversionRate.toFixed(1)),
     commissionGrowth: parseFloat(commissionGrowth.toFixed(1)),
+    executiveRanking,
     charts: { 
       fortnightActivity, 
       globalMax, 
-      weeklyIncomeHistory,
-      productDistribution,
-      typeDistribution
+      weeklyIncomeHistory
     }
   };
 };

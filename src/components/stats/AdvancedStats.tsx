@@ -1,3 +1,4 @@
+
 /**
  * @fileOverview Panel de Inteligencia Avanzada - Finanto
  */
@@ -102,7 +103,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
             <Icon className="w-4 h-4 text-primary" />
             <div className="flex flex-col">
               <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">{title}</CardTitle>
-              <span className="text-[8px] font-medium text-muted-foreground/40 uppercase">Monitor de 15 días • El día 8 es Hoy</span>
+              <span className="text-[8px] font-medium text-muted-foreground/40 uppercase">Monitor de 15 días</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -198,13 +199,13 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
           <div className="flex items-center gap-2">
             <LineIcon className="w-5 h-5 text-primary" />
             <div>
-              <CardTitle className="text-[11px] font-bold uppercase tracking-widest">Flujo de Cobro Semanal (Proyectado)</CardTitle>
-              <CardDescription className="text-[9px]">Ingreso liquidado por semana de pago</CardDescription>
+              <CardTitle className="text-[11px] font-bold uppercase tracking-widest">Flujo de Cobro Semanal</CardTitle>
+              <CardDescription className="text-[9px]">Ingreso neto por semana de pago</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent className="p-6 h-[300px]">
-          <ChartContainer config={chartConfig} className="h-full w-full">
+          <ResponsiveContainer width="100%" height="100%">
             <LineChart data={stats.charts.weeklyIncomeHistory} margin={{ left: 10, right: 10, top: 20, bottom: 10 }}>
               <defs>
                 <linearGradient id="historyLineGradient" x1="0" x1="0" x2="1" y2="0">
@@ -228,11 +229,10 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                     const data = payload[0].payload;
                     return (
                       <div className={cn("bg-card/95 p-3 rounded-lg shadow-2xl backdrop-blur-xl space-y-2 border-2", data.isCurrentWeek ? "border-primary border-[2px] shadow-[0_0_20px_rgba(24,119,242,0.4)] scale-105 transition-transform" : "border-border/50")}>
-                        <p className={cn("text-[10px] font-black uppercase border-b border-border/20 pb-1 mb-1", data.isCurrentWeek ? "text-primary" : "opacity-60")}>Semana: {data.week} {data.isCurrentWeek ? "(Actual)" : ""}</p>
+                        <p className={cn("text-[10px] font-black uppercase border-b border-border/20 pb-1 mb-1", data.isCurrentWeek ? "text-primary" : "opacity-60")}>Semana: {data.week}</p>
                         <div className="space-y-1">
-                          <p className="text-xs font-bold text-foreground flex items-center justify-between gap-4"><span className="opacity-60 text-[9px] uppercase">Cobro Semanal:</span><span className="text-primary">{formatCurrency(data.income)}</span></p>
-                          <p className="text-[10px] font-bold flex items-center justify-between gap-4"><span className="opacity-60 uppercase text-[8px]">Citas Atendidas:</span><span className="text-accent">{data.atendidas}</span></p>
-                          <p className="text-[10px] font-bold flex items-center justify-between gap-4"><span className="opacity-60 uppercase text-[8px]">Ventas Cerradas:</span><span className="text-green-500">{data.cierres}</span></p>
+                          <p className="text-xs font-bold text-foreground flex items-center justify-between gap-4"><span className="opacity-60 text-[9px] uppercase">Cobro:</span><span className="text-primary">{formatCurrency(data.income)}</span></p>
+                          <p className="text-[10px] font-bold flex items-center justify-between gap-4"><span className="opacity-60 uppercase text-[8px]">Cierres:</span><span className="text-green-500">{data.cierres}</span></p>
                         </div>
                       </div>
                     );
@@ -250,52 +250,59 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                 activeDot={{ r: 6, strokeWidth: 0 }}
               />
             </LineChart>
-          </ChartContainer>
+          </ResponsiveContainer>
         </CardContent>
       </Card>
     );
   };
 
   const ExecutiveRanking = () => (
-    <Card className="border-border/40 bg-card/30 backdrop-blur-md overflow-hidden">
-      <CardHeader className="p-6 pb-2 border-b border-border/10">
+    <Card className="border-border/40 bg-card/30 backdrop-blur-md overflow-hidden h-full flex flex-col">
+      <CardHeader className="p-6 pb-2 border-b border-border/10 shrink-0">
         <div className="flex items-center gap-2">
           <Trophy className="w-5 h-5 text-yellow-500" />
           <div>
-            <CardTitle className="text-[11px] font-bold uppercase tracking-widest">Ranking de Ejecutivos</CardTitle>
-            <CardDescription className="text-[9px]">Líderes de cierre del mes actual</CardDescription>
+            <CardTitle className="text-[11px] font-bold uppercase tracking-widest">Ranking del Mes</CardTitle>
+            <CardDescription className="text-[9px]">Líderes de cierre reales</CardDescription>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-6">
-        <div className="space-y-4">
-          {[
-            { name: 'Marco Olivares', sales: 12, amount: 18500000 },
-            { name: 'Brenda Solis', sales: 9, amount: 14200000 },
-            { name: 'Kevin Castro', sales: 7, amount: 11000000 },
-            { name: 'Diana Reyes', sales: 5, amount: 8500000 },
-          ].map((exec, i) => (
-            <div key={i} className="flex items-center justify-between group">
-              <div className="flex items-center gap-3">
-                <div className={cn(
-                  "w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black border",
-                  i === 0 ? "bg-yellow-500/20 text-yellow-600 border-yellow-500/30" : "bg-muted text-muted-foreground border-border"
-                )}>
-                  {i + 1}
+      <CardContent className="p-6 flex-1 overflow-y-auto scrollbar-thin">
+        <div className="space-y-6">
+          {stats.executiveRanking && stats.executiveRanking.length > 0 ? (
+            stats.executiveRanking.map((exec: any, i: number) => {
+              const maxSales = stats.executiveRanking[0].sales;
+              return (
+                <div key={i} className="flex flex-col gap-2 group">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={cn(
+                        "w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black border shrink-0",
+                        i === 0 ? "bg-yellow-500/20 text-yellow-600 border-yellow-500/30" : "bg-muted text-muted-foreground border-border"
+                      )}>
+                        {i + 1}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold group-hover:text-primary transition-colors truncate">{exec.name}</p>
+                        <p className="text-[9px] text-muted-foreground uppercase font-bold">{exec.sales} cierres • {formatCurrency(exec.amount)}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-primary transition-all duration-500" 
+                      style={{ width: `${(exec.sales / maxSales) * 100}%` }} 
+                    />
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs font-bold group-hover:text-primary transition-colors">{exec.name}</p>
-                  <p className="text-[9px] text-muted-foreground uppercase font-bold">{exec.sales} cierres • {formatCurrency(exec.amount)}</p>
-                </div>
-              </div>
-              <div className="h-1.5 w-24 bg-muted rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-primary" 
-                  style={{ width: `${(exec.sales / 12) * 100}%` }} 
-                />
-              </div>
+              );
+            })
+          ) : (
+            <div className="flex flex-col items-center justify-center py-10 text-muted-foreground opacity-40 italic">
+              <Users className="w-8 h-8 mb-2" />
+              <p className="text-[10px] uppercase font-bold">Sin cierres registrados</p>
             </div>
-          ))}
+          )}
         </div>
       </CardContent>
     </Card>
@@ -303,43 +310,27 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
 
   const PaydayTimeline = () => (
     <Card className="border-border/40 bg-card/30 backdrop-blur-md overflow-hidden">
-      <CardHeader className="p-6 pb-2 border-b border-border/10">
+      <CardHeader className="p-4 pb-2 border-b border-border/10 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <CalendarClock className="w-5 h-5 text-primary" />
-          <div>
-            <CardTitle className="text-[11px] font-bold uppercase tracking-widest">Timeline de Liquidación</CardTitle>
-            <CardDescription className="text-[9px]">Próximas fechas de cobro confirmadas</CardDescription>
-          </div>
+          <CalendarClock className="w-4 h-4 text-primary" />
+          <CardTitle className="text-[10px] font-bold uppercase tracking-widest">Liquidaciones</CardTitle>
         </div>
+        <span className="text-[8px] font-black uppercase bg-primary/10 text-primary px-2 py-0.5 rounded-full border border-primary/20">Próximos Viernes</span>
       </CardHeader>
-      <CardContent className="p-6">
-        <div className="space-y-6 relative">
-          <div className="absolute left-[11px] top-2 bottom-2 w-0.5 bg-border/30" />
-          {[
-            { label: 'Este Viernes', date: 'Viernes Prox.', amount: stats.thisFridayCommission, status: 'Confirmado', color: 'bg-primary' },
-            { label: 'Siguiente Semana', date: 'Vie +7 días', amount: stats.nextFridayCommission, status: 'En Proceso', color: 'bg-accent' },
-            { label: 'Fin de Ciclo', date: 'Vie +14 días', amount: 0, status: 'Proyectado', color: 'bg-muted' },
-          ].map((pay, i) => (
-            <div key={i} className="flex items-start gap-4 relative z-10">
-              <div className={cn("w-6 h-6 rounded-full flex items-center justify-center shrink-0 border-2 border-background shadow-sm", pay.color)}>
-                <Coins className="w-3 h-3 text-white" />
-              </div>
-              <div className="flex-1">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-[10px] font-black uppercase text-foreground">{pay.label}</span>
-                  <span className="text-[9px] font-bold text-muted-foreground">{pay.date}</span>
-                </div>
-                <div className="p-3 rounded-xl bg-background/40 border border-border/20 flex justify-between items-center">
-                  <span className={cn("text-sm font-black", pay.amount > 0 ? "text-primary" : "text-muted-foreground")}>
-                    {formatCurrency(pay.amount)}
-                  </span>
-                  <span className="text-[8px] font-black uppercase px-2 py-0.5 rounded-full bg-muted border border-border/50">
-                    {pay.status}
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
+      <CardContent className="p-4">
+        <div className="grid grid-cols-2 gap-3">
+          <div className="p-3 rounded-xl bg-background/40 border border-border/20 space-y-1">
+            <span className="text-[8px] font-black uppercase text-muted-foreground">Este Viernes</span>
+            <p className={cn("text-sm font-black", stats.thisFridayCommission > 0 ? "text-primary" : "opacity-40")}>
+              {formatCurrency(stats.thisFridayCommission)}
+            </p>
+          </div>
+          <div className="p-3 rounded-xl bg-background/40 border border-border/20 space-y-1">
+            <span className="text-[8px] font-black uppercase text-muted-foreground">Siguiente</span>
+            <p className={cn("text-sm font-black", stats.nextFridayCommission > 0 ? "text-accent" : "opacity-40")}>
+              {formatCurrency(stats.nextFridayCommission)}
+            </p>
+          </div>
         </div>
       </CardContent>
     </Card>
@@ -369,7 +360,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
           <DialogHeader className="px-6 py-4 border-b border-border/40 flex flex-row items-center justify-between bg-card/10 shrink-0">
             <div className="flex items-center gap-3">
               <div className="bg-primary/20 p-2 rounded-xl border border-primary/30"><BarChart3 className="text-primary w-6 h-6" /></div>
-              <div><h3 className="text-xl font-bold">Inteligencia Avanzada</h3><DialogDescription className="text-xs">Análisis financiero operativo y monitor de 15 días.</DialogDescription></div>
+              <div><h3 className="text-xl font-bold">Inteligencia de Negocio</h3><DialogDescription className="text-xs">Monitor operativo y ranking de ejecutivos.</DialogDescription></div>
             </div>
             <DialogClose asChild><Button variant="ghost" size="icon" className="rounded-full hover:bg-destructive/10 h-10 w-10"><X className="w-5 h-5" /></Button></DialogClose>
           </DialogHeader>
@@ -393,14 +384,11 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                   </Card>
                 ))}
               </div>
-              <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+              <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-stretch">
                 <div className="xl:col-span-8 space-y-6">
                   <div className="animate-finanto-reveal opacity-0 delay-200"><WeeklyHistoryChart /></div>
                   <div className="animate-finanto-reveal opacity-0 delay-300"><FortnightMonitor data={stats.charts.fortnightActivity} title="Monitor Operativo de 15 Días" icon={CalendarDays} expanded /></div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-finanto-reveal opacity-0 delay-400">
-                    <ExecutiveRanking />
-                    <PaydayTimeline />
-                  </div>
+                  <div className="animate-finanto-reveal opacity-0 delay-400"><PaydayTimeline /></div>
                   <Card className="bg-card border-border/40 overflow-hidden animate-finanto-reveal opacity-0 delay-500">
                     <CardHeader className="bg-muted/30 p-4 border-b text-xs font-bold uppercase flex items-center justify-between">
                       <div className="flex items-center gap-2"><Zap className="w-4 h-4 text-yellow-500" /> Rendimiento Financiero del Mes</div>
@@ -414,8 +402,11 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                     </CardContent>
                   </Card>
                 </div>
-                <div className="xl:col-span-4 space-y-6">
-                  <Card className="border-yellow-500/20 bg-yellow-500/5 p-6 space-y-4 animate-finanto-reveal opacity-0 delay-100">
+                <div className="xl:col-span-4 space-y-6 h-full flex flex-col">
+                  <div className="flex-1 min-h-[400px] animate-finanto-reveal opacity-0 delay-100">
+                    <ExecutiveRanking />
+                  </div>
+                  <Card className="border-yellow-500/20 bg-yellow-500/5 p-6 space-y-4 animate-finanto-reveal opacity-0 delay-200">
                     <div className="flex items-center gap-2"><Lightbulb className="w-5 h-5 text-yellow-600" /><span className="text-[10px] font-bold uppercase text-yellow-700 tracking-widest">Insights del Mes</span></div>
                     <div className="space-y-4">
                       {closingRate > 30 ? <p className="text-xs font-medium leading-relaxed text-yellow-900/80">Tu tasa de cierre es <strong>excepcional</strong>. Sigue con el seguimiento activo.</p> : <p className="text-xs font-medium leading-relaxed text-yellow-900/80">Tu tasa de cierre puede mejorar. Refuerza el seguimiento post-cotización.</p>}
@@ -426,24 +417,6 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                     <div className="flex items-center gap-2"><AlertCircle className="w-5 h-5 text-accent" /><span className="text-[10px] font-bold uppercase text-accent/80 tracking-widest">Información de Ciclos</span></div>
                     <div className="space-y-3">
                       <p className="text-xs font-bold leading-relaxed text-foreground/90 italic border-l-2 border-accent/30 pl-4">"El cierre de ciclo operativo es cada martes. Los pagos se liquidan el viernes de la semana entrante."</p>
-                      <div className="p-3 bg-card/50 rounded-lg border border-border/20 space-y-2">
-                        <div className="flex justify-between items-center"><span className="text-[9px] font-bold uppercase opacity-60">Próximo Corte:</span><span className="text-[10px] font-black text-destructive">Martes</span></div>
-                        <div className="flex justify-between items-center"><span className="text-[9px] font-bold uppercase opacity-60">Próxima Paga:</span><span className="text-[10px] font-black text-primary">Viernes</span></div>
-                      </div>
-                    </div>
-                  </Card>
-                  <Card className="border-primary/20 bg-primary/5 p-6 overflow-hidden relative animate-finanto-reveal opacity-0 delay-500">
-                    <div className="absolute top-0 right-0 opacity-10 p-4"><Activity className="w-24 h-24 rotate-12" /></div>
-                    <div className="space-y-4 relative z-10">
-                      <div className="flex items-center gap-2"><Users className="w-5 h-5 text-primary" /><span className="text-[10px] font-bold uppercase text-primary/80 tracking-widest">Flujo de Prospectos</span></div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="p-3 bg-background/40 rounded-xl border border-primary/10"><span className="text-[9px] font-bold uppercase text-muted-foreground block mb-1">Este Mes</span><span className="text-xl font-black">{stats.currentMonthProspects || 0}</span></div>
-                        <div className="p-3 bg-background/40 rounded-xl border border-primary/10"><span className="text-[9px] font-bold uppercase text-muted-foreground block mb-1">Mes Pasado</span><span className="text-xl font-black text-muted-foreground/60">{stats.lastMonthProspects || 0}</span></div>
-                      </div>
-                      <div className="space-y-1 pt-2">
-                        <div className="flex justify-between text-[8px] font-bold uppercase"><span>Crecimiento</span><span>{Math.abs(Math.round(monthlyGrowth))}%</span></div>
-                        <Progress value={Math.min(100, Math.abs(monthlyGrowth))} className={cn("h-1", monthlyGrowth >= 0 ? "bg-green-500/20" : "bg-destructive/20")} />
-                      </div>
                     </div>
                   </Card>
                 </div>
