@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useMemo } from 'react';
@@ -13,7 +12,7 @@ import { Appointment } from '@/services/appointment-service';
 import { v4 as uuidv4 } from 'uuid';
 import { onAuthChange } from '@/lib/auth';
 import { User } from 'firebase/auth';
-import { ensureUserDocument } from '@/lib/user-service';
+import { ensureUserDocument, getAllUsers } from '@/lib/user-service';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/app/lib/firebase';
 
@@ -22,17 +21,19 @@ export function useAppointments() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<any>(null);
+  const [allUsers, setAllUsers] = useState<any[]>([]);
 
-  // Escuchar cambios de auth y cargar datos de Firestore
   useEffect(() => {
     const unsubscribe = onAuthChange(async (currentUser) => {
       setUser(currentUser);
       
       if (currentUser) {
-        // 1. Asegurar que el documento del usuario existe en Firestore (metadatos)
         await ensureUserDocument(currentUser);
 
-        // 2. Obtener el perfil completo del usuario (incluyendo rol)
+        // Cargar todos los usuarios para el ranking
+        const usersList = await getAllUsers();
+        setAllUsers(usersList);
+
         try {
           const userRef = doc(db, "users", currentUser.uid);
           const userSnap = await getDoc(userRef);
@@ -43,21 +44,19 @@ export function useAppointments() {
           console.error("Error al cargar perfil de usuario:", err);
         }
 
-        // 3. Intentar migrar datos si existen en local
         const migratedData = await FirebaseStore.migrateLocalAppointments(currentUser.uid);
         
         if (migratedData) {
           setAppointments(migratedData);
         } else {
-          // 4. Cargar directamente desde Firestore
           const cloudApps = await FirebaseStore.loadAppointments(currentUser.uid);
           setAppointments(cloudApps);
         }
       } else {
-        // Si no hay sesión, intentamos usar local por compatibilidad offline
         const stored = Service.getFromDisk();
         setAppointments(stored);
         setProfile(null);
+        setAllUsers([]);
       }
       setIsLoaded(true);
     });
@@ -65,15 +64,10 @@ export function useAppointments() {
     return () => unsubscribe();
   }, []);
 
-  /**
-   * Helper para persistir cambios tanto en estado como en Firestore
-   */
   const persistAppointments = async (updatedList: Appointment[]) => {
     setAppointments(updatedList);
-    // Sincronizar con localStorage (offline fallback)
     Service.saveToDisk(updatedList);
     
-    // Sincronizar con Firestore
     if (user) {
       try {
         await FirebaseStore.saveAppointments(user.uid, updatedList);
@@ -123,7 +117,6 @@ export function useAppointments() {
   const resetData = async () => {
     const seed = Service.generateSeedData();
     await persistAppointments(seed);
-    // Forzamos recarga para asegurar sincronía total
     window.location.reload();
   };
 
@@ -194,12 +187,12 @@ export function useAppointments() {
     return `${h12}:${m.toString().padStart(2, '0')} ${period}`;
   };
 
-  const stats = useMemo(() => Service.calculateStats(appointments), [appointments]);
+  const stats = useMemo(() => Service.calculateStats(appointments, allUsers), [appointments, allUsers]);
 
   return {
     appointments, upcoming, past, activeAppointments, 
     addAppointment, editAppointment, archiveAppointment, unarchiveAppointment, deletePermanent,
     resetData, clearAll, formatFriendlyDate, format12hTime,
-    stats, isLoaded, user, profile
+    stats, isLoaded, user, profile, allUsers
   };
 }

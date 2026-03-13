@@ -1,4 +1,3 @@
-
 /**
  * @fileOverview Servicio de Gestión de Datos - Finanto
  * 
@@ -234,7 +233,7 @@ export const generateSeedData = (): Appointment[] => {
 /**
  * Calcula las estadísticas globales enriquecidas.
  */
-export const calculateStats = (appointments: Appointment[]) => {
+export const calculateStats = (appointments: Appointment[], allUsers: any[] = []) => {
   const activeApps = appointments.filter(a => !a.isArchived);
   const now = new Date();
   const todayStart = startOfDay(now);
@@ -354,18 +353,6 @@ export const calculateStats = (appointments: Appointment[]) => {
   const conversionRate = currentMonthProspects > 0 ? (currentMonthSales / currentMonthProspects) * 100 : 0;
   const commissionGrowth = lastMonthCommission > 0 ? ((currentMonthCommission - lastMonthCommission) / lastMonthCommission) * 100 : 0;
 
-  const getCycleStart = (date: Date) => {
-    const day = getDay(date); 
-    const diff = (day - 3 + 7) % 7;
-    return startOfDay(subDays(date, diff));
-  };
-
-  const currentCycleStart = getCycleStart(now);
-  const currentCycleEnd = addDays(currentCycleStart, 6);
-  const lastCycleStart = subDays(currentCycleStart, 7);
-  const lastCycleEnd = subDays(currentCycleStart, 1);
-
-  // Monitor de 15 días: hoy es el día 8 (índice 7)
   const buildFortnightData = () => {
     const start = subDays(todayStart, 7);
     const end = addDays(todayStart, 7);
@@ -381,7 +368,6 @@ export const calculateStats = (appointments: Appointment[]) => {
       const atendidas = activeApps.filter(a => isSameDay(parseISO(a.date), day) && a.status && a.status !== 'No asistencia').length;
       const cierres = activeApps.filter(a => isSameDay(parseISO(a.date), day) && a.status === 'Cierre').length;
       
-      // Cálculo de comisiones para este viernes específico si el día es viernes
       let projectedPay = 0;
       if (dayOfWeek === 5) { // Viernes
         projectedPay = activeApps
@@ -457,8 +443,15 @@ export const calculateStats = (appointments: Appointment[]) => {
     };
   });
 
-  // Cálculo de Ranking Real de Ejecutivos (Mes actual)
+  // Cálculo de Ranking Real de Ejecutivos incluyendo a TODOS los usuarios registrados
   const rankingMap = new Map<string, { sales: number, amount: number }>();
+  
+  // Inicializar todos los usuarios con 0 ventas
+  allUsers.forEach(u => {
+    rankingMap.set(u.name || u.email, { sales: 0, amount: 0 });
+  });
+
+  // Sumar ventas reales del mes actual
   activeApps
     .filter(a => a.status === 'Cierre' && isSameMonth(parseISO(a.date), now) && a.attendingExecutive)
     .forEach(a => {
