@@ -1,3 +1,4 @@
+
 /**
  * @fileOverview Servicio de Gestión de Datos - Finanto
  * 
@@ -231,9 +232,9 @@ export const generateSeedData = (): Appointment[] => {
 };
 
 /**
- * Calcula las estadísticas globales enriquecidas.
+ * Calcula las estadísticas individuales.
  */
-export const calculateStats = (appointments: Appointment[], allUsers: any[] = []) => {
+export const calculateStats = (appointments: Appointment[]) => {
   const activeApps = appointments.filter(a => !a.isArchived);
   const now = new Date();
   const todayStart = startOfDay(now);
@@ -443,30 +444,6 @@ export const calculateStats = (appointments: Appointment[], allUsers: any[] = []
     };
   });
 
-  // Cálculo de Ranking Real de Ejecutivos incluyendo a TODOS los usuarios registrados
-  const rankingMap = new Map<string, { sales: number, amount: number }>();
-  
-  // Inicializar todos los usuarios con 0 ventas
-  allUsers.forEach(u => {
-    rankingMap.set(u.name || u.email, { sales: 0, amount: 0 });
-  });
-
-  // Sumar ventas reales del mes actual
-  activeApps
-    .filter(a => a.status === 'Cierre' && isSameMonth(parseISO(a.date), now) && a.attendingExecutive)
-    .forEach(a => {
-      const exec = a.attendingExecutive!;
-      const current = rankingMap.get(exec) || { sales: 0, amount: 0 };
-      rankingMap.set(exec, {
-        sales: current.sales + 1,
-        amount: current.amount + (Number(a.finalCreditAmount) || 0)
-      });
-    });
-
-  const executiveRanking = Array.from(rankingMap.entries())
-    .map(([name, stats]) => ({ name, ...stats }))
-    .sort((a, b) => b.sales - a.sales || b.amount - a.amount);
-
   const allVals = fortnightActivity.flatMap(d => [d.agendadas, d.atendidas, d.cierres]);
   const globalMax = Math.max(0, ...allVals);
 
@@ -494,7 +471,6 @@ export const calculateStats = (appointments: Appointment[], allUsers: any[] = []
     overdueCommission,
     conversionRate: parseFloat(conversionRate.toFixed(1)),
     commissionGrowth: parseFloat(commissionGrowth.toFixed(1)),
-    executiveRanking,
     charts: { 
       fortnightActivity, 
       globalMax, 

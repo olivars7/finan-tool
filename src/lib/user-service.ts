@@ -1,4 +1,5 @@
-import { doc, getDoc, setDoc, serverTimestamp, collection, getDocs } from "firebase/firestore";
+
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "@/app/lib/firebase";
 import { User } from "firebase/auth";
 
@@ -27,22 +28,5 @@ export async function ensureUserDocument(user: User) {
     await setDoc(userRef, profileUpdate, { merge: true });
   } catch (error) {
     console.error("Error al sincronizar el perfil de usuario en Firestore:", error);
-  }
-}
-
-/**
- * Obtiene todos los usuarios registrados en la plataforma.
- */
-export async function getAllUsers() {
-  const usersRef = collection(db, "users");
-  try {
-    const querySnapshot = await getDocs(usersRef);
-    return querySnapshot.docs.map(doc => ({
-      uid: doc.id,
-      ...doc.data()
-    }));
-  } catch (error) {
-    console.error("Error fetching all users:", error);
-    return [];
   }
 }

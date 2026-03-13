@@ -1,5 +1,5 @@
 
-import { doc, getDoc, setDoc, collection, getDocs } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/app/lib/firebase";
 import { Appointment, STORAGE_KEY, calculateStats } from "@/services/appointment-service";
 
@@ -74,35 +74,6 @@ export const saveAppointments = async (userId: string, appointments: Appointment
   } catch (error) {
     console.error("Error al guardar citas en Firestore:", error);
     throw error;
-  }
-};
-
-/**
- * Recupera TODAS las citas de TODOS los usuarios registrados (Solo para Admins).
- */
-export const fetchAllGlobalAppointments = async (): Promise<(Appointment & { ownerName: string, ownerEmail: string })[]> => {
-  const usersRef = collection(db, "users");
-  try {
-    const querySnapshot = await getDocs(usersRef);
-    let allApps: (Appointment & { ownerName: string, ownerEmail: string })[] = [];
-    
-    querySnapshot.forEach((doc) => {
-      const userData = doc.data();
-      if (userData.appointments && Array.isArray(userData.appointments)) {
-        const appsWithMetadata = userData.appointments.map((app: Appointment) => ({
-          ...app,
-          ownerName: userData.name || 'Desconocido',
-          ownerEmail: userData.email || 'N/A'
-        }));
-        allApps = [...allApps, ...appsWithMetadata];
-      }
-    });
-    
-    // Ordenar por fecha descendente (más recientes primero)
-    return allApps.sort((a, b) => b.date.localeCompare(a.date));
-  } catch (error) {
-    console.error("Error fetching global appointments:", error);
-    return [];
   }
 };
 

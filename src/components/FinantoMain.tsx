@@ -7,7 +7,6 @@ import AppointmentsDashboard from '@/components/appointments/AppointmentsDashboa
 import AppointmentForm from '@/components/appointments/AppointmentForm';
 import AdvancedStats from '@/components/stats/AdvancedStats';
 import TrashDialog from '@/components/appointments/TrashDialog';
-import AdminDashboard from '@/components/admin/AdminDashboard';
 import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 import { 
@@ -17,7 +16,7 @@ import {
   CalendarClock, HandCoins, CheckCircle, BadgeAlert, 
   MoreHorizontal, ArrowUpRight, ArrowDownRight, Coins, Star, Trophy,
   TrendingUp, Trash2, User, Receipt, BarChart3, PartyPopper as PartyIcon, ArrowRight,
-  LogOut, UserPlus, X, Search, Bell, ShieldCheck
+  LogOut, UserPlus, X, Search, Bell
 } from 'lucide-react';
 import { useAppointments } from '@/hooks/use-appointments';
 import { Button } from '@/components/ui/button';
@@ -96,7 +95,6 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showTrash, setShowTrash] = useState(false);
-  const [showAdminDashboard, setShowAdminDashboard] = useState(false);
   
   const [showHelp, setShowHelp] = useState(false);
   const [isSimulatorExpanded, setIsSimulatorExpanded] = useState(false);
@@ -493,17 +491,6 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
           </div>
           
           <div className="flex items-center gap-2 sm:gap-4">
-            {profile?.role === 'admin' && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setShowAdminDashboard(true)}
-                className="h-9 px-3 text-[10px] font-black uppercase tracking-tighter bg-primary/10 text-primary border-primary/30 hover:bg-primary/20 gap-2 rounded-xl"
-              >
-                <ShieldCheck className="w-4 h-4" /> Global
-              </Button>
-            )}
-
             {profile?.role && (
               <Badge variant="outline" className="hidden sm:flex text-[9px] font-bold uppercase tracking-tighter bg-primary/5 text-primary border-primary/20 px-2 py-0.5 rounded-full">
                 {profile.role}
@@ -802,14 +789,6 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
           </div>
         </div>
       </footer>
-
-      {/* ADMIN DASHBOARD (MASTER VIEW) */}
-      {profile?.role === 'admin' && (
-        <AdminDashboard 
-          open={showAdminDashboard} 
-          onOpenChange={setShowAdminDashboard} 
-        />
-      )}
 
       {/* NEW APPOINTMENT DIALOG (MOBILE MOSAIC) */}
       <Dialog open={isNewAppExpanded} onOpenChange={setIsNewAppExpanded}>

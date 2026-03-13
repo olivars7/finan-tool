@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from 'react';
@@ -12,7 +13,7 @@ import { Appointment } from '@/services/appointment-service';
 import { v4 as uuidv4 } from 'uuid';
 import { onAuthChange } from '@/lib/auth';
 import { User } from 'firebase/auth';
-import { ensureUserDocument, getAllUsers } from '@/lib/user-service';
+import { ensureUserDocument } from '@/lib/user-service';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/app/lib/firebase';
 
@@ -21,7 +22,6 @@ export function useAppointments() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<any>(null);
-  const [allUsers, setAllUsers] = useState<any[]>([]);
 
   useEffect(() => {
     const unsubscribe = onAuthChange(async (currentUser) => {
@@ -29,10 +29,6 @@ export function useAppointments() {
       
       if (currentUser) {
         await ensureUserDocument(currentUser);
-
-        // Cargar todos los usuarios para el ranking
-        const usersList = await getAllUsers();
-        setAllUsers(usersList);
 
         try {
           const userRef = doc(db, "users", currentUser.uid);
@@ -56,7 +52,6 @@ export function useAppointments() {
         const stored = Service.getFromDisk();
         setAppointments(stored);
         setProfile(null);
-        setAllUsers([]);
       }
       setIsLoaded(true);
     });
@@ -187,12 +182,12 @@ export function useAppointments() {
     return `${h12}:${m.toString().padStart(2, '0')} ${period}`;
   };
 
-  const stats = useMemo(() => Service.calculateStats(appointments, allUsers), [appointments, allUsers]);
+  const stats = useMemo(() => Service.calculateStats(appointments), [appointments]);
 
   return {
     appointments, upcoming, past, activeAppointments, 
     addAppointment, editAppointment, archiveAppointment, unarchiveAppointment, deletePermanent,
     resetData, clearAll, formatFriendlyDate, format12hTime,
-    stats, isLoaded, user, profile, allUsers
+    stats, isLoaded, user, profile
   };
 }
