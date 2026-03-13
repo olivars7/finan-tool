@@ -330,8 +330,8 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
           </DialogHeader>
           <div className="flex-1 overflow-y-auto scrollbar-thin bg-background/50">
             <div className="max-w-[1400px] mx-auto p-4 md:p-10 space-y-10 pb-32">
-              {/* TOP METRICS ROW (Borderless Minimalist) */}
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              {/* TOP METRICS ROW (Borderless Minimalist with horizontal scroll on mobile) */}
+              <div className="flex overflow-x-auto pb-4 md:pb-0 md:grid md:grid-cols-5 gap-4 scrollbar-thin">
                 {[
                   { icon: CalendarDays, color: 'text-primary', label: 'Citas Hoy', value: stats.todayCount || 0, val1: stats.todayConfirmed || 0, sub1: 'Conf.', bg: 'bg-primary/5' },
                   { icon: TrendingUp, color: 'text-primary', label: 'Eficiencia', value: `${Math.round(closingRate)}%`, val1: 'Atendidas', sub1: 'Base', bg: 'bg-muted/5' },
@@ -339,7 +339,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                   { icon: Trophy, color: 'text-green-500', label: 'Cierres', value: stats.currentMonthOnlyCierre || 0, val1: stats.lastMonthSales || 0, sub1: 'Mes Ant.', bg: 'bg-green-500/5' },
                   { icon: Coins, color: 'text-yellow-600', label: 'Ingresos', value: formatCurrency(stats.currentMonthCommission || 0), growth: stats.commissionGrowth, val1: formatCurrency(stats.lastMonthCommission || 0), sub1: 'Mes Ant.', isGradient: true, bg: 'bg-yellow-500/5' }
                 ].map((s, i) => (
-                  <div key={i} className={cn("p-5 rounded-2xl space-y-4 hover:brightness-110 transition-all cursor-default group animate-finanto-reveal opacity-0 shrink-0 border-none shadow-none", s.bg, i === 0 ? "delay-100" : i === 1 ? "delay-200" : i === 2 ? "delay-300" : i === 3 ? "delay-400" : i === 4 ? "delay-500" : "")}>
+                  <div key={i} className={cn("p-5 rounded-2xl space-y-4 hover:brightness-110 transition-all cursor-default group animate-finanto-reveal opacity-0 shrink-0 border-none shadow-none min-w-[160px] md:min-w-0", s.bg, i === 0 ? "delay-100" : i === 1 ? "delay-200" : i === 2 ? "delay-300" : i === 3 ? "delay-400" : i === 4 ? "delay-500" : "")}>
                     <div className="flex justify-between items-start">
                       <div className={cn("p-2 rounded-xl bg-background/50 shadow-sm", s.color)}><s.icon className="w-4 h-4" /></div>
                       {s.growth !== undefined && <span className={cn("text-[10px] font-bold flex items-center", s.growth >= 0 ? "text-green-500" : "text-destructive")}>{s.growth >= 0 ? <ArrowUpRight className="w-3 h-3"/> : <ArrowDownRight className="w-3 h-3"/>} {Math.abs(Math.round(s.growth))}%</span>}
