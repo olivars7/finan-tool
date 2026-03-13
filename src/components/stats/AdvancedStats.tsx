@@ -96,7 +96,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
   const FortnightMonitor = ({ data, title, icon: Icon, expanded = false }: { data: any, title: string, icon: any, expanded?: boolean }) => {
     const todayItem = data.find((d: any) => d.isToday);
     return (
-      <div className="bg-muted/5 rounded-2xl p-4 md:p-6 space-y-4">
+      <div className="bg-muted/5 rounded-2xl p-4 md:p-6 space-y-4 border border-border/10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-primary/10 rounded-xl"><Icon className="w-4 h-4 text-primary" /></div>
@@ -110,7 +110,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
              <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" /> <span className="text-[8px] font-bold uppercase opacity-60">Paga</span></div>
           </div>
         </div>
-        <div className={cn("overflow-visible", expanded ? "h-[380px]" : "h-[220px]")}>
+        <div className={cn("overflow-visible", expanded ? "h-[320px]" : "h-[220px]")}>
           <ChartContainer config={chartConfig} className="h-full w-full">
             <BarChart data={data} margin={{ top: 30, right: 10, left: 10, bottom: 40 }}>
               <defs>
@@ -167,30 +167,9 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
     );
   };
 
-  const PerformanceSection = () => (
-    <div className="bg-primary/[0.03] p-6 rounded-2xl space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary/10 rounded-xl"><Activity className="w-5 h-5 text-primary" /></div>
-          <h3 className="text-xs font-bold uppercase text-primary/80 tracking-widest">Salud Operativa</h3>
-        </div>
-        <span className="text-2xl font-black text-primary">{Math.round(attendanceRate)}% <span className="text-[8px] uppercase">Asistencia</span></span>
-      </div>
-      <div className="space-y-4">
-        <div className="space-y-1.5">
-          <div className="flex justify-between text-[9px] uppercase font-bold text-muted-foreground">
-            <span>Efectividad Cierre</span>
-            <span className="text-primary">{Math.round(closingRate)}%</span>
-          </div>
-          <Progress value={closingRate} className="h-1.5 bg-primary/10" />
-        </div>
-      </div>
-    </div>
-  );
-
   const WeeklyHistoryChart = () => {
     return (
-      <div className="bg-muted/5 rounded-2xl p-6 space-y-6">
+      <div className="bg-muted/5 rounded-2xl p-6 space-y-6 border border-border/10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-primary/10 rounded-xl"><LineIcon className="w-5 h-5 text-primary" /></div>
@@ -247,24 +226,56 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
   };
 
   const PaydayTimeline = () => (
-    <div className="grid grid-cols-2 gap-4">
-      <div className="bg-primary/[0.03] p-4 rounded-2xl space-y-2 border border-primary/10">
+    <div className="flex flex-col gap-4">
+      <div className="bg-primary/[0.03] p-5 rounded-2xl space-y-3 border border-primary/10">
         <div className="flex items-center gap-2 text-primary/60">
-          <CalendarClock className="w-3.5 h-3.5" />
-          <span className="text-[8px] font-black uppercase tracking-widest">Este Viernes</span>
+          <CalendarClock className="w-4 h-4" />
+          <span className="text-[9px] font-black uppercase tracking-widest">Liquidación Este Viernes</span>
         </div>
-        <p className={cn("text-lg font-black tracking-tight", stats.thisFridayCommission > 0 ? "text-primary" : "opacity-20")}>
-          {formatCurrency(stats.thisFridayCommission)}
-        </p>
+        <div className="flex items-baseline justify-between">
+          <p className={cn("text-2xl font-black tracking-tighter", stats.thisFridayCommission > 0 ? "text-primary" : "opacity-20")}>
+            {formatCurrency(stats.thisFridayCommission)}
+          </p>
+          {stats.thisFridayCommission > 0 && <span className="text-[10px] font-bold text-primary animate-pulse uppercase">Pendiente</span>}
+        </div>
       </div>
-      <div className="bg-muted/5 p-4 rounded-2xl space-y-2 border border-border/10">
+      <div className="bg-muted/5 p-5 rounded-2xl space-y-3 border border-border/10">
         <div className="flex items-center gap-2 text-muted-foreground/60">
-          <CalendarClock className="w-3.5 h-3.5" />
-          <span className="text-[8px] font-black uppercase tracking-widest">Siguiente</span>
+          <CalendarClock className="w-4 h-4" />
+          <span className="text-[9px] font-black uppercase tracking-widest">Siguiente Viernes</span>
         </div>
-        <p className={cn("text-lg font-black tracking-tight", stats.nextFridayCommission > 0 ? "text-foreground" : "opacity-20")}>
+        <p className={cn("text-2xl font-black tracking-tighter", stats.nextFridayCommission > 0 ? "text-foreground" : "opacity-20")}>
           {formatCurrency(stats.nextFridayCommission)}
         </p>
+      </div>
+    </div>
+  );
+
+  const SummarySection = () => (
+    <div className="bg-muted/5 rounded-2xl p-6 space-y-6 border border-border/10">
+      <div className="space-y-6">
+        <div>
+          <span className="text-[9px] font-black uppercase block text-muted-foreground/60 mb-1 tracking-widest">Volumen Vendido (Mes)</span>
+          <p className={cn("text-2xl font-black tracking-tighter", getDynamicGradient(stats.totalCreditSold))}>{formatCurrency(stats.totalCreditSold || 0)}</p>
+          <span className="text-[8px] text-muted-foreground font-bold uppercase opacity-40">Basado en cierres finales</span>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-6 pt-4 border-t border-border/5">
+          <div>
+            <span className="text-[9px] font-black uppercase block text-muted-foreground/60 mb-1 tracking-widest">Ingreso Neto</span>
+            <p className="text-xl font-black tracking-tight">{formatCurrency(stats.currentMonthCommission || 0)}</p>
+          </div>
+          <div>
+            <span className="text-[9px] font-black uppercase block text-muted-foreground/60 mb-1 tracking-widest">Participación</span>
+            <p className="text-xl font-black tracking-tight">{stats.avgParticipation || 0}%</p>
+          </div>
+        </div>
+
+        <div className="pt-4 border-t border-border/5">
+          <span className="text-[9px] font-black uppercase block text-muted-foreground/60 mb-1 tracking-widest">Retención ISR Est.</span>
+          <p className="text-xl font-black tracking-tight text-destructive/60">{formatCurrency(taxImpact || 0)}</p>
+          <span className="text-[8px] text-destructive/40 font-bold uppercase">9% del ingreso bruto</span>
+        </div>
       </div>
     </div>
   );
@@ -285,7 +296,16 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
         </CardHeader>
         <CardContent className="p-6 space-y-6">
           <FortnightMonitor data={stats.charts.fortnightActivity} title="Monitor Operativo" icon={CalendarDays} />
-          <div className="hidden md:block"><PerformanceSection /></div>
+          <div className="hidden md:grid grid-cols-2 gap-4">
+            <div className="bg-primary/[0.03] p-4 rounded-2xl border border-primary/10">
+              <span className="text-[8px] font-black uppercase text-primary/60 block mb-1">Citas Hoy</span>
+              <p className="text-xl font-black text-primary">{stats.todayCount || 0}</p>
+            </div>
+            <div className="bg-accent/[0.03] p-4 rounded-2xl border border-accent/10">
+              <span className="text-[8px] font-black uppercase text-accent/60 block mb-1">Prospectos</span>
+              <p className="text-xl font-black text-accent">{stats.currentMonthProspects || 0}</p>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -301,10 +321,11 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
           </DialogHeader>
           <div className="flex-1 overflow-y-auto scrollbar-thin bg-background/50">
             <div className="max-w-[1400px] mx-auto p-4 md:p-10 space-y-10 pb-32">
+              {/* TOP METRICS ROW */}
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 {[
                   { icon: CalendarDays, color: 'text-primary', label: 'Citas Hoy', value: stats.todayCount || 0, val1: stats.todayConfirmed || 0, sub1: 'Conf.', bg: 'bg-primary/5', border: 'border-primary/10' },
-                  { icon: TrendingUp, color: 'text-primary', label: 'Eficiencia', value: `${Math.round(closingRate)}%`, val1: 'Atendidas', sub1: 'Base', bg: 'bg-muted/10', border: 'border-border/10' },
+                  { icon: TrendingUp, color: 'text-primary', label: 'Eficiencia', value: `${Math.round(closingRate)}%`, val1: 'Atendidas', sub1: 'Base', bg: 'bg-muted/5', border: 'border-border/10' },
                   { icon: Users, color: 'text-accent', label: 'Prospectos', value: stats.currentMonthProspects || 0, growth: monthlyGrowth, val1: stats.lastMonthProspects || 0, sub1: 'Mes Ant.', bg: 'bg-accent/5', border: 'border-accent/10' },
                   { icon: Trophy, color: 'text-green-500', label: 'Cierres', value: stats.currentMonthOnlyCierre || 0, val1: stats.lastMonthSales || 0, sub1: 'Mes Ant.', bg: 'bg-green-500/5', border: 'border-green-500/10' },
                   { icon: Coins, color: 'text-yellow-600', label: 'Ingresos', value: formatCurrency(stats.currentMonthCommission || 0), growth: stats.commissionGrowth, val1: formatCurrency(stats.lastMonthCommission || 0), sub1: 'Mes Ant.', isGradient: true, bg: 'bg-yellow-500/5', border: 'border-yellow-500/10' }
@@ -320,31 +341,54 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                 ))}
               </div>
 
-              <div className="grid grid-cols-1 gap-10 items-start">
-                <div className="space-y-8">
-                  <div className="animate-finanto-reveal opacity-0 delay-200"><WeeklyHistoryChart /></div>
-                  <div className="animate-finanto-reveal opacity-0 delay-300"><FortnightMonitor data={stats.charts.fortnightActivity} title="Monitor Operativo de 15 Días" icon={CalendarDays} expanded /></div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="animate-finanto-reveal opacity-0 delay-400"><PaydayTimeline /></div>
-                    <div className="bg-yellow-500/[0.03] p-6 rounded-2xl space-y-4 animate-finanto-reveal opacity-0 delay-200 border border-yellow-500/10">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-yellow-500/10 rounded-xl"><Lightbulb className="w-5 h-5 text-yellow-600" /></div>
-                        <span className="text-[10px] font-black uppercase text-yellow-700 tracking-widest">Insights Operativos</span>
-                      </div>
-                      <div className="space-y-4">
-                        {closingRate > 30 ? <p className="text-xs font-medium leading-relaxed opacity-80">Tu tasa de cierre es <strong>excepcional</strong>. Mantén el ritmo de prospección.</p> : <p className="text-xs font-medium leading-relaxed opacity-80">Tu tasa de cierre puede mejorar. Revisa tus simulaciones post-cita.</p>}
-                        <div className="pt-3 border-t border-yellow-500/10 flex items-center justify-between"><span className="text-[9px] font-bold uppercase opacity-40">Ticket Promedio:</span><span className="text-[10px] font-black">{formatCurrency(stats.totalCreditSold / (stats.currentMonthOnlyCierre || 1))}</span></div>
+              {/* TWO COLUMNS LAYOUT: 60% / 30% */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                
+                {/* MAIN COLUMN (60-70%) */}
+                <div className="lg:col-span-8 space-y-8">
+                  <div className="animate-finanto-reveal opacity-0 delay-200">
+                    <WeeklyHistoryChart />
+                  </div>
+                  <div className="animate-finanto-reveal opacity-0 delay-300">
+                    <FortnightMonitor data={stats.charts.fortnightActivity} title="Monitor Operativo de 15 Días" icon={CalendarDays} expanded />
+                  </div>
+                </div>
+
+                {/* COMPLEMENTARY COLUMN (30-40%) */}
+                <div className="lg:col-span-4 space-y-8">
+                  <div className="animate-finanto-reveal opacity-0 delay-400">
+                    <PaydayTimeline />
+                  </div>
+
+                  <div className="animate-finanto-reveal opacity-0 delay-500 border border-yellow-500/10 bg-yellow-500/[0.03] p-6 rounded-2xl space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-yellow-500/10 rounded-xl"><Lightbulb className="w-5 h-5 text-yellow-600" /></div>
+                      <span className="text-[10px] font-black uppercase text-yellow-700 tracking-widest">Insights Operativos</span>
+                    </div>
+                    <div className="space-y-4">
+                      {closingRate > 30 ? (
+                        <p className="text-xs font-medium leading-relaxed opacity-80">
+                          Tu tasa de cierre es <strong>excepcional</strong>. Estás superando el promedio del equipo.
+                        </p>
+                      ) : (
+                        <p className="text-xs font-medium leading-relaxed opacity-80">
+                          La tasa de cierre actual sugiere revisar el seguimiento de 2das consultas.
+                        </p>
+                      )}
+                      <div className="pt-3 border-t border-yellow-500/10 flex items-center justify-between">
+                        <span className="text-[9px] font-bold uppercase opacity-40">Ticket Promedio:</span>
+                        <span className="text-[10px] font-black">
+                          {formatCurrency(stats.totalCreditSold / (stats.currentMonthOnlyCierre || 1))}
+                        </span>
                       </div>
                     </div>
                   </div>
-                  
-                  <div className="bg-muted/5 rounded-2xl p-8 grid grid-cols-1 md:grid-cols-4 gap-10 animate-finanto-reveal opacity-0 delay-500 border border-border/10">
-                    <div><span className="text-[10px] font-black uppercase block text-muted-foreground/60 mb-2 tracking-widest">Total Vendido</span><p className={cn("text-2xl font-black", getDynamicGradient(stats.currentMonthCommission || 0))}>{formatCurrency(stats.totalCreditSold || 0)}</p><span className="text-[8px] text-muted-foreground font-bold uppercase opacity-40">Cierres finales</span></div>
-                    <div><span className="text-[10px] font-black uppercase block text-muted-foreground/60 mb-2 tracking-widest">Ingreso Neto</span><p className={cn("text-2xl font-black", getDynamicGradient(stats.currentMonthCommission || 0))}>{formatCurrency(stats.currentMonthCommission || 0)}</p><div className="flex items-center gap-1 opacity-40"><span className="text-[8px] font-bold uppercase">Anterior:</span><span className="text-[8px] font-black">{formatCurrency(stats.lastMonthCommission || 0)}</span></div></div>
-                    <div className="hidden md:block"><span className="text-[10px] font-black uppercase block text-muted-foreground/60 mb-2 tracking-widest">Participación</span><p className="text-2xl font-black">{stats.avgParticipation || 0}%</p><span className="text-[8px] text-muted-foreground font-bold uppercase opacity-40">Promedio por cierre</span></div>
-                    <div><span className="text-[10px] font-black uppercase block text-muted-foreground/60 mb-2 tracking-widest">Retención</span><p className="text-2xl font-black text-destructive/60">{formatCurrency(taxImpact || 0)}</p><span className="text-[8px] text-destructive/40 font-bold uppercase">9% ISR Estimado</span></div>
+
+                  <div className="animate-finanto-reveal opacity-0 delay-600">
+                    <SummarySection />
                   </div>
                 </div>
+
               </div>
             </div>
           </div>
