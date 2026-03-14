@@ -11,7 +11,7 @@ import {
   Save, MessageSquare, Coins, Info, UserCog, UserCheck, ChevronDown,
   ClipboardList
 } from "lucide-react";
-import { parseISO, isToday, format } from 'date-fns';
+import { parseISO, isToday, isTomorrow, format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -95,6 +95,7 @@ export default function UpcomingAppointments({
   const { toast } = useToast();
 
   const isActuallyToday = (dateStr: string) => isToday(parseISO(dateStr));
+  const isActuallyTomorrow = (dateStr: string) => isTomorrow(parseISO(dateStr));
 
   const formatWithCommas = (val: string) => {
     const num = val.replace(/[^0-9]/g, '');
@@ -226,6 +227,40 @@ export default function UpcomingAppointments({
       toast({
         title: "Citas copiadas",
         description: "Listado de hoy listo para WhatsApp.",
+      });
+    });
+  };
+
+  const copyAllTomorrowAppointments = () => {
+    const tomorrowApps = allAppointments
+      .filter(a => isActuallyTomorrow(a.date) && !a.isArchived)
+      .sort((a, b) => a.time.localeCompare(b.time));
+
+    if (tomorrowApps.length === 0) {
+      toast({ title: "Sin citas", description: "No hay citas registradas para mañana." });
+      return;
+    }
+
+    let text = "";
+
+    tomorrowApps.forEach((app) => {
+      const dateObj = parseISO(app.date);
+      const dateFormatted = format(dateObj, "EEEE d 'de' MMMM yyyy", { locale: es });
+      const capitalizedDate = dateFormatted.charAt(0).toUpperCase() + dateFormatted.slice(1);
+      const timeFormatted = format12hTime(app.time);
+
+      text += `Cita: *${capitalizedDate}*\n`;
+      text += `Nombre: *${app.name}*\n`;
+      text += `Teléfono: *${app.phone || 'N/A'}*\n`;
+      text += `Motivo: *${app.type}*\n`;
+      text += `Producto: *${app.product || 'N/A'}*\n`;
+      text += `Hora: *${timeFormatted}*\n\n`;
+    });
+
+    navigator.clipboard.writeText(text.trim()).then(() => {
+      toast({
+        title: "Citas copiadas",
+        description: "Listado de mañana listo para WhatsApp.",
       });
     });
   };
@@ -487,6 +522,14 @@ export default function UpcomingAppointments({
           className="text-[10px] font-bold uppercase border-blue-500/40 bg-blue-500/5 text-blue-600 h-9 gap-2 px-3 sm:px-4 flex-1 sm:flex-none"
         >
           <ClipboardList className="w-4 h-4" /> <span>Citas Hoy</span>
+        </Button>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={copyAllTomorrowAppointments} 
+          className="text-[10px] font-bold uppercase border-accent/40 bg-accent/5 text-accent h-9 gap-2 px-3 sm:px-4 flex-1 sm:flex-none"
+        >
+          <ClipboardList className="w-4 h-4" /> <span>Citas Mañana</span>
         </Button>
       </div>
 
