@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { 
   TrendingUp, BarChart3, Maximize2, X, Activity, CalendarDays, Trophy, Users, Coins, ArrowUpRight, ArrowDownRight, Zap, Target, Receipt, Percent, Info, LineChart as LineIcon, AlertCircle, Lightbulb, CalendarClock
 } from "lucide-react";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Cell, LabelList, ReferenceArea, Line, LineChart, ResponsiveContainer } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Cell, LabelList, ReferenceArea, Line, LineChart, ResponsiveContainer, ComposedChart } from "recharts";
 import { ChartContainer, ChartTooltip, type ChartConfig } from "@/components/ui/chart";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
@@ -111,15 +111,16 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
           </div>
         </div>
         <div className="flex items-center gap-3">
-           <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-destructive/40" /> <span className="text-[8px] font-bold uppercase opacity-60">Corte</span></div>
-           <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: atendidasColor, opacity: 0.4 }} /> <span className="text-[8px] font-bold uppercase opacity-60">Paga</span></div>
+           <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" /> <span className="text-[8px] font-bold uppercase opacity-60">Agendadas</span></div>
+           <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: atendidasColor }} /> <span className="text-[8px] font-bold uppercase opacity-60">Atendidas</span></div>
+           <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-[url(#cierreGradient)]" /> <span className="text-[8px] font-bold uppercase opacity-60">Cierres</span></div>
         </div>
       </div>
       <div className={cn("overflow-visible", expanded ? "h-[320px]" : "h-[220px]")}>
         <ChartContainer config={localConfig} className="h-full w-full">
-          <BarChart data={data} margin={{ top: 30, right: 10, left: 10, bottom: 40 }}>
+          <ComposedChart data={data} margin={{ top: 30, right: 10, left: 10, bottom: 40 }} barGap="-100%">
             <defs>
-              <linearGradient id="cierreGradient" x1="0" x1="0" x2="0" y2="1">
+              <linearGradient id="cierreGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#00F5FF" />
                 <stop offset="33%" stopColor="#1877F2" />
                 <stop offset="66%" stopColor="#7B61FF" />
@@ -128,7 +129,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
             </defs>
             <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.1} />
             <XAxis dataKey="dayNumber" tickLine={false} axisLine={false} interval={expanded ? 1 : 0} tick={<CustomXAxisTick data={data} />} />
-            <YAxis hide domain={[0, globalMax + 3]} />
+            <YAxis hide domain={[0, globalMax + 2]} />
             <ChartTooltip 
               content={({ active, payload }) => {
                 if (active && payload && payload.length) {
@@ -140,7 +141,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
                         {payload.map((p: any, i: number) => (
                           <div key={i} className="flex items-center justify-between gap-6 text-[10px] font-bold">
                             <span className="opacity-60">{p.name}:</span>
-                            <span style={{ color: p.color }}>{p.value}</span>
+                            <span style={{ color: p.color === 'url(#cierreGradient)' ? '#00F5FF' : p.color }}>{p.value}</span>
                           </div>
                         ))}
                         {(d.isPaga || d.isCorte) && (
@@ -156,16 +157,43 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
                 return null;
               }}
             />
-            {todayItem && <ReferenceArea x1={todayItem.dayNumber} x2={todayItem.dayNumber} fill="hsl(var(--primary))" fillOpacity={0.05} stroke="none" className="animate-periodic-glow" />}
-            <Bar dataKey="agendadas" name="Agendadas" radius={[2, 2, 0, 0]}>
-              {data.map((e: any, i: number) => <Cell key={i} fill={e.isToday ? agendadasColor : "var(--color-agendadas)"} opacity={0.8} />)}
+            {todayItem && (
+              <ReferenceArea 
+                x1={todayItem.dayNumber} 
+                x2={todayItem.dayNumber} 
+                fill="hsl(var(--primary))" 
+                fillOpacity={0.08} 
+                stroke="none"
+              />
+            )}
+            <Bar dataKey="agendadas" name="Agendadas" radius={[6, 6, 0, 0]} barSize={expanded ? 14 : 22}>
+              {data.map((e: any, i: number) => (
+                <Cell key={i} fill={e.isToday ? agendadasColor : "var(--color-agendadas)"} opacity={0.25} />
+              ))}
               <LabelList dataKey="agendadas" content={<CustomBarLabel />} />
             </Bar>
-            <Bar dataKey="atendidas" name="Atendidas" radius={[2, 2, 0, 0]}>
-              {data.map((e: any, i: number) => <Cell key={i} fill={e.isToday ? atendidasColor : "var(--color-atendidas)"} opacity={0.8} />)}
+            <Bar dataKey="atendidas" name="Atendidas" radius={[6, 6, 0, 0]} barSize={expanded ? 14 : 22}>
+              {data.map((e: any, i: number) => (
+                <Cell key={i} fill={e.isToday ? atendidasColor : "var(--color-atendidas)"} />
+              ))}
             </Bar>
-            <Bar dataKey="cierres" name="Cierres" radius={[2, 2, 0, 0]} fill="url(#cierreGradient)" />
-          </BarChart>
+            <Line 
+              type="monotone" 
+              dataKey="cierres" 
+              name="Cierres" 
+              stroke="none" 
+              dot={(props: any) => {
+                const { cx, cy, payload } = props;
+                if (!payload || payload.cierres <= 0) return null;
+                return (
+                  <g>
+                    <circle cx={cx} cy={cy} r={expanded ? 4 : 6} fill="url(#cierreGradient)" />
+                    <circle cx={cx} cy={cy} r={expanded ? 4 : 6} fill="none" stroke="white" strokeOpacity={0.3} strokeWidth={1} />
+                  </g>
+                );
+              }}
+            />
+          </ComposedChart>
         </ChartContainer>
       </div>
     </div>
