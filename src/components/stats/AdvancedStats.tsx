@@ -15,12 +15,6 @@ import { ChartContainer, ChartTooltip, type ChartConfig } from "@/components/ui/
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
-interface AdvancedStatsProps {
-  stats: any;
-  isExpanded?: boolean;
-  onExpandedChange: (expanded: boolean) => void;
-}
-
 const chartConfig = {
   agendadas: { label: "Agendadas", color: "hsl(var(--primary))" },
   atendidas: { label: "Atendidas", color: "hsl(var(--accent))" },
@@ -70,6 +64,10 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
   const atendidasColor = isCorporate ? "hsl(187 100% 42%)" : "hsl(var(--accent))";
   const barSize = expanded ? 14 : 22;
 
+  // El color distintivo para Hoy y Hover
+  const highlightColor = "hsl(var(--primary))";
+  const highlightOpacity = 0.12;
+
   return (
     <div className={cn(
       "bg-muted/5 rounded-2xl p-4 md:p-6 space-y-4",
@@ -106,8 +104,9 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
             <XAxis xAxisId={1} dataKey="dayNumber" hide />
             
             <YAxis hide domain={[0, globalMax + 2]} />
+            
             <ChartTooltip 
-              cursor={{ fill: 'currentColor', fillOpacity: 0.08 }}
+              cursor={{ fill: highlightColor, fillOpacity: highlightOpacity }}
               content={({ active, payload }) => {
                 if (active && payload && payload.length) {
                   const d = payload[0].payload;
@@ -134,14 +133,16 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
                 return null;
               }}
             />
+
             {todayItem && (
               <ReferenceArea 
                 xAxisId={0}
                 x1={todayItem.dayNumber} 
                 x2={todayItem.dayNumber} 
-                fill="currentColor" 
-                fillOpacity={0.08} 
-                stroke="none"
+                fill={highlightColor} 
+                fillOpacity={highlightOpacity} 
+                stroke="hsl(var(--primary) / 0.2)"
+                strokeDasharray="3 3"
               />
             )}
             
