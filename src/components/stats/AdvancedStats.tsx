@@ -96,6 +96,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
 
   const agendadasColor = "hsl(var(--primary))";
   const atendidasColor = isCorporate ? "hsl(187 100% 42%)" : "hsl(var(--accent))";
+  const barSize = expanded ? 14 : 22;
 
   return (
     <div className={cn(
@@ -166,13 +167,13 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
                 stroke="none"
               />
             )}
-            <Bar dataKey="agendadas" name="Agendadas" radius={[6, 6, 0, 0]} barSize={expanded ? 14 : 22}>
+            <Bar dataKey="agendadas" name="Agendadas" radius={[6, 6, 0, 0]} barSize={barSize}>
               {data.map((e: any, i: number) => (
                 <Cell key={i} fill={e.isToday ? agendadasColor : "var(--color-agendadas)"} opacity={0.25} />
               ))}
               <LabelList dataKey="agendadas" content={<CustomBarLabel />} />
             </Bar>
-            <Bar dataKey="atendidas" name="Atendidas" radius={[6, 6, 0, 0]} barSize={expanded ? 14 : 22}>
+            <Bar dataKey="atendidas" name="Atendidas" radius={[6, 6, 0, 0]} barSize={barSize}>
               {data.map((e: any, i: number) => (
                 <Cell key={i} fill={e.isToday ? atendidasColor : "var(--color-atendidas)"} />
               ))}
@@ -183,12 +184,31 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
               name="Cierres" 
               stroke="none" 
               dot={(props: any) => {
-                const { cx, cy, payload } = props;
+                const { cx, payload } = props;
                 if (!payload || payload.cierres <= 0) return null;
+                const markerY = 10; // Posición "hasta arriba" de la gráfica
                 return (
                   <g>
-                    <circle cx={cx} cy={cy} r={expanded ? 4 : 6} fill="url(#cierreGradient)" />
-                    <circle cx={cx} cy={cy} r={expanded ? 4 : 6} fill="none" stroke="white" strokeOpacity={0.3} strokeWidth={1} />
+                    <rect 
+                      x={cx - (barSize / 2)} 
+                      y={markerY} 
+                      width={barSize} 
+                      height={6} 
+                      rx={3} 
+                      fill="url(#cierreGradient)" 
+                      className="animate-pulse"
+                    />
+                    <rect 
+                      x={cx - (barSize / 2)} 
+                      y={markerY} 
+                      width={barSize} 
+                      height={6} 
+                      rx={3} 
+                      fill="none" 
+                      stroke="white" 
+                      strokeOpacity={0.2} 
+                      strokeWidth={1} 
+                    />
                   </g>
                 );
               }}
