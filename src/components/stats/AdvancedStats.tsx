@@ -11,12 +11,10 @@ import { Button } from "@/components/ui/button";
 import { 
   TrendingUp, BarChart3, Maximize2, X, Activity, CalendarDays, Trophy, Users, Coins, ArrowUpRight, ArrowDownRight, Zap, Target, Receipt, Percent, Info, LineChart as LineIcon, AlertCircle, Lightbulb, CalendarClock
 } from "lucide-react";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Cell, LabelList, ReferenceArea, Line, LineChart, ResponsiveContainer, ComposedChart } from "recharts";
+import { Bar, CartesianGrid, XAxis, YAxis, Cell, ReferenceArea, Line, ResponsiveContainer, ComposedChart } from "recharts";
 import { ChartContainer, ChartTooltip, type ChartConfig } from "@/components/ui/chart";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
-import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
-import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
 interface AdvancedStatsProps {
   stats: any;
@@ -30,31 +28,6 @@ const chartConfig = {
   cierres: { label: "Cierres", color: "url(#cierreGradient)" },
   income: { label: "Ingresos", color: "hsl(var(--primary))" }
 } satisfies ChartConfig;
-
-const CustomBarLabel = (props: any) => {
-  const { x, y, width, payload } = props;
-  if (!payload) return null;
-  if (payload.isPaga && payload.projectedPay > 0) {
-    return (
-      <g>
-        <text x={x + width / 2} y={y - 25} fill="hsl(var(--primary))" textAnchor="middle" className="text-[9px] font-black">
-          ${(payload.projectedPay / 1000).toFixed(1)}k
-        </text>
-        <text x={x + width / 2} y={y - 12} fill="hsl(var(--primary))" textAnchor="middle" className="text-[7px] font-bold uppercase opacity-60">
-          PAGA
-        </text>
-      </g>
-    );
-  }
-  if (payload.isCorte) {
-    return (
-      <text x={x + width / 2} y={y - 12} fill="hsl(var(--destructive))" textAnchor="middle" className="text-[7px] font-bold uppercase opacity-60">
-        CORTE
-      </text>
-    );
-  }
-  return null;
-};
 
 const CustomXAxisTick = (props: any) => {
   const { x, y, payload, data } = props;
@@ -119,7 +92,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
       </div>
       <div className={cn("overflow-visible", expanded ? "h-[320px]" : "h-[220px]")}>
         <ChartContainer config={localConfig} className="h-full w-full">
-          <ComposedChart data={data} margin={{ top: 30, right: 10, left: 10, bottom: 40 }} barGap="-100%">
+          <ComposedChart data={data} margin={{ top: 30, right: 10, left: 10, bottom: 40 }}>
             <defs>
               <linearGradient id="cierreGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#00F5FF" />
@@ -129,7 +102,11 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
               </linearGradient>
             </defs>
             <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.1} />
-            <XAxis dataKey="dayNumber" tickLine={false} axisLine={false} interval={expanded ? 1 : 0} tick={<CustomXAxisTick data={data} />} />
+            
+            {/* Doble eje X para alineación perfecta sin barGap */}
+            <XAxis xAxisId={0} dataKey="dayNumber" tickLine={false} axisLine={false} interval={expanded ? 1 : 0} tick={<CustomXAxisTick data={data} />} />
+            <XAxis xAxisId={1} dataKey="dayNumber" hide />
+            
             <YAxis hide domain={[0, globalMax + 2]} />
             <ChartTooltip 
               content={({ active, payload }) => {
@@ -160,6 +137,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
             />
             {todayItem && (
               <ReferenceArea 
+                xAxisId={0}
                 x1={todayItem.dayNumber} 
                 x2={todayItem.dayNumber} 
                 fill="hsl(var(--primary))" 
@@ -167,18 +145,22 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
                 stroke="none"
               />
             )}
-            <Bar dataKey="agendadas" name="Agendadas" radius={[6, 6, 0, 0]} barSize={barSize}>
+            
+            {/* Barras perfectamente alineadas usando xAxisId distintos */}
+            <Bar xAxisId={0} dataKey="agendadas" name="Agendadas" radius={[6, 6, 0, 0]} barSize={barSize}>
               {data.map((e: any, i: number) => (
                 <Cell key={i} fill={e.isToday ? agendadasColor : "var(--color-agendadas)"} opacity={0.25} />
               ))}
-              <LabelList dataKey="agendadas" content={<CustomBarLabel />} />
             </Bar>
-            <Bar dataKey="atendidas" name="Atendidas" radius={[6, 6, 0, 0]} barSize={barSize}>
+            <Bar xAxisId={1} dataKey="atendidas" name="Atendidas" radius={[6, 6, 0, 0]} barSize={barSize}>
               {data.map((e: any, i: number) => (
                 <Cell key={i} fill={e.isToday ? atendidasColor : "var(--color-atendidas)"} />
               ))}
             </Bar>
+            
+            {/* Marcadores de cierre horizontales en la parte superior con el mismo grosor que las barras */}
             <Line 
+              xAxisId={0}
               type="monotone" 
               dataKey="cierres" 
               name="Cierres" 
@@ -186,7 +168,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
               dot={(props: any) => {
                 const { cx, payload } = props;
                 if (!payload || payload.cierres <= 0) return null;
-                const markerY = 10; // Posición "hasta arriba" de la gráfica
+                const markerY = 10; 
                 return (
                   <g>
                     <rect 
