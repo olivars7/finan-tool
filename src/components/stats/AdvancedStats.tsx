@@ -102,12 +102,12 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
             </defs>
             <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.1} />
             
-            {/* Doble eje X para alineación perfecta sin barGap */}
             <XAxis xAxisId={0} dataKey="dayNumber" tickLine={false} axisLine={false} interval={expanded ? 1 : 0} tick={<CustomXAxisTick data={data} />} />
             <XAxis xAxisId={1} dataKey="dayNumber" hide />
             
             <YAxis hide domain={[0, globalMax + 2]} />
             <ChartTooltip 
+              cursor={{ fill: 'hsl(var(--primary))', fillOpacity: 0.08 }}
               content={({ active, payload }) => {
                 if (active && payload && payload.length) {
                   const d = payload[0].payload;
@@ -145,7 +145,6 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
               />
             )}
             
-            {/* Barras perfectamente alineadas usando xAxisId distintos */}
             <Bar xAxisId={0} dataKey="agendadas" name="Agendadas" radius={[6, 6, 0, 0]} barSize={barSize}>
               {data.map((e: any, i: number) => (
                 <Cell key={i} fill={e.isToday ? agendadasColor : "var(--color-agendadas)"} opacity={0.25} />
@@ -157,7 +156,6 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
               ))}
             </Bar>
             
-            {/* Marcadores de cierre horizontales en la parte superior con el mismo grosor que las barras */}
             <Line 
               xAxisId={0}
               type="monotone" 
@@ -379,7 +377,6 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
           </DialogHeader>
           <div className="flex-1 overflow-y-auto scrollbar-thin bg-background/50">
             <div className="max-w-[1400px] mx-auto p-4 md:p-10 space-y-10 pb-32">
-              {/* TOP METRICS ROW */}
               <div className="flex overflow-x-auto pb-4 md:pb-0 md:grid md:grid-cols-5 gap-4 scrollbar-thin">
                 {[
                   { icon: CalendarDays, color: 'text-primary', label: 'Citas Hoy', value: stats.todayCount || 0, val1: stats.todayConfirmed || 0, sub1: 'Conf.', bg: 'bg-primary/5' },
@@ -399,10 +396,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                 ))}
               </div>
 
-              {/* TWO COLUMNS LAYOUT */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                
-                {/* MAIN COLUMN */}
                 <div className="lg:col-span-8 space-y-8">
                   <div className="animate-finanto-reveal opacity-0 delay-200">
                     <WeeklyHistoryChart markedBorder />
@@ -412,7 +406,6 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                   </div>
                 </div>
 
-                {/* COMPLEMENTARY COLUMN */}
                 <div className="lg:col-span-4 space-y-8">
                   <div className="animate-finanto-reveal opacity-0 delay-400">
                     <PaydayTimeline />
@@ -446,7 +439,6 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                     <SummarySection markedBorder />
                   </div>
                 </div>
-
               </div>
             </div>
           </div>
