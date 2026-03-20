@@ -60,16 +60,21 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
     }
   }), [isCorporate]);
 
-  const agendadasColor = "hsl(var(--primary))";
-  const atendidasColor = isCorporate ? "hsl(187 100% 42%)" : "hsl(var(--accent))";
+  // Colores base para días normales
+  const agendadasNormalColor = "hsl(var(--primary) / 0.25)";
+  const atendidasNormalColor = isCorporate ? "hsl(187 100% 42%)" : "hsl(var(--accent))";
+  
+  // Colores vibrantes para el día actual
+  const todayAgendadasColor = "hsl(var(--primary))";
+  const todayAtendidasColor = "hsl(142 70% 45%)"; // Esmeralda vibrante para "Hoy"
   
   // Grosor de barras consistente
   const barSize = expanded ? 14 : 22;
 
   // Estilo de resaltado premium para Hoy y Hover
   const highlightColor = "hsl(var(--primary))";
-  const highlightOpacity = 0.12;
-  const strokeColor = "hsl(var(--primary) / 0.4)";
+  const highlightOpacity = 0.08;
+  const strokeColor = "hsl(var(--primary) / 0.3)";
 
   return (
     <div className={cn(
@@ -86,7 +91,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
         </div>
         <div className="flex items-center gap-3">
            <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" /> <span className="text-[8px] font-bold uppercase opacity-60">Agendadas</span></div>
-           <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: atendidasColor }} /> <span className="text-[8px] font-bold uppercase opacity-60">Atendidas</span></div>
+           <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: atendidasNormalColor }} /> <span className="text-[8px] font-bold uppercase opacity-60">Atendidas</span></div>
            <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-[url(#cierreGradient)]" /> <span className="text-[8px] font-bold uppercase opacity-60">Cierres</span></div>
         </div>
       </div>
@@ -103,7 +108,6 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
             </defs>
             <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.1} />
             
-            {/* DOBLE EJE X PARA ALINEACIÓN PERFECTA */}
             <XAxis xAxisId={0} dataKey="dayNumber" tickLine={false} axisLine={false} interval={expanded ? 1 : 0} tick={<CustomXAxisTick data={data} />} />
             <XAxis xAxisId={1} dataKey="dayNumber" hide />
             
@@ -115,7 +119,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
                 fillOpacity: highlightOpacity,
                 stroke: strokeColor,
                 strokeDasharray: "4 4",
-                strokeWidth: 2
+                strokeWidth: 1
               }}
               content={({ active, payload }) => {
                 if (active && payload && payload.length) {
@@ -127,7 +131,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
                         {payload.map((p: any, i: number) => (
                           <div key={`tooltip-item-${i}`} className="flex items-center justify-between gap-6 text-[10px] font-bold">
                             <span className="opacity-60">{p.name}:</span>
-                            <span style={{ color: p.color === 'url(#cierreGradient)' ? '#00F5FF' : p.color }}>{p.value}</span>
+                            <span style={{ color: p.color === 'url(#cierreGradient)' ? '#00F5FF' : (d.isToday && p.dataKey === 'atendidas' ? todayAtendidasColor : p.color) }}>{p.value}</span>
                           </div>
                         ))}
                         {(d.isPaga || d.isCorte) && (
@@ -153,21 +157,21 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
                 fillOpacity={highlightOpacity} 
                 stroke={strokeColor}
                 strokeDasharray="4 4"
-                strokeWidth={2}
+                strokeWidth={1}
               />
             )}
             
             {/* AGENDADAS (FONDO) */}
             <Bar xAxisId={0} dataKey="agendadas" name="Agendadas" radius={[6, 6, 0, 0]} barSize={barSize}>
               {data.map((e: any, i: number) => (
-                <Cell key={`bar-agenda-${i}`} fill={e.isToday ? agendadasColor : "var(--color-agendadas)"} opacity={0.25} />
+                <Cell key={`bar-agenda-${i}`} fill={e.isToday ? todayAgendadasColor : agendadasNormalColor} />
               ))}
             </Bar>
 
             {/* ATENDIDAS (FRENTE - ALINEACIÓN EXACTA POR XAXISID 1) */}
             <Bar xAxisId={1} dataKey="atendidas" name="Atendidas" radius={[6, 6, 0, 0]} barSize={barSize}>
               {data.map((e: any, i: number) => (
-                <Cell key={`bar-atendida-${i}`} fill={e.isToday ? atendidasColor : "var(--color-atendidas)"} />
+                <Cell key={`bar-atendida-${i}`} fill={e.isToday ? todayAtendidasColor : atendidasNormalColor} />
               ))}
             </Bar>
             
