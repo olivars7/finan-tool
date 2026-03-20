@@ -1,10 +1,11 @@
+
 /**
  * @fileOverview Panel de Inteligencia Avanzada - Finanto
  */
 
 "use client"
 
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
@@ -75,6 +76,102 @@ const CustomXAxisTick = (props: any) => {
   );
 };
 
+const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBorder = false, globalMax }: { data: any, title: string, icon: any, expanded?: boolean, markedBorder?: boolean, globalMax: number }) => {
+  const [isCorporate, setIsCorporate] = useState(false);
+  
+  useEffect(() => {
+    const theme = document.documentElement.getAttribute('data-theme');
+    setIsCorporate(!theme || theme === 'corporativo-v2');
+  }, []);
+
+  const todayItem = data.find((d: any) => d.isToday);
+  
+  const localConfig = useMemo(() => ({
+    ...chartConfig,
+    atendidas: { 
+      ...chartConfig.atendidas, 
+      color: isCorporate ? "hsl(187 100% 42%)" : "hsl(var(--accent))" 
+    }
+  }), [isCorporate]);
+
+  const agendadasColor = "hsl(var(--primary))";
+  const atendidasColor = isCorporate ? "hsl(187 100% 42%)" : "hsl(var(--accent))";
+
+  return (
+    <div className={cn(
+      "bg-muted/5 rounded-2xl p-4 md:p-6 space-y-4",
+      markedBorder ? "border border-white/20 shadow-sm" : "border border-border/5"
+    )}>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary/10 rounded-xl"><Icon className="w-4 h-4 text-primary" /></div>
+          <div>
+            <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">{title}</h4>
+            <p className="text-[8px] font-medium text-muted-foreground/40 uppercase">{expanded ? "Monitor Extendido (35 días)" : "Monitor de 15 días"}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+           <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-destructive/40" /> <span className="text-[8px] font-bold uppercase opacity-60">Corte</span></div>
+           <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: atendidasColor, opacity: 0.4 }} /> <span className="text-[8px] font-bold uppercase opacity-60">Paga</span></div>
+        </div>
+      </div>
+      <div className={cn("overflow-visible", expanded ? "h-[320px]" : "h-[220px]")}>
+        <ChartContainer config={localConfig} className="h-full w-full">
+          <BarChart data={data} margin={{ top: 30, right: 10, left: 10, bottom: 40 }}>
+            <defs>
+              <linearGradient id="cierreGradient" x1="0" x1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#00F5FF" />
+                <stop offset="33%" stopColor="#1877F2" />
+                <stop offset="66%" stopColor="#7B61FF" />
+                <stop offset="100%" stopColor="#FF00D6" />
+              </linearGradient>
+            </defs>
+            <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.1} />
+            <XAxis dataKey="dayNumber" tickLine={false} axisLine={false} interval={expanded ? 1 : 0} tick={<CustomXAxisTick data={data} />} />
+            <YAxis hide domain={[0, globalMax + 3]} />
+            <ChartTooltip 
+              content={({ active, payload }) => {
+                if (active && payload && payload.length) {
+                  const d = payload[0].payload;
+                  return (
+                    <div className={cn("bg-card/95 p-3 rounded-lg shadow-2xl border-none space-y-2 backdrop-blur-xl", d.isToday ? "shadow-[0_0_15px_rgba(24,119,242,0.3)]" : "")}>
+                      <p className="text-[10px] font-black uppercase flex items-center justify-between gap-4">{d.dayFull} {d.isToday && <span className="text-primary">(HOY)</span>}</p>
+                      <div className="space-y-1">
+                        {payload.map((p: any, i: number) => (
+                          <div key={i} className="flex items-center justify-between gap-6 text-[10px] font-bold">
+                            <span className="opacity-60">{p.name}:</span>
+                            <span style={{ color: p.color }}>{p.value}</span>
+                          </div>
+                        ))}
+                        {(d.isPaga || d.isCorte) && (
+                          <div className={cn("mt-2 pt-2 border-t border-border/10 text-[10px] font-black uppercase flex items-center gap-2", d.isPaga ? "text-primary" : "text-destructive")}>
+                            {d.isPaga ? <Coins className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
+                            {d.isPaga ? `PAGA: ${new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(d.projectedPay)}` : "CORTE SEMANAL"}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              }}
+            />
+            {todayItem && <ReferenceArea x1={todayItem.dayNumber} x2={todayItem.dayNumber} fill="hsl(var(--primary))" fillOpacity={0.05} stroke="none" className="animate-periodic-glow" />}
+            <Bar dataKey="agendadas" name="Agendadas" radius={[2, 2, 0, 0]}>
+              {data.map((e: any, i: number) => <Cell key={i} fill={e.isToday ? agendadasColor : "var(--color-agendadas)"} opacity={0.8} />)}
+              <LabelList dataKey="agendadas" content={<CustomBarLabel />} />
+            </Bar>
+            <Bar dataKey="atendidas" name="Atendidas" radius={[2, 2, 0, 0]}>
+              {data.map((e: any, i: number) => <Cell key={i} fill={e.isToday ? atendidasColor : "var(--color-atendidas)"} opacity={0.8} />)}
+            </Bar>
+            <Bar dataKey="cierres" name="Cierres" radius={[2, 2, 0, 0]} fill="url(#cierreGradient)" />
+          </BarChart>
+        </ChartContainer>
+      </div>
+    </div>
+  );
+};
+
 export default function AdvancedStats({ stats, isExpanded = false, onExpandedChange }: AdvancedStatsProps) {
   const attendanceRate = (stats.todayConfirmed / (stats.todayCount || 1)) * 100;
   const closingRate = attendanceRate > 0 ? (stats.conversionRate / (attendanceRate / 100)) : 0;
@@ -91,83 +188,6 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
     if (val < 5000) return "text-gradient-aqua-blue";
     if (val < 10000) return "text-gradient-aqua-violet";
     return "text-gradient-lima-blue";
-  };
-
-  const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBorder = false }: { data: any, title: string, icon: any, expanded?: boolean, markedBorder?: boolean }) => {
-    const todayItem = data.find((d: any) => d.isToday);
-    return (
-      <div className={cn(
-        "bg-muted/5 rounded-2xl p-4 md:p-6 space-y-4",
-        markedBorder ? "border border-white/20 shadow-sm" : "border border-border/5"
-      )}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-xl"><Icon className="w-4 h-4 text-primary" /></div>
-            <div>
-              <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">{title}</h4>
-              <p className="text-[8px] font-medium text-muted-foreground/40 uppercase">Monitor de 15 días</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-             <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-destructive/40" /> <span className="text-[8px] font-bold uppercase opacity-60">Corte</span></div>
-             <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" /> <span className="text-[8px] font-bold uppercase opacity-60">Paga</span></div>
-          </div>
-        </div>
-        <div className={cn("overflow-visible", expanded ? "h-[320px]" : "h-[220px]")}>
-          <ChartContainer config={chartConfig} className="h-full w-full">
-            <BarChart data={data} margin={{ top: 30, right: 10, left: 10, bottom: 40 }}>
-              <defs>
-                <linearGradient id="cierreGradient" x1="0" x1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#00F5FF" />
-                  <stop offset="33%" stopColor="#1877F2" />
-                  <stop offset="66%" stopColor="#7B61FF" />
-                  <stop offset="100%" stopColor="#FF00D6" />
-                </linearGradient>
-              </defs>
-              <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.1} />
-              <XAxis dataKey="dayNumber" tickLine={false} axisLine={false} interval={0} tick={<CustomXAxisTick data={data} />} />
-              <YAxis hide domain={[0, stats.charts.globalMax + 3]} />
-              <ChartTooltip 
-                content={({ active, payload }) => {
-                  if (active && payload && payload.length) {
-                    const d = payload[0].payload;
-                    return (
-                      <div className={cn("bg-card/95 p-3 rounded-lg shadow-2xl border-none space-y-2 backdrop-blur-xl", d.isToday ? "shadow-[0_0_15px_rgba(24,119,242,0.3)]" : "")}>
-                        <p className="text-[10px] font-black uppercase flex items-center justify-between gap-4">{d.dayFull} {d.isToday && <span className="text-primary">(HOY)</span>}</p>
-                        <div className="space-y-1">
-                          {payload.map((p: any, i: number) => (
-                            <div key={i} className="flex items-center justify-between gap-6 text-[10px] font-bold">
-                              <span className="opacity-60">{p.name}:</span>
-                              <span style={{ color: p.color }}>{p.value}</span>
-                            </div>
-                          ))}
-                          {(d.isPaga || d.isCorte) && (
-                            <div className={cn("mt-2 pt-2 border-t border-border/10 text-[10px] font-black uppercase flex items-center gap-2", d.isPaga ? "text-primary" : "text-destructive")}>
-                              {d.isPaga ? <Coins className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
-                              {d.isPaga ? `PAGA: ${formatCurrency(d.projectedPay)}` : "CORTE SEMANAL"}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  }
-                  return null;
-                }}
-              />
-              {todayItem && <ReferenceArea x1={todayItem.dayNumber} x2={todayItem.dayNumber} fill="hsl(var(--primary))" fillOpacity={0.05} stroke="none" className="animate-periodic-glow" />}
-              <Bar dataKey="agendadas" name="Agendadas" radius={[2, 2, 0, 0]}>
-                {data.map((e: any, i: number) => <Cell key={i} fill={e.isToday ? "hsl(var(--primary))" : "var(--color-agendadas)"} opacity={0.8} />)}
-                <LabelList dataKey="agendadas" content={<CustomBarLabel />} />
-              </Bar>
-              <Bar dataKey="atendidas" name="Atendidas" radius={[2, 2, 0, 0]}>
-                {data.map((e: any, i: number) => <Cell key={i} fill={e.isToday ? "hsl(var(--accent))" : "var(--color-atendidas)"} opacity={0.8} />)}
-              </Bar>
-              <Bar dataKey="cierres" name="Cierres" radius={[2, 2, 0, 0]} fill="url(#cierreGradient)" />
-            </BarChart>
-          </ChartContainer>
-        </div>
-      </div>
-    );
   };
 
   const WeeklyHistoryChart = ({ markedBorder = false }: { markedBorder?: boolean }) => {
@@ -304,7 +324,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
           </Button>
         </CardHeader>
         <CardContent className="p-6 space-y-6">
-          <FortnightMonitor data={stats.charts.fortnightActivity} title="Monitor Operativo" icon={CalendarDays} />
+          <FortnightMonitor data={stats.charts.fortnightActivity} title="Monitor Operativo" icon={CalendarDays} globalMax={stats.charts.globalMax} />
           <div className="hidden md:grid grid-cols-2 gap-4">
             <div className="bg-primary/[0.03] p-4 rounded-2xl border border-primary/10">
               <span className="text-[8px] font-black uppercase text-primary/60 block mb-1">Citas Hoy</span>
@@ -330,7 +350,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
           </DialogHeader>
           <div className="flex-1 overflow-y-auto scrollbar-thin bg-background/50">
             <div className="max-w-[1400px] mx-auto p-4 md:p-10 space-y-10 pb-32">
-              {/* TOP METRICS ROW (Borderless Minimalist with horizontal scroll on mobile) */}
+              {/* TOP METRICS ROW */}
               <div className="flex overflow-x-auto pb-4 md:pb-0 md:grid md:grid-cols-5 gap-4 scrollbar-thin">
                 {[
                   { icon: CalendarDays, color: 'text-primary', label: 'Citas Hoy', value: stats.todayCount || 0, val1: stats.todayConfirmed || 0, sub1: 'Conf.', bg: 'bg-primary/5' },
@@ -350,20 +370,20 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                 ))}
               </div>
 
-              {/* TWO COLUMNS LAYOUT: 60% / 30% */}
+              {/* TWO COLUMNS LAYOUT */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 
-                {/* MAIN COLUMN (60-70%) */}
+                {/* MAIN COLUMN */}
                 <div className="lg:col-span-8 space-y-8">
                   <div className="animate-finanto-reveal opacity-0 delay-200">
                     <WeeklyHistoryChart markedBorder />
                   </div>
                   <div className="animate-finanto-reveal opacity-0 delay-300">
-                    <FortnightMonitor data={stats.charts.fortnightActivity} title="Monitor Operativo de 15 Días" icon={CalendarDays} expanded markedBorder />
+                    <FortnightMonitor data={stats.charts.expandedActivity || stats.charts.fortnightActivity} title="Monitor Operativo de 35 Días" icon={CalendarDays} expanded markedBorder globalMax={stats.charts.globalMax} />
                   </div>
                 </div>
 
-                {/* COMPLEMENTARY COLUMN (30-40%) */}
+                {/* COMPLEMENTARY COLUMN */}
                 <div className="lg:col-span-4 space-y-8">
                   <div className="animate-finanto-reveal opacity-0 delay-400">
                     <PaydayTimeline />

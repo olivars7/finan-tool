@@ -354,9 +354,9 @@ export const calculateStats = (appointments: Appointment[]) => {
   const conversionRate = currentMonthProspects > 0 ? (currentMonthSales / currentMonthProspects) * 100 : 0;
   const commissionGrowth = lastMonthCommission > 0 ? ((currentMonthCommission - lastMonthCommission) / lastMonthCommission) * 100 : 0;
 
-  const buildFortnightData = () => {
-    const start = subDays(todayStart, 7);
-    const end = addDays(todayStart, 7);
+  const buildActivityData = (daysBack: number, daysForward: number) => {
+    const start = subDays(todayStart, daysBack);
+    const end = addDays(todayStart, daysForward);
     const interval = eachDayOfInterval({ start, end });
     const dayInitials = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
     
@@ -399,7 +399,8 @@ export const calculateStats = (appointments: Appointment[]) => {
     });
   };
 
-  const fortnightActivity = buildFortnightData();
+  const fortnightActivity = buildActivityData(7, 7);
+  const expandedActivity = buildActivityData(25, 10);
 
   const startDate = subMonths(now, 4);
   const endDate = addWeeks(now, 3);
@@ -444,7 +445,7 @@ export const calculateStats = (appointments: Appointment[]) => {
     };
   });
 
-  const allVals = fortnightActivity.flatMap(d => [d.agendadas, d.atendidas, d.cierres]);
+  const allVals = [...fortnightActivity, ...expandedActivity].flatMap(d => [d.agendadas, d.atendidas, d.cierres]);
   const globalMax = Math.max(0, ...allVals);
 
   return {
@@ -472,7 +473,8 @@ export const calculateStats = (appointments: Appointment[]) => {
     conversionRate: parseFloat(conversionRate.toFixed(1)),
     commissionGrowth: parseFloat(commissionGrowth.toFixed(1)),
     charts: { 
-      fortnightActivity, 
+      fortnightActivity,
+      expandedActivity,
       globalMax, 
       weeklyIncomeHistory
     }
