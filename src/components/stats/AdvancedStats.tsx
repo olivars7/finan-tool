@@ -66,9 +66,10 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
   // Grosor de barras consistente
   const barSize = expanded ? 14 : 22;
 
-  // Estilo de resaltado para Hoy y Hover
+  // Estilo de resaltado premium para Hoy y Hover
   const highlightColor = "hsl(var(--primary))";
-  const highlightOpacity = 0.08;
+  const highlightOpacity = 0.12;
+  const strokeColor = "hsl(var(--primary) / 0.4)";
 
   return (
     <div className={cn(
@@ -112,8 +113,9 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
               cursor={{ 
                 fill: highlightColor, 
                 fillOpacity: highlightOpacity,
-                stroke: "hsl(var(--primary) / 0.2)",
-                strokeDasharray: "3 3"
+                stroke: strokeColor,
+                strokeDasharray: "4 4",
+                strokeWidth: 2
               }}
               content={({ active, payload }) => {
                 if (active && payload && payload.length) {
@@ -123,7 +125,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
                       <p className="text-[10px] font-black uppercase flex items-center justify-between gap-4">{d.dayFull} {d.isToday && <span className="text-primary">(HOY)</span>}</p>
                       <div className="space-y-1">
                         {payload.map((p: any, i: number) => (
-                          <div key={i} className="flex items-center justify-between gap-6 text-[10px] font-bold">
+                          <div key={`tooltip-item-${i}`} className="flex items-center justify-between gap-6 text-[10px] font-bold">
                             <span className="opacity-60">{p.name}:</span>
                             <span style={{ color: p.color === 'url(#cierreGradient)' ? '#00F5FF' : p.color }}>{p.value}</span>
                           </div>
@@ -149,8 +151,9 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
                 x2={todayItem.dayNumber} 
                 fill={highlightColor} 
                 fillOpacity={highlightOpacity} 
-                stroke="hsl(var(--primary) / 0.2)"
-                strokeDasharray="3 3"
+                stroke={strokeColor}
+                strokeDasharray="4 4"
+                strokeWidth={2}
               />
             )}
             
@@ -180,7 +183,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
                 if (!payload || payload.cierres <= 0) return null;
                 const markerY = 10; 
                 return (
-                  <g key={`marker-cierre-${index}`}>
+                  <g key={`marker-cierre-${payload.dayNumber}-${index}`}>
                     <rect 
                       x={cx - (barSize / 2)} 
                       y={markerY} 
@@ -279,8 +282,8 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                 type="monotone" dataKey="income" stroke="url(#historyLineGradient)" strokeWidth={3} 
                 dot={(props: any) => {
                   const { cx, cy, payload } = props;
-                  if (payload.isCurrentWeek) return <circle key={`dot-${payload.week}`} cx={cx} cy={cy} r={6} fill="#1877F2" stroke="#1877F2" strokeWidth={3} />;
-                  return <circle key={`dot-${payload.week}`} cx={cx} cy={cy} r={2} fill="#1877F2" fillOpacity={0.3} />;
+                  if (payload.isCurrentWeek) return <circle key={`dot-current-${payload.week}`} cx={cx} cy={cy} r={6} fill="#1877F2" stroke="#1877F2" strokeWidth={3} />;
+                  return <circle key={`dot-week-${payload.week}`} cx={cx} cy={cy} r={2} fill="#1877F2" fillOpacity={0.3} />;
                 }}
                 activeDot={{ r: 6, strokeWidth: 0 }}
               />
@@ -293,7 +296,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
 
   const PaydayTimeline = () => (
     <div className="flex flex-col gap-4">
-      <div className="bg-primary/[0.03] p-5 rounded-2xl space-y-3 border border-border/5">
+      <div className="bg-primary/[0.03] p-5 rounded-2xl space-y-3 border border-primary/5">
         <div className="flex items-center gap-2 text-primary/60">
           <CalendarClock className="w-4 h-4" />
           <span className="text-[9px] font-black uppercase tracking-widest">Liquidación Este Viernes</span>
@@ -398,7 +401,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                   { icon: Trophy, color: 'text-green-500', label: 'Cierres', value: stats.currentMonthOnlyCierre || 0, val1: stats.lastMonthSales || 0, sub1: 'Mes Ant.', bg: 'bg-green-500/5' },
                   { icon: Coins, color: 'text-yellow-600', label: 'Ingresos', value: formatCurrency(stats.currentMonthCommission || 0), growth: stats.commissionGrowth, val1: formatCurrency(stats.lastMonthCommission || 0), sub1: 'Mes Ant.', isGradient: true, bg: 'bg-yellow-500/5' }
                 ].map((s, i) => (
-                  <div key={i} className={cn("p-5 rounded-2xl space-y-4 hover:brightness-110 transition-all cursor-default group animate-finanto-reveal opacity-0 shrink-0 border-none shadow-none min-w-[160px] md:min-w-0", s.bg, i === 0 ? "delay-100" : i === 1 ? "delay-200" : i === 2 ? "delay-300" : i === 3 ? "delay-400" : i === 4 ? "delay-500" : "")}>
+                  <div key={`stat-card-${i}`} className={cn("p-5 rounded-2xl space-y-4 hover:brightness-110 transition-all cursor-default group animate-finanto-reveal opacity-0 shrink-0 border-none shadow-none min-w-[160px] md:min-w-0", s.bg, i === 0 ? "delay-100" : i === 1 ? "delay-200" : i === 2 ? "delay-300" : i === 3 ? "delay-400" : i === 4 ? "delay-500" : "")}>
                     <div className="flex justify-between items-start">
                       <div className={cn("p-2 rounded-xl bg-background/50 shadow-sm", s.color)}><s.icon className="w-4 h-4" /></div>
                       {s.growth !== undefined && <span className={cn("text-[10px] font-bold flex items-center", s.growth >= 0 ? "text-green-500" : "text-destructive")}>{s.growth >= 0 ? <ArrowUpRight className="w-3 h-3"/> : <ArrowDownRight className="w-3 h-3"/>} {Math.abs(Math.round(s.growth))}%</span>}
