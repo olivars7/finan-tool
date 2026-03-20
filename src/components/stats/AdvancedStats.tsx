@@ -107,7 +107,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
             
             <YAxis hide domain={[0, globalMax + 2]} />
             <ChartTooltip 
-              cursor={{ fill: 'hsl(var(--primary))', fillOpacity: 0.08 }}
+              cursor={{ fill: 'currentColor', fillOpacity: 0.08 }}
               content={({ active, payload }) => {
                 if (active && payload && payload.length) {
                   const d = payload[0].payload;
@@ -139,7 +139,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
                 xAxisId={0}
                 x1={todayItem.dayNumber} 
                 x2={todayItem.dayNumber} 
-                fill="hsl(var(--primary))" 
+                fill="currentColor" 
                 fillOpacity={0.08} 
                 stroke="none"
               />
