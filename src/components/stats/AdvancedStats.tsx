@@ -28,7 +28,7 @@ const CustomXAxisTick = (props: any) => {
   if (!item) return null;
 
   let initialColor = "currentColor";
-  // Colores solicitados: Corte (Martes) = Amarillo-Naranja, Pago (Viernes) = Verde
+  // FORZADO: Corte (Martes) = Amarillo-Naranja, Pago (Viernes) = Verde
   if (item.isCorte) initialColor = "#f59e0b"; // Amber-500 (Amarillo-Naranja)
   if (item.isPaga) initialColor = "#22c55e";  // Green-500 (Verde)
 
