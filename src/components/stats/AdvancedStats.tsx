@@ -92,8 +92,9 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
   const agendadasNormalColor = "hsl(var(--primary) / 0.25)";
   const atendidasNormalColor = isCorporate ? "hsl(187 100% 42%)" : "hsl(var(--accent))";
   
-  const todayAgendadasColor = "hsl(var(--primary))"; 
-  const todayAtendidasColor = "hsl(142 70% 45%)"; 
+  // Colores especiales para el día de HOY
+  const todayAgendadasColor = "hsl(45 100% 50%)"; // Oro brillante para resaltar hoy
+  const todayAtendidasColor = "hsl(160 100% 45%)"; // Esmeralda brillante para hoy
 
   return (
     <div className={cn(
@@ -259,7 +260,8 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
   };
 
   const WeeklyHistoryChart = ({ markedBorder = false }: { markedBorder?: boolean }) => {
-    const data = stats.charts.weeklyIncomeHistory;
+    // Remover la última semana para un enfoque de mayor proximidad
+    const data = useMemo(() => stats.charts.weeklyIncomeHistory.slice(0, -1), [stats.charts.weeklyIncomeHistory]);
     const lastIdx = data.length - 1;
     const secondLastIdx = data.length - 2;
 
