@@ -1,7 +1,7 @@
 
 "use client"
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Calculator, 
   PlusCircle, 
@@ -17,13 +17,22 @@ import {
   Coins,
   ArrowUpRight,
   ArrowDownRight,
-  Users
+  Users,
+  Construction,
+  X
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Appointment } from '@/services/appointment-service';
 import { parseISO, isToday } from 'date-fns';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 interface MobileDashboardProps {
   userName: string;
@@ -49,7 +58,23 @@ export default function MobileDashboard({
   format12hTime
 }: MobileDashboardProps) {
   const [visibleCount, setVisibleCount] = useState(4);
+  const [showWelcome, setShowWelcome] = useState(false);
   
+  useEffect(() => {
+    // Verificar si es la primera vez en móvil
+    const seen = localStorage.getItem('finanto_mobile_welcome_v2');
+    if (!seen) {
+      // Pequeño delay para dejar que cargue la interfaz de fondo
+      const timer = setTimeout(() => setShowWelcome(true), 800);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const handleCloseWelcome = () => {
+    localStorage.setItem('finanto_mobile_welcome_v2', 'true');
+    setShowWelcome(false);
+  };
+
   const todayApps = appointments
     .filter(a => !a.isArchived && isToday(parseISO(a.date)))
     .sort((a, b) => a.time.localeCompare(b.time));
@@ -121,7 +146,7 @@ export default function MobileDashboard({
   return (
     <div className="flex flex-col space-y-8 animate-in fade-in duration-700 pb-24 overflow-x-hidden">
       
-      {/* Micro Stats Superiores (Scroll Horizontal Limpio) */}
+      {/* Micro Stats Superiores */}
       <div className="w-full overflow-x-auto scrollbar-hide -mx-4 px-4 pb-2">
         <div className="flex gap-3 min-w-max">
           {microStats.map((s, i) => (
@@ -242,13 +267,12 @@ export default function MobileDashboard({
             ))
           )}
           {todayApps.length > visibleCount && (
-            <Button 
-              variant="ghost" 
+            <button 
               onClick={() => setVisibleCount(prev => prev + 10)}
-              className="w-full h-16 text-[11px] font-black uppercase tracking-[0.3em] text-primary gap-3 rounded-[2rem] border border-primary/10 bg-primary/5 active:bg-primary/10 transition-all"
+              className="w-full h-16 text-[11px] font-black uppercase tracking-[0.3em] text-primary flex items-center justify-center gap-3 rounded-[2rem] border border-primary/10 bg-primary/5 active:bg-primary/10 transition-all"
             >
               Ver {todayApps.length - visibleCount} más <ChevronRight size={16} />
-            </Button>
+            </button>
           )}
         </div>
       </div>
@@ -259,6 +283,51 @@ export default function MobileDashboard({
           Finanto Terminal v2.5 • Elite CRM
         </p>
       </div>
+
+      {/* Popup de Bienvenida Llamativo */}
+      <Dialog open={showWelcome} onOpenChange={setShowWelcome}>
+        <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="w-[92%] max-w-[400px] rounded-[3rem] p-0 overflow-hidden border-none bg-background shadow-2xl z-[200]">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Bienvenido a la Terminal Móvil</DialogTitle>
+            <DialogDescription>Mensaje inicial de bienvenida para usuarios móviles.</DialogDescription>
+          </DialogHeader>
+          
+          <div className="bg-primary p-10 flex flex-col items-center text-center gap-6 relative overflow-hidden">
+            {/* Fondo decorativo */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
+            
+            <div className="bg-white/20 p-6 rounded-[2.5rem] backdrop-blur-md relative z-10 shadow-2xl">
+              <Construction size={64} className="text-white animate-bounce" />
+            </div>
+            
+            <div className="space-y-2 relative z-10">
+              <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter leading-none">¡Bienvenido!</h2>
+              <p className="text-white/80 font-bold text-xs uppercase tracking-[0.2em] leading-tight">
+                Estás entrando a la nueva <br /> Terminal Móvil de Finanto.
+              </p>
+            </div>
+          </div>
+
+          <div className="p-10 space-y-8 text-center bg-background">
+            <div className="space-y-4">
+              <p className="text-foreground font-medium text-sm leading-relaxed">
+                Estamos construyendo la mejor herramienta operativa para potenciar tu productividad inmobiliaria desde cualquier lugar.
+              </p>
+              <div className="h-1 w-12 bg-primary/20 mx-auto rounded-full" />
+              <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest">
+                Optimizado para gestión táctica
+              </p>
+            </div>
+
+            <Button 
+              onClick={handleCloseWelcome}
+              className="w-full h-16 rounded-[1.5rem] bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20 active:scale-95 transition-all"
+            >
+              ¡COMENZAR AHORA!
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
