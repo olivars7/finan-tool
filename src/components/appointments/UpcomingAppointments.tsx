@@ -371,7 +371,7 @@ export default function UpcomingAppointments({
                                 size="sm"
                                 onClick={(e) => handleToggleConfirmation(e, app)}
                                 className={cn(
-                                  "h-6 px-2 text-[9px] font-bold uppercase border",
+                                  "h-6 px-2 text-[9px] font-bold uppercase border rounded-full",
                                   app.isConfirmed ? "bg-green-500/10 text-green-600" : "bg-orange-500/10 text-orange-600"
                                 )}
                               >
@@ -466,7 +466,7 @@ export default function UpcomingAppointments({
                       <Button 
                         variant="outline" 
                         size="sm" 
-                        className="h-8 text-[10px] font-bold uppercase gap-2 flex-1 border-primary/20 bg-primary/5 text-primary"
+                        className="h-8 text-[10px] font-bold uppercase gap-2 flex-1 border-primary/20 bg-primary/5 text-primary rounded-full"
                         onClick={(e) => copyPhone(e, app)}
                       >
                         <Phone className="w-3 h-3" /> Llamar
@@ -478,7 +478,7 @@ export default function UpcomingAppointments({
                             variant="outline" 
                             size="sm" 
                             className={cn(
-                              "h-8 text-[10px] font-bold uppercase flex-1 border-dashed",
+                              "h-8 text-[10px] font-bold uppercase flex-1 border-dashed rounded-full",
                               app.isConfirmed ? "bg-green-500/10 text-green-600 border-green-500/30" : "bg-orange-500/10 text-orange-600 border-orange-500/30"
                             )}
                             onClick={(e) => handleToggleConfirmation(e, app)}
@@ -488,7 +488,7 @@ export default function UpcomingAppointments({
                           <Button 
                             variant="secondary" 
                             size="sm" 
-                            className="h-8 text-[10px] font-bold uppercase gap-2 flex-1 border border-border/50"
+                            className="h-8 text-[10px] font-bold uppercase gap-2 flex-1 border border-border/50 rounded-full"
                             onClick={(e) => handleOpenFinalize(e, app)}
                           >
                             <CheckIcon className="w-3 h-3 text-green-600" /> Finalizar
@@ -500,7 +500,7 @@ export default function UpcomingAppointments({
                         <Button 
                           variant="ghost" 
                           size="icon" 
-                          className="h-8 w-8 text-muted-foreground/40"
+                          className="h-8 w-8 text-muted-foreground/40 rounded-full"
                           onClick={(e) => { e.stopPropagation(); onSelect(app); }}
                         >
                           <ChevronRight className="w-4 h-4" />
@@ -515,7 +515,7 @@ export default function UpcomingAppointments({
         )}
       </div>
 
-      <div className="flex flex-wrap justify-center sm:justify-end gap-2 sm:gap-3 pt-2 shrink-0">
+      <div className="flex flex-wrap justify-center sm:justify-end gap-2 sm:gap-3 pt-2 shrink-0 pb-16">
         <TooltipProvider>
           <Tooltip delayDuration={0}>
             <TooltipTrigger asChild>
@@ -523,13 +523,13 @@ export default function UpcomingAppointments({
                 variant="outline" 
                 size="sm" 
                 onClick={copyAllTodayAppointments} 
-                className="text-[10px] font-bold uppercase border-blue-500/40 bg-blue-500/5 text-blue-600 h-9 gap-2 px-3 sm:px-4 flex-1 sm:flex-none"
+                className="text-[10px] font-bold uppercase border-blue-500/40 bg-blue-500/5 text-blue-600 h-9 gap-2 px-3 sm:px-4 flex-1 sm:flex-none rounded-full"
               >
                 <ClipboardList className="w-4 h-4" /> <span>Citas Hoy</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top" className="text-[10px]">
-              Copia el listado de citas de hoy para enviar por WhatsApp
+              Copia el listado de hoy para WhatsApp
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -541,13 +541,13 @@ export default function UpcomingAppointments({
                 variant="outline" 
                 size="sm" 
                 onClick={copyAllTomorrowAppointments} 
-                className="text-[10px] font-bold uppercase border-accent/40 bg-accent/5 text-accent h-9 gap-2 px-3 sm:px-4 flex-1 sm:flex-none"
+                className="text-[10px] font-bold uppercase border-accent/40 bg-accent/5 text-accent h-9 gap-2 px-3 sm:px-4 flex-1 sm:flex-none rounded-full"
               >
                 <ClipboardList className="w-4 h-4" /> <span>Citas Mañana</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top" className="text-[10px]">
-              Copia el listado de citas de mañana para enviar por WhatsApp
+              Copia el listado de mañana para WhatsApp
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -558,16 +558,16 @@ export default function UpcomingAppointments({
           <AlertDialogHeader>
             <div className="flex items-center gap-3 mb-2">
               <div className="p-3 bg-primary/20 rounded-2xl"><AlertCircle className="w-6 h-6 text-primary" /></div>
-              <AlertDialogTitle className="text-xl font-black uppercase tracking-tighter">Confirmar Asistencia</AlertDialogTitle>
+              <AlertDialogTitle className="text-xl font-black uppercase tracking-tighter">Asistencia</AlertDialogTitle>
             </div>
             <AlertDialogDescription className="text-muted-foreground font-medium">
-              ¿Confirmas que el cliente <strong>{confirmingApp?.name}</strong> asistirá a su cita programada para el día de hoy?
+              ¿Confirmas que el cliente <strong>{confirmingApp?.name}</strong> asistirá hoy?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-3 mt-4">
-            <AlertDialogCancel className="bg-muted/20 border-border text-foreground rounded-full h-11 px-6 text-xs font-bold uppercase">Cancelar</AlertDialogCancel>
+            <AlertDialogCancel className="bg-muted/20 border-border text-foreground rounded-full h-11 px-6 text-xs font-bold uppercase">No</AlertDialogCancel>
             <AlertDialogAction onClick={processConfirmation} className="bg-primary hover:bg-primary/80 text-primary-foreground rounded-full h-11 px-8 text-xs font-black uppercase shadow-lg">
-              Confirmar Llegada
+              Confirmar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -578,25 +578,32 @@ export default function UpcomingAppointments({
           className="sm:max-w-[550px] bg-background border-border shadow-2xl rounded-[2.5rem] p-0 overflow-hidden z-[160]"
         >
           <DialogHeader className="bg-green-500/5 p-8 border-b border-green-500/10">
-            <div className="flex items-center gap-4">
-              <div className="p-4 bg-green-600 text-white rounded-2xl shadow-xl shadow-green-500/20">
-                <CheckIcon className="w-6 h-6" />
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="p-4 bg-green-600 text-white rounded-2xl shadow-xl">
+                  <CheckIcon className="w-6 h-6" />
+                </div>
+                <div>
+                  <DialogTitle className="text-2xl font-black uppercase tracking-tighter text-foreground leading-none">Finalizar</DialogTitle>
+                  <DialogDescription className="text-[10px] font-bold uppercase text-green-600 tracking-widest mt-1">
+                    {finalizingApp?.name}
+                  </DialogDescription>
+                </div>
               </div>
-              <div>
-                <DialogTitle className="text-2xl font-black uppercase tracking-tighter text-foreground leading-none">Finalizar Consulta</DialogTitle>
-                <DialogDescription className="text-[10px] font-bold uppercase text-green-600 tracking-widest mt-1">
-                  Registrando resultado para {finalizingApp?.name}
-                </DialogDescription>
-              </div>
+              <DialogClose asChild>
+                <Button variant="ghost" size="icon" className="rounded-full bg-muted/20 text-foreground">
+                  <X className="w-5 h-5" />
+                </Button>
+              </DialogClose>
             </div>
           </DialogHeader>
           
-          <div className="p-8 space-y-8 max-h-[60vh] overflow-y-auto scrollbar-thin">
+          <div className="p-8 space-y-8 max-h-[60vh] overflow-y-auto scrollbar-thin pb-24">
             <div className="space-y-3">
-              <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest block text-center">Resultado Final de la Cita</Label>
+              <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest block text-center">Resultado Final</Label>
               <Select value={finalStatus} onValueChange={(v) => setFinalStatus(v as AppointmentStatus)}>
                 <SelectTrigger className="w-full h-14 bg-muted/10 border-border text-foreground text-lg font-bold rounded-2xl">
-                  <SelectValue placeholder="Selecciona el resultado" />
+                  <SelectValue placeholder="Selecciona..." />
                 </SelectTrigger>
                 <SelectContent className="z-[200]">
                   <SelectItem value="Asistencia" className="focus:bg-primary/20">👤 Asistencia (Visto)</SelectItem>
@@ -614,12 +621,12 @@ export default function UpcomingAppointments({
               <div className="p-6 bg-green-500/5 border-2 border-green-500/20 rounded-[2rem] space-y-6 animate-in zoom-in-95 duration-300">
                 <div className="flex items-center gap-3 border-b border-green-500/10 pb-4">
                   <Coins className="w-5 h-5 text-green-600" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-green-600">Configuración Financiera</span>
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-green-600">Finanzas</span>
                 </div>
                 
                 <div className="grid grid-cols-1 gap-6">
                   <div className="space-y-2">
-                    <Label className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Monto de Crédito Final</Label>
+                    <Label className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Crédito Final</Label>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-bold text-green-600">$</span>
                       <Input 
@@ -634,7 +641,7 @@ export default function UpcomingAppointments({
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="text-[9px] font-black uppercase text-muted-foreground tracking-widest flex items-center gap-2">Participación <Info className="w-3 h-3 opacity-40" /></Label>
+                      <Label className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Part. %</Label>
                       <div className="relative">
                         <Input 
                           type="number"
@@ -648,7 +655,7 @@ export default function UpcomingAppointments({
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Ingreso Neto (91%)</Label>
+                      <Label className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Neto (91%)</Label>
                       <div className="h-11 flex items-center px-4 bg-green-500/10 border border-green-500/20 rounded-xl">
                         <span className="text-lg font-black text-green-600 truncate">{formatCurrency(calculatedCommission)}</span>
                       </div>
@@ -660,10 +667,10 @@ export default function UpcomingAppointments({
 
             <div className="space-y-2">
               <Label className="flex items-center gap-2 text-[10px] font-black uppercase text-muted-foreground tracking-widest">
-                <MessageSquare className="w-4 h-4 text-primary" /> Notas Finales del Registro
+                <MessageSquare className="w-4 h-4 text-primary" /> Notas Finales
               </Label>
               <Textarea 
-                placeholder="Escribe acuerdos, detalles del cierre o motivos del resultado..."
+                placeholder="Escribe acuerdos o detalles..."
                 className="bg-muted/10 border-border min-h-[120px] resize-none text-sm text-foreground font-medium p-4 rounded-2xl"
                 value={finalNotes}
                 onChange={(e) => setFinalNotes(e.target.value)}
@@ -679,9 +686,9 @@ export default function UpcomingAppointments({
               </CollapsibleTrigger>
               <CollapsibleContent className="mt-3 animate-in fade-in slide-in-from-top-2">
                 <div className="p-4 border rounded-2xl bg-purple-500/5 border-purple-500/10">
-                  <Label className="text-[9px] font-bold uppercase text-purple-600/70 dark:text-purple-400/70 mb-2 block">Nombre del Ejecutivo de Atención</Label>
+                  <Label className="text-[9px] font-bold uppercase text-purple-600/70 dark:text-purple-400/70 mb-2 block">Nombre del Ejecutivo</Label>
                   <Input 
-                    placeholder="Escribe el nombre completo..."
+                    placeholder="Escribe el nombre..."
                     className="bg-background border-purple-500/20 h-11 text-foreground font-bold"
                     value={attendingExecutive}
                     onChange={(e) => setAttendingExecutive(e.target.value)}
@@ -694,7 +701,7 @@ export default function UpcomingAppointments({
           <DialogFooter className="p-8 border-t border-border/10 bg-primary/5 flex flex-row gap-4">
             <Button variant="ghost" onClick={() => setFinalizingApp(null)} className="h-12 px-6 font-black uppercase text-[10px] text-muted-foreground flex-1 rounded-full">Cancelar</Button>
             <Button onClick={handleSaveFinalization} className="bg-green-600 hover:bg-green-700 text-white h-12 px-10 font-black uppercase text-[10px] shadow-xl shadow-green-600/20 rounded-full gap-2 flex-[2] transition-all active:scale-95">
-              <Save className="w-4 h-4" /> Guardar Registro
+              <Save className="w-4 h-4" /> Guardar
             </Button>
           </DialogFooter>
         </DialogContent>

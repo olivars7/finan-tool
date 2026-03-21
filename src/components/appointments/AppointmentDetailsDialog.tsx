@@ -276,12 +276,12 @@ Hora: ${timeBold}${confirmedBold}`;
       }
     }}>
       <DialogContent 
-        className="sm:max-w-[650px] bg-background border-border/40 p-0 shadow-2xl overflow-hidden flex flex-col max-h-[90vh] rounded-[2rem]"
+        className="sm:max-w-[650px] bg-background border-border/40 p-0 shadow-2xl overflow-hidden flex flex-col max-h-[90vh] rounded-[2.5rem]"
       >
         <DialogHeader className="px-8 py-6 border-b border-border/10 flex flex-row items-center justify-between bg-primary/5 shrink-0">
           <div className="flex flex-col gap-1">
             <DialogTitle className="text-xl font-black text-foreground uppercase tracking-tighter">
-              {isEditing ? 'Editar Registro' : 'Expediente de Cita'}
+              {isEditing ? 'Editar Registro' : 'Expediente'}
             </DialogTitle>
             <DialogDescription className="text-[10px] font-bold uppercase text-primary tracking-widest flex items-center gap-2">
               <HistoryIcon className="w-3 h-3" /> {headerTimeText}
@@ -290,26 +290,14 @@ Hora: ${timeBold}${confirmedBold}`;
 
           <div className="flex items-center gap-2">
             {!isEditing && (
-              <>
-                <Button 
-                  onClick={copyToWhatsAppFormat}
-                  variant="outline" 
-                  size="sm"
-                  className="h-9 px-4 text-[10px] border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 font-black uppercase rounded-full"
-                >
-                  <Copy className="w-3.5 h-3.5 mr-2" />
-                  Copiar Datos
-                </Button>
-                <Button 
-                  onClick={() => setShowArchiveConfirm(true)}
-                  variant="ghost" 
-                  size="sm"
-                  className="h-9 px-4 text-[10px] font-black uppercase text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors gap-2 rounded-full"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  Archivar
-                </Button>
-              </>
+              <Button 
+                onClick={() => setShowArchiveConfirm(true)}
+                variant="ghost" 
+                size="icon"
+                className="h-9 w-9 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
             )}
             <DialogClose className="h-9 w-9 flex items-center justify-center rounded-full bg-muted/20 text-foreground hover:bg-destructive hover:text-destructive-foreground transition-colors group">
               <X className="w-4 h-4" />
@@ -478,7 +466,7 @@ Hora: ${timeBold}${confirmedBold}`;
               </div>
             </div>
           ) : (
-            <div className="space-y-8 animate-in fade-in duration-500">
+            <div className="space-y-8 animate-in fade-in duration-500 pb-24">
               {/* Perfil Principal */}
               <div className="flex items-center gap-6 p-6 rounded-3xl bg-muted/10 border border-border/20 shadow-inner">
                 <div className="flex-1 space-y-2">
@@ -663,7 +651,7 @@ Hora: ${timeBold}${confirmedBold}`;
                 type="button"
               >
                 <CalendarPlus className="w-4 h-4" />
-                {isCierre ? 'Agendar Seguimiento' : 'Programar 2da Cita'}
+                {isCierre ? 'Agendar Seguimiento' : '2da Cita'}
               </Button>
             )}
           </div>
@@ -672,12 +660,12 @@ Hora: ${timeBold}${confirmedBold}`;
               <>
                 <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)} className="h-10 px-6 text-[10px] font-black uppercase text-muted-foreground rounded-full" type="button">Cancelar</Button>
                 <Button size="sm" onClick={handleSave} className="h-10 px-8 text-[10px] font-black uppercase bg-primary text-primary-foreground hover:bg-primary/80 rounded-full shadow-lg gap-2" type="button">
-                  <Save className="w-4 h-4" /> Guardar Cambios
+                  <Save className="w-4 h-4" /> Guardar
                 </Button>
               </>
             ) : (
               <Button onClick={() => setIsEditing(true)} size="sm" className="h-10 px-8 text-[10px] font-black uppercase bg-foreground text-background hover:opacity-90 rounded-full gap-2 shadow-xl" type="button">
-                <Edit2 className="w-4 h-4" /> Editar Expediente
+                <Edit2 className="w-4 h-4" /> Editar
               </Button>
             )}
           </div>
@@ -717,7 +705,7 @@ Hora: ${timeBold}${confirmedBold}`;
               </div>
             </DialogHeader>
             
-            <div className="p-8 space-y-6 max-h-[65vh] overflow-y-auto scrollbar-thin">
+            <div className="p-8 space-y-6 max-h-[65vh] overflow-y-auto scrollbar-thin pb-24">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Cliente</Label>
@@ -791,7 +779,7 @@ Hora: ${timeBold}${confirmedBold}`;
             <DialogFooter className="p-8 border-t border-border/10 bg-primary/5 gap-3">
               <Button variant="ghost" onClick={() => setIsRescheduling(false)} className="h-11 px-6 text-[10px] font-black uppercase text-muted-foreground rounded-full" type="button">Cancelar</Button>
               <Button onClick={handleConfirmSecond} className="h-11 px-8 text-[10px] font-black uppercase bg-primary text-primary-foreground hover:bg-primary/80 rounded-full shadow-lg" type="button">
-                Confirmar Registro
+                Confirmar
               </Button>
             </DialogFooter>
           </DialogContent>

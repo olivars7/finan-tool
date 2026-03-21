@@ -207,15 +207,15 @@ export default function MobileDashboard({
             <q.icon className={cn("absolute opacity-[0.02] w-32 h-32 -bottom-8 -left-8 transition-transform duration-700 group-active:scale-110", q.iconColor)} />
 
             {/* Icono Principal Centrado */}
-            <div className={cn("p-6 rounded-[2.2rem] bg-white/5 mb-4 relative z-10 shadow-2xl backdrop-blur-sm transition-all duration-300 group-active:scale-110 group-active:brightness-125 group-hover:brightness-110", q.iconColor)}>
-              <q.icon size={40} />
+            <div className={cn("p-5 rounded-[2.2rem] bg-white/5 mb-3 relative z-10 shadow-2xl backdrop-blur-sm transition-all duration-300 group-active:scale-110 group-active:brightness-125 group-hover:brightness-110", q.iconColor)}>
+              <q.icon size={32} />
             </div>
             
-            <div className="text-center space-y-1 relative z-10 px-2">
-              <span className="block text-xl font-black tracking-tighter text-foreground uppercase leading-none">
+            <div className="text-center space-y-0.5 relative z-10 px-2">
+              <span className="block text-lg font-black tracking-tighter text-foreground uppercase leading-none">
                 {q.title}
               </span>
-              <span className="block text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
+              <span className="block text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
                 {q.sub}
               </span>
             </div>
@@ -306,7 +306,7 @@ export default function MobileDashboard({
             </div>
           </div>
 
-          <div className="p-12 space-y-10 text-center bg-background">
+          <div className="p-12 space-y-10 text-center bg-background pb-32">
             <div className="space-y-6">
               <p className="text-foreground font-black text-lg leading-snug uppercase italic tracking-tight">
                 "Estamos transformando tu productividad inmobiliaria con herramientas de élite."
@@ -323,7 +323,7 @@ export default function MobileDashboard({
 
             <Button 
               onClick={handleCloseWelcome}
-              className="w-full h-20 rounded-[2rem] bg-primary hover:bg-primary/90 text-white font-black text-lg uppercase tracking-[0.25em] shadow-2xl shadow-primary/30 active:scale-95 transition-all"
+              className="w-full h-20 rounded-full bg-primary hover:bg-primary/90 text-white font-black text-lg uppercase tracking-[0.25em] shadow-2xl shadow-primary/30 active:scale-95 transition-all"
             >
               ¡COMENZAR!
             </Button>
