@@ -14,7 +14,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { onAuthChange } from '@/lib/auth';
 import { User } from 'firebase/auth';
 import { ensureUserDocument } from '@/lib/user-service';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '@/app/lib/firebase';
 
 export function useAppointments() {
@@ -24,31 +24,38 @@ export function useAppointments() {
   const [profile, setProfile] = useState<any>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthChange(async (currentUser) => {
+    let unsubscribeSnapshot: (() => void) | null = null;
+
+    const unsubscribeAuth = onAuthChange(async (currentUser) => {
       setUser(currentUser);
       
       if (currentUser) {
+        console.log('%c 🔑 AUTH: Usuario detectado, configurando tiempo real...', 'color: #7B61FF; font-weight: bold;');
         await ensureUserDocument(currentUser);
 
-        try {
-          const userRef = doc(db, "users", currentUser.uid);
-          const userSnap = await getDoc(userRef);
-          if (userSnap.exists()) {
-            setProfile(userSnap.data());
-          }
-        } catch (err) {
-          console.error("Error al cargar perfil de usuario:", err);
-        }
+        // Cargar perfil
+        const userRef = doc(db, "users", currentUser.uid);
+        getDoc(userRef).then(snap => {
+          if (snap.exists()) setProfile(snap.data());
+        });
 
-        const migratedData = await FirebaseStore.migrateLocalAppointments(currentUser.uid);
-        
-        if (migratedData) {
-          setAppointments(migratedData);
-        } else {
-          const cloudApps = await FirebaseStore.loadAppointments(currentUser.uid);
-          setAppointments(cloudApps);
-        }
+        // Migración inicial si existe
+        await FirebaseStore.migrateLocalAppointments(currentUser.uid);
+
+        // Listener en tiempo real para sincronización inmediata entre dispositivos
+        unsubscribeSnapshot = onSnapshot(userRef, (docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            const cloudApps = data.appointments || [];
+            console.log('%c ☁️ DB SNAPSHOT: Sincronizando cambios externos...', 'background: #1877F2; color: #fff; padding: 2px 5px; border-radius: 4px;');
+            setAppointments(cloudApps);
+          }
+        }, (err) => {
+          console.error("Error en listener Firestore:", err);
+        });
+
       } else {
+        console.log('%c 👤 AUTH: Modo local habilitado', 'color: #666; font-weight: bold;');
         const stored = Service.getFromDisk();
         setAppointments(stored);
         setProfile(null);
@@ -56,15 +63,20 @@ export function useAppointments() {
       setIsLoaded(true);
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeSnapshot) unsubscribeSnapshot();
+    };
   }, []);
 
   const persistAppointments = async (updatedList: Appointment[]) => {
+    // Actualización de estado local inmediata para respuesta instantánea
     setAppointments(updatedList);
     Service.saveToDisk(updatedList);
     
     if (user) {
       try {
+        console.log('%c 🚀 DB UPDATE: Enviando cambios inmediatamente...', 'background: #22c55e; color: #fff; padding: 2px 5px; border-radius: 4px;');
         await FirebaseStore.saveAppointments(user.uid, updatedList);
       } catch (err) {
         console.error("Error al sincronizar con la nube:", err);
@@ -79,7 +91,6 @@ export function useAppointments() {
       phone: Service.formatPhoneNumber(data.phone),
       isArchived: false
     };
-
     const updated = [newApp, ...appointments];
     await persistAppointments(updated);
   };
@@ -112,7 +123,6 @@ export function useAppointments() {
   const resetData = async () => {
     const seed = Service.generateSeedData();
     await persistAppointments(seed);
-    window.location.reload();
   };
 
   const clearAll = async () => {
@@ -120,7 +130,6 @@ export function useAppointments() {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('FINANTO_MIGRATED');
     }
-    window.location.reload();
   };
 
   const activeAppointments = useMemo(() => appointments.filter(a => !a.isArchived), [appointments]);
@@ -182,12 +191,12 @@ export function useAppointments() {
     return `${h12}:${m.toString().padStart(2, '0')} ${period}`;
   };
 
-  const stats = useMemo(() => Service.calculateStats(appointments), [appointments]);
+  const statsData = useMemo(() => Service.calculateStats(appointments), [appointments]);
 
   return {
     appointments, upcoming, past, activeAppointments, 
     addAppointment, editAppointment, archiveAppointment, unarchiveAppointment, deletePermanent,
     resetData, clearAll, formatFriendlyDate, format12hTime,
-    stats, isLoaded, user, profile
+    stats: statsData, isLoaded, user, profile
   };
 }

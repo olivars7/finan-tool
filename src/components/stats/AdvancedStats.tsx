@@ -1,3 +1,4 @@
+
 /**
  * @fileOverview Panel de Inteligencia Avanzada - Finanto
  */
@@ -27,14 +28,12 @@ const CustomXAxisTick = (props: any) => {
   const item = data[payload.index];
   if (!item) return null;
 
-  // Colores condicionales según el tipo de día
   let initialColor = "currentColor";
   if (item.isCorte) initialColor = "#ef4444"; // Martes - Corte (Rojo)
   if (item.isPaga) initialColor = "#1877f2";  // Viernes - Pago (Azul)
 
   return (
     <g transform={`translate(${x},${y})`}>
-      {/* Número del día con opacidad menor */}
       <text 
         x={0} 
         y={0} 
@@ -46,7 +45,6 @@ const CustomXAxisTick = (props: any) => {
       >
         {item.dayNumber}
       </text>
-      {/* Inicial del día con mayor opacidad y color condicional */}
       <text 
         x={0} 
         y={32} 
@@ -78,14 +76,12 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
     }
   }), [isCorporate]);
 
-  // Configuración de barras y colores
   const barSize = expanded ? 14 : 22;
   const agendadasNormalColor = "hsl(var(--primary) / 0.25)";
   const atendidasNormalColor = isCorporate ? "hsl(187 100% 42%)" : "hsl(var(--accent))";
   
-  // Colores distintivos para HOY
-  const todayAgendadasColor = "hsl(var(--primary))"; // Azul sólido para hoy
-  const todayAtendidasColor = "hsl(142 70% 45%)"; // Esmeralda para hoy
+  const todayAgendadasColor = "hsl(var(--primary))"; 
+  const todayAtendidasColor = "hsl(142 70% 45%)"; 
 
   return (
     <div className={cn(
@@ -100,7 +96,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
             <p className="text-[8px] font-medium text-muted-foreground/40 uppercase">{expanded ? "Monitor Extendido (35 días)" : "Monitor de 15 días"}</p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="hidden sm:flex items-center gap-3">
            <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" /> <span className="text-[8px] font-bold uppercase opacity-60">Agendadas</span></div>
            <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: atendidasNormalColor }} /> <span className="text-[8px] font-bold uppercase opacity-60">Atendidas</span></div>
            <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-[url(#cierreGradient)]" /> <span className="text-[8px] font-bold uppercase opacity-60">Cierres</span></div>
@@ -108,7 +104,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
       </div>
       <div className={cn("overflow-visible", expanded ? "h-[320px]" : "h-[220px]")}>
         <ChartContainer config={localConfig} className="h-full w-full">
-          <ComposedChart data={data} margin={{ top: 30, right: 10, left: 10, bottom: 40 }}>
+          <ComposedChart data={data} margin={{ top: 35, right: 10, left: 10, bottom: 40 }}>
             <defs>
               <linearGradient id="cierreGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#00F5FF" />
@@ -127,7 +123,6 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
               interval={0}
               tick={<CustomXAxisTick data={data} />} 
             />
-            {/* Eje oculto para forzar alineación de barras superpuestas */}
             <XAxis xAxisId={1} dataKey="dayNumber" hide />
             
             <YAxis hide domain={[0, globalMax + 2]} />
@@ -180,21 +175,18 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
               />
             )}
             
-            {/* AGENDADAS (FONDO - EJE 0) */}
             <Bar xAxisId={0} dataKey="agendadas" name="Agendadas" radius={[6, 6, 0, 0]} barSize={barSize}>
               {data.map((e: any, i: number) => (
                 <Cell key={`bar-agenda-${i}`} fill={e.isToday ? todayAgendadasColor : agendadasNormalColor} />
               ))}
             </Bar>
 
-            {/* ATENDIDAS (FRENTE - EJE 1 PARA ALINEACIÓN PERFECTA) */}
             <Bar xAxisId={1} dataKey="atendidas" name="Atendidas" radius={[6, 6, 0, 0]} barSize={barSize}>
               {data.map((e: any, i: number) => (
                 <Cell key={`bar-atendida-${i}`} fill={e.isToday ? todayAtendidasColor : atendidasNormalColor} />
               ))}
             </Bar>
             
-            {/* CIERRES (CÍRCULOS PERFECTOS CON NÚMERO) */}
             <Line 
               xAxisId={0}
               type="monotone" 
@@ -202,12 +194,12 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
               name="Cierres" 
               stroke="none" 
               dot={(props: any) => {
-                const { cx, payload, index } = props;
+                const { cx, payload } = props;
                 if (!payload || payload.cierres <= 0) return null;
                 const markerY = 15; 
                 const radius = barSize / 2;
                 return (
-                  <g key={`marker-cierre-${payload.dayNumber}-${index}`}>
+                  <g key={`marker-cierre-${payload.dayNumber}`}>
                     <circle 
                       cx={cx} 
                       cy={markerY} 
@@ -279,8 +271,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                   <stop offset="100%" stopColor="#7B61FF" />
                 </linearGradient>
               </defs>
-              {/* LINEAS VERTICALES VISIBLES EN TODOS LOS PUNTOS */}
-              <CartesianGrid vertical={true} horizontal={false} strokeDasharray="4 4" stroke="currentColor" opacity={0.2} />
+              <CartesianGrid vertical={true} horizontal={false} stroke="currentColor" opacity={0.15} />
               <XAxis 
                 dataKey="week" 
                 interval={0}
