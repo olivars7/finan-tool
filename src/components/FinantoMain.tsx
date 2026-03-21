@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -48,7 +49,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from 'next/image';
 
-type Theme = 'tranquilo' | 'moderno' | 'discreto' | 'olivares' | 'corporativo' | 'corporativo-oscuro';
+type Theme = 'tranquilo' | 'moderno' | 'olivares' | 'corporativo' | 'corporativo-oscuro';
 
 export interface FinantoMainProps {
   initialSection?: 'simulador' | 'gestor' | 'stats';
