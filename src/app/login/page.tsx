@@ -1,7 +1,7 @@
 
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { loginWithGoogle } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
@@ -30,6 +30,48 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 
+// --- COMPONENTE DE REVELADO POR SCROLL ---
+const ScrollReveal = ({ children, className, animation = "fade-in", delay = 0 }: { children: React.ReactNode, className?: string, animation?: string, delay?: number }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+    );
+
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  const animationClasses = {
+    "fade-in": "animate-in fade-in duration-1000",
+    "slide-up": "animate-in fade-in slide-in-from-bottom-10 duration-1000",
+    "slide-left": "animate-in fade-in slide-in-from-left-10 duration-1000",
+    "slide-right": "animate-in fade-in slide-in-from-right-10 duration-1000",
+    "zoom-in": "animate-in fade-in zoom-in-95 duration-1000",
+  };
+
+  return (
+    <div 
+      ref={ref} 
+      className={cn(
+        isVisible ? animationClasses[animation as keyof typeof animationClasses] : "opacity-0",
+        className
+      )}
+      style={{ animationDelay: `${delay}ms`, animationFillMode: 'forwards' }}
+    >
+      {children}
+    </div>
+  );
+};
+
 // --- DATOS DE DEMOSTRACIÓN (NO PERSISTENTES) ---
 const DEMO_OPERATIVO = [
   { day: 'Lun', agendadas: 4, atendidas: 3, cierres: 0 },
@@ -47,9 +89,9 @@ const DEMO_FLUJO = [
 ];
 
 const DEMO_APPS = [
-  { id: '1', name: 'Roberto Martínez', time: '10:30 AM', type: '1ra consulta', product: 'Casa', phone: '664 123 4567', notes: 'Interesado en zona dorada, presupuesto 2.5M.' },
-  { id: '2', name: 'Elena Guajardo', time: '01:00 PM', type: 'Cierre', product: 'Terreno', phone: '664 987 6543', notes: 'Firma de contrato y entrega de enganche.' },
-  { id: '3', name: 'Carlos Slim (Prospecto)', time: '04:30 PM', type: 'Seguimiento', product: 'Departamento', phone: '664 555 0000', notes: 'Dudas sobre el plan de financiamiento a 192 meses.' },
+  { id: '1', name: 'Roberto Martínez', time: '10:30 AM', type: '1ra consulta', product: 'Casa', phone: '664 123 4567', notes: 'Interesado en zona dorada, presupuesto 2.5M. Perfilamiento bancario pendiente.' },
+  { id: '2', name: 'Elena Guajardo', time: '01:00 PM', type: 'Cierre', product: 'Terreno', phone: '664 987 6543', notes: 'Firma de contrato y entrega de enganche. Ya se validó el documento de identidad.' },
+  { id: '3', name: 'Carlos Slim (Prospecto)', time: '04:30 PM', type: 'Seguimiento', product: 'Departamento', phone: '664 555 0000', notes: 'Dudas sobre el plan de financiamiento a 192 meses. Enviar tabla de amortización por WA.' },
 ];
 
 export default function LoginPage() {
@@ -184,50 +226,56 @@ export default function LoginPage() {
       {/* Sección: Inteligencia de Datos (Gráficas Demo) */}
       <section className="py-32 px-6 bg-slate-950 relative overflow-hidden">
         <div className="container max-w-6xl mx-auto space-y-20">
-          <div className="text-center space-y-4">
-            <h2 className="text-xs font-black text-primary uppercase tracking-[0.4em]">Panel de Inteligencia</h2>
-            <p className="text-4xl md:text-5xl font-black tracking-tighter uppercase">Visualiza tu éxito con <span className="text-primary italic">precisión.</span></p>
-          </div>
+          <ScrollReveal animation="slide-up">
+            <div className="text-center space-y-4">
+              <h2 className="text-xs font-black text-primary uppercase tracking-[0.4em]">Panel de Inteligencia</h2>
+              <p className="text-4xl md:text-5xl font-black tracking-tighter uppercase">Visualiza tu éxito con <span className="text-primary italic">precisión.</span></p>
+            </div>
+          </ScrollReveal>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="p-8 rounded-[2.5rem] bg-white/[0.03] border border-white/5 space-y-6 animate-in slide-in-from-left duration-1000">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded-xl"><BarChart3 className="text-primary w-5 h-5" /></div>
-                <h3 className="font-bold uppercase tracking-widest text-sm">Monitor Operativo (Demo)</h3>
+            <ScrollReveal animation="slide-left" delay={200} className="h-full">
+              <div className="p-8 rounded-[2.5rem] bg-white/[0.03] border border-white/5 space-y-6 h-full">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-primary/10 rounded-xl"><BarChart3 className="text-primary w-5 h-5" /></div>
+                  <h3 className="font-bold uppercase tracking-widest text-sm">Monitor Operativo (Demo)</h3>
+                </div>
+                <div className="h-64 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <ComposedChart data={DEMO_OPERATIVO}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ffffff10" />
+                      <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 10}} />
+                      <YAxis hide />
+                      <RechartsTooltip contentStyle={{backgroundColor: '#0f172a', borderRadius: '12px', border: 'none', color: '#fff'}} />
+                      <Bar dataKey="agendadas" fill="#1877F240" radius={[4, 4, 0, 0]} barSize={20} />
+                      <Bar dataKey="atendidas" fill="#1877F2" radius={[4, 4, 0, 0]} barSize={20} />
+                    </ComposedChart>
+                  </ResponsiveContainer>
+                </div>
+                <p className="text-xs text-slate-500 italic text-center">Gráficas dinámicas que comparan tus citas agendadas vs asistencias reales.</p>
               </div>
-              <div className="h-64 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <ComposedChart data={DEMO_OPERATIVO}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ffffff10" />
-                    <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 10}} />
-                    <YAxis hide />
-                    <RechartsTooltip contentStyle={{backgroundColor: '#0f172a', borderRadius: '12px', border: 'none', color: '#fff'}} />
-                    <Bar dataKey="agendadas" fill="#1877F240" radius={[4, 4, 0, 0]} barSize={20} />
-                    <Bar dataKey="atendidas" fill="#1877F2" radius={[4, 4, 0, 0]} barSize={20} />
-                  </ComposedChart>
-                </ResponsiveContainer>
-              </div>
-              <p className="text-xs text-slate-500 italic text-center">Gráficas dinámicas que comparan tus citas agendadas vs asistencias reales.</p>
-            </div>
+            </ScrollReveal>
 
-            <div className="p-8 rounded-[2.5rem] bg-white/[0.03] border border-white/5 space-y-6 animate-in slide-in-from-right duration-1000">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-500/10 rounded-xl"><TrendingUp className="text-blue-500 w-5 h-5" /></div>
-                <h3 className="font-bold uppercase tracking-widest text-sm">Flujo de Cobro Semanal</h3>
+            <ScrollReveal animation="slide-right" delay={400} className="h-full">
+              <div className="p-8 rounded-[2.5rem] bg-white/[0.03] border border-white/5 space-y-6 h-full">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-500/10 rounded-xl"><TrendingUp className="text-blue-500 w-5 h-5" /></div>
+                  <h3 className="font-bold uppercase tracking-widest text-sm">Flujo de Cobro Semanal</h3>
+                </div>
+                <div className="h-64 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={DEMO_FLUJO}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ffffff10" />
+                      <XAxis dataKey="week" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 10}} />
+                      <YAxis hide />
+                      <RechartsTooltip formatter={(val) => formatCurrency(val as number)} contentStyle={{backgroundColor: '#0f172a', borderRadius: '12px', border: 'none'}} />
+                      <Line type="monotone" dataKey="income" stroke="#1877F2" strokeWidth={3} dot={{r: 4, fill: '#1877F2'}} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+                <p className="text-xs text-slate-500 italic text-center">Proyección de ingresos netos basada en tus cierres registrados.</p>
               </div>
-              <div className="h-64 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={DEMO_FLUJO}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ffffff10" />
-                    <XAxis dataKey="week" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 10}} />
-                    <YAxis hide />
-                    <RechartsTooltip formatter={(val) => formatCurrency(val as number)} contentStyle={{backgroundColor: '#0f172a', borderRadius: '12px', border: 'none'}} />
-                    <Line type="monotone" dataKey="income" stroke="#1877F2" strokeWidth={3} dot={{r: 4, fill: '#1877F2'}} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-              <p className="text-xs text-slate-500 italic text-center">Proyección de ingresos netos basada en tus cierres registrados.</p>
-            </div>
+            </ScrollReveal>
           </div>
         </div>
       </section>
@@ -235,25 +283,31 @@ export default function LoginPage() {
       {/* Sección: Características */}
       <section className="py-32 px-6 bg-[#020617]">
         <div className="container max-w-6xl mx-auto space-y-20">
-          <div className="text-center space-y-4">
-            <h2 className="text-xs font-black text-primary uppercase tracking-[0.4em]">Características Élite</h2>
-            <p className="text-4xl md:text-5xl font-black tracking-tighter uppercase">Todo lo que necesitas para <span className="text-primary italic">dominar el mercado.</span></p>
-          </div>
+          <ScrollReveal animation="slide-up">
+            <div className="text-center space-y-4">
+              <h2 className="text-xs font-black text-primary uppercase tracking-[0.4em]">Características Élite</h2>
+              <p className="text-4xl md:text-5xl font-black tracking-tighter uppercase">Todo lo que necesitas para <span className="text-primary italic">dominar el mercado.</span></p>
+            </div>
+          </ScrollReveal>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { icon: Smartphone, title: "Sincronización Total", desc: "Tus datos siempre disponibles en móvil, tablet o PC. Sin pérdida de información." },
-              { icon: Target, title: "Cálculos de Comisión", desc: "Deducciones de ISR automáticas y cálculo de participación neto al instante." },
-              { icon: Users, title: "Gestión de Prospectos", desc: "Organiza tus citas por motivo (1ra, 2da consulta o Cierre) con un solo clic." },
-              { icon: CalendarClock, title: "Ciclos de Pago", desc: "Visualiza exactamente qué viernes recibirás tu liquidación según el día de cierre." },
-              { icon: BarChart3, title: "KPIs en Tiempo Real", desc: "Monitoriza tu tasa de conversión y crecimiento mensual con analítica integrada." },
-              { icon: ShieldCheck, title: "Seguridad Cloud", desc: "Tus expedientes protegidos con infraestructura de Google Cloud para máxima confiabilidad." }
+              { icon: Smartphone, title: "Sincronización Total", desc: "Tus datos siempre disponibles en móvil, tablet o PC. Sin pérdida de información.", color: "bg-blue-500/10", text: "text-blue-500" },
+              { icon: Target, title: "Cálculos de Comisión", desc: "Deducciones de ISR automáticas y cálculo de participación neto al instante.", color: "bg-emerald-500/10", text: "text-emerald-500" },
+              { icon: Users, title: "Gestión de Prospectos", desc: "Organiza tus citas por motivo (1ra, 2da consulta o Cierre) con un solo clic.", color: "bg-primary/10", text: "text-primary" },
+              { icon: CalendarClock, title: "Ciclos de Pago", desc: "Visualiza exactamente qué viernes recibirás tu liquidación según el día de cierre.", color: "bg-amber-500/10", text: "text-amber-500" },
+              { icon: BarChart3, title: "KPIs en Tiempo Real", desc: "Monitoriza tu tasa de conversión y crecimiento mensual con analítica integrada.", color: "bg-purple-500/10", text: "text-purple-500" },
+              { icon: ShieldCheck, title: "Seguridad Cloud", desc: "Tus expedientes protegidos con infraestructura de Google Cloud para máxima confiabilidad.", color: "bg-cyan-500/10", text: "text-cyan-500" }
             ].map((f, i) => (
-              <div key={i} className="p-10 rounded-[2.5rem] bg-white/[0.02] border border-white/5 hover:border-primary/20 transition-all hover:bg-white/[0.04] group">
-                <div className="bg-primary/10 p-4 rounded-2xl w-fit mb-6 group-hover:scale-110 transition-transform"><f.icon className="text-primary w-6 h-6" /></div>
-                <h3 className="text-xl font-black uppercase tracking-tight mb-3 italic">{f.title}</h3>
-                <p className="text-slate-500 text-sm font-medium leading-relaxed">{f.desc}</p>
-              </div>
+              <ScrollReveal key={i} animation="zoom-in" delay={i * 100}>
+                <div className="p-10 rounded-[2.5rem] bg-white/[0.02] border border-white/5 hover:border-primary/20 transition-all hover:bg-white/[0.04] group h-full">
+                  <div className={cn(f.color, "p-4 rounded-2xl w-fit mb-6 group-hover:scale-110 transition-transform")}>
+                    <f.icon className={cn(f.text, "w-6 h-6")} />
+                  </div>
+                  <h3 className="text-xl font-black uppercase tracking-tight mb-3 italic">{f.title}</h3>
+                  <p className="text-slate-500 text-sm font-medium leading-relaxed">{f.desc}</p>
+                </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
@@ -262,177 +316,193 @@ export default function LoginPage() {
       {/* Sección: Finanto vs Otros */}
       <section className="py-32 px-6 bg-slate-950">
         <div className="container max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          <div className="space-y-10">
-            <div className="space-y-4">
-              <h2 className="text-4xl font-black tracking-tighter uppercase">¿Por qué <span className="text-primary">Finanto</span>?</h2>
-              <p className="text-slate-400 font-medium text-lg leading-relaxed italic">
-                Superamos al Excel y a las libretas tradicionales con una interfaz diseñada para el campo de batalla inmobiliario.
-              </p>
-            </div>
-            
-            <div className="space-y-6">
-              {[
-                { title: "No más errores manuales", desc: "Olvídate de fórmulas de Excel rotas. Finanto automatiza cada cálculo financiero." },
-                { title: "Movilidad absoluta", desc: "Actualiza el estatus de tu cita mientras caminas al auto, no esperes a llegar a tu escritorio." },
-                { title: "Ficha técnica instantánea", desc: "Copia resúmenes de crédito para WhatsApp en 2 segundos, no en 10 minutos de redacción." }
-              ].map((item, i) => (
-                <div key={i} className="flex gap-4">
-                  <div className="bg-green-500/20 p-1.5 rounded-full h-fit mt-1"><CheckCircle2 className="text-green-500 w-4 h-4" /></div>
-                  <div>
-                    <h4 className="font-bold uppercase text-sm tracking-widest">{item.title}</h4>
-                    <p className="text-slate-500 text-sm font-medium">{item.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="relative group">
-            <div className="absolute -inset-4 bg-primary/10 blur-3xl rounded-full opacity-50" />
-            <Card className="relative bg-slate-900 border-white/10 p-10 rounded-[2.5rem] shadow-2xl">
-              <div className="space-y-8">
-                <div className="flex items-center gap-4 border-b border-white/5 pb-6">
-                  <div className="p-3 bg-red-500/10 rounded-xl"><X className="text-red-500 w-6 h-6" /></div>
-                  <h3 className="text-xl font-black uppercase text-slate-500 line-through">El método tradicional</h3>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center p-4 bg-white/5 rounded-2xl opacity-50 grayscale">
-                    <span className="text-sm font-bold uppercase">Excel / Papel</span>
-                    <span className="text-[10px] font-black text-red-500">INEFICIENTE</span>
-                  </div>
-                  <div className="flex justify-between items-center p-4 bg-white/5 rounded-2xl opacity-50 grayscale">
-                    <span className="text-sm font-bold uppercase">Calculadora de Mano</span>
-                    <span className="text-[10px] font-black text-red-500">LENTO</span>
-                  </div>
-                  <div className="flex justify-between items-center p-4 bg-white/5 rounded-2xl opacity-50 grayscale">
-                    <span className="text-sm font-bold uppercase">WhatsApp Manual</span>
-                    <span className="text-[10px] font-black text-red-500">PROpenso a ERRORES</span>
-                  </div>
-                </div>
-                <div className="pt-6 text-center italic text-xs text-slate-600 font-bold uppercase tracking-[0.2em]">Evoluciona a la era digital con Finanto</div>
+          <ScrollReveal animation="slide-left">
+            <div className="space-y-10">
+              <div className="space-y-4">
+                <h2 className="text-4xl font-black tracking-tighter uppercase">¿Por qué <span className="text-primary">Finanto</span>?</h2>
+                <p className="text-slate-400 font-medium text-lg leading-relaxed italic">
+                  Superamos al Excel y a las libretas tradicionales con una interfaz diseñada para el campo de batalla inmobiliario.
+                </p>
               </div>
-            </Card>
-          </div>
+              
+              <div className="space-y-6">
+                {[
+                  { title: "No más errores manuales", desc: "Olvídate de fórmulas de Excel rotas. Finanto automatiza cada cálculo financiero." },
+                  { title: "Movilidad absoluta", desc: "Actualiza el estatus de tu cita mientras caminas al auto, no esperes a llegar a tu escritorio." },
+                  { title: "Ficha técnica instantánea", desc: "Copia resúmenes de crédito para WhatsApp en 2 segundos, no en 10 minutos de redacción." }
+                ].map((item, i) => (
+                  <ScrollReveal key={i} animation="fade-in" delay={i * 200}>
+                    <div className="flex gap-4">
+                      <div className="bg-green-500/20 p-1.5 rounded-full h-fit mt-1"><CheckCircle2 className="text-green-500 w-4 h-4" /></div>
+                      <div>
+                        <h4 className="font-bold uppercase text-sm tracking-widest">{item.title}</h4>
+                        <p className="text-slate-500 text-sm font-medium">{item.desc}</p>
+                      </div>
+                    </div>
+                  </ScrollReveal>
+                ))}
+              </div>
+            </div>
+          </ScrollReveal>
+
+          <ScrollReveal animation="slide-right">
+            <div className="relative group">
+              <div className="absolute -inset-4 bg-primary/10 blur-3xl rounded-full opacity-50" />
+              <Card className="relative bg-slate-900 border-white/10 p-10 rounded-[2.5rem] shadow-2xl">
+                <div className="space-y-8">
+                  <div className="flex items-center gap-4 border-b border-white/5 pb-6">
+                    <div className="p-3 bg-red-500/10 rounded-xl"><X className="text-red-500 w-6 h-6" /></div>
+                    <h3 className="text-xl font-black uppercase text-slate-500 line-through">El método tradicional</h3>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center p-4 bg-white/5 rounded-2xl opacity-50 grayscale">
+                      <span className="text-sm font-bold uppercase">Excel / Papel</span>
+                      <span className="text-[10px] font-black text-red-500">INEFICIENTE</span>
+                    </div>
+                    <div className="flex justify-between items-center p-4 bg-white/5 rounded-2xl opacity-50 grayscale">
+                      <span className="text-sm font-bold uppercase">Calculadora de Mano</span>
+                      <span className="text-[10px] font-black text-red-500">LENTO</span>
+                    </div>
+                    <div className="flex justify-between items-center p-4 bg-white/5 rounded-2xl opacity-50 grayscale">
+                      <span className="text-sm font-bold uppercase">WhatsApp Manual</span>
+                      <span className="text-[10px] font-black text-red-500">PROpenso a ERRORES</span>
+                    </div>
+                  </div>
+                  <div className="pt-6 text-center italic text-xs text-slate-600 font-bold uppercase tracking-[0.2em]">Evoluciona a la era digital con Finanto</div>
+                </div>
+              </Card>
+            </div>
+          </ScrollReveal>
         </div>
       </section>
 
       {/* Sección: Calculadora Demo */}
       <section className="py-32 px-6 bg-gradient-to-b from-slate-950 to-slate-900">
         <div className="container max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          <div className="space-y-8">
-            <h2 className="text-4xl font-black tracking-tighter uppercase italic">Simulador <span className="text-primary">Instantáneo.</span></h2>
-            <p className="text-slate-400 font-medium leading-relaxed">
-              No hagas esperar al cliente. Ingresa un monto y obtén la mensualidad proyectada en segundos mientras estás en la llamada.
-            </p>
-            <div className="space-y-4">
-              <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/10">
-                <CheckCircle2 className="text-primary w-5 h-5" />
-                <span className="text-sm font-bold uppercase tracking-widest">Retención ISR calculada (9%)</span>
-              </div>
-              <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/10">
-                <CheckCircle2 className="text-primary w-5 h-5" />
-                <span className="text-sm font-bold uppercase tracking-widest">Escrituración estimada (5%)</span>
+          <ScrollReveal animation="slide-left">
+            <div className="space-y-8">
+              <h2 className="text-4xl font-black tracking-tighter uppercase italic">Simulador <span className="text-primary">Instantáneo.</span></h2>
+              <p className="text-slate-400 font-medium leading-relaxed">
+                No hagas esperar al cliente. Ingresa un monto y obtén la mensualidad proyectada en segundos mientras estás en la llamada.
+              </p>
+              <div className="space-y-4">
+                <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/10">
+                  <CheckCircle2 className="text-primary w-5 h-5" />
+                  <span className="text-sm font-bold uppercase tracking-widest">Retención ISR calculada (9%)</span>
+                </div>
+                <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/10">
+                  <CheckCircle2 className="text-primary w-5 h-5" />
+                  <span className="text-sm font-bold uppercase tracking-widest">Escrituración estimada (5%)</span>
+                </div>
               </div>
             </div>
-          </div>
+          </ScrollReveal>
 
-          <div className="p-8 bg-slate-900 border border-primary/20 rounded-[2.5rem] shadow-2xl space-y-8 animate-in zoom-in duration-1000">
-            <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase text-primary tracking-widest">Monto del Crédito</Label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-primary">$</span>
-                <Input 
-                  value={demoAmount} 
-                  onChange={e => handlePriceInputChange(e.target.value)}
-                  className="h-14 pl-10 bg-primary/5 border-primary/20 text-2xl font-black text-white"
-                />
+          <ScrollReveal animation="zoom-in">
+            <div className="p-8 bg-slate-900 border border-primary/20 rounded-[2.5rem] shadow-2xl space-y-8">
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase text-primary tracking-widest">Monto del Crédito</Label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-primary">$</span>
+                  <Input 
+                    value={demoAmount} 
+                    onChange={e => handlePriceInputChange(e.target.value)}
+                    className="h-14 pl-10 bg-primary/5 border-primary/20 text-2xl font-black text-white"
+                  />
+                </div>
+              </div>
+              <div className="pt-6 border-t border-white/5 flex items-center justify-between">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-bold uppercase text-slate-500">Mensualidad Est.</span>
+                  <p className="text-3xl font-black text-white">{formatCurrency(calcMonthly)}</p>
+                </div>
+                <Button size="icon" variant="ghost" className="h-12 w-12 rounded-full bg-primary/10 text-primary">
+                  <Calculator className="w-6 h-6" />
+                </Button>
               </div>
             </div>
-            <div className="pt-6 border-t border-white/5 flex items-center justify-between">
-              <div className="space-y-1">
-                <span className="text-[10px] font-bold uppercase text-slate-500">Mensualidad Est.</span>
-                <p className="text-3xl font-black text-white">{formatCurrency(calcMonthly)}</p>
-              </div>
-              <Button size="icon" variant="ghost" className="h-12 w-12 rounded-full bg-primary/10 text-primary">
-                <Calculator className="w-6 h-6" />
-              </Button>
-            </div>
-          </div>
+          </ScrollReveal>
         </div>
       </section>
 
       {/* Sección: CRM Table Demo */}
       <section className="py-32 px-6 bg-slate-950">
         <div className="container max-w-5xl mx-auto space-y-16">
-          <div className="text-center space-y-4">
-            <h2 className="text-xs font-black text-primary uppercase tracking-[0.4em]">Gestión Profesional</h2>
-            <p className="text-4xl font-black tracking-tighter uppercase">Tu agenda siempre <span className="text-primary">organizada.</span></p>
-          </div>
-
-          <div className="border border-white/10 rounded-[2.5rem] overflow-hidden bg-white/[0.02] backdrop-blur-xl">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead className="bg-white/5">
-                  <tr>
-                    <th className="p-6 text-[10px] font-black uppercase tracking-widest text-slate-500">Cliente</th>
-                    <th className="p-6 text-[10px] font-black uppercase tracking-widest text-slate-500">Motivo</th>
-                    <th className="p-6 text-[10px] font-black uppercase tracking-widest text-slate-500">Hora</th>
-                    <th className="p-6 text-right"></th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {DEMO_APPS.map(app => (
-                    <tr key={app.id} className="group hover:bg-white/5 transition-colors cursor-pointer" onClick={() => setSelectedDemoApp(app)}>
-                      <td className="p-6">
-                        <div className="font-bold text-sm">{app.name}</div>
-                        <div className="text-[10px] text-primary font-bold uppercase tracking-tighter">{app.phone}</div>
-                      </td>
-                      <td className="p-6">
-                        <span className={cn(
-                          "px-3 py-1 rounded-full text-[9px] font-black uppercase border",
-                          app.type === 'Cierre' ? "bg-green-500/10 text-green-500 border-green-500/20" : "bg-primary/10 text-primary border-primary/20"
-                        )}>{app.type}</span>
-                      </td>
-                      <td className="p-6">
-                        <div className="flex items-center gap-2 text-xs font-bold text-slate-400">
-                          <Clock className="w-3 h-3" /> {app.time}
-                        </div>
-                      </td>
-                      <td className="p-6 text-right">
-                        <Button variant="ghost" size="icon" className="group-hover:text-primary transition-colors"><ChevronRight className="w-5 h-5" /></Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          <ScrollReveal animation="slide-up">
+            <div className="text-center space-y-4">
+              <h2 className="text-xs font-black text-primary uppercase tracking-[0.4em]">Gestión Profesional</h2>
+              <p className="text-4xl font-black tracking-tighter uppercase">Tu agenda siempre <span className="text-primary">organizada.</span></p>
             </div>
-          </div>
+          </ScrollReveal>
+
+          <ScrollReveal animation="zoom-in">
+            <div className="border border-white/10 rounded-[2.5rem] overflow-hidden bg-white/[0.02] backdrop-blur-xl">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead className="bg-white/5">
+                    <tr>
+                      <th className="p-6 text-[10px] font-black uppercase tracking-widest text-slate-500">Cliente</th>
+                      <th className="p-6 text-[10px] font-black uppercase tracking-widest text-slate-500">Motivo</th>
+                      <th className="p-6 text-[10px] font-black uppercase tracking-widest text-slate-500">Hora</th>
+                      <th className="p-6 text-right"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {DEMO_APPS.map((app, i) => (
+                      <tr key={app.id} className="group hover:bg-white/5 transition-colors cursor-pointer" onClick={() => setSelectedDemoApp(app)}>
+                        <td className="p-6">
+                          <div className="font-bold text-sm">{app.name}</div>
+                          <div className="text-[10px] text-primary font-bold uppercase tracking-tighter">{app.phone}</div>
+                        </td>
+                        <td className="p-6">
+                          <span className={cn(
+                            "px-3 py-1 rounded-full text-[9px] font-black uppercase border",
+                            app.type === 'Cierre' ? "bg-green-500/10 text-green-500 border-green-500/20" : "bg-primary/10 text-primary border-primary/20"
+                          )}>{app.type}</span>
+                        </td>
+                        <td className="p-6">
+                          <div className="flex items-center gap-2 text-xs font-bold text-slate-400">
+                            <Clock className="w-3 h-3" /> {app.time}
+                          </div>
+                        </td>
+                        <td className="p-6 text-right">
+                          <Button variant="ghost" size="icon" className="group-hover:text-primary transition-colors"><ChevronRight className="w-5 h-5" /></Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </ScrollReveal>
         </div>
       </section>
 
       {/* Footer */}
       <footer className="py-20 px-6 bg-[#01040d] border-t border-white/5 text-center">
-        <div className="container max-w-6xl mx-auto space-y-12">
-          <div className="space-y-6">
-            <h2 className="text-5xl font-black tracking-tighter uppercase leading-none">DOMINA TU <br /><span className="text-primary">MERCADO.</span></h2>
-            <p className="text-slate-500 font-bold uppercase tracking-[0.3em] text-sm">Finanto CRM: La herramienta del ejecutivo moderno.</p>
-          </div>
-          
-          <Button 
-            onClick={handleLogin}
-            className="h-20 px-12 bg-white text-slate-950 hover:bg-slate-100 rounded-[2rem] text-xl font-black uppercase tracking-widest transition-transform active:scale-[0.98] shadow-2xl gap-4"
-          >
-            Comenzar Gratis <ChevronRight className="w-6 h-6" />
-          </Button>
-
-          <div className="pt-20 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-8">
-            <div className="flex items-center gap-3 opacity-50">
-              <div className="bg-white p-1 rounded"><Image src="/favicon.ico" alt="Finanto" width={16} height={16} /></div>
-              <span className="font-black tracking-tighter text-sm uppercase">Finanto Cloud v2.0</span>
+        <ScrollReveal animation="slide-up">
+          <div className="container max-w-6xl mx-auto space-y-12">
+            <div className="space-y-6">
+              <h2 className="text-5xl font-black tracking-tighter uppercase leading-none">DOMINA TU <br /><span className="text-primary">MERCADO.</span></h2>
+              <p className="text-slate-500 font-bold uppercase tracking-[0.3em] text-sm">Finanto CRM: La herramienta del ejecutivo moderno.</p>
             </div>
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-600">© 2026 Reservados todos los derechos por Olivares.</p>
+            
+            <Button 
+              onClick={handleLogin}
+              className="h-20 px-12 bg-white text-slate-950 hover:bg-slate-100 rounded-[2rem] text-xl font-black uppercase tracking-widest transition-transform active:scale-[0.98] shadow-2xl gap-4"
+            >
+              Comenzar Gratis <ChevronRight className="w-6 h-6" />
+            </Button>
+
+            <div className="pt-20 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-8">
+              <div className="flex items-center gap-3 opacity-50">
+                <div className="bg-white p-1 rounded"><Image src="/favicon.ico" alt="Finanto" width={16} height={16} /></div>
+                <span className="font-black tracking-tighter text-sm uppercase">Finanto Cloud v2.0</span>
+              </div>
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-600">© 2026 Reservados todos los derechos por Olivares.</p>
+            </div>
           </div>
-        </div>
+        </ScrollReveal>
       </footer>
 
       {/* Demo Modal */}
@@ -442,7 +512,7 @@ export default function LoginPage() {
             <div className="flex items-center gap-3 mb-4">
               <div className="p-3 bg-primary/20 rounded-xl"><User className="text-primary w-6 h-6" /></div>
               <div>
-                <DialogTitle className="text-xl font-black uppercase tracking-tight">{selectedDemoApp?.name}</DialogTitle>
+                <DialogTitle className="text-xl font-black uppercase tracking-tight text-white">{selectedDemoApp?.name}</DialogTitle>
                 <DialogDescription className="text-slate-500 font-bold uppercase text-[10px]">Expediente de demostración</DialogDescription>
               </div>
             </div>
@@ -451,7 +521,7 @@ export default function LoginPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
                 <span className="text-[9px] font-black text-slate-500 uppercase">Producto</span>
-                <p className="text-sm font-bold">{selectedDemoApp?.product}</p>
+                <p className="text-sm font-bold text-white">{selectedDemoApp?.product}</p>
               </div>
               <div className="space-y-1">
                 <span className="text-[9px] font-black text-slate-500 uppercase">Teléfono</span>
