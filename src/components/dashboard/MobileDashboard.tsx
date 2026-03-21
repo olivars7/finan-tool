@@ -1,6 +1,7 @@
+
 "use client"
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Calculator, 
   PlusCircle, 
@@ -9,7 +10,11 @@ import {
   Cloud,
   ChevronRight,
   Clock,
-  Phone
+  Phone,
+  CalendarDays,
+  Wallet,
+  CheckCircle2,
+  Coins
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Appointment } from '@/services/appointment-service';
@@ -20,24 +25,39 @@ import { Button } from "@/components/ui/button";
 interface MobileDashboardProps {
   userName: string;
   appointments: Appointment[];
+  stats: any;
   onOpenCalculator: () => void;
   onOpenNewAppointment: () => void;
   onOpenAgenda: () => void;
   onOpenStats: () => void;
+  onSelectApp: (id: string) => void;
+  format12hTime: (time: string) => string;
 }
 
 export default function MobileDashboard({ 
   userName, 
   appointments,
+  stats,
   onOpenCalculator, 
   onOpenNewAppointment, 
   onOpenAgenda, 
-  onOpenStats 
+  onOpenStats,
+  onSelectApp,
+  format12hTime
 }: MobileDashboardProps) {
+  const [visibleCount, setVisibleCount] = useState(4);
   
   const todayApps = appointments
     .filter(a => !a.isArchived && isToday(parseISO(a.date)))
     .sort((a, b) => a.time.localeCompare(b.time));
+
+  const formatCurrency = (val: number) => {
+    return new Intl.NumberFormat('es-MX', {
+      style: 'currency',
+      currency: 'MXN',
+      maximumFractionDigits: 0
+    }).format(Math.round(val));
+  };
 
   const quadrants = [
     {
@@ -45,10 +65,10 @@ export default function MobileDashboard({
       title: 'CALCULADORA',
       sub: 'Simulador',
       icon: Calculator,
-      color: 'from-blue-600/20 to-blue-600/10',
-      borderColor: 'border-blue-500/30',
-      iconColor: 'text-blue-500',
-      circleColor: 'bg-blue-500/20',
+      color: 'from-blue-600 to-blue-700',
+      borderColor: 'border-blue-400/30',
+      iconColor: 'text-white',
+      circleColor: 'bg-white/20',
       action: onOpenCalculator
     },
     {
@@ -56,10 +76,10 @@ export default function MobileDashboard({
       title: 'NUEVA CITA',
       sub: 'Registro',
       icon: PlusCircle,
-      color: 'from-emerald-600/20 to-emerald-600/10',
-      borderColor: 'border-emerald-500/30',
-      iconColor: 'text-emerald-500',
-      circleColor: 'bg-emerald-500/20',
+      color: 'from-emerald-600 to-emerald-700',
+      borderColor: 'border-emerald-400/30',
+      iconColor: 'text-white',
+      circleColor: 'bg-white/20',
       action: onOpenNewAppointment
     },
     {
@@ -67,10 +87,10 @@ export default function MobileDashboard({
       title: 'AGENDA',
       sub: 'Próximas',
       icon: Calendar,
-      color: 'from-indigo-600/20 to-indigo-600/10',
-      borderColor: 'border-indigo-500/30',
-      iconColor: 'text-indigo-500',
-      circleColor: 'bg-indigo-500/20',
+      color: 'from-indigo-600 to-indigo-700',
+      borderColor: 'border-indigo-400/30',
+      iconColor: 'text-white',
+      circleColor: 'bg-white/20',
       action: onOpenAgenda
     },
     {
@@ -78,19 +98,42 @@ export default function MobileDashboard({
       title: 'STATS PRO',
       sub: 'Inteligencia',
       icon: BarChart3,
-      color: 'from-amber-600/20 to-amber-600/10',
-      borderColor: 'border-amber-500/30',
-      iconColor: 'text-amber-500',
-      circleColor: 'bg-amber-500/20',
+      color: 'from-amber-600 to-amber-700',
+      borderColor: 'border-amber-400/30',
+      iconColor: 'text-white',
+      circleColor: 'bg-white/20',
       action: onOpenStats
     }
   ];
 
+  const microStats = [
+    { label: 'Hoy', value: stats.todayCount, icon: CalendarDays, color: 'text-blue-500' },
+    { label: 'Pend.', value: stats.pendingCount, icon: Wallet, color: 'text-blue-400' },
+    { label: 'Ventas', value: stats.currentMonthOnlyCierre, icon: CheckCircle2, color: 'text-emerald-500' },
+    { label: 'Ingresos', value: formatCurrency(stats.currentMonthCommission), icon: Coins, color: 'text-amber-500' },
+  ];
+
   return (
-    <div className="flex flex-col p-6 space-y-8 animate-in fade-in duration-700 pb-20">
+    <div className="flex flex-col space-y-8 animate-in fade-in duration-700 pb-24 overflow-x-hidden">
+      
+      {/* Micro Stats Superiores */}
+      <div className="w-full overflow-x-auto scrollbar-hide -mx-4 px-4 pb-2">
+        <div className="flex gap-3 min-w-max">
+          {microStats.map((s, i) => (
+            <div key={i} className="bg-card/50 border border-border/40 rounded-3xl p-4 flex items-center gap-3 min-w-[140px] shadow-sm">
+              <div className={cn("p-2 rounded-xl bg-background/80 shadow-inner", s.color)}><s.icon size={16} /></div>
+              <div className="flex flex-col">
+                <span className="text-[8px] font-black uppercase text-muted-foreground tracking-widest">{s.label}</span>
+                <span className="text-sm font-black text-foreground">{s.value}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Saludo y Estado */}
-      <div className="space-y-2">
-        <h2 className="text-4xl font-black tracking-tighter text-foreground uppercase italic leading-none">
+      <div className="space-y-2 px-1">
+        <h2 className="text-5xl font-black tracking-tighter text-foreground uppercase italic leading-none">
           Hola, <br /> <span className="text-primary">{userName.split(' ')[0]}</span>
         </h2>
         <div className="flex items-center gap-2">
@@ -99,42 +142,42 @@ export default function MobileDashboard({
             <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
           </div>
           <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-1.5">
-            Sincronizado <Cloud className="w-3 h-3" />
+            Terminal Activa <Cloud className="w-3 h-3" />
           </span>
         </div>
       </div>
 
       {/* Mosaico Premium 2x2 Cuadrado */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-5 px-1">
         {quadrants.map((q) => (
           <button
             key={q.id}
             onClick={q.action}
             className={cn(
-              "relative aspect-square overflow-hidden flex flex-col items-center justify-center rounded-[2.5rem] border bg-gradient-to-br transition-all active:scale-95 shadow-xl group",
+              "relative aspect-square overflow-hidden flex flex-col items-center justify-center rounded-[3rem] border bg-gradient-to-br transition-all active:scale-95 shadow-2xl group",
               q.color,
               q.borderColor
             )}
           >
-            {/* Círculo decorativo animado en esquina superior derecha */}
+            {/* Círculo decorativo GIGANTE animado */}
             <div className={cn(
-              "absolute -top-4 -right-4 w-12 h-12 rounded-full transition-all duration-500 group-active:scale-150 group-active:-translate-x-2 group-active:translate-y-2 group-hover:scale-150",
+              "absolute -top-8 -right-8 w-24 h-24 rounded-full transition-all duration-700 group-active:scale-150 group-active:-translate-x-4 group-active:translate-y-4 group-hover:scale-150",
               q.circleColor
             )} />
 
             {/* Icono de fondo con muy baja opacidad */}
-            <q.icon className={cn("absolute opacity-[0.03] w-24 h-24 -bottom-4 -left-4 transition-transform duration-700 group-active:scale-110", q.iconColor)} />
+            <q.icon className={cn("absolute opacity-[0.02] w-32 h-32 -bottom-6 -left-6 transition-transform duration-700 group-active:scale-110", q.iconColor)} />
 
-            {/* Icono Principal Centrado */}
-            <div className={cn("p-4 rounded-2xl bg-background/80 mb-3 relative z-10 shadow-sm transition-transform duration-300 group-active:scale-110", q.iconColor)}>
-              <q.icon size={28} />
+            {/* Icono Principal Centrado GIGANTE */}
+            <div className={cn("p-5 rounded-[1.8rem] bg-white/10 mb-4 relative z-10 shadow-xl backdrop-blur-sm transition-all duration-300 group-active:scale-110 group-active:brightness-125 group-hover:brightness-110", q.iconColor)}>
+              <q.icon size={36} />
             </div>
             
-            <div className="text-center space-y-0.5 relative z-10">
-              <span className="block text-xs font-black tracking-tight text-foreground uppercase">
+            <div className="text-center space-y-1 relative z-10 px-2">
+              <span className="block text-sm font-black tracking-tighter text-white uppercase leading-none">
                 {q.title}
               </span>
-              <span className="block text-[9px] font-bold uppercase tracking-widest text-muted-foreground opacity-60">
+              <span className="block text-[10px] font-bold uppercase tracking-[0.2em] text-white/60">
                 {q.sub}
               </span>
             </div>
@@ -142,62 +185,62 @@ export default function MobileDashboard({
         ))}
       </div>
 
-      {/* Actividad Hoy (Nueva Sección debajo del mosaico) */}
-      <div className="space-y-4 pt-2">
-        <div className="flex items-center justify-between px-1">
-          <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
-            <Clock className="w-3.5 h-3.5" /> Actividad Hoy
+      {/* Actividad Hoy */}
+      <div className="space-y-5 pt-4 px-1">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-black uppercase tracking-[0.3em] text-muted-foreground flex items-center gap-2">
+            <Clock className="w-4 h-4 text-primary" /> Actividad Hoy
           </h3>
-          <Badge variant="outline" className="text-[9px] font-bold uppercase border-primary/20 bg-primary/5 text-primary rounded-full">
-            {todayApps.length} Registros
+          <Badge variant="outline" className="text-[10px] font-black uppercase border-primary/20 bg-primary/5 text-primary rounded-full px-3 py-1">
+            {todayApps.length} CITAS
           </Badge>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-4">
           {todayApps.length === 0 ? (
-            <div className="p-8 border border-dashed rounded-[2rem] text-center bg-muted/5">
-              <p className="text-[10px] font-bold uppercase text-muted-foreground/40 italic">Sin actividad para hoy</p>
+            <div className="p-12 border border-dashed border-border/40 rounded-[3rem] text-center bg-muted/5">
+              <p className="text-[10px] font-bold uppercase text-muted-foreground/40 italic tracking-widest">Sin actividad para hoy</p>
             </div>
           ) : (
-            todayApps.slice(0, 4).map((app) => (
+            todayApps.slice(0, visibleCount).map((app) => (
               <div 
                 key={app.id} 
-                onClick={onOpenAgenda}
-                className="p-5 bg-card border border-border/40 rounded-[2rem] flex items-center justify-between group active:bg-muted/50 transition-colors"
+                onClick={() => onSelectApp(app.id)}
+                className="p-6 bg-card border border-border/40 rounded-[2.5rem] flex items-center justify-between group active:bg-muted/50 transition-all active:scale-[0.98] shadow-sm"
               >
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-[10px] font-black">
-                    {app.time}
+                <div className="flex items-center gap-5">
+                  <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary text-[11px] font-black shadow-inner">
+                    {format12hTime(app.time)}
                   </div>
                   <div>
-                    <p className="text-sm font-black uppercase tracking-tight text-foreground truncate max-w-[150px]">{app.name}</p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-[9px] font-bold uppercase text-muted-foreground/60">{app.type}</span>
-                      <div className="w-1 h-1 rounded-full bg-border" />
-                      <span className="text-[9px] font-bold text-primary flex items-center gap-1"><Phone size={8} /> {app.phone}</span>
+                    <p className="text-base font-black uppercase tracking-tight text-foreground truncate max-w-[160px]">{app.name}</p>
+                    <div className="flex items-center gap-3 mt-1">
+                      <span className="text-[10px] font-bold uppercase text-muted-foreground/60 tracking-wider">{app.type}</span>
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary/30" />
+                      <span className="text-[10px] font-black text-primary flex items-center gap-1.5 uppercase tracking-tighter"><Phone size={10} /> {app.phone}</span>
                     </div>
                   </div>
                 </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground/30" />
+                <ChevronRight className="w-5 h-5 text-muted-foreground/20 group-active:text-primary transition-colors" />
               </div>
             ))
           )}
-          {todayApps.length > 4 && (
+          {todayApps.length > visibleCount && (
             <Button 
               variant="ghost" 
-              onClick={onOpenAgenda}
-              className="w-full h-12 text-[10px] font-black uppercase tracking-widest text-primary gap-2 rounded-full"
+              onClick={() => setVisibleCount(prev => prev + 10)}
+              className="w-full h-16 text-[11px] font-black uppercase tracking-[0.3em] text-primary gap-3 rounded-[2rem] border border-primary/10 bg-primary/5 active:bg-primary/10 transition-all"
             >
-              Ver {todayApps.length - 4} más <ChevronRight size={14} />
+              Ver {todayApps.length - visibleCount} más <ChevronRight size={16} />
             </Button>
           )}
         </div>
       </div>
 
       {/* Footer Mobile Info */}
-      <div className="pt-4 border-t border-border/40 text-center opacity-40">
-        <p className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground">
-          Finanto Terminal v2.2 • CRM Élite
+      <div className="pt-8 border-t border-border/40 text-center opacity-30">
+        <p className="text-[9px] font-black uppercase tracking-[0.4em] text-muted-foreground">
+          Finanto Terminal v2.5 • Elite CRM
         </p>
       </div>
     </div>

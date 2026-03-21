@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -225,10 +226,13 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
           <MobileDashboard 
             userName={user?.displayName || 'Ejecutivo'}
             appointments={appointments}
+            stats={stats}
             onOpenCalculator={() => handleToggleSimulator(true)}
             onOpenNewAppointment={() => setIsNewAppointmentOpen(true)}
             onOpenAgenda={() => handleToggleGestor(true)}
             onOpenStats={() => handleToggleStats(true)}
+            onSelectApp={setSelectedId}
+            format12hTime={appointmentState.format12hTime}
           />
         </div>
 
