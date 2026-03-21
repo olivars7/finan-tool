@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -61,10 +60,8 @@ export default function MobileDashboard({
   const [showWelcome, setShowWelcome] = useState(false);
   
   useEffect(() => {
-    // Verificar si es la primera vez en móvil
     const seen = localStorage.getItem('finanto_mobile_welcome_v2');
     if (!seen) {
-      // Pequeño delay para dejar que cargue la interfaz de fondo
       const timer = setTimeout(() => setShowWelcome(true), 800);
       return () => clearTimeout(timer);
     }
@@ -284,46 +281,51 @@ export default function MobileDashboard({
         </p>
       </div>
 
-      {/* Popup de Bienvenida Llamativo */}
+      {/* Popup de Bienvenida Llamativo Remodelado */}
       <Dialog open={showWelcome} onOpenChange={setShowWelcome}>
-        <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="w-[92%] max-w-[400px] rounded-[3rem] p-0 overflow-hidden border-none bg-background shadow-2xl z-[200]">
+        <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="w-[94%] max-w-[420px] rounded-[3.5rem] p-0 overflow-hidden border-none bg-background shadow-2xl z-[200]">
           <DialogHeader className="sr-only">
             <DialogTitle>Bienvenido a la Terminal Móvil</DialogTitle>
             <DialogDescription>Mensaje inicial de bienvenida para usuarios móviles.</DialogDescription>
           </DialogHeader>
           
-          <div className="bg-primary p-10 flex flex-col items-center text-center gap-6 relative overflow-hidden">
-            {/* Fondo decorativo */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
+          <div className="bg-primary p-12 flex flex-col items-center text-center gap-8 relative overflow-hidden">
+            {/* Fondos decorativos abstractos */}
+            <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-black/10 rounded-full -ml-16 -mb-16 blur-2xl" />
             
-            <div className="bg-white/20 p-6 rounded-[2.5rem] backdrop-blur-md relative z-10 shadow-2xl">
-              <Construction size={64} className="text-white animate-bounce" />
+            <div className="bg-white/20 p-8 rounded-[3rem] backdrop-blur-md relative z-10 shadow-2xl border border-white/20">
+              <Construction size={80} className="text-white animate-bounce" />
             </div>
             
-            <div className="space-y-2 relative z-10">
-              <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter leading-none">¡Bienvenido!</h2>
-              <p className="text-white/80 font-bold text-xs uppercase tracking-[0.2em] leading-tight">
-                Estás entrando a la nueva <br /> Terminal Móvil de Finanto.
+            <div className="space-y-3 relative z-10">
+              <h2 className="text-6xl font-black text-white uppercase italic tracking-tighter leading-none">¡HOLA!</h2>
+              <p className="text-white/90 font-bold text-sm uppercase tracking-[0.3em] leading-tight">
+                TERMINAL MÓVIL ACTIVA
               </p>
             </div>
           </div>
 
-          <div className="p-10 space-y-8 text-center bg-background">
-            <div className="space-y-4">
-              <p className="text-foreground font-medium text-sm leading-relaxed">
-                Estamos construyendo la mejor herramienta operativa para potenciar tu productividad inmobiliaria desde cualquier lugar.
+          <div className="p-12 space-y-10 text-center bg-background">
+            <div className="space-y-6">
+              <p className="text-foreground font-black text-lg leading-snug uppercase italic tracking-tight">
+                "Estamos transformando tu productividad inmobiliaria con herramientas de élite."
               </p>
-              <div className="h-1 w-12 bg-primary/20 mx-auto rounded-full" />
-              <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest">
-                Optimizado para gestión táctica
+              <div className="flex items-center justify-center gap-2">
+                <div className="h-1.5 w-8 bg-primary rounded-full" />
+                <div className="h-1.5 w-1.5 bg-primary/30 rounded-full" />
+                <div className="h-1.5 w-1.5 bg-primary/30 rounded-full" />
+              </div>
+              <p className="text-muted-foreground text-xs font-black uppercase tracking-[0.2em]">
+                OPTIMIZADO PARA GESTIÓN TÁCTICA
               </p>
             </div>
 
             <Button 
               onClick={handleCloseWelcome}
-              className="w-full h-16 rounded-[1.5rem] bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20 active:scale-95 transition-all"
+              className="w-full h-20 rounded-[2rem] bg-primary hover:bg-primary/90 text-white font-black text-lg uppercase tracking-[0.25em] shadow-2xl shadow-primary/30 active:scale-95 transition-all"
             >
-              ¡COMENZAR AHORA!
+              ¡COMENZAR!
             </Button>
           </div>
         </DialogContent>
