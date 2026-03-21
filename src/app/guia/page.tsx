@@ -1,8 +1,14 @@
-
 "use client"
 
-import FinantoMain from '@/components/FinantoMain';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
-export default function GuiaPage() {
-  return <FinantoMain initialSection="guia" />;
+export default function GuidePage() {
+  const router = useRouter();
+  
+  useEffect(() => {
+    router.replace('/');
+  }, [router]);
+
+  return null;
 }

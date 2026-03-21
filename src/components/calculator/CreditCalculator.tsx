@@ -59,7 +59,7 @@ const CalculatorInputs = ({
   formatWithCommas: (val: string) => string,
   customTerm?: string
 }) => {
-  const baseFactor = 0.006982; 
+  const baseFactor = 0.0071; 
   const term = parseInt(customTerm) || 192;
   const displayFactor = ((baseFactor * (192 / term)) * 100).toFixed(4);
 
@@ -122,7 +122,7 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
 
   const { toast } = useToast();
   
-  const BASE_FACTOR = 0.006982; 
+  const BASE_FACTOR = 0.0071; 
   const FACTOR_ENGANCHE = 0.03; 
   const INCOME_RATIO = 0.35; 
 
@@ -249,7 +249,7 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
                     </TooltipTrigger>
                     <TooltipContent className="max-w-[280px] p-3 text-[11px] leading-relaxed" side="top">
                       <p className="font-bold mb-1 text-primary">Modelo de Negocio Finanto</p>
-                      Simulador basado en el Plan Tradicional 12pp. Proyecta mensualidades competitivas con un enganche mínimo del 3% y plazos flexibles de hasta 192 meses.
+                      Simulador basado en el Plan Tradicional 12pp. Proyecta mensualidades competitivas con un factor base del 0.71%, un enganche mínimo del 3% y plazos flexibles de hasta 192 meses.
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -259,7 +259,7 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
               <Maximize2 className="w-4 h-4" />
             </Button>
           </div>
-          <CardDescription className="text-muted-foreground">Plan Tradicional 12pp</CardDescription>
+          <CardDescription className="text-muted-foreground">Plan Tradicional 12pp (0.71%)</CardDescription>
         </CardHeader>
         <CardContent className="pt-6 space-y-6">
           <CalculatorInputs 

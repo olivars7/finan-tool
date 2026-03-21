@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -174,7 +173,7 @@ export default function LoginPage() {
     return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(val);
   };
 
-  const calcMonthly = (Number(demoAmount.replace(/,/g, '')) || 0) * 0.006982;
+  const calcMonthly = (Number(demoAmount.replace(/,/g, '')) || 0) * 0.0071;
 
   return (
     <div className="min-h-screen bg-[#020617] text-white selection:bg-primary/30 font-sans">
@@ -333,7 +332,7 @@ export default function LoginPage() {
               { icon: Users, title: "Gestión de Prospectos", desc: "Organiza tus citas por motivo (1ra, 2da consulta o Cierre) con un solo clic.", color: "bg-primary/10", text: "text-primary" },
               { icon: CalendarClock, title: "Ciclos de Pago", desc: "Visualiza exactamente qué viernes recibirás tu liquidación según el día de cierre.", color: "bg-amber-500/10", text: "text-amber-500" },
               { icon: BarChart3, title: "KPIs en Tiempo Real", desc: "Monitoriza tu tasa de conversión y crecimiento mensual con analítica integrada.", color: "bg-purple-500/10", text: "text-purple-500" },
-              { icon: ShieldCheck, title: "Seguridad Cloud", desc: "Tus expedientes protegidos con infraestructura de Google Cloud para máxima confiabilidad.", color: "bg-cyan-500/10", text: "text-cyan-500" }
+              { icon: Smartphone, title: "Seguridad Cloud", desc: "Tus expedientes protegidos con infraestructura de Google Cloud para máxima confiabilidad.", color: "bg-cyan-500/10", text: "text-cyan-500" }
             ].map((f, i) => (
               <ScrollReveal key={i} animation="zoom-in" delay={i * 100}>
                 <div className="p-10 rounded-[2.5rem] bg-white/[0.02] border border-white/5 hover:border-primary/20 transition-all hover:bg-white/[0.04] group h-full">

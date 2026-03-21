@@ -1,17 +1,15 @@
-
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import CreditCalculator from '@/components/calculator/CreditCalculator';
 import AppointmentsDashboard from '@/components/appointments/AppointmentsDashboard';
 import AdvancedStats from '@/components/stats/AdvancedStats';
-import GuideDialog from '@/components/guide/GuideDialog';
 import TrashDialog from '@/components/appointments/TrashDialog';
 import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 import { 
   Wallet, CalendarDays, Users, CheckCircle2, 
-  Palette, Moon, Sun, Cpu, BookOpen, Calculator, Maximize2, Sparkles,
+  Palette, Moon, Sun, Cpu, Calculator, Maximize2, Sparkles,
   ClipboardList, Copy, Crown, MessageSquare, 
   CalendarClock, HandCoins, CheckCircle, BadgeAlert, 
   MoreHorizontal, ArrowUpRight, ArrowDownRight, Coins, Star, Trophy,
@@ -50,27 +48,18 @@ import { isBefore } from 'date-fns';
 type Theme = 'tranquilo' | 'moderno' | 'discreto' | 'olivares' | 'corporativo' | 'corporativo-oscuro';
 
 export interface FinantoMainProps {
-  initialSection?: 'guia' | 'simulador' | 'gestor' | 'stats';
+  initialSection?: 'simulador' | 'gestor' | 'stats';
 }
 
 export default function FinantoMain({ initialSection }: FinantoMainProps) {
   const [showTrash, setShowTrash] = useState(false);
-  const [showHelp, setShowHelp] = useState(false);
   const [isSimulatorExpanded, setIsSimulatorExpanded] = useState(false);
   const [isGestorExpanded, setIsGestorExpanded] = useState(false);
   const [isStatsExpanded, setIsStatsExpanded] = useState(false);
-  const [isNewAppExpanded, setIsNewAppExpanded] = useState(false);
   
-  const [selectedAppId, setSelectedAppId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [theme, setTheme] = useState<Theme>('corporativo');
   
-  const [pendingCommissionApp, setPendingCommissionApp] = useState<Service.Appointment | null>(null);
-
-  const shownCommissionIds = useRef<Set<string>>(new Set());
-  const overdueQueue = useRef<Service.Appointment[]>([]);
-  const lastClosedTimeRef = useRef<number>(0); 
-  const pendingAppRef = useRef<Service.Appointment | null>(null);
-
   const appointmentState = useAppointments();
 
   const { 
@@ -78,22 +67,16 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
     editAppointment, unarchiveAppointment, deletePermanent, user, profile
   } = appointmentState;
 
-  const onSelectAppId = (id: string | null) => setSelectedAppId(id);
+  const onSelectId = (id: string | null) => setSelectedId(id);
   
   const { toast } = useToast();
 
   const statsRef = useRef(stats);
-  const appointmentsRef = useRef(appointments);
 
   useEffect(() => {
     if (!isLoaded) return;
     statsRef.current = stats;
-    appointmentsRef.current = appointments;
-  }, [stats, appointments, isLoaded]);
-
-  useEffect(() => {
-    pendingAppRef.current = pendingCommissionApp;
-  }, [pendingCommissionApp]);
+  }, [stats, isLoaded]);
 
   const syncUrl = useCallback((path: string) => {
     if (typeof window === 'undefined') return;
@@ -101,12 +84,6 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
       window.history.pushState(null, '', path);
     }
   }, []);
-
-  const handleToggleHelp = (open: boolean) => {
-    setShowHelp(open);
-    if (open) { syncUrl('/guia'); document.title = "Manual - Finanto"; }
-    else { syncUrl('/'); document.title = "Finanto"; }
-  };
 
   const handleToggleSimulator = (open: boolean) => {
     setIsSimulatorExpanded(open);
@@ -126,9 +103,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
     else { syncUrl('/'); document.title = "Finanto"; }
   };
 
-  // Manejo de la ruta inicial por prop
   useEffect(() => {
-    if (initialSection === 'guia') setShowHelp(true);
     if (initialSection === 'simulador') setIsSimulatorExpanded(true);
     if (initialSection === 'gestor') setIsGestorExpanded(true);
     if (initialSection === 'stats') setIsStatsExpanded(true);
@@ -137,13 +112,11 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname;
-      setShowHelp(path === '/guia');
       setIsSimulatorExpanded(path === '/simulador');
       setIsGestorExpanded(path === '/gestor');
       setIsStatsExpanded(path === '/stats');
       
       if (path === '/') document.title = "Finanto - Gestión Inmobiliaria";
-      else if (path === '/guia') document.title = "Manual - Finanto";
       else if (path === '/simulador') document.title = "Simulador - Finanto";
       else if (path === '/gestor') document.title = "Agenda - Finanto";
       else if (path === '/stats') document.title = "Stats - Finanto";
@@ -373,14 +346,6 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
                 <h1 className="text-xl font-headline font-bold tracking-tight text-foreground leading-none">
                   FINANTO <span className="text-accent">CRM</span>
                 </h1>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="h-7 px-2 text-[10px] font-bold uppercase border border-primary/20 hidden sm:flex" 
-                  onClick={() => handleToggleHelp(true)}
-                >
-                  <BookOpen className="w-3.5 h-3.5 mr-1" /> Tutorial
-                </Button>
               </div>
               <span className="text-[10px] text-muted-foreground font-medium opacity-60 mt-1">Por Olivares</span>
             </div>
@@ -525,8 +490,8 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
             <AppointmentsDashboard 
               isExpanded={isGestorExpanded}
               onExpandedChange={handleToggleGestor}
-              selectedAppId={selectedAppId}
-              onSelectAppId={onSelectAppId}
+              selectedAppId={selectedId}
+              onSelectAppId={onSelectId}
               theme={theme}
               appointments={appointmentState.appointments} 
               activeAppointments={appointmentState.activeAppointments}
@@ -564,7 +529,6 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
       </footer>
 
       {/* DIÁLOGOS DE APOYO */}
-      <GuideDialog open={showHelp} onOpenChange={handleToggleHelp} />
       <TrashDialog 
         open={showTrash} 
         onOpenChange={setShowTrash} 
