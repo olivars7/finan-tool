@@ -296,28 +296,28 @@
   animation: hud-flicker 4s linear infinite;
 }
 
-/* Mobile Responsive Overrides */
-@media (max-width: 768px) {
-  /* Diálogos Full Screen en Móvil */
+/* Mobile Responsive Overrides - CRITICAL FOR ZERO TRANSPARENCY */
+@media (max-width: 1023px) {
+  /* Diálogos Full Screen en Móvil sin transparencias */
   [role="dialog"] {
     @apply !rounded-none !inset-0 !translate-y-0 !translate-x-0 !max-w-none !w-full !h-full !max-h-none !duration-200 !border-none;
     margin: 0 !important;
     padding-bottom: env(safe-area-inset-bottom) !important;
     background-color: hsl(var(--background)) !important;
+    opacity: 1 !important;
+    backdrop-filter: none !important;
   }
 
   [data-state="open"][role="dialog"] {
     animation: finanto-reveal 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
   }
 
-  /* Ajustes de espaciado móvil */
-  .container {
-    @apply px-3;
-  }
-
-  /* Notificaciones móviles en la parte superior y deslizables */
+  /* Notificaciones móviles sólidas */
   [role="status"] {
     @apply !fixed !top-4 !bottom-auto !left-4 !right-4 !w-auto !max-w-none !mb-0 !rounded-2xl !p-4 !border-none;
+    background-color: hsl(var(--card)) !important;
+    opacity: 1 !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1) !important;
     transition: transform 200ms ease-out !important;
   }
 }

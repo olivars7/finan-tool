@@ -1,20 +1,21 @@
 "use client"
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import CreditCalculator from '@/components/calculator/CreditCalculator';
-import AppointmentsDashboard from '@/components/appointments/AppointmentsDashboard';
-import AdvancedStats from '@/components/stats/AdvancedStats';
+import React, { useState, useEffect, useCallback } from 'react';
+import MobileDashboard from '@/components/dashboard/MobileDashboard';
+import DesktopDashboard from '@/components/dashboard/DesktopDashboard';
 import TrashDialog from '@/components/appointments/TrashDialog';
-import { Card, CardContent } from '@/components/ui/card';
-import Image from 'next/image';
+import AppointmentForm from '@/components/appointments/AppointmentForm';
 import { 
-  Wallet, CalendarDays, Users, CheckCircle2, 
-  Palette, Moon, Sun, Cpu, Calculator, Maximize2, Sparkles,
-  ClipboardList, Copy, Crown, MessageSquare, 
-  CalendarClock, HandCoins, CheckCircle, BadgeAlert, 
-  MoreHorizontal, ArrowUpRight, ArrowDownRight, Coins, Star, Trophy,
-  TrendingUp, Trash2, User, Receipt, BarChart3, PartyPopper as PartyIcon, ArrowRight,
-  LogOut, UserPlus, X, Search, Bell, Construction
+  Sparkles, 
+  MessageSquare, 
+  Palette, 
+  Cpu, 
+  Moon, 
+  Crown, 
+  LogOut, 
+  Trash2,
+  X,
+  UserPlus
 } from 'lucide-react';
 import { useAppointments } from '@/hooks/use-appointments';
 import { Button } from '@/components/ui/button';
@@ -28,12 +29,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
-  Tooltip,
-  TooltipProvider,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
-import {
   Avatar,
   AvatarFallback,
   AvatarImage,
@@ -42,8 +37,15 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import * as Service from '@/services/appointment-service';
-import { isBefore } from 'date-fns';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogClose
+} from "@/components/ui/dialog";
+import Image from 'next/image';
 
 type Theme = 'tranquilo' | 'moderno' | 'discreto' | 'olivares' | 'corporativo' | 'corporativo-oscuro';
 
@@ -56,6 +58,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
   const [isSimulatorExpanded, setIsSimulatorExpanded] = useState(false);
   const [isGestorExpanded, setIsGestorExpanded] = useState(false);
   const [isStatsExpanded, setIsStatsExpanded] = useState(false);
+  const [isNewAppointmentOpen, setIsNewAppointmentOpen] = useState(false);
   
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [theme, setTheme] = useState<Theme>('corporativo');
@@ -63,20 +66,11 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
   const appointmentState = useAppointments();
 
   const { 
-    appointments, stats, isLoaded, resetData, clearAll, 
-    editAppointment, unarchiveAppointment, deletePermanent, user, profile
+    appointments, stats, isLoaded, addAppointment, editAppointment, 
+    unarchiveAppointment, deletePermanent, user, profile
   } = appointmentState;
 
-  const onSelectId = (id: string | null) => setSelectedId(id);
-  
   const { toast } = useToast();
-
-  const statsRef = useRef(stats);
-
-  useEffect(() => {
-    if (!isLoaded) return;
-    statsRef.current = stats;
-  }, [stats, isLoaded]);
 
   const syncUrl = useCallback((path: string) => {
     if (typeof window === 'undefined') return;
@@ -115,53 +109,15 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
       setIsSimulatorExpanded(path === '/simulador');
       setIsGestorExpanded(path === '/gestor');
       setIsStatsExpanded(path === '/stats');
-      
-      if (path === '/') document.title = "Finanto - Gestión Inmobiliaria";
-      else if (path === '/simulador') document.title = "Simulador - Finanto";
-      else if (path === '/gestor') document.title = "Agenda - Finanto";
-      else if (path === '/stats') document.title = "Stats - Finanto";
     };
 
     window.addEventListener('popstate', handlePopState);
-    
     const savedTheme = localStorage.getItem('finanto-theme') as Theme;
     if (savedTheme) applyTheme(savedTheme);
     else applyTheme('corporativo');
 
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
-
-  useEffect(() => {
-    if (!isLoaded) return;
-
-    const welcomeTimer = setTimeout(() => {
-      toast({
-        title: "¡Bienvenido a Finanto!",
-        description: `Listo para el éxito inmobiliario, ${user?.displayName || 'Ejecutivo'}.`,
-      });
-    }, 4000);
-
-    const checkConfirmations = () => {
-      const currentStats = statsRef.current;
-      const unconfirmed = (currentStats.todayCount || 0) - (currentStats.todayConfirmed || 0);
-      if (unconfirmed > 0) {
-        toast({
-          variant: "warning",
-          title: "Acción Requerida",
-          description: `Faltan ${unconfirmed} ${unconfirmed === 1 ? 'cita' : 'citas'} de hoy por confirmar asistencia.`,
-        });
-      }
-    };
-
-    const initialTimer = setTimeout(checkConfirmations, 20000);
-    const intervalTimer = setInterval(checkConfirmations, 1200000);
-
-    return () => {
-      clearTimeout(welcomeTimer);
-      clearTimeout(initialTimer);
-      clearInterval(intervalTimer);
-    };
-  }, [isLoaded, toast, user]);
 
   const applyTheme = (themeId: Theme) => {
     setTheme(themeId);
@@ -185,153 +141,12 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
 
   if (!isLoaded) return null;
 
-  const formatCurrency = (val: number) => {
-    if (isNaN(val) || val === null || val === undefined) return "$0";
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: 'MXN',
-      maximumFractionDigits: 0
-    }).format(Math.round(val));
-  };
-
-  const getDynamicGradient = (val: number) => {
-    if (val < 2000) return "";
-    if (val < 5000) return "text-gradient-aqua-blue";
-    if (val < 10000) return "text-gradient-aqua-violet";
-    return "text-gradient-lima-blue";
-  };
-
-  const statsCards = [
-    { 
-      label: 'Citas hoy', 
-      value: (stats.todayCount || 0).toString(), 
-      icon: CalendarDays, 
-      color: 'text-primary',
-      tooltip: (
-        <div className="flex flex-col gap-1 text-[10px] leading-tight">
-          <div className="flex justify-between items-center gap-4">
-            <span className="uppercase font-medium">Mañana:</span>
-            <span className="text-primary font-bold">{stats.tomorrowTotal || 0}</span>
-          </div>
-          <div className="flex justify-between items-center gap-4">
-            <span className="uppercase font-medium">Confirmadas:</span>
-            <span className="text-green-500 font-bold">{stats.todayConfirmed || 0}</span>
-          </div>
-        </div>
-      )
-    },
-    { 
-      label: 'Pendientes', 
-      value: (stats.pendingCount || 0).toString(), 
-      icon: Wallet, 
-      color: 'text-primary',
-      tooltip: (
-        <div className="flex flex-col gap-1 text-[10px] leading-tight">
-          <div className="flex justify-between items-center gap-4">
-            <span className="uppercase font-medium">Total próximos:</span>
-            <span className="text-primary font-bold">{stats.pendingCount || 0}</span>
-          </div>
-        </div>
-      )
-    },
-    { 
-      label: 'Prospectos Mes', 
-      value: (stats.currentMonthProspects || 0).toString(), 
-      icon: Users, 
-      color: 'text-accent',
-      comparison: stats.lastMonthProspects || 0,
-      tooltip: (
-        <div className="flex flex-col gap-1 text-[10px] leading-tight">
-          <div className="flex justify-between items-center gap-4">
-            <span className="uppercase font-medium">Este mes:</span>
-            <span className="text-accent font-bold">{stats.currentMonthProspects || 0}</span>
-          </div>
-          <div className="flex justify-between items-center gap-4 border-t border-border/10 pt-1">
-            <span className="uppercase font-medium opacity-60">Mes pasado:</span>
-            <span className="font-bold opacity-60">{stats.lastMonthProspects || 0}</span>
-          </div>
-        </div>
-      )
-    },
-    { 
-      label: 'Ventas Mes', 
-      value: (stats.currentMonthSales || 0).toString(), 
-      icon: CheckCircle2, 
-      color: 'text-green-500',
-      comparison: stats.lastMonthSales || 0,
-      tooltip: (
-        <div className="flex flex-col gap-1 text-[10px] leading-tight">
-          <div className="flex justify-between items-center gap-4">
-            <span className="uppercase font-medium">Cierres:</span>
-            <span className="text-green-500 font-bold">{stats.currentMonthOnlyCierre || 0}</span>
-          </div>
-          <div className="flex justify-between items-center gap-4">
-            <span className="uppercase font-medium">Apartados:</span>
-            <span className="text-blue-500 font-bold">{stats.currentMonthApartados || 0}</span>
-          </div>
-          <div className="flex justify-between items-center gap-4 border-t border-border/10 pt-1">
-            <span className="uppercase font-medium opacity-60">Mes pasado:</span>
-            <span className="font-bold opacity-60">{stats.lastMonthSales || 0}</span>
-          </div>
-        </div>
-      )
-    },
-    { 
-      label: 'Comisiones Mes', 
-      value: formatCurrency(stats.currentMonthCommission || 0), 
-      icon: Coins, 
-      color: 'text-yellow-500',
-      comparison: stats.lastMonthCommission || 0,
-      isCurrency: true,
-      tooltip: (
-        <div className="flex flex-col gap-1 text-[10px] leading-tight">
-          <div className="flex justify-between items-center gap-4">
-            <span className="uppercase font-medium">Ingreso Neto Recibido:</span>
-            <span className="text-primary font-bold">{formatCurrency(stats.currentMonthPaidCommission || 0)}</span>
-          </div>
-          <div className="flex justify-between items-center gap-4">
-            <span className="uppercase font-medium">Cobro este viernes:</span>
-            <span className="text-yellow-500 font-bold">{formatCurrency(stats.thisFridayCommission || 0)}</span>
-          </div>
-          <div className="flex justify-between items-center gap-4 border-t border-border/10 pt-1">
-            <span className="uppercase font-medium text-destructive">Pendiente neto:</span>
-            <span className="text-destructive font-bold">{formatCurrency(stats.overdueCommission || 0)}</span>
-          </div>
-        </div>
-      )
-    },
-  ];
-
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
-      {/* Mobile Construction Banner */}
-      <div className="md:hidden fixed inset-0 z-[200] bg-slate-950 flex flex-col items-center justify-center p-6 text-center space-y-6">
-        <div className="bg-yellow-500/10 p-10 rounded-[3rem] border border-yellow-500/20 animate-in fade-in zoom-in duration-700">
-          <div className="relative mb-6">
-            <div className="absolute inset-0 bg-yellow-500/20 blur-2xl rounded-full animate-pulse" />
-            <Construction className="w-20 h-20 text-yellow-500 mx-auto relative z-10" />
-          </div>
-          <h2 className="text-3xl font-black text-white uppercase tracking-tighter leading-tight">
-            EN CONSTRUCCIÓN
-          </h2>
-          <p className="text-yellow-500/80 text-[11px] font-black uppercase tracking-[0.3em] mt-3">
-            LA VERSIÓN MÓVIL POR EL MOMENTO
-          </p>
-        </div>
-        <p className="text-slate-400 text-sm font-medium max-w-[280px] leading-relaxed italic">
-          "Estamos optimizando la terminal táctil para ofrecerte la experiencia de gestión inmobiliaria más potente del mercado."
-        </p>
-        <div className="pt-12 flex items-center gap-3 opacity-30">
-          <div className="bg-white p-1.5 rounded-lg">
-            <Image src="/favicon.ico" alt="Finanto" width={24} height={24} className="object-contain" />
-          </div>
-          <span className="font-black tracking-tighter text-sm uppercase text-white">Finanto CRM v2.0</span>
-        </div>
-      </div>
-
-      <header className="border-b border-border/40 sticky top-0 z-50 backdrop-blur-[12px] bg-card/10 shrink-0 animate-in slide-in-from-top duration-700 hidden md:block">
+      {/* Header Universal */}
+      <header className="border-b border-border/40 sticky top-0 z-50 backdrop-blur-[12px] bg-card/10 shrink-0">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3" onClick={() => syncUrl('/')}>
             <div className="bg-primary/20 p-1.5 rounded-lg border border-primary/30 flex items-center justify-center overflow-hidden">
               <Image 
                 src="/favicon.ico" 
@@ -342,11 +157,9 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
               />
             </div>
             <div className="flex flex-col">
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl font-headline font-bold tracking-tight text-foreground leading-none">
-                  FINANTO <span className="text-accent">CRM</span>
-                </h1>
-              </div>
+              <h1 className="text-xl font-headline font-bold tracking-tight text-foreground leading-none">
+                FINANTO <span className="text-accent">CRM</span>
+              </h1>
               <span className="text-[10px] text-muted-foreground font-medium opacity-60 mt-1">Por Olivares</span>
             </div>
           </div>
@@ -362,14 +175,14 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="w-9 h-9 rounded-full overflow-hidden border border-border/50">
-                  <Avatar className="h-8 w-8">
+                <button className="w-9 h-9 rounded-full overflow-hidden border border-border/50 outline-none focus:ring-2 focus:ring-primary/50">
+                  <Avatar className="h-8 w-8 mx-auto">
                     <AvatarImage src={user?.photoURL || ''} />
                     <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">
                       {user?.displayName?.charAt(0) || 'E'}
                     </AvatarFallback>
                   </Avatar>
-                </Button>
+                </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-64 backdrop-blur-lg">
                 <DropdownMenuLabel className="flex flex-col">
@@ -405,128 +218,95 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
         </div>
       </header>
 
-      <main className="flex-1 container mx-auto px-2 sm:px-4 py-4 md:py-12 hidden md:block">
-        <div className="flex overflow-x-auto pb-4 md:pb-0 md:grid md:grid-cols-5 gap-2 sm:gap-4 mb-6 sm:mb-8 scrollbar-thin">
-          {statsCards.map((stat, i) => {
-            const isTargetCommission = stat.label === 'Comisiones Mes';
-            const cardContent = (
-              <Card 
-                key={i}
-                className={cn(
-                  "bg-card/30 backdrop-blur-md border-none hover:bg-card/50 cursor-default h-full transition-all duration-300 relative overflow-hidden animate-finanto-reveal opacity-0 min-w-[150px] md:min-w-0",
-                  i === 0 ? "delay-100" : i === 1 ? "delay-200" : i === 2 ? "delay-300" : i === 3 ? "delay-400" : i === 4 ? "delay-500" : ""
-                )}
-              >
-                <CardContent className="p-3 sm:p-4 flex items-center gap-2 sm:gap-3 relative z-10">
-                  <div className={cn("p-1.5 sm:p-2 rounded-full bg-muted/5", stat.color)}><stat.icon className="w-4 h-4 sm:w-5 sm:h-5" /></div>
-                  <div className="flex-1 overflow-hidden">
-                    <p className="text-[8px] sm:text-[9px] uppercase font-bold text-muted-foreground truncate">{stat.label}</p>
-                    <div className="flex items-baseline gap-1 sm:gap-2">
-                      <p className={cn(
-                        "text-sm sm:text-lg font-bold truncate",
-                        isTargetCommission ? getDynamicGradient(stats.currentMonthCommission || 0) : ""
-                      )}>
-                        {stat.value}
-                      </p>
-                      {stat.comparison !== undefined && (
-                        <div className="flex flex-col hidden sm:flex">
-                          <span className={cn(
-                            "text-[8px] font-bold flex items-center whitespace-nowrap",
-                            (parseFloat(stat.value.replace(/[^0-9.-]+/g,"")) >= stat.comparison) ? "text-green-500" : "text-destructive"
-                          )}>
-                            {stat.isCurrency ? (
-                               <>
-                                 {(stats.currentMonthCommission || 0) >= (stats.lastMonthCommission || 0) ? <ArrowUpRight className="w-2.5 h-2.5 mr-0.5" /> : <ArrowDownRight className="w-2.5 h-2.5 mr-0.5" />}
-                                 {formatCurrency(stat.comparison)}
-                               </>
-                            ) : (
-                              <>
-                                {parseInt(stat.value) >= stat.comparison ? <ArrowUpRight className="w-2.5 h-2.5 mr-0.5" /> : <ArrowDownRight className="w-2.5 h-2.5 mr-0.5" />}
-                                {stat.comparison}
-                              </>
-                            )}
-                          </span>
-                          <span className="text-[7px] uppercase font-bold text-muted-foreground/30">Mes pasado</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-
-            if (stat.tooltip) {
-              return (
-                <TooltipProvider key={i}>
-                  <Tooltip delayDuration={0}>
-                    <TooltipTrigger asChild>
-                      {cardContent}
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" sideOffset={1}>
-                      {stat.tooltip}
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              );
-            }
-
-            return <div key={i}>{cardContent}</div>;
-          })}
+      {/* Responsive Dashboards */}
+      <main className="flex-1 flex flex-col container mx-auto px-4 py-6 md:py-12">
+        {/* MOBILE DASHBOARD (lg:hidden) */}
+        <div className="block lg:hidden flex-1 flex flex-col">
+          <MobileDashboard 
+            userName={user?.displayName || 'Ejecutivo'}
+            onOpenCalculator={() => handleToggleSimulator(true)}
+            onOpenNewAppointment={() => setIsNewAppointmentOpen(true)}
+            onOpenAgenda={() => handleToggleGestor(true)}
+            onOpenStats={() => handleToggleStats(true)}
+          />
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 sm:gap-8 items-start">
-          <section className="xl:col-span-5 space-y-4 sm:space-y-6 animate-finanto-reveal opacity-0 delay-300">
-            <CreditCalculator 
-              isExpanded={isSimulatorExpanded} 
-              onExpandedChange={handleToggleSimulator}
-            />
-            <AdvancedStats 
-              stats={stats} 
-              isExpanded={isStatsExpanded}
-              onExpandedChange={handleToggleStats}
-            />
-          </section>
-          <section className="xl:col-span-7 pb-10 space-y-4 sm:space-y-6 animate-finanto-reveal opacity-0 delay-500">
-            <AppointmentsDashboard 
-              isExpanded={isGestorExpanded}
-              onExpandedChange={handleToggleGestor}
-              selectedAppId={selectedId}
-              onSelectAppId={onSelectId}
-              theme={theme}
-              appointments={appointmentState.appointments} 
-              activeAppointments={appointmentState.activeAppointments}
-              upcoming={appointmentState.upcoming} 
-              past={appointmentState.past} 
-              addAppointment={appointmentState.addAppointment} 
-              editAppointment={appointmentState.editAppointment} 
-              archiveAppointment={appointmentState.archiveAppointment}
-              unarchiveAppointment={appointmentState.unarchiveAppointment}
-              formatFriendlyDate={appointmentState.formatFriendlyDate} 
-              format12hTime={appointmentState.format12hTime} 
-              stats={appointmentState.stats}
-            />
-          </section>
+        {/* DESKTOP DASHBOARD (hidden lg:block) */}
+        <div className="hidden lg:block">
+          <DesktopDashboard 
+            stats={stats}
+            appointments={appointments}
+            activeAppointments={appointmentState.activeAppointments}
+            upcoming={appointmentState.upcoming}
+            past={appointmentState.past}
+            addAppointment={addAppointment}
+            editAppointment={editAppointment}
+            archiveAppointment={appointmentState.archiveAppointment}
+            unarchiveAppointment={appointmentState.unarchiveAppointment}
+            formatFriendlyDate={appointmentState.formatFriendlyDate}
+            format12hTime={appointmentState.format12hTime}
+            isSimulatorExpanded={isSimulatorExpanded}
+            onToggleSimulator={handleToggleSimulator}
+            isGestorExpanded={isGestorExpanded}
+            onToggleGestor={handleToggleGestor}
+            isStatsExpanded={isStatsExpanded}
+            onToggleStats={handleToggleStats}
+            selectedId={selectedId}
+            onSelectId={setSelectedId}
+            theme={theme}
+          />
         </div>
       </main>
 
-      <footer className="border-t border-border/40 py-4 sm:py-6 bg-card/10 backdrop-blur-md animate-in fade-in slide-in-from-bottom duration-700 hidden md:block">
+      <footer className="border-t border-border/40 py-4 sm:py-6 bg-card/10 backdrop-blur-md shrink-0">
         <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-3">
-            <span className="font-bold text-foreground">Finanto v2.0</span>
-            <span className="hidden sm:inline">© 2026 - Sincronizado en Firebase</span>
+            <span className="font-bold text-foreground uppercase tracking-widest">Finanto CRM v2.0</span>
+            <span className="hidden sm:inline opacity-40">|</span>
+            <span className="hidden sm:inline">Infraestructura Google Cloud</span>
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={() => setShowTrash(true)} 
-              className="text-muted-foreground hover:text-destructive gap-2 h-8 px-2 sm:px-3"
+              className="text-muted-foreground hover:text-destructive gap-2 h-8 px-2 sm:px-3 rounded-full"
             >
               <Trash2 className="w-4 h-4" /> <span className="hidden sm:inline">Papelera</span> ({appointments.filter(a => a.isArchived).length})
             </Button>
           </div>
         </div>
       </footer>
+
+      {/* Diálogo de Nueva Cita (Móvil) */}
+      <Dialog open={isNewAppointmentOpen} onOpenChange={setIsNewAppointmentOpen}>
+        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden rounded-[2rem] border-none bg-background shadow-2xl">
+          <DialogHeader className="p-8 border-b border-border/10 bg-primary/5">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-primary text-white rounded-2xl shadow-lg">
+                <UserPlus size={24} />
+              </div>
+              <div>
+                <DialogTitle className="text-xl font-black uppercase tracking-tighter">Nueva Cita</DialogTitle>
+                <DialogDescription className="text-[10px] font-bold uppercase text-primary tracking-[0.2em] mt-1">Registro rápido de prospecto</DialogDescription>
+              </div>
+            </div>
+          </DialogHeader>
+          <div className="p-8">
+            <AppointmentForm onAdd={(data) => {
+              addAppointment(data);
+              setIsNewAppointmentOpen(false);
+            }} />
+          </div>
+          <div className="p-4 bg-muted/20 flex justify-center">
+            <DialogClose asChild>
+              <Button variant="ghost" size="sm" className="h-10 px-8 rounded-full font-bold uppercase text-[10px] text-muted-foreground">
+                Cancelar Registro
+              </Button>
+            </DialogClose>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* DIÁLOGOS DE APOYO */}
       <TrashDialog 
