@@ -83,12 +83,9 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
   const agendadasNormalColor = "hsl(var(--primary) / 0.25)";
   const atendidasNormalColor = isCorporate ? "hsl(187 100% 42%)" : "hsl(var(--accent))";
   
+  // Colores distintivos para HOY
   const todayAgendadasColor = "hsl(var(--primary))"; // Azul sólido para hoy
   const todayAtendidasColor = "hsl(142 70% 45%)"; // Esmeralda para hoy
-
-  // Estilo de resaltado premium
-  const highlightColor = "hsl(var(--primary))";
-  const highlightOpacity = 0.08;
 
   return (
     <div className={cn(
@@ -127,18 +124,19 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
               dataKey="dayNumber" 
               tickLine={false} 
               axisLine={false} 
-              interval={0} // Mostrar TODOS los números de fechas
+              interval={0}
               tick={<CustomXAxisTick data={data} />} 
             />
+            {/* Eje oculto para forzar alineación de barras superpuestas */}
             <XAxis xAxisId={1} dataKey="dayNumber" hide />
             
             <YAxis hide domain={[0, globalMax + 2]} />
             
             <ChartTooltip 
               cursor={{ 
-                fill: highlightColor, 
-                fillOpacity: highlightOpacity,
-                stroke: highlightColor,
+                fill: "hsl(var(--primary))", 
+                fillOpacity: 0.08,
+                stroke: "hsl(var(--primary))",
                 strokeDasharray: "4 4",
                 strokeWidth: 1
               }}
@@ -174,29 +172,29 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
                 xAxisId={0}
                 x1={todayItem.dayNumber} 
                 x2={todayItem.dayNumber} 
-                fill={highlightColor} 
-                fillOpacity={highlightOpacity} 
-                stroke={highlightColor}
+                fill="hsl(var(--primary))" 
+                fillOpacity={0.08} 
+                stroke="hsl(var(--primary))"
                 strokeDasharray="4 4"
                 strokeWidth={1}
               />
             )}
             
-            {/* AGENDADAS (FONDO) */}
+            {/* AGENDADAS (FONDO - EJE 0) */}
             <Bar xAxisId={0} dataKey="agendadas" name="Agendadas" radius={[6, 6, 0, 0]} barSize={barSize}>
               {data.map((e: any, i: number) => (
                 <Cell key={`bar-agenda-${i}`} fill={e.isToday ? todayAgendadasColor : agendadasNormalColor} />
               ))}
             </Bar>
 
-            {/* ATENDIDAS (FRENTE) */}
+            {/* ATENDIDAS (FRENTE - EJE 1 PARA ALINEACIÓN PERFECTA) */}
             <Bar xAxisId={1} dataKey="atendidas" name="Atendidas" radius={[6, 6, 0, 0]} barSize={barSize}>
               {data.map((e: any, i: number) => (
                 <Cell key={`bar-atendida-${i}`} fill={e.isToday ? todayAtendidasColor : atendidasNormalColor} />
               ))}
             </Bar>
             
-            {/* MARCADORES DE CIERRE (CÍRCULOS GRADIENTES EN EL TECHO CON NÚMERO) */}
+            {/* CIERRES (CÍRCULOS PERFECTOS CON NÚMERO) */}
             <Line 
               xAxisId={0}
               type="monotone" 
@@ -281,9 +279,16 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                   <stop offset="100%" stopColor="#7B61FF" />
                 </linearGradient>
               </defs>
-              {/* LINEAS VERTICALES VISIBLES (GRIS CLARO) */}
+              {/* LINEAS VERTICALES VISIBLES EN TODOS LOS PUNTOS */}
               <CartesianGrid vertical={true} horizontal={false} strokeDasharray="4 4" stroke="currentColor" opacity={0.2} />
-              <XAxis dataKey="week" tickLine={false} axisLine={false} tickMargin={10} className="text-[10px] font-bold text-muted-foreground/40" />
+              <XAxis 
+                dataKey="week" 
+                interval={0}
+                tickLine={false} 
+                axisLine={false} 
+                tickMargin={10} 
+                className="text-[10px] font-bold text-muted-foreground/40" 
+              />
               <YAxis hide />
               <ChartTooltip 
                 content={({ active, payload }) => {
