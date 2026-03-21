@@ -23,7 +23,7 @@ import {
   CheckCircle2, Box, CalendarPlus, Receipt, Coins, 
   CalendarDays, UserCog, ChevronDown, History as HistoryIcon, 
   Info, Trash2, UserCheck, MapPin, Briefcase, FileText, X,
-  LayoutList
+  LayoutList, Calendar as CalendarIcon, Percent, Wallet
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { parseISO, format, isToday, isTomorrow, isYesterday, differenceInCalendarDays, startOfDay } from 'date-fns';
@@ -67,51 +67,24 @@ export default function AppointmentDetailsDialog({
   format12hTime
 }: Props) {
   const [isEditing, setIsEditing] = useState(false);
-  const [isRescheduling, setIsRescheduling] = useState(false);
-  const [showEditProspector, setShowEditProspector] = useState(false);
-  const [showEditExecutive, setShowEditExecutive] = useState(false);
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
   const [editData, setEditData] = useState<Partial<Appointment>>({});
   
-  const [newName, setNewName] = useState('');
-  const [newPhone, setNewPhone] = useState('');
-  const [newDate, setNewDate] = useState('');
-  const [newTime, setNewTime] = useState('');
-  const [newNotes, setNewNotes] = useState('');
-  const [newProduct, setNewProduct] = useState<AppointmentProduct>('Casa');
-  const [newType, setNewType] = useState<AppointmentType>('2da consulta');
-  const [newAttendingExecutive, setNewAttendingExecutive] = useState('');
-  const [newProspectorName, setNewProspectorName] = useState('');
-  const [newProspectorPhone, setNewProspectorPhone] = useState('');
-
   const { toast } = useToast();
 
   useEffect(() => {
     if (appointment) {
       setEditData(appointment);
-      setShowEditProspector(!!appointment.prospectorName);
-      setShowEditExecutive(!!appointment.attendingExecutive);
     }
   }, [appointment]);
-
-  useEffect(() => {
-    if (isRescheduling && appointment) {
-      setNewName(appointment.name);
-      setNewPhone(appointment.phone || '');
-      setNewProduct(appointment.product || 'Casa');
-      setNewNotes(appointment.notes || '');
-      setNewType(appointment.status === 'Cierre' ? 'Seguimiento' : '2da consulta');
-      setNewAttendingExecutive(appointment.attendingExecutive || '');
-      setNewProspectorName(appointment.prospectorName || '');
-      setNewProspectorPhone(appointment.prospectorPhone || '');
-      setNewDate('');
-      setNewTime('');
-    }
-  }, [isRescheduling, appointment]);
 
   if (!appointment) return null;
 
   const handleSave = () => {
+    if (editData.date && !editData.date.includes('T')) {
+      // Asegurar formato ISO si se editó el input date
+      editData.date = new Date(editData.date + 'T12:00:00Z').toISOString();
+    }
     onEdit(appointment.id, editData);
     setIsEditing(false);
     toast({ title: "Guardado", description: "La información ha sido actualizada." });
@@ -148,30 +121,6 @@ export default function AppointmentDetailsDialog({
     });
   };
 
-  const handleConfirmSecond = () => {
-    if (!newDate || !newTime) {
-      toast({ title: "Error", description: "Fecha y hora son obligatorias.", variant: "destructive" });
-      return;
-    }
-
-    const isoDate = new Date(newDate + 'T12:00:00Z').toISOString();
-    onAdd({
-      name: newName,
-      phone: newPhone,
-      date: isoDate,
-      time: newTime,
-      type: newType,
-      product: newProduct,
-      notes: newNotes,
-      prospectorName: newProspectorName || undefined,
-      prospectorPhone: newProspectorPhone || undefined,
-      attendingExecutive: newAttendingExecutive || undefined
-    });
-
-    setIsRescheduling(false);
-    toast({ title: "Cita Agendada", description: `Nueva cita de ${newType} registrada para ${newName}.` });
-  };
-
   const copyName = () => {
     navigator.clipboard.writeText(appointment.name).then(() => {
       toast({ title: "Nombre copiado", description: appointment.name });
@@ -188,25 +137,22 @@ export default function AppointmentDetailsDialog({
     });
   };
 
-  const showCommissionPanel = appointment.status === 'Cierre';
-  const commissionValue = ((editData.finalCreditAmount || 0) * 0.007 * ((editData.commissionPercent || 0) / 100)) * 0.91;
+  const showCommissionPanel = editData.status === 'Cierre';
+  const commissionPercent = editData.commissionPercent ?? 100;
+  const finalCredit = editData.finalCreditAmount ?? 0;
+  const netIncome = (finalCredit * 0.007 * (commissionPercent / 100)) * 0.91;
+  const projectedPayDate = getCommissionPaymentDate(editData.date || appointment.date);
 
   const appDate = startOfDay(parseISO(appointment.date));
   const today = startOfDay(new Date());
   const diffCalendar = differenceInCalendarDays(appDate, today);
   
   let headerTimeText = "";
-  if (isToday(appDate)) {
-    headerTimeText = "Hoy es el día de la cita";
-  } else if (isTomorrow(appDate)) {
-    headerTimeText = "La cita es mañana";
-  } else if (isYesterday(appDate)) {
-    headerTimeText = "La cita fue ayer";
-  } else if (diffCalendar > 0) {
-    headerTimeText = `Faltan ${diffCalendar} ${diffCalendar === 1 ? 'día' : 'días'} para la cita`;
-  } else {
-    headerTimeText = `Han pasado ${Math.abs(diffCalendar)} ${Math.abs(diffCalendar) === 1 ? 'día' : 'días'} desde la cita`;
-  }
+  if (isToday(appDate)) headerTimeText = "Hoy es el día de la cita";
+  else if (isTomorrow(appDate)) headerTimeText = "La cita es mañana";
+  else if (isYesterday(appDate)) headerTimeText = "La cita fue ayer";
+  else if (diffCalendar > 0) headerTimeText = `Faltan ${diffCalendar} ${diffCalendar === 1 ? 'día' : 'días'} para la cita`;
+  else headerTimeText = `Han pasado ${Math.abs(diffCalendar)} ${Math.abs(diffCalendar) === 1 ? 'día' : 'días'} desde la cita`;
 
   return (
     <Dialog open={open} onOpenChange={(o) => { 
@@ -223,7 +169,7 @@ export default function AppointmentDetailsDialog({
         <DialogHeader className="px-6 sm:px-8 py-6 border-b border-border/10 flex flex-row items-center justify-between bg-primary/5 shrink-0">
           <div className="flex flex-col gap-1 min-w-0">
             <DialogTitle className="text-xl font-black text-foreground uppercase tracking-tighter truncate">
-              {isEditing ? 'Editar' : 'Expediente'}
+              {isEditing ? 'Editar Registro' : 'Expediente'}
             </DialogTitle>
             <DialogDescription className="text-[9px] font-bold uppercase text-primary tracking-widest flex items-center gap-1 truncate">
               <HistoryIcon className="w-2.5 h-2.5" /> {headerTimeText}
@@ -260,64 +206,109 @@ export default function AppointmentDetailsDialog({
 
         <div className="px-8 py-8 space-y-8 overflow-y-auto flex-1 scrollbar-thin pb-32">
           {isEditing ? (
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Nombre del Cliente</Label>
-                  <Input value={editData.name || ''} onChange={e => setEditData({...editData, name: e.target.value})} className="h-11 bg-muted/20 border-border/40 text-foreground font-bold rounded-full px-6" />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Teléfono de Contacto</Label>
-                  <Input value={editData.phone || ''} onChange={e => setEditData({...editData, phone: e.target.value})} className="h-11 bg-muted/20 border-border/40 text-foreground font-bold rounded-full px-6" />
+            <div className="space-y-8">
+              {/* Sección Cliente */}
+              <div className="space-y-4">
+                <Label className="text-[10px] font-black uppercase text-primary tracking-[0.2em] flex items-center gap-2">
+                  <User className="w-3.5 h-3.5" /> Datos del Cliente
+                </Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold uppercase text-muted-foreground ml-2">Nombre Completo</Label>
+                    <Input value={editData.name || ''} onChange={e => setEditData({...editData, name: e.target.value})} className="h-11 bg-muted/20 border-border/40 text-foreground font-bold rounded-full px-6" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold uppercase text-muted-foreground ml-2">Teléfono</Label>
+                    <Input value={editData.phone || ''} onChange={e => setEditData({...editData, phone: e.target.value})} className="h-11 bg-muted/20 border-border/40 text-foreground font-bold rounded-full px-6" />
+                  </div>
                 </div>
               </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Motivo</Label>
-                  <Select value={editData.type} onValueChange={(v) => setEditData({...editData, type: v as AppointmentType})}>
-                    <SelectTrigger className="h-11 bg-muted/20 border-border/40 text-foreground font-bold rounded-full px-6">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1ra consulta">1ra consulta</SelectItem>
-                      <SelectItem value="2da consulta">2da consulta</SelectItem>
-                      <SelectItem value="cierre">Cierre</SelectItem>
-                      <SelectItem value="Seguimiento">Seguimiento</SelectItem>
-                    </SelectContent>
-                  </Select>
+
+              {/* Sección Logística */}
+              <div className="space-y-4">
+                <Label className="text-[10px] font-black uppercase text-blue-600 tracking-[0.2em] flex items-center gap-2">
+                  <Clock className="w-3.5 h-3.5" /> Agenda y Estado
+                </Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold uppercase text-muted-foreground ml-2">Fecha</Label>
+                    <Input 
+                      type="date" 
+                      value={editData.date ? format(parseISO(editData.date), 'yyyy-MM-dd') : ''} 
+                      onChange={e => setEditData({...editData, date: e.target.value})} 
+                      className="h-11 bg-muted/20 border-border/40 text-foreground font-bold rounded-full px-6" 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold uppercase text-muted-foreground ml-2">Hora</Label>
+                    <Input type="time" value={editData.time || ''} onChange={e => setEditData({...editData, time: e.target.value})} className="h-11 bg-muted/20 border-border/40 text-foreground font-bold rounded-full px-6" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold uppercase text-muted-foreground ml-2">Motivo</Label>
+                    <Select value={editData.type} onValueChange={(v) => setEditData({...editData, type: v as AppointmentType})}>
+                      <SelectTrigger className="h-11 bg-muted/20 border-border/40 text-foreground font-bold rounded-full px-6">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1ra consulta">1ra consulta</SelectItem>
+                        <SelectItem value="2da consulta">2da consulta</SelectItem>
+                        <SelectItem value="cierre">Cierre</SelectItem>
+                        <SelectItem value="Seguimiento">Seguimiento</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold uppercase text-muted-foreground ml-2">Resultado Final</Label>
+                    <Select value={editData.status || 'Asistencia'} onValueChange={(v) => setEditData({...editData, status: v as AppointmentStatus})}>
+                      <SelectTrigger className="h-11 bg-muted/20 border-border/40 text-foreground font-bold rounded-full px-6">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Asistencia">👤 Asistencia</SelectItem>
+                        <SelectItem value="Cierre">💰 Cierre (Venta)</SelectItem>
+                        <SelectItem value="Apartado">📑 Apartado</SelectItem>
+                        <SelectItem value="No asistencia">❌ No asistencia</SelectItem>
+                        <SelectItem value="Reagendó">📅 Reagendó</SelectItem>
+                        <SelectItem value="Continuación en otra cita">🔄 Continuación</SelectItem>
+                        <SelectItem value="Reembolso">💸 Reembolso</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Producto</Label>
-                  <Select value={editData.product || 'Casa'} onValueChange={(v) => setEditData({...editData, product: v as AppointmentProduct})}>
-                    <SelectTrigger className="h-11 bg-muted/20 border-border/40 text-foreground font-bold rounded-full px-6">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Casa">Casa</SelectItem>
-                      <SelectItem value="Departamento">Departamento</SelectItem>
-                      <SelectItem value="Terreno">Terreno</SelectItem>
-                      <SelectItem value="Transporte">Transporte</SelectItem>
-                      <SelectItem value="Préstamo">Préstamo</SelectItem>
-                    </SelectContent>
-                  </Select>
+              </div>
+
+              {/* Sección Atención */}
+              <div className="space-y-4">
+                <Label className="text-[10px] font-black uppercase text-purple-600 tracking-[0.2em] flex items-center gap-2">
+                  <UserCheck className="w-3.5 h-3.5" /> Equipo Responsable
+                </Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold uppercase text-muted-foreground ml-2">Ejecutivo de atención</Label>
+                    <Input value={editData.attendingExecutive || ''} onChange={e => setEditData({...editData, attendingExecutive: e.target.value})} placeholder="Nombre del ejecutivo..." className="h-11 bg-muted/20 border-border/40 text-foreground font-bold rounded-full px-6" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold uppercase text-muted-foreground ml-2">Prospectador Externo</Label>
+                    <Input value={editData.prospectorName || ''} onChange={e => setEditData({...editData, prospectorName: e.target.value})} placeholder="Nombre..." className="h-11 bg-muted/20 border-border/40 text-foreground font-bold rounded-full px-6" />
+                  </div>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Notas</Label>
+                <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest ml-2">Notas y Acuerdos</Label>
                 <Textarea 
                   value={editData.notes || ''} 
                   onChange={e => setEditData({...editData, notes: e.target.value})} 
-                  className="bg-muted/20 border-border/40 min-h-[150px] text-sm text-foreground resize-none rounded-[2rem] p-6" 
+                  className="bg-muted/20 border-border/40 min-h-[120px] text-sm text-foreground resize-none rounded-[2rem] p-6" 
                 />
               </div>
             </div>
           ) : (
             <div className="space-y-8 animate-in fade-in duration-500 text-foreground">
+              {/* Cabecera de Identidad */}
               <div className="flex items-center gap-6 p-6 rounded-[2rem] bg-muted/10 border border-border/20">
                 <div className="flex-1 space-y-2">
-                  <h3 onClick={copyName} className="text-3xl font-black text-foreground uppercase tracking-tighter leading-none cursor-pointer hover:text-primary">{appointment.name}</h3>
+                  <h3 onClick={copyName} className="text-3xl font-black text-foreground uppercase tracking-tighter leading-none cursor-pointer hover:text-primary transition-colors">{appointment.name}</h3>
                   <div className="flex items-center gap-4">
                     <div onClick={copyPhoneOnly} className="flex items-center gap-2 cursor-pointer group/phone">
                       <Phone className="w-3.5 h-3.5 text-primary" />
@@ -330,6 +321,7 @@ export default function AppointmentDetailsDialog({
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Panel Agenda */}
                 <div className="space-y-4">
                   <Label className="text-[10px] font-black uppercase text-primary tracking-[0.2em] flex items-center gap-2">
                     <Clock className="w-3.5 h-3.5" /> Agenda
@@ -346,9 +338,10 @@ export default function AppointmentDetailsDialog({
                   </div>
                 </div>
 
+                {/* Panel Detalles */}
                 <div className="space-y-4">
                   <Label className="text-[10px] font-black uppercase text-blue-600 dark:text-blue-400 tracking-[0.2em] flex items-center gap-2">
-                    <LayoutList className="w-3.5 h-3.5" /> Detalles
+                    <LayoutList className="w-3.5 h-3.5" /> Estado
                   </Label>
                   <div className="p-4 rounded-[1.5rem] bg-blue-500/5 border border-blue-500/10 space-y-3">
                     <div className="flex justify-between items-center">
@@ -356,19 +349,49 @@ export default function AppointmentDetailsDialog({
                       <p className="text-xs font-black text-foreground uppercase">{appointment.type}</p>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-[9px] font-bold text-blue-600/60 uppercase">Estado</span>
+                      <span className="text-[9px] font-bold text-blue-600/60 uppercase">Resultado</span>
                       <p className="text-xs font-black text-foreground uppercase">{appointment.status || 'En Proceso'}</p>
                     </div>
                   </div>
                 </div>
               </div>
 
+              {/* Equipo Responsable (Solo si existe) */}
+              {(appointment.attendingExecutive || appointment.prospectorName) && (
+                <div className="space-y-4">
+                  <Label className="text-[10px] font-black uppercase text-purple-600 tracking-[0.2em] flex items-center gap-2">
+                    <UserCheck className="w-3.5 h-3.5" /> Equipo de Atención
+                  </Label>
+                  <div className="p-6 rounded-[2rem] bg-purple-500/5 border border-purple-500/10 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {appointment.attendingExecutive && (
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-purple-500/10 rounded-xl"><UserCheck className="w-4 h-4 text-purple-600" /></div>
+                        <div>
+                          <span className="text-[8px] font-black uppercase text-muted-foreground block">Atendido por</span>
+                          <p className="text-xs font-bold">{appointment.attendingExecutive}</p>
+                        </div>
+                      </div>
+                    )}
+                    {appointment.prospectorName && (
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-blue-500/10 rounded-xl"><UserCog className="w-4 h-4 text-blue-600" /></div>
+                        <div>
+                          <span className="text-[8px] font-black uppercase text-muted-foreground block">Prospectador</span>
+                          <p className="text-xs font-bold">{appointment.prospectorName}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Panel Financiero Dinámico */}
               {showCommissionPanel && (
                 <div className="p-6 rounded-[2rem] bg-green-500/5 border-2 border-green-500/20 space-y-6">
                   <div className="flex items-center justify-between border-b border-green-500/10 pb-4">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-green-500/20 rounded-xl"><Receipt className="w-5 h-5 text-green-600" /></div>
-                      <h4 className="text-[10px] font-black uppercase text-green-600 tracking-[0.2em]">Liquidación</h4>
+                      <h4 className="text-[10px] font-black uppercase text-green-600 tracking-[0.2em]">Liquidación Final</h4>
                     </div>
                     <div className="flex items-center gap-3 bg-muted/20 p-1.5 pr-3 rounded-full border border-green-500/20">
                       <Switch checked={(editData.commissionStatus || 'Pendiente') === 'Pagada'} onCheckedChange={(checked) => {
@@ -379,20 +402,81 @@ export default function AppointmentDetailsDialog({
                       <span className="text-[9px] font-black uppercase tracking-widest text-foreground">{editData.commissionStatus || 'Pendiente'}</span>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-8">
-                    <div><span className="text-[9px] font-bold text-muted-foreground uppercase">Crédito</span><p className="text-lg font-black text-foreground">{new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(appointment.finalCreditAmount || 0)}</p></div>
-                    <div><span className="text-[9px] font-bold text-muted-foreground uppercase">Ingreso Neto</span><p className="text-xl font-black text-green-600">{new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(commissionValue)}</p></div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-4">
+                      <div className="space-y-1">
+                        <span className="text-[9px] font-bold text-muted-foreground uppercase ml-1">Crédito Final</span>
+                        <p className="text-xl font-black text-foreground">{new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(finalCredit)}</p>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[9px] font-bold text-muted-foreground uppercase ml-1">Participación</span>
+                          <TooltipProvider>
+                            <Tooltip delayDuration={0}>
+                              <TooltipTrigger asChild>
+                                <Info className="w-3 h-3 text-muted-foreground/40 cursor-help" />
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="text-[10px] font-bold">
+                                Porcentaje de comisión sobre el 0.7% del crédito.
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
+                        <div className="relative w-24">
+                          <Input 
+                            type="number" 
+                            value={commissionPercent} 
+                            onChange={e => {
+                              const val = parseFloat(e.target.value) || 0;
+                              setEditData({...editData, commissionPercent: val});
+                            }}
+                            className="h-8 pr-6 text-xs font-bold bg-background border-green-500/20 rounded-lg"
+                          />
+                          <Percent className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-green-600" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="space-y-1">
+                        <span className="text-[9px] font-bold text-muted-foreground uppercase ml-1">Ingreso Neto (91%)</span>
+                        <p className="text-2xl font-black text-green-600">{new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(netIncome)}</p>
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[9px] font-bold text-muted-foreground uppercase ml-1">Fecha Proyectada</span>
+                          <TooltipProvider>
+                            <Tooltip delayDuration={0}>
+                              <TooltipTrigger asChild>
+                                <Info className="w-3 h-3 text-muted-foreground/40 cursor-help" />
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="text-[10px] font-bold">
+                                Cobro el viernes de la siguiente o subsiguiente semana.
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
+                        <div className="flex items-center gap-2 text-foreground font-black text-xs bg-white/5 w-fit px-3 py-1.5 rounded-lg border border-white/10">
+                          <CalendarDays className="w-3.5 h-3.5 text-primary" />
+                          {format(projectedPayDate, "EEEE d 'de' MMM", { locale: es })}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
 
+              {/* Notas */}
               <div className="space-y-4">
                 <Label className="flex items-center gap-2 text-foreground text-[10px] font-black uppercase tracking-[0.3em]">
-                  <FileText className="w-4 h-4 text-primary" /> NOTAS
+                  <FileText className="w-4 h-4 text-primary" /> NOTAS DE EXPEDIENTE
                 </Label>
                 <div className="p-6 rounded-[2rem] bg-muted/10 border border-border/20 min-h-[120px]">
                   <p className="text-sm leading-relaxed text-foreground font-medium whitespace-pre-wrap italic opacity-80">
-                    {appointment.notes ? appointment.notes : 'Sin comentarios registrados.'}
+                    {appointment.notes ? appointment.notes : 'Sin acuerdos registrados en este expediente.'}
                   </p>
                 </div>
               </div>
@@ -403,8 +487,8 @@ export default function AppointmentDetailsDialog({
         <DialogFooter className="px-8 py-6 border-t border-border/10 bg-primary/5 flex flex-row justify-between items-center gap-4 shrink-0">
           <div className="flex flex-1 gap-3">
             {!isEditing && (
-              <Button onClick={() => setIsRescheduling(true)} variant="ghost" size="sm" className="h-11 px-6 text-[10px] font-black uppercase text-primary hover:bg-primary/10 rounded-full gap-2">
-                <CalendarPlus className="w-4 h-4" /> Reagendar
+              <Button onClick={() => setIsEditing(true)} variant="ghost" size="sm" className="h-11 px-6 text-[10px] font-black uppercase text-primary hover:bg-primary/10 rounded-full gap-2">
+                <CalendarPlus className="w-4 h-4" /> Reagendar / Mover
               </Button>
             )}
           </div>
@@ -413,12 +497,12 @@ export default function AppointmentDetailsDialog({
               <>
                 <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)} className="h-11 px-6 text-[10px] font-black uppercase text-muted-foreground rounded-full">Cancelar</Button>
                 <Button size="sm" onClick={handleSave} className="h-11 px-8 text-[10px] font-black uppercase bg-primary text-primary-foreground hover:bg-primary/80 rounded-full shadow-lg gap-2">
-                  <Save className="w-4 h-4" /> Guardar
+                  <Save className="w-4 h-4" /> Guardar Cambios
                 </Button>
               </>
             ) : (
               <Button onClick={() => setIsEditing(true)} size="sm" className="h-11 px-10 text-[10px] font-black uppercase bg-foreground text-background hover:opacity-90 rounded-full gap-2 shadow-xl">
-                <Edit2 className="w-4 h-4" /> Editar
+                <Edit2 className="w-4 h-4" /> Editar Expediente
               </Button>
             )}
           </div>
