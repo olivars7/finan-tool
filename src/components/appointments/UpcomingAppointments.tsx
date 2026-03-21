@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState } from 'react';
@@ -8,7 +9,7 @@ import {
   CheckCircle, ClipboardCheck, Phone, Box, ChevronRight, 
   CheckCircle as CheckIcon,
   Save, MessageSquare, Coins, Info, UserCog, UserCheck, ChevronDown,
-  ClipboardList
+  ClipboardList, X
 } from "lucide-react";
 import { parseISO, isToday, isTomorrow, format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -100,6 +101,14 @@ export default function UpcomingAppointments({
     const num = val.replace(/[^0-9]/g, '');
     if (!num) return '';
     return num.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
+
+  const formatCurrency = (val: number) => {
+    return new Intl.NumberFormat('es-MX', {
+      style: 'currency',
+      currency: 'MXN',
+      maximumFractionDigits: 0
+    }).format(Math.round(val));
   };
 
   const handleCreditChange = (val: string) => {
@@ -257,6 +266,8 @@ export default function UpcomingAppointments({
       });
     });
   };
+
+  const calculatedCommission = (finalCreditAmount * 0.007 * (finalCommissionPercent / 100)) * 0.91;
 
   return (
     <div className="space-y-4 flex flex-col h-full">
@@ -546,113 +557,117 @@ export default function UpcomingAppointments({
       </div>
 
       <AlertDialog open={!!confirmingApp} onOpenChange={(o) => !o && setConfirmingApp(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-slate-900 border-white/10 rounded-[2rem] text-white">
           <AlertDialogHeader>
             <div className="flex items-center gap-3 mb-2">
-              <AlertCircle className="w-6 h-6 text-primary" />
-              <AlertDialogTitle>Confirmar Asistencia</AlertDialogTitle>
+              <div className="p-3 bg-primary/20 rounded-2xl"><AlertCircle className="w-6 h-6 text-primary" /></div>
+              <AlertDialogTitle className="text-xl font-black uppercase tracking-tighter">Confirmar Asistencia</AlertDialogTitle>
             </div>
-            <AlertDialogDescription>
-              ¿Confirmas que el cliente <strong>{confirmingApp?.name}</strong> asistirá el día de hoy?
+            <AlertDialogDescription className="text-slate-400 font-medium">
+              ¿Confirmas que el cliente <strong>{confirmingApp?.name}</strong> asistirá a su cita programada para el día de hoy?
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={processConfirmation} className="bg-primary text-white">
-              Sí, confirmar
+          <AlertDialogFooter className="gap-3 mt-4">
+            <AlertDialogCancel className="bg-white/5 border-white/10 text-white rounded-full h-11 px-6 text-xs font-bold uppercase">Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={processConfirmation} className="bg-primary hover:bg-primary/80 text-white rounded-full h-11 px-8 text-xs font-black uppercase shadow-lg">
+              Confirmar Llegada
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
       <Dialog open={!!finalizingApp} onOpenChange={(o) => !o && setFinalizingApp(null)}>
-        <DialogContent className="sm:max-w-[500px] z-[160] overflow-y-auto">
-          <DialogHeader className="bg-green-500/5 p-4 -m-6 mb-4 border-b border-green-500/20">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-500/20 rounded-xl">
-                <CheckIcon className="w-6 h-6 text-green-600" />
+        <DialogContent 
+          className="sm:max-w-[550px] bg-[#020617] border-white/10 shadow-2xl rounded-[2.5rem] p-0 overflow-hidden z-[160]"
+        >
+          <DialogHeader className="bg-green-500/5 p-8 border-b border-green-500/10">
+            <div className="flex items-center gap-4">
+              <div className="p-4 bg-green-500 text-white rounded-2xl shadow-xl shadow-green-500/20">
+                <CheckIcon className="w-6 h-6" />
               </div>
               <div>
-                <DialogTitle>Finalizar Consulta</DialogTitle>
-                <DialogDescription className="text-xs">Registrando resultado para {finalizingApp?.name}</DialogDescription>
+                <DialogTitle className="text-2xl font-black uppercase tracking-tighter text-white leading-none">Finalizar Consulta</DialogTitle>
+                <DialogDescription className="text-[10px] font-bold uppercase text-green-600 tracking-widest mt-1">
+                  Registrando resultado para {finalizingApp?.name}
+                </DialogDescription>
               </div>
             </div>
           </DialogHeader>
           
-          <div className="space-y-6 pt-4">
-            <div className="space-y-2 text-center">
-              <Label className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest block">Resultado de la cita</Label>
+          <div className="p-8 space-y-8 max-h-[60vh] overflow-y-auto scrollbar-thin">
+            <div className="space-y-3">
+              <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest block text-center">Resultado Final de la Cita</Label>
               <Select value={finalStatus} onValueChange={(v) => setFinalStatus(v as AppointmentStatus)}>
-                <SelectTrigger className="w-full h-11 bg-muted/20 border-border/40 text-sm">
+                <SelectTrigger className="w-full h-14 bg-white/5 border-white/10 text-white text-lg font-bold rounded-2xl">
                   <SelectValue placeholder="Selecciona el resultado" />
                 </SelectTrigger>
-                <SelectContent className="z-[200]">
-                  <SelectItem value="Asistencia">👤 Asistencia (Visto)</SelectItem>
-                  <SelectItem value="Cierre">💰 CIERRE (VENTA) ✨</SelectItem>
-                  <SelectItem value="Apartado">📑 Apartado (Reserva)</SelectItem>
-                  <SelectItem value="No asistencia">❌ No asistencia</SelectItem>
-                  <SelectItem value="Reagendó">📅 Reagendó</SelectItem>
-                  <SelectItem value="Continuación en otra cita">🔄 Continuación</SelectItem>
-                  <SelectItem value="Reembolso">💸 Reembolso</SelectItem>
+                <SelectContent className="z-[200] bg-slate-900 border-white/10 text-white">
+                  <SelectItem value="Asistencia" className="focus:bg-primary/20">👤 Asistencia (Visto)</SelectItem>
+                  <SelectItem value="Cierre" className="focus:bg-green-500/20">💰 CIERRE (VENTA) ✨</SelectItem>
+                  <SelectItem value="Apartado" className="focus:bg-blue-500/20">📑 Apartado (Reserva)</SelectItem>
+                  <SelectItem value="No asistencia" className="focus:bg-destructive/20">❌ No asistencia</SelectItem>
+                  <SelectItem value="Reagendó" className="focus:bg-primary/20">📅 Reagendó</SelectItem>
+                  <SelectItem value="Continuación en otra cita" className="focus:bg-primary/20">🔄 Continuación</SelectItem>
+                  <SelectItem value="Reembolso" className="focus:bg-orange-500/20">💸 Reembolso</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             {finalStatus === 'Cierre' && (
-              <div className="p-4 sm:p-6 bg-green-500/5 border-2 border-green-500/20 rounded-xl space-y-6">
-                <div className="flex items-center justify-center gap-2 border-b border-green-500/10 pb-3">
-                  <Coins className="w-4 h-4 text-green-600" />
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-green-700">Configuración Financiera</span>
+              <div className="p-6 bg-green-500/5 border-2 border-green-500/20 rounded-[2rem] space-y-6 animate-in zoom-in-95 duration-300">
+                <div className="flex items-center gap-3 border-b border-green-500/10 pb-4">
+                  <Coins className="w-5 h-5 text-green-500" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-green-600">Configuración Financiera</span>
                 </div>
                 
                 <div className="grid grid-cols-1 gap-6">
-                  <div className="space-y-2 text-center">
-                    <Label className="text-[10px] font-bold uppercase text-muted-foreground block">Monto de Crédito Final</Label>
-                    <div className="relative max-w-[240px] mx-auto">
-                      <span className="absolute left-4 top-2.5 text-xs font-bold text-green-600">$</span>
+                  <div className="space-y-2">
+                    <Label className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Monto de Crédito Final</Label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-bold text-green-500">$</span>
                       <Input 
                         type="text" 
                         value={creditInput} 
                         onChange={e => handleCreditChange(e.target.value)}
-                        className="h-10 pl-8 pr-4 bg-background border-green-500/30 text-sm font-black text-center"
+                        className="h-14 pl-10 bg-[#020617] border-green-500/20 text-2xl font-black text-white rounded-xl"
                         placeholder="0"
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-2 text-center border-t border-green-500/10 pt-4">
-                    <Label className="text-[10px] font-bold uppercase text-muted-foreground block">Participación en Comisión</Label>
-                    <div className="relative max-w-[120px] mx-auto">
-                      <Input 
-                        type="number"
-                        max={100}
-                        value={finalCommissionPercent || ''} 
-                        onChange={e => setFinalCommissionPercent(parseFloat(e.target.value) || 0)}
-                        className="h-10 pr-8 bg-background border-green-500/30 text-sm font-black text-center"
-                        placeholder="100"
-                      />
-                      <span className="absolute right-4 top-2.5 text-xs font-bold text-green-600">%</span>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-[9px] font-black uppercase text-slate-500 tracking-widest flex items-center gap-2">Participación <Info className="w-3 h-3 opacity-40" /></Label>
+                      <div className="relative">
+                        <Input 
+                          type="number"
+                          max={100}
+                          value={finalCommissionPercent || ''} 
+                          onChange={e => setFinalCommissionPercent(parseFloat(e.target.value) || 0)}
+                          className="h-11 pr-8 bg-[#020617] border-green-500/20 text-lg font-black text-white rounded-xl"
+                          placeholder="100"
+                        />
+                        <span className="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-green-500">%</span>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Ingreso Neto (91%)</Label>
+                      <div className="h-11 flex items-center px-4 bg-green-500/10 border border-green-500/20 rounded-xl">
+                        <span className="text-lg font-black text-green-500 truncate">{formatCurrency(calculatedCommission)}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-
-                <div className="pt-4 border-t border-green-500/20 flex flex-col items-center gap-1">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[9px] font-bold uppercase text-muted-foreground">Comisión Proyectada (Neto):</span>
-                    <Info className="w-3.5 h-3.5 opacity-40" />
-                  </div>
-                  <span className="text-xl sm:text-2xl font-black text-green-600 tracking-tight">{formatCurrency(calculatedCommission)}</span>
                 </div>
               </div>
             )}
 
             <div className="space-y-2">
-              <Label className="flex items-center gap-2 text-[10px] font-bold uppercase text-muted-foreground tracking-widest">
-                <MessageSquare className="w-3.5 h-3.5" /> Notas del resultado
+              <Label className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-500 tracking-widest">
+                <MessageSquare className="w-4 h-4 text-primary" /> Notas Finales del Registro
               </Label>
               <Textarea 
-                placeholder="Escribe aquí los acuerdos o detalles..."
-                className="bg-muted/10 border-border/40 min-h-[100px] resize-none text-sm w-full"
+                placeholder="Escribe acuerdos, detalles del cierre o motivos del resultado..."
+                className="bg-white/5 border-white/10 min-h-[120px] resize-none text-sm text-white font-medium p-4 rounded-2xl"
                 value={finalNotes}
                 onChange={(e) => setFinalNotes(e.target.value)}
               />
@@ -660,18 +675,17 @@ export default function UpcomingAppointments({
 
             <Collapsible open={showExecutiveSection} onOpenChange={setShowExecutiveSection}>
               <CollapsibleTrigger asChild>
-                <Button type="button" variant="ghost" size="sm" className="h-7 text-[10px] font-bold uppercase text-purple-600 hover:bg-purple-500/10 px-0">
-                  <UserCheck className="w-3.5 h-3.5 mr-2" />
-                  {showExecutiveSection ? 'Ocultar ejecutivo' : '¿Atiende otro ejecutivo?'}
-                  <ChevronDown className={cn("ml-2 h-3.5 w-3.5", showExecutiveSection && "rotate-180")} />
+                <Button type="button" variant="ghost" size="sm" className="h-8 text-[10px] font-black uppercase text-purple-400 hover:bg-purple-500/10 px-0 w-full justify-between">
+                  <span className="flex items-center"><UserCheck className="w-4 h-4 mr-2" /> ¿Atendió otro ejecutivo?</span>
+                  <ChevronDown className={cn("h-4 w-4 transition-transform", showExecutiveSection && "rotate-180")} />
                 </Button>
               </CollapsibleTrigger>
-              <CollapsibleContent className="mt-2">
-                <div className="p-4 border rounded-lg bg-purple-500/5 border-purple-500/20">
-                  <Label className="text-[9px] font-bold uppercase text-purple-600/70 mb-1.5 block">Ejecutivo de atención</Label>
+              <CollapsibleContent className="mt-3 animate-in fade-in slide-in-from-top-2">
+                <div className="p-4 border rounded-2xl bg-purple-500/5 border-purple-500/10">
+                  <Label className="text-[9px] font-bold uppercase text-purple-400/70 mb-2 block">Nombre del Ejecutivo de Atención</Label>
                   <Input 
-                    placeholder="Nombre del ejecutivo..."
-                    className="bg-background border-purple-500/20 h-10 text-sm"
+                    placeholder="Escribe el nombre completo..."
+                    className="bg-[#020617] border-purple-500/20 h-11 text-white font-bold"
                     value={attendingExecutive}
                     onChange={(e) => setAttendingExecutive(e.target.value)}
                   />
@@ -680,10 +694,10 @@ export default function UpcomingAppointments({
             </Collapsible>
           </div>
 
-          <DialogFooter className="gap-2 mt-4 shrink-0 flex-row">
-            <Button variant="ghost" onClick={() => setFinalizingApp(null)} className="h-11 px-4 font-bold uppercase text-xs flex-1">Cancelar</Button>
-            <Button onClick={handleSaveFinalization} className="bg-green-600 hover:bg-green-700 text-white h-11 font-bold shadow-lg gap-2 flex-[2]">
-              <Save className="w-4 h-4" /> Guardar
+          <DialogFooter className="p-8 border-t border-white/5 bg-primary/5 flex flex-row gap-4">
+            <Button variant="ghost" onClick={() => setFinalizingApp(null)} className="h-12 px-6 font-black uppercase text-[10px] text-slate-500 flex-1 rounded-full">Cancelar</Button>
+            <Button onClick={handleSaveFinalization} className="bg-green-600 hover:bg-green-700 text-white h-12 px-10 font-black uppercase text-[10px] shadow-xl shadow-green-600/20 rounded-full gap-2 flex-[2] transition-all active:scale-95">
+              <Save className="w-4 h-4" /> Guardar Registro
             </Button>
           </DialogFooter>
         </DialogContent>

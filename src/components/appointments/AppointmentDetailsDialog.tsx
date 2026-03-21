@@ -23,7 +23,7 @@ import {
   User, Phone, Clock, Edit2, Save, Copy, ClipboardList, 
   CheckCircle2, Box, CalendarPlus, Receipt, Coins, 
   CalendarDays, UserCog, ChevronDown, History as HistoryIcon, 
-  Info, Trash2, UserCheck
+  Info, Trash2, UserCheck, MapPin, Briefcase, FileText
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { parseISO, format, isToday, isTomorrow, isYesterday, differenceInCalendarDays, startOfDay } from 'date-fns';
@@ -296,12 +296,17 @@ Hora: ${timeBold}${confirmedBold}`;
       }
     }}>
       <DialogContent 
-        className="sm:max-w-[550px] bg-card border-border p-0 shadow-xl backdrop-blur-md overflow-hidden flex flex-col max-h-[95vh]"
+        className="sm:max-w-[650px] bg-[#020617] border-white/10 p-0 shadow-2xl overflow-hidden flex flex-col max-h-[90vh] rounded-[2rem]"
       >
-        <DialogHeader className="px-6 py-3 border-b border-border/40 flex flex-row items-center justify-between bg-card/10 shrink-0">
-          <DialogTitle className="text-lg font-headline font-bold text-foreground">
-            {isEditing ? 'Editar Registro' : 'Detalles de la Cita'}
-          </DialogTitle>
+        <DialogHeader className="px-8 py-6 border-b border-white/5 flex flex-row items-center justify-between bg-primary/5 shrink-0">
+          <div className="flex flex-col gap-1">
+            <DialogTitle className="text-xl font-black text-white uppercase tracking-tighter">
+              {isEditing ? 'Editar Registro' : 'Expediente de Cita'}
+            </DialogTitle>
+            <DialogDescription className="text-[10px] font-bold uppercase text-primary tracking-widest flex items-center gap-2">
+              <HistoryIcon className="w-3 h-3" /> {headerTimeText}
+            </DialogDescription>
+          </div>
 
           <div className="flex items-center gap-2">
             {!isEditing && (
@@ -310,81 +315,72 @@ Hora: ${timeBold}${confirmedBold}`;
                   onClick={copyToWhatsAppFormat}
                   variant="outline" 
                   size="sm"
-                  className="h-7 px-2 text-[9px] border-primary/40 text-primary hover:bg-primary/5 font-bold uppercase backdrop-blur-md"
+                  className="h-9 px-4 text-[10px] border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 font-black uppercase rounded-full"
                 >
-                  <Copy className="w-3 h-3 mr-1" />
-                  Copiar datos
+                  <Copy className="w-3.5 h-3.5 mr-2" />
+                  Copiar Datos
                 </Button>
                 <Button 
                   onClick={() => setShowArchiveConfirm(true)}
                   variant="ghost" 
                   size="sm"
-                  className="h-7 px-2 text-[9px] font-bold uppercase text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 transition-colors gap-1"
+                  className="h-9 px-4 text-[10px] font-black uppercase text-slate-500 hover:text-destructive hover:bg-destructive/10 transition-colors gap-2 rounded-full"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                   Archivar
                 </Button>
               </>
             )}
-            <DialogClose className="h-7 w-7 flex items-center justify-center rounded-full bg-destructive/10 text-destructive hover:bg-destructive transition-colors group backdrop-blur-md border border-destructive/20">
-              <span className="text-[10px] font-bold group-hover:text-white">✕</span>
+            <DialogClose className="h-9 w-9 flex items-center justify-center rounded-full bg-white/5 text-white hover:bg-destructive transition-colors group">
+              <X className="w-4 h-4" />
             </DialogClose>
           </div>
         </DialogHeader>
 
-        <div className="px-6 py-4 space-y-4 overflow-y-auto flex-1 scrollbar-thin">
-          {!isEditing && (
-            <div className="flex items-center gap-2 px-3 py-2 bg-primary/5 border border-primary/20 rounded-lg">
-              <HistoryIcon className="w-4 h-4 text-primary" />
-              <p className="text-xs font-bold text-primary">
-                {headerTimeText}
-              </p>
-            </div>
-          )}
-
+        <div className="px-8 py-8 space-y-8 overflow-y-auto flex-1 scrollbar-thin">
           {isEditing ? (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <Label className="text-[10px] font-bold uppercase text-muted-foreground">Nombre</Label>
-                  <Input value={editData.name || ''} onChange={e => setEditData({...editData, name: e.target.value})} className="h-8 bg-muted/20 text-sm" />
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Nombre del Cliente</Label>
+                  <Input value={editData.name || ''} onChange={e => setEditData({...editData, name: e.target.value})} className="h-11 bg-white/5 border-white/10 text-white font-bold" />
                 </div>
-                <div className="space-y-1">
-                  <Label className="text-[10px] font-bold uppercase text-muted-foreground">Teléfono</Label>
-                  <Input value={editData.phone || ''} onChange={e => setEditData({...editData, phone: e.target.value})} className="h-8 bg-muted/20 text-sm" />
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Teléfono de Contacto</Label>
+                  <Input value={editData.phone || ''} onChange={e => setEditData({...editData, phone: e.target.value})} className="h-11 bg-white/5 border-white/10 text-white font-bold" />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div className="p-3 border rounded-lg bg-blue-500/5 border-blue-500/20 space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-4 border rounded-2xl bg-blue-500/5 border-blue-500/10 space-y-4">
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => handleToggleEditProspector(!showEditProspector)}
-                    className="h-7 text-[10px] font-bold uppercase text-blue-600 hover:bg-blue-500/10 px-0 w-full justify-between"
+                    className="h-8 text-[10px] font-black uppercase text-blue-400 hover:bg-blue-500/10 px-0 w-full justify-between"
                     type="button"
                   >
-                    <span className="flex items-center"><UserCog className="w-3.5 h-3.5 mr-2" /> Prospectador</span>
-                    <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", showEditProspector && "rotate-180")} />
+                    <span className="flex items-center"><UserCog className="w-4 h-4 mr-2" /> Info Prospectador</span>
+                    <ChevronDown className={cn("h-4 w-4 transition-transform", showEditProspector && "rotate-180")} />
                   </Button>
 
                   {showEditProspector && (
-                    <div className="space-y-3">
-                      <div className="space-y-1">
-                        <Label className="text-[9px] font-bold uppercase text-blue-600/60">Nombre</Label>
+                    <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
+                      <div className="space-y-1.5">
+                        <Label className="text-[9px] font-bold uppercase text-blue-400/60">Nombre</Label>
                         <Input 
                           value={editData.prospectorName || ''} 
                           onChange={e => setEditData({...editData, prospectorName: e.target.value})} 
-                          className="h-8 bg-background border-blue-500/20 text-xs" 
+                          className="h-10 bg-[#020617] border-blue-500/20 text-xs text-white" 
                           placeholder="Ej. Juan Perez"
                         />
                       </div>
-                      <div className="space-y-1">
-                        <Label className="text-[9px] font-bold uppercase text-blue-600/60">Teléfono</Label>
+                      <div className="space-y-1.5">
+                        <Label className="text-[9px] font-bold uppercase text-blue-400/60">Teléfono</Label>
                         <Input 
                           value={editData.prospectorPhone || ''} 
                           onChange={e => setEditData({...editData, prospectorPhone: e.target.value})} 
-                          className="h-8 bg-background border-blue-500/20 text-xs" 
+                          className="h-10 bg-[#020617] border-blue-500/20 text-xs text-white" 
                           placeholder="664 000 0000"
                         />
                       </div>
@@ -392,26 +388,26 @@ Hora: ${timeBold}${confirmedBold}`;
                   )}
                 </div>
 
-                <div className="p-3 border rounded-lg bg-purple-500/5 border-purple-500/20 space-y-3">
+                <div className="p-4 border rounded-2xl bg-purple-500/5 border-purple-500/10 space-y-4">
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => handleToggleEditExecutive(!showEditExecutive)}
-                    className="h-7 text-[10px] font-bold uppercase text-purple-600 hover:bg-purple-500/10 px-0 w-full justify-between"
+                    className="h-8 text-[10px] font-black uppercase text-purple-400 hover:bg-purple-500/10 px-0 w-full justify-between"
                     type="button"
                   >
-                    <span className="flex items-center"><UserCheck className="w-3.5 h-3.5 mr-2" /> Ejecutivo</span>
-                    <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", showEditExecutive && "rotate-180")} />
+                    <span className="flex items-center"><UserCheck className="w-4 h-4 mr-2" /> Info Ejecutivo</span>
+                    <ChevronDown className={cn("h-4 w-4 transition-transform", showEditExecutive && "rotate-180")} />
                   </Button>
 
                   {showEditExecutive && (
-                    <div className="space-y-3">
-                      <div className="space-y-1">
-                        <Label className="text-[9px] font-bold uppercase text-purple-600/60">Atendido por</Label>
+                    <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
+                      <div className="space-y-1.5">
+                        <Label className="text-[9px] font-bold uppercase text-purple-400/60">Atendido por</Label>
                         <Input 
                           value={editData.attendingExecutive || ''} 
                           onChange={e => setEditData({...editData, attendingExecutive: e.target.value})} 
-                          className="h-8 bg-background border-purple-500/20 text-xs" 
+                          className="h-10 bg-[#020617] border-purple-500/20 text-xs text-white" 
                           placeholder="Nombre del ejecutivo..."
                         />
                       </div>
@@ -420,11 +416,11 @@ Hora: ${timeBold}${confirmedBold}`;
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <Label className="text-[10px] font-bold uppercase text-muted-foreground">Motivo</Label>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Motivo de Consulta</Label>
                   <Select value={editData.type} onValueChange={(v) => setEditData({...editData, type: v as AppointmentType})}>
-                    <SelectTrigger className="h-8 bg-muted/20 text-sm">
+                    <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white font-bold">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -435,10 +431,10 @@ Hora: ${timeBold}${confirmedBold}`;
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-1">
-                  <Label className="text-[10px] font-bold uppercase text-muted-foreground">Producto</Label>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Producto Interesado</Label>
                   <Select value={editData.product || 'Casa'} onValueChange={(v) => setEditData({...editData, product: v as AppointmentProduct})}>
-                    <SelectTrigger className="h-8 bg-muted/20 text-sm">
+                    <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white font-bold">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -452,14 +448,14 @@ Hora: ${timeBold}${confirmedBold}`;
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <Label className="text-[10px] font-bold uppercase text-muted-foreground">Estatus</Label>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Resultado / Estatus</Label>
                   <Select 
                     value={editData.status || 'Asistencia'} 
                     onValueChange={(v) => setEditData({...editData, status: v as AppointmentStatus, isConfirmed: true})}
                   >
-                    <SelectTrigger className="h-8 bg-muted/20 text-sm">
+                    <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white font-bold">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -473,297 +469,253 @@ Hora: ${timeBold}${confirmedBold}`;
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-1">
-                  <Label className="text-[10px] font-bold uppercase text-muted-foreground">Fecha</Label>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Fecha Programada</Label>
                   <Input 
                     type="date" 
                     value={editData.date ? parseISO(editData.date).toISOString().split('T')[0] : ''} 
                     onChange={e => setEditData({...editData, date: new Date(e.target.value + 'T12:00:00Z').toISOString()})} 
-                    className="h-8 bg-muted/20 text-sm"
+                    className="h-11 bg-white/5 border-white/10 text-white font-bold"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <Label className="text-[10px] font-bold uppercase text-muted-foreground">Hora</Label>
-                  <Input type="time" value={editData.time || ''} onChange={e => setEditData({...editData, time: e.target.value})} className="h-8 bg-muted/20 text-sm" />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Hora de la Cita</Label>
+                  <Input type="time" value={editData.time || ''} onChange={e => setEditData({...editData, time: e.target.value})} className="h-11 bg-white/5 border-white/10 text-white font-bold" />
                 </div>
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-3 bg-muted/10 p-4 rounded-xl border border-border/30 backdrop-blur-sm shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded-lg"><User className="w-4 h-4 text-primary" /></div>
-                <div className="flex-1">
-                  <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-widest">Cliente</p>
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-bold">{appointment.name}</p>
-                    <div className="flex gap-1">
-                      {appointment.prospectorName && <UserCog className="w-3 h-3 text-blue-500" />}
-                      {appointment.attendingExecutive && <UserCheck className="w-3 h-3 text-purple-500" />}
+            <div className="space-y-8 animate-in fade-in duration-500">
+              {/* Perfil Principal */}
+              <div className="flex items-center gap-6 p-6 rounded-3xl bg-white/[0.03] border border-white/5 shadow-inner">
+                <div className="h-20 w-20 rounded-full bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white shadow-lg ring-4 ring-primary/10">
+                  <User className="w-10 h-10" />
+                </div>
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center gap-3">
+                    <h3 className="text-3xl font-black text-white uppercase tracking-tighter leading-none">{appointment.name}</h3>
+                    {appointment.status && (
+                      <span className={cn(
+                        "px-3 py-1 rounded-full text-[9px] font-black uppercase border shadow-sm",
+                        appointment.status === 'Cierre' ? "bg-green-500/10 text-green-500 border-green-500/20" : 
+                        appointment.status === 'Apartado' ? "bg-blue-500/10 text-blue-500 border-blue-500/20" :
+                        "bg-white/10 text-white border-white/20"
+                      )}>
+                        {appointment.status}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div onClick={copyPhoneOnly} className="flex items-center gap-2 cursor-pointer group/phone">
+                      <Phone className="w-3.5 h-3.5 text-primary group-hover/phone:scale-110 transition-transform" />
+                      <span className="text-sm font-bold text-slate-400 group-hover/phone:text-primary transition-colors">{appointment.phone || 'N/A'}</span>
+                    </div>
+                    <div className="h-4 w-px bg-white/10" />
+                    <div className="flex items-center gap-2">
+                      <Briefcase className="w-3.5 h-3.5 text-blue-400" />
+                      <span className="text-sm font-bold text-slate-400">{appointment.product || 'Casa'}</span>
                     </div>
                   </div>
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
-                <div onClick={copyPhoneOnly} className="flex items-center gap-3 cursor-pointer group/phone">
-                  <div className="p-2 bg-primary/10 rounded-lg group-hover/phone:bg-primary/20 transition-colors"><Phone className="w-4 h-4 text-primary" /></div>
-                  <div>
-                    <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-widest">Teléfono</p>
-                    <p className="text-xs font-semibold group-hover/phone:text-primary transition-colors">{appointment.phone || 'N/A'}</p>
+              {/* Grid de Datos Técnicos */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-6">
+                  <div className="space-y-4">
+                    <Label className="text-[10px] font-black uppercase text-primary tracking-[0.2em] flex items-center gap-2">
+                      <Clock className="w-3.5 h-3.5" /> Agenda y Horarios
+                    </Label>
+                    <div className="grid grid-cols-1 gap-3">
+                      <div className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
+                        <div className="space-y-1">
+                          <span className="text-[9px] font-bold text-slate-500 uppercase">Fecha Programada</span>
+                          <p className="text-sm font-black text-white">{format(parseISO(appointment.date), "EEEE d 'de' MMMM", { locale: es })}</p>
+                        </div>
+                        <CalendarDays className="w-5 h-5 text-slate-600" />
+                      </div>
+                      <div className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
+                        <div className="space-y-1">
+                          <span className="text-[9px] font-bold text-slate-500 uppercase">Hora de Atención</span>
+                          <p className="text-sm font-black text-white">{format12hTime(appointment.time)}</p>
+                        </div>
+                        <Clock className="w-5 h-5 text-slate-600" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <Label className="text-[10px] font-black uppercase text-blue-400 tracking-[0.2em] flex items-center gap-2">
+                      <ClipboardList className="w-3.5 h-3.5" /> Detalles de Trámite
+                    </Label>
+                    <div className="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10 space-y-1">
+                      <span className="text-[9px] font-bold text-blue-400/60 uppercase">Motivo de la Consulta</span>
+                      <p className="text-sm font-black text-white uppercase">{appointment.type}</p>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-accent/10 rounded-lg"><ClipboardList className="w-4 h-4 text-accent" /></div>
-                  <div>
-                    <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-widest">Motivo</p>
-                    <p className="text-xs font-semibold">{appointment.type}</p>
+
+                <div className="space-y-6">
+                  <div className="space-y-4">
+                    <Label className="text-[10px] font-black uppercase text-slate-500 tracking-[0.2em] flex items-center gap-2">
+                      <UserCheck className="w-3.5 h-3.5" /> Participantes
+                    </Label>
+                    <div className="space-y-3">
+                      {appointment.prospectorName ? (
+                        <div className="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10 flex items-center gap-4">
+                          <div className="p-2 bg-blue-500/10 rounded-xl text-blue-400"><UserCog className="w-5 h-5" /></div>
+                          <div className="flex-1 overflow-hidden">
+                            <span className="text-[9px] font-bold text-blue-400/60 uppercase">Prospectado por</span>
+                            <p className="text-xs font-black text-white truncate">{appointment.prospectorName}</p>
+                          </div>
+                          {appointment.prospectorPhone && (
+                            <Button variant="ghost" size="icon" onClick={copyProspectorPhone} className="h-8 w-8 text-blue-400 hover:bg-blue-500/10 rounded-full">
+                              <Copy className="w-3 h-3" />
+                            </Button>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="p-4 rounded-2xl bg-white/5 border border-white/5 border-dashed flex items-center gap-3 text-slate-600 italic">
+                          <UserCog className="w-4 h-4 opacity-40" />
+                          <span className="text-[10px] font-bold uppercase">Sin prospectador externo</span>
+                        </div>
+                      )}
+
+                      {appointment.attendingExecutive ? (
+                        <div className="p-4 rounded-2xl bg-purple-500/5 border border-purple-500/10 flex items-center gap-4">
+                          <div className="p-2 bg-purple-500/10 rounded-xl text-purple-400"><UserCheck className="w-5 h-5" /></div>
+                          <div className="flex-1 overflow-hidden">
+                            <span className="text-[9px] font-bold text-purple-400/60 uppercase">Atendido por</span>
+                            <p className="text-xs font-black text-white truncate">{appointment.attendingExecutive}</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="p-4 rounded-2xl bg-white/5 border border-white/5 border-dashed flex items-center gap-3 text-slate-600 italic">
+                          <UserCheck className="w-4 h-4 opacity-40" />
+                          <span className="text-[10px] font-bold uppercase">Sin ejecutivo asignado</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-lg"><Box className="w-4 h-4 text-primary" /></div>
-                  <div>
-                    <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-widest">Producto</p>
-                    <p className="text-xs font-semibold">{appointment.product || 'Casa'}</p>
+              {/* Panel de Comisión (Solo si es Cierre) */}
+              {showCommissionPanel && (
+                <div className="p-6 rounded-[2rem] bg-green-500/5 border-2 border-green-500/20 space-y-6 shadow-xl relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform"><Coins className="w-24 h-24 text-green-500" /></div>
+                  
+                  <div className="flex items-center justify-between border-b border-green-500/10 pb-4 relative z-10">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-green-500/20 rounded-xl"><Receipt className="w-5 h-5 text-green-500" /></div>
+                      <div>
+                        <h4 className="text-[10px] font-black uppercase text-green-600 tracking-[0.2em]">Liquidación Final</h4>
+                        <p className="text-[8px] font-bold text-green-700/60 uppercase">Cierre de trámite inmobiliario</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 bg-background/40 p-1.5 pr-3 rounded-full border border-green-500/20">
+                      <Switch 
+                        checked={(editData.commissionStatus || 'Pendiente') === 'Pagada'} 
+                        onCheckedChange={handleCommissionToggle}
+                        className="data-[state=checked]:bg-green-500"
+                      />
+                      <span className={cn(
+                        "text-[9px] font-black uppercase tracking-widest",
+                        (editData.commissionStatus || 'Pendiente') === 'Pagada' ? "text-green-500" : "text-amber-500"
+                      )}>
+                        {editData.commissionStatus || 'Pendiente'}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-lg"><Clock className="w-4 h-4 text-primary" /></div>
-                  <div>
-                    <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-widest">Hora</p>
-                    <p className="text-xs font-semibold">{format12hTime(appointment.time)}</p>
-                  </div>
-                </div>
-              </div>
 
-              <div className="flex items-center gap-3 border-t border-border/10 pt-3">
-                <div className="p-2 bg-primary/10 rounded-lg"><CalendarDays className="w-4 h-4 text-primary" /></div>
-                <div>
-                  <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-widest">Fecha Programada</p>
-                  <p className="text-xs font-bold">
-                    {format(parseISO(appointment.date), "EEEE d 'de' MMMM 'del' yyyy", { locale: es })}
+                  <div className="grid grid-cols-2 gap-8 relative z-10">
+                    <div className="space-y-1">
+                      <span className="text-[9px] font-bold text-slate-500 uppercase flex items-center gap-1.5"><Coins className="w-3 h-3" /> Crédito Final</span>
+                      <p className="text-xl font-black text-white">{formatCurrency(appointment.finalCreditAmount || 0)}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-[9px] font-bold text-slate-500 uppercase flex items-center gap-1.5">Participación <Info className="w-3 h-3 opacity-40" /></span>
+                      <p className="text-xl font-black text-primary">{appointment.commissionPercent || 0}%</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-8 pt-4 border-t border-green-500/10 relative z-10">
+                    <div className="space-y-1">
+                      <span className="text-[9px] font-black text-green-600 uppercase">Ingreso Neto</span>
+                      <p className="text-2xl font-black text-green-500">{formatCurrency(commissionValue)}</p>
+                      <p className="text-[8px] font-bold text-slate-500 uppercase italic">Deducido 9% ISR</p>
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-[9px] font-black text-slate-500 uppercase">Fecha de Pago Proyectada</span>
+                      <p className="text-sm font-black text-white">{calculatePaymentDateText(appointment.date)}</p>
+                      <p className="text-[8px] font-bold text-slate-500 uppercase">Viernes de liquidación</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Notas del Cliente */}
+              <div className="space-y-4">
+                <Label className="flex items-center gap-2 text-white text-[10px] font-black uppercase tracking-[0.3em]">
+                  <FileText className="w-4 h-4 text-primary" /> Diario de Seguimiento
+                </Label>
+                <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 min-h-[120px] relative">
+                  <p className="text-sm leading-relaxed text-slate-300 font-medium italic">
+                    {appointment.notes ? `"${appointment.notes}"` : 'Sin comentarios u observaciones registradas para este expediente.'}
                   </p>
                 </div>
               </div>
-
-              {appointment.prospectorName && (
-                <div className="flex items-center gap-3 border-t border-border/10 pt-3 group/prospector">
-                  <div className="p-2 bg-blue-500/10 rounded-lg"><UserCog className="w-4 h-4 text-blue-500" /></div>
-                  <div className="flex-1">
-                    <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-widest">Prospectado por</p>
-                    <p className="text-xs font-bold">{appointment.prospectorName}</p>
-                  </div>
-                  {appointment.prospectorPhone && (
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={copyProspectorPhone} 
-                      className="h-8 w-8 text-muted-foreground hover:text-blue-500 hover:bg-blue-500/10"
-                    >
-                      <Copy className="h-3.5 h-3.5" />
-                    </Button>
-                  )}
-                </div>
-              )}
-
-              {appointment.attendingExecutive && (
-                <div className="flex items-center gap-3 border-t border-border/10 pt-3">
-                  <div className="p-2 bg-purple-500/10 rounded-lg"><UserCheck className="w-4 h-4 text-purple-500" /></div>
-                  <div className="flex-1">
-                    <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-widest">Atendido por</p>
-                    <p className="text-xs font-bold">{appointment.attendingExecutive}</p>
-                  </div>
-                </div>
-              )}
-
-              {appointment.status && (
-                <div className="flex items-center gap-3 border-t border-border/20 pt-3">
-                  <div className="p-2 bg-blue-500/10 rounded-lg"><CheckCircle2 className="w-4 h-4 text-blue-600" /></div>
-                  <div>
-                    <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-widest">Resultado</p>
-                    <p className={cn(
-                      "text-xs font-bold",
-                      appointment.status === 'Asistencia' ? "text-blue-600" : appointment.status === 'Apartado' ? "text-blue-500" : "text-green-500"
-                    )}>
-                      {appointment.status}
-                    </p>
-                  </div>
-                </div>
-              )}
             </div>
           )}
-
-          {showCommissionPanel && (
-            <div className="bg-card border-2 border-border/40 p-4 rounded-xl space-y-4 shadow-sm">
-              <div className="flex items-center justify-between border-b border-border/20 pb-2">
-                <div className="flex items-center gap-2">
-                  <div className="p-1.5 bg-accent/10 rounded-md"><Receipt className="w-3.5 h-3.5 text-accent" /></div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest">Liquidación y Comisiones</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className={cn(
-                    "text-[9px] font-bold uppercase px-2 py-0.5 rounded-full border",
-                    (editData.commissionStatus || 'Pendiente') === 'Pagada' ? "bg-green-500/10 text-green-500 border-green-500/20" : "bg-yellow-500/10 text-yellow-600 border-yellow-500/20"
-                  )}>
-                    {editData.commissionStatus || 'Pendiente'}
-                  </span>
-                  <Switch 
-                    checked={(editData.commissionStatus || 'Pendiente') === 'Pagada'} 
-                    onCheckedChange={handleCommissionToggle}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <div className="h-4 flex items-center">
-                    <Label className="text-[9px] font-bold uppercase text-muted-foreground flex items-center gap-1">
-                      <Coins className="w-3 h-3" /> Crédito Final
-                    </Label>
-                  </div>
-                  {isEditing ? (
-                    <div className="relative flex items-center">
-                      <span className="absolute left-2.5 text-[10px] font-bold text-muted-foreground">$</span>
-                      <Input 
-                        type="text" 
-                        value={formatWithCommas(editData.finalCreditAmount?.toString() || '')} 
-                        onChange={e => handleFinalCreditChange(e.target.value)}
-                        className="h-8 pl-5 bg-muted/20 text-xs font-bold w-full"
-                      />
-                    </div>
-                  ) : (
-                    <p className="text-sm font-bold text-foreground">{formatCurrency(appointment.finalCreditAmount || 0)}</p>
-                  )}
-                </div>
-                <div className="space-y-1.5">
-                  <div className="h-4 flex items-center gap-1">
-                    <Label className="text-[9px] font-bold uppercase text-muted-foreground">Participación</Label>
-                    <TooltipProvider>
-                      <Tooltip delayDuration={0}>
-                        <TooltipTrigger asChild>
-                          <Info className="w-3 h-3 opacity-40 cursor-help" />
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-[200px] text-[10px]" side="top">
-                          Define el porcentaje de la comisión total (0.7% del crédito) que te corresponde por este cierre.
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                  {isEditing ? (
-                    <div className="relative flex items-center">
-                      <Input 
-                        type="number" 
-                        max={100}
-                        value={editData.commissionPercent || ''} 
-                        onChange={e => handleCommissionPercentChange(e.target.value)}
-                        className="h-8 pr-6 bg-muted/20 text-xs font-bold text-accent w-full"
-                      />
-                      <span className="absolute right-2.5 text-[10px] font-bold text-accent">%</span>
-                    </div>
-                  ) : (
-                    <p className="text-sm font-bold text-accent">{appointment.commissionPercent || 0}%</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 pt-2 border-t border-border/10">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-1">
-                    <span className="text-[9px] font-bold uppercase text-muted-foreground block">Valor Comisión (Neto)</span>
-                    <TooltipProvider>
-                      <Tooltip delayDuration={0}>
-                        <TooltipTrigger asChild>
-                          <Info className="w-3 h-3 opacity-40 cursor-help" />
-                        </TooltipTrigger>
-                        <TooltipContent className="text-[10px]" side="top">
-                          Incluye retención del 9% de impuesto al monto ganado.
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                  <p className="text-sm font-bold text-accent">{formatCurrency(commissionValue)}</p>
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center gap-1">
-                    <Label className="text-[9px] font-bold uppercase text-muted-foreground">Fecha de Pago</Label>
-                    <TooltipProvider>
-                      <Tooltip delayDuration={0}>
-                        <TooltipTrigger asChild>
-                          <Info className="w-3 h-3 opacity-40 cursor-help" />
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-[220px] text-[10px]" side="top">
-                          <p className="font-bold mb-1">Ciclo de Liquidación:</p>
-                          Ventas de Domingo a Martes se pagan el viernes de la siguiente semana. Ventas de Miércoles a Sábado se pagan el viernes de la subsiguiente semana.
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                  <p className="text-[11px] font-bold text-primary">{calculatePaymentDateText(appointment.date)}</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="space-y-1.5 shrink-0 flex flex-col">
-            <Label className="flex items-center gap-2 text-muted-foreground text-[10px] font-bold uppercase tracking-wider shrink-0 mb-1">📝 Notas del cliente</Label>
-            <Textarea 
-              placeholder="Detalles importantes..."
-              className="bg-muted/10 border-border/30 h-[180px] resize-none text-sm backdrop-blur-sm w-full"
-              value={isEditing ? editData.notes : appointment.notes}
-              onChange={e => setEditData({...editData, notes: e.target.value})}
-              readOnly={!isEditing}
-            />
-          </div>
         </div>
 
-        <DialogFooter className="flex flex-row justify-between items-center gap-2 border-t border-border/30 px-6 py-3 bg-card/10 backdrop-blur-sm shrink-0">
+        <DialogFooter className="px-8 py-6 border-t border-white/5 bg-primary/5 flex flex-row justify-between items-center gap-4 shrink-0">
           <div className="flex-1">
             {!isEditing && (
               <Button 
                 onClick={() => setIsRescheduling(true)}
                 variant="ghost" 
                 size="sm" 
-                className="h-8 text-[10px] font-bold uppercase text-primary hover:bg-primary/10"
+                className="h-10 px-6 text-[10px] font-black uppercase text-primary hover:bg-primary/10 rounded-full gap-2 transition-all active:scale-95"
                 type="button"
               >
-                <CalendarPlus className="w-3.5 h-3.5 mr-2" />
-                {isCierre ? 'Agendar seguimiento' : 'Agendar 2da cita'}
+                <CalendarPlus className="w-4 h-4" />
+                {isCierre ? 'Agendar Seguimiento' : 'Programar 2da Cita'}
               </Button>
             )}
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             {isEditing ? (
               <>
-                <Button variant="outline" size="sm" onClick={() => setIsEditing(false)} className="h-8 text-xs" type="button">Cancelar</Button>
-                <Button size="sm" onClick={handleSave} className="h-8 text-xs bg-primary font-bold shadow-lg" type="button">
-                  <Save className="w-3.5 h-3.5 mr-2" /> Guardar
+                <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)} className="h-10 px-6 text-[10px] font-black uppercase text-slate-500 rounded-full" type="button">Cancelar</Button>
+                <Button size="sm" onClick={handleSave} className="h-10 px-8 text-[10px] font-black uppercase bg-primary text-white hover:bg-primary/80 rounded-full shadow-lg gap-2" type="button">
+                  <Save className="w-4 h-4" /> Guardar Cambios
                 </Button>
               </>
             ) : (
-              <Button onClick={() => setIsEditing(true)} size="sm" variant="secondary" className="h-8 text-xs font-bold border border-border/50" type="button">
-                <Edit2 className="w-3.5 h-3.5 mr-2" /> Editar
+              <Button onClick={() => setIsEditing(true)} size="sm" className="h-10 px-8 text-[10px] font-black uppercase bg-white text-slate-950 hover:bg-slate-200 rounded-full gap-2 shadow-xl" type="button">
+                <Edit2 className="w-4 h-4" /> Editar Expediente
               </Button>
             )}
           </div>
         </DialogFooter>
 
+        {/* DIALOGOS INTERNOS (ARCHIVAR Y REAGENDAR) */}
         <AlertDialog open={showArchiveConfirm} onOpenChange={setShowArchiveConfirm}>
-          <AlertDialogContent className="z-[160] border-border">
+          <AlertDialogContent className="bg-slate-900 border-white/10 rounded-[2rem] text-white">
             <AlertDialogHeader>
-              <AlertDialogTitle>¿Archivar registro?</AlertDialogTitle>
-              <AlertDialogDescription>
-                El registro se moverá a la papelera. Podrás recuperarlo en cualquier momento desde la vista de "Archivadas".
+              <AlertDialogTitle className="text-xl font-black uppercase tracking-tighter">¿Archivar Expediente?</AlertDialogTitle>
+              <AlertDialogDescription className="text-slate-400 font-medium">
+                El registro de <strong>{appointment.name}</strong> se moverá a la papelera. Podrás recuperarlo en cualquier momento desde el historial de archivados.
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel onClick={() => setShowArchiveConfirm(false)}>Cancelar</AlertDialogCancel>
-              <AlertDialogAction onClick={handleArchive} className="bg-destructive hover:bg-destructive/90 text-white">
-                Sí, archivar
+            <AlertDialogFooter className="gap-3">
+              <AlertDialogCancel onClick={() => setShowArchiveConfirm(false)} className="bg-white/5 border-white/10 text-white rounded-full h-11 px-6 text-xs font-bold uppercase">Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={handleArchive} className="bg-destructive hover:bg-destructive/90 text-white rounded-full h-11 px-8 text-xs font-black uppercase">
+                Sí, Archivar
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -771,35 +723,30 @@ Hora: ${timeBold}${confirmedBold}`;
 
         <Dialog open={isRescheduling} onOpenChange={setIsRescheduling}>
           <DialogContent 
-            className="sm:max-w-[450px] bg-card border-border shadow-2xl backdrop-blur-md z-[160]"
+            className="sm:max-w-[500px] bg-[#020617] border-white/10 shadow-2xl rounded-[2.5rem] p-0 overflow-hidden"
           >
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <CalendarPlus className="w-5 h-5 text-primary" />
-                Programar Seguimiento
-              </DialogTitle>
-              <DialogDescription className="text-xs">
-                Agendando seguimiento para <strong>{newName}</strong>. Se heredarán prospectadores y ejecutivos anteriores.
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="py-4 space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-bold uppercase text-muted-foreground">Nombre</Label>
-                  <Input value={newName} onChange={e => setNewName(e.target.value)} className="h-9 bg-muted/20 text-sm" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-bold uppercase text-muted-foreground">Teléfono</Label>
-                  <Input value={newPhone} onChange={e => setNewPhone(e.target.value)} className="h-9 bg-muted/20 text-sm" />
+            <DialogHeader className="p-8 border-b border-white/5 bg-primary/5">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-primary text-white rounded-2xl shadow-lg"><CalendarPlus className="w-6 h-6" /></div>
+                <div>
+                  <DialogTitle className="text-xl font-black uppercase tracking-tighter text-white leading-none">Nueva Consulta</DialogTitle>
+                  <DialogDescription className="text-[10px] font-bold uppercase text-primary tracking-widest mt-1">
+                    Continuidad de Trámite: {newName}
+                  </DialogDescription>
                 </div>
               </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-bold uppercase text-muted-foreground">Producto</Label>
+            </DialogHeader>
+            
+            <div className="p-8 space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Cliente</Label>
+                  <Input value={newName} readOnly className="h-10 bg-white/5 border-white/10 text-slate-400 font-bold" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Producto</Label>
                   <Select value={newProduct} onValueChange={(v) => setNewProduct(v as AppointmentProduct)}>
-                    <SelectTrigger className="h-9 bg-muted/20 text-sm">
+                    <SelectTrigger className="h-10 bg-white/5 border-white/10 text-white font-bold">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -811,58 +758,34 @@ Hora: ${timeBold}${confirmedBold}`;
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-bold uppercase text-muted-foreground">Motivo</Label>
-                  <Select value={newType} onValueChange={(v) => setNewType(v as AppointmentType)}>
-                    <SelectTrigger className="h-9 bg-primary/10 border-primary/20 text-xs font-bold text-primary focus:ring-primary">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1ra consulta">1ra consulta</SelectItem>
-                      <SelectItem value="2da consulta">2da consulta</SelectItem>
-                      <SelectItem value="cierre">Cierre</SelectItem>
-                      <SelectItem value="Seguimiento">Seguimiento</SelectItem>
-                    </SelectContent>
-                  </Select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Nueva Fecha</Label>
+                  <Input type="date" value={newDate} onChange={e => setNewDate(e.target.value)} className="h-10 bg-white/5 border-white/10 text-white font-bold" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Nueva Hora</Label>
+                  <Input type="time" value={newTime} onChange={e => setNewTime(e.target.value)} className="h-10 bg-white/5 border-white/10 text-white font-bold" />
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <Label className="text-[10px] font-bold uppercase text-muted-foreground">Ejecutivo que atendió</Label>
-                <Input 
-                  value={newAttendingExecutive} 
-                  onChange={e => setNewAttendingExecutive(e.target.value)} 
-                  className="h-9 bg-muted/20 text-sm" 
-                  placeholder="Heredado del anterior..."
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-bold uppercase text-muted-foreground">Nueva Fecha</Label>
-                  <Input type="date" value={newDate} onChange={e => setNewDate(e.target.value)} className="h-9 bg-muted/20 text-sm" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-bold uppercase text-muted-foreground">Nueva Hora</Label>
-                  <Input type="time" value={newTime} onChange={e => setNewTime(e.target.value)} className="h-9 bg-muted/20 text-sm" />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label className="text-[10px] font-bold uppercase text-muted-foreground">Notas de Seguimiento</Label>
+              <div className="space-y-2">
+                <Label className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Acuerdos Previos</Label>
                 <Textarea 
                   value={newNotes} 
                   onChange={e => setNewNotes(e.target.value)} 
-                  className="bg-muted/10 border-border/40 h-24 resize-none text-xs w-full" 
-                  placeholder="Escribe acuerdos previos o temas a tratar..."
+                  className="bg-white/5 border-white/10 h-24 resize-none text-xs text-white" 
+                  placeholder="Temas pendientes para la siguiente sesión..."
                 />
               </div>
             </div>
 
-            <DialogFooter className="gap-2">
-              <Button variant="outline" onClick={() => setIsRescheduling(false)} className="h-9 text-xs" type="button">Cancelar</Button>
-              <Button onClick={handleConfirmSecond} className="h-9 text-xs bg-primary font-bold shadow-lg" type="button">
-                Confirmar Seguimiento
+            <DialogFooter className="p-8 border-t border-white/5 bg-primary/5 gap-3">
+              <Button variant="ghost" onClick={() => setIsRescheduling(false)} className="h-11 px-6 text-[10px] font-black uppercase text-slate-500 rounded-full" type="button">Cancelar</Button>
+              <Button onClick={handleConfirmSecond} className="h-11 px-8 text-[10px] font-black uppercase bg-primary text-white hover:bg-primary/80 rounded-full shadow-lg" type="button">
+                Confirmar Registro
               </Button>
             </DialogFooter>
           </DialogContent>
