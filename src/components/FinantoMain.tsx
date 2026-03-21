@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -75,7 +74,7 @@ import { cn } from "@/lib/utils";
 import * as Service from '@/services/appointment-service';
 import { isBefore } from 'date-fns';
 
-type Theme = 'tranquilo' | 'moderno' | 'discreto' | 'olivares' | 'corporativo-v2';
+type Theme = 'tranquilo' | 'moderno' | 'discreto' | 'olivares' | 'corporativo';
 
 const APP_TIPS = [
   { icon: Calculator, title: "Calculadora Rápida", color: "text-primary", text: "Usa la calculadora rapida en caso de tener una llamada con un interesado que pregunte montos aproximados." },
@@ -83,7 +82,7 @@ const APP_TIPS = [
   { icon: Sparkles, title: "Seguridad Cloud", color: "text-destructive", text: "Tus datos están ahora sincronizados en Firebase para tu máxima seguridad." },
   { icon: Sparkles, title: "IA Integrada", color: "text-yellow-500", text: "IA para automatización de mensajes personalizados y seguimiento de cierres." },
   { icon: Maximize2, title: "Modo Presentación", color: "text-primary", text: "Usa el icono de expansión para mostrar los números al cliente de forma limpia y profesional." },
-  { icon: Palette, title: "Imagen Corporativa", color: "text-accent", text: "Usa el tema <<Corporativo V2>> para mostrar pantalla a tus clientes presenciales." },
+  { icon: Palette, title: "Imagen Corporativa", color: "text-accent", text: "Usa el tema <<Corporativo>> para mostrar pantalla a tus clientes presenciales." },
   { icon: Copy, title: "Envío a WhatsApp", color: "text-green-500", text: "Copia los datos de cada cliente para mandarlos por el grupo de WhatsApp rápidamente." }
 ];
 
@@ -103,7 +102,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
   const [isNewAppExpanded, setIsNewAppExpanded] = useState(false);
   
   const [selectedAppId, setSelectedAppId] = useState<string | null>(null);
-  const [theme, setTheme] = useState<Theme>('corporativo-v2');
+  const [theme, setTheme] = useState<Theme>('corporativo');
   const [api, setApi] = useState<CarouselApi>();
   const [timerKey, setTimerKey] = useState(0);
   
@@ -190,7 +189,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
 
     const savedTheme = localStorage.getItem('finanto-theme') as Theme;
     if (savedTheme) applyTheme(savedTheme);
-    else applyTheme('corporativo-v2');
+    else applyTheme('corporativo');
 
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
@@ -288,7 +287,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
   const applyTheme = (themeId: Theme) => {
     setTheme(themeId);
     document.documentElement.setAttribute('data-theme', themeId);
-    if (themeId === 'corporativo-v2') {
+    if (themeId === 'corporativo') {
       document.documentElement.classList.remove('dark');
     } else {
       document.documentElement.classList.add('dark');
@@ -521,7 +520,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
                 <DropdownMenuSeparator />
                 <DropdownMenuLabel className="text-[10px] uppercase font-bold text-muted-foreground">Temas Visuales</DropdownMenuLabel>
                 {[
-                  { id: 'corporativo-v2', label: 'Corporativo V2', icon: MessageSquare, color: 'bg-[#1877F2]' },
+                  { id: 'corporativo', label: 'Corporativo', icon: MessageSquare, color: 'bg-[#1877F2]' },
                   { id: 'tranquilo', label: 'Tranquilo', icon: Palette, color: 'bg-primary' },
                   { id: 'moderno', label: 'Moderno', icon: Cpu, color: 'bg-cyan-500' },
                   { id: 'discreto', label: 'Discreto', icon: Moon, color: 'bg-slate-700' },
