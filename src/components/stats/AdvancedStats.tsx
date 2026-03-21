@@ -27,17 +27,9 @@ const CustomXAxisTick = (props: any) => {
   const item = data[payload.index];
   if (!item) return null;
 
-  let labelColor = "currentColor";
-  let opacityNumber = 0.5;
-  
-  // FORZADO: Corte (Martes) = Amarillo-Naranja, Pago (Viernes) = Verde
-  if (item.isCorte) {
-    labelColor = "#f59e0b"; // Amarillo-Naranja
-    opacityNumber = 0.9;
-  } else if (item.isPaga) {
-    labelColor = "#22c55e"; // Verde
-    opacityNumber = 0.9;
-  }
+  const isCorte = item.isCorte;
+  const isPaga = item.isPaga;
+  const dotColor = isCorte ? "#f59e0b" : "#22c55e";
 
   return (
     <g transform={`translate(${x},${y})`}>
@@ -46,8 +38,8 @@ const CustomXAxisTick = (props: any) => {
         y={0} 
         dy={16} 
         textAnchor="middle" 
-        fill={labelColor} 
-        fillOpacity={opacityNumber}
+        fill="currentColor" 
+        fillOpacity={0.5}
         className="text-[9px] font-bold uppercase"
       >
         {item.dayNumber}
@@ -56,12 +48,21 @@ const CustomXAxisTick = (props: any) => {
         x={0} 
         y={32} 
         textAnchor="middle" 
-        fill={labelColor} 
+        fill="currentColor" 
         fillOpacity={1}
         className="text-[10px] font-black uppercase"
       >
         {item.dayInitial}
       </text>
+      {(isCorte || isPaga) && (
+        <circle 
+          cx={0} 
+          cy={44} 
+          r={3} 
+          fill={dotColor} 
+          className="animate-pulse shadow-sm"
+        />
+      )}
     </g>
   );
 };
@@ -112,7 +113,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
       </div>
       <div className={cn("overflow-visible", expanded ? "h-[320px]" : "h-[220px]")}>
         <ChartContainer config={localConfig} className="h-full w-full">
-          <ComposedChart data={data} margin={{ top: 35, right: 10, left: 10, bottom: 40 }}>
+          <ComposedChart data={data} margin={{ top: 35, right: 10, left: 10, bottom: 55 }}>
             <defs>
               <linearGradient id="cierreGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#00F5FF" />
