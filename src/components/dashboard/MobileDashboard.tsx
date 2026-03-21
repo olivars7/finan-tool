@@ -32,6 +32,12 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipProvider,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface MobileDashboardProps {
   userName: string;
@@ -90,11 +96,45 @@ export default function MobileDashboard({
   };
 
   const microStats = [
-    { label: 'Citas hoy', value: stats.todayCount.toString(), icon: CalendarDays, color: 'text-primary' },
-    { label: 'Pendientes', value: stats.pendingCount.toString(), icon: Wallet, color: 'text-primary' },
-    { label: 'Prospectos Mes', value: stats.currentMonthProspects.toString(), icon: Users, color: 'text-accent', comparison: stats.lastMonthProspects },
-    { label: 'Ventas Mes', value: stats.currentMonthSales.toString(), icon: CheckCircle2, color: 'text-green-500', comparison: stats.lastMonthSales },
-    { label: 'Comisiones Mes', value: formatCurrency(stats.currentMonthCommission), icon: Coins, color: 'text-yellow-500', comparison: stats.lastMonthCommission, isCurrency: true },
+    { 
+      label: 'Citas hoy', 
+      value: stats.todayCount.toString(), 
+      icon: CalendarDays, 
+      color: 'text-primary',
+      tip: `Conf: ${stats.todayConfirmed} / Total: ${stats.todayCount}`
+    },
+    { 
+      label: 'Pendientes', 
+      value: stats.pendingCount.toString(), 
+      icon: Wallet, 
+      color: 'text-primary',
+      tip: `Prospectos por atender`
+    },
+    { 
+      label: 'Prospectos Mes', 
+      value: stats.currentMonthProspects.toString(), 
+      icon: Users, 
+      color: 'text-accent', 
+      comparison: stats.lastMonthProspects,
+      tip: `Registros nuevos este ciclo`
+    },
+    { 
+      label: 'Ventas Mes', 
+      value: stats.currentMonthSales.toString(), 
+      icon: CheckCircle2, 
+      color: 'text-green-500', 
+      comparison: stats.lastMonthSales,
+      tip: `Cierres: ${stats.currentMonthOnlyCierre} | Reservas: ${stats.currentMonthApartados}`
+    },
+    { 
+      label: 'Comisiones Mes', 
+      value: formatCurrency(stats.currentMonthCommission), 
+      icon: Coins, 
+      color: 'text-yellow-500', 
+      comparison: stats.lastMonthCommission, 
+      isCurrency: true,
+      tip: `Próx. pago: ${formatCurrency(stats.thisFridayCommission)}`
+    },
   ];
 
   const quadrants = [
@@ -146,24 +186,33 @@ export default function MobileDashboard({
       <div className="w-full overflow-x-auto scrollbar-hide -mx-4 px-4 pb-2">
         <div className="flex gap-3 min-w-max">
           {microStats.map((s, i) => (
-            <div key={i} className="bg-card/30 backdrop-blur-md rounded-[2rem] p-5 flex items-center gap-4 min-w-[200px] shadow-sm border-none">
-              <div className={cn("p-2.5 rounded-2xl bg-muted/5", s.color)}><s.icon size={18} /></div>
-              <div className="flex flex-col flex-1 overflow-hidden">
-                <span className="text-[9px] font-black uppercase text-muted-foreground tracking-widest truncate">{s.label}</span>
-                <div className="flex items-baseline gap-2">
-                  <span className={cn("text-lg font-black text-foreground truncate", s.label === 'Comisiones Mes' ? getDynamicGradient(stats.currentMonthCommission) : "")}>{s.value}</span>
-                  {s.comparison !== undefined && (
-                    <span className={cn(
-                      "text-[9px] font-bold flex items-center",
-                      (parseFloat(s.value.replace(/[^0-9.-]+/g,"")) >= s.comparison) ? "text-green-500" : "text-destructive"
-                    )}>
-                      {s.comparison >= 0 ? <ArrowUpRight className="w-3 h-3 mr-0.5" /> : <ArrowDownRight className="w-3 h-3 mr-0.5" />}
-                      {s.isCurrency ? formatCurrency(s.comparison) : s.comparison}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
+            <TooltipProvider key={i}>
+              <Tooltip delayDuration={0}>
+                <TooltipTrigger asChild>
+                  <div className="bg-card/30 backdrop-blur-md rounded-[2rem] p-5 flex items-center gap-4 min-w-[200px] shadow-sm border-none cursor-help">
+                    <div className={cn("p-2.5 rounded-2xl bg-muted/5", s.color)}><s.icon size={18} /></div>
+                    <div className="flex flex-col flex-1 overflow-hidden">
+                      <span className="text-[9px] font-black uppercase text-muted-foreground tracking-widest truncate">{s.label}</span>
+                      <div className="flex items-baseline gap-2">
+                        <span className={cn("text-lg font-black text-foreground truncate", s.label === 'Comisiones Mes' ? getDynamicGradient(stats.currentMonthCommission) : "")}>{s.value}</span>
+                        {s.comparison !== undefined && (
+                          <span className={cn(
+                            "text-[9px] font-bold flex items-center",
+                            (parseFloat(s.value.replace(/[^0-9.-]+/g,"")) >= s.comparison) ? "text-green-500" : "text-destructive"
+                          )}>
+                            {s.comparison >= 0 ? <ArrowUpRight className="w-3 h-3 mr-0.5" /> : <ArrowDownRight className="w-3 h-3 mr-0.5" />}
+                            {s.isCurrency ? formatCurrency(s.comparison) : s.comparison}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="text-[10px] font-bold">
+                  {s.tip}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           ))}
         </div>
       </div>

@@ -78,44 +78,86 @@ export default function DesktopDashboard({
   };
 
   const statsCards = [
-    { label: 'Citas hoy', value: stats.todayCount.toString(), icon: CalendarDays, color: 'text-primary' },
-    { label: 'Pendientes', value: stats.pendingCount.toString(), icon: Wallet, color: 'text-primary' },
-    { label: 'Prospectos Mes', value: stats.currentMonthProspects.toString(), icon: Users, color: 'text-accent', comparison: stats.lastMonthProspects },
-    { label: 'Ventas Mes', value: stats.currentMonthSales.toString(), icon: CheckCircle2, color: 'text-green-500', comparison: stats.lastMonthSales },
-    { label: 'Comisiones Mes', value: formatCurrency(stats.currentMonthCommission), icon: Coins, color: 'text-yellow-500', comparison: stats.lastMonthCommission, isCurrency: true },
+    { 
+      label: 'Citas hoy', 
+      value: stats.todayCount.toString(), 
+      icon: CalendarDays, 
+      color: 'text-primary',
+      tip: `Confirmadas: ${stats.todayConfirmed} / Total agendado: ${stats.todayCount}`
+    },
+    { 
+      label: 'Pendientes', 
+      value: stats.pendingCount.toString(), 
+      icon: Wallet, 
+      color: 'text-primary',
+      tip: `Prospectos activos esperando atención o seguimiento.`
+    },
+    { 
+      label: 'Prospectos Mes', 
+      value: stats.currentMonthProspects.toString(), 
+      icon: Users, 
+      color: 'text-accent', 
+      comparison: stats.lastMonthProspects,
+      tip: `Total de nuevos registros en el ciclo actual.`
+    },
+    { 
+      label: 'Ventas Mes', 
+      value: stats.currentMonthSales.toString(), 
+      icon: CheckCircle2, 
+      color: 'text-green-500', 
+      comparison: stats.lastMonthSales,
+      tip: `Cierres: ${stats.currentMonthOnlyCierre} | Apartados: ${stats.currentMonthApartados}`
+    },
+    { 
+      label: 'Comisiones Mes', 
+      value: formatCurrency(stats.currentMonthCommission), 
+      icon: Coins, 
+      color: 'text-yellow-500', 
+      comparison: stats.lastMonthCommission, 
+      isCurrency: true,
+      tip: `Próximo viernes: ${formatCurrency(stats.thisFridayCommission)} | Siguiente: ${formatCurrency(stats.nextFridayCommission)}`
+    },
   ];
 
   return (
     <div className="space-y-8 animate-in fade-in duration-1000">
       <div className="grid grid-cols-5 gap-4">
         {statsCards.map((stat, i) => (
-          <Card 
-            key={i}
-            className="bg-card/30 backdrop-blur-md border-none hover:bg-card/50 transition-all duration-300"
-          >
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className={cn("p-2 rounded-full bg-muted/5", stat.color)}><stat.icon size={20} /></div>
-              <div className="flex-1 overflow-hidden">
-                <p className="text-[9px] uppercase font-bold text-muted-foreground truncate">{stat.label}</p>
-                <div className="flex items-baseline gap-2">
-                  <p className={cn("text-lg font-bold truncate", stat.label === 'Comisiones Mes' ? getDynamicGradient(stats.currentMonthCommission) : "")}>
-                    {stat.value}
-                  </p>
-                  {stat.comparison !== undefined && (
-                    <div className="flex flex-col">
-                      <span className={cn(
-                        "text-[8px] font-bold flex items-center",
-                        (parseFloat(stat.value.replace(/[^0-9.-]+/g,"")) >= stat.comparison) ? "text-green-500" : "text-destructive"
-                      )}>
-                        {stat.comparison >= 0 ? <ArrowUpRight className="w-2.5 h-2.5 mr-0.5" /> : <ArrowDownRight className="w-2.5 h-2.5 mr-0.5" />}
-                        {stat.isCurrency ? formatCurrency(stat.comparison) : stat.comparison}
-                      </span>
+          <TooltipProvider key={i}>
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger asChild>
+                <Card 
+                  className="bg-card/30 backdrop-blur-md border-none hover:bg-card/50 transition-all duration-300 cursor-help"
+                >
+                  <CardContent className="p-4 flex items-center gap-3">
+                    <div className={cn("p-2 rounded-full bg-muted/5", stat.color)}><stat.icon size={20} /></div>
+                    <div className="flex-1 overflow-hidden">
+                      <p className="text-[9px] uppercase font-bold text-muted-foreground truncate">{stat.label}</p>
+                      <div className="flex items-baseline gap-2">
+                        <p className={cn("text-lg font-bold truncate", stat.label === 'Comisiones Mes' ? getDynamicGradient(stats.currentMonthCommission) : "")}>
+                          {stat.value}
+                        </p>
+                        {stat.comparison !== undefined && (
+                          <div className="flex flex-col">
+                            <span className={cn(
+                              "text-[8px] font-bold flex items-center",
+                              (parseFloat(stat.value.replace(/[^0-9.-]+/g,"")) >= stat.comparison) ? "text-green-500" : "text-destructive"
+                            )}>
+                              {stat.comparison >= 0 ? <ArrowUpRight className="w-2.5 h-2.5 mr-0.5" /> : <ArrowDownRight className="w-2.5 h-2.5 mr-0.5" />}
+                              {stat.isCurrency ? formatCurrency(stat.comparison) : stat.comparison}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                  </CardContent>
+                </Card>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-[10px] font-bold">
+                {stat.tip}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         ))}
       </div>
 
