@@ -281,7 +281,8 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                   <stop offset="100%" stopColor="#7B61FF" />
                 </linearGradient>
               </defs>
-              <CartesianGrid vertical={true} strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.1} />
+              {/* LINEAS VERTICALES VISIBLES (GRIS CLARO) */}
+              <CartesianGrid vertical={true} horizontal={false} strokeDasharray="4 4" stroke="currentColor" opacity={0.2} />
               <XAxis dataKey="week" tickLine={false} axisLine={false} tickMargin={10} className="text-[10px] font-bold text-muted-foreground/40" />
               <YAxis hide />
               <ChartTooltip 
