@@ -23,7 +23,8 @@ import {
   User, Phone, Clock, Edit2, Save, Copy, ClipboardList, 
   CheckCircle2, Box, CalendarPlus, Receipt, Coins, 
   CalendarDays, UserCog, ChevronDown, History as HistoryIcon, 
-  Info, Trash2, UserCheck, MapPin, Briefcase, FileText, X
+  Info, Trash2, UserCheck, MapPin, Briefcase, FileText, X,
+  LayoutList
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { parseISO, format, isToday, isTomorrow, isYesterday, differenceInCalendarDays, startOfDay } from 'date-fns';
@@ -103,6 +104,7 @@ export default function AppointmentDetailsDialog({
       setNewType(appointment.status === 'Cierre' ? 'Seguimiento' : '2da consulta');
       
       if (appointment.prospectorName) {
+        setNewName(appointment.name);
         setNewProspectorName(appointment.prospectorName);
         setNewProspectorPhone(appointment.prospectorPhone || '');
         setNewAttendingExecutive('');
@@ -265,6 +267,8 @@ Hora: ${timeBold}${confirmedBold}`;
   } else {
     headerTimeText = `Han pasado ${Math.abs(diffCalendar)} ${Math.abs(diffCalendar) === 1 ? 'día' : 'días'} desde la cita`;
   }
+
+  const hasExtraParticipants = !!appointment.prospectorName || !!appointment.attendingExecutive;
 
   return (
     <Dialog open={open} onOpenChange={(o) => { 
@@ -466,6 +470,16 @@ Hora: ${timeBold}${confirmedBold}`;
                   <Input type="time" value={editData.time || ''} onChange={e => setEditData({...editData, time: e.target.value})} className="h-11 bg-white/5 border-white/10 text-white font-bold" />
                 </div>
               </div>
+
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Notas del Registro</Label>
+                <Textarea 
+                  value={editData.notes || ''} 
+                  onChange={e => setEditData({...editData, notes: e.target.value})} 
+                  className="bg-white/5 border-white/10 min-h-[120px] text-sm text-white resize-none scrollbar-thin" 
+                  placeholder="Escribe acuerdos o detalles importantes..."
+                />
+              </div>
             </div>
           ) : (
             <div className="space-y-8 animate-in fade-in duration-500">
@@ -503,13 +517,13 @@ Hora: ${timeBold}${confirmedBold}`;
               </div>
               
               {/* Grid de Datos Técnicos */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className={cn("grid grid-cols-1 gap-6", hasExtraParticipants ? "md:grid-cols-2" : "md:grid-cols-1")}>
                 <div className="space-y-6">
                   <div className="space-y-4">
                     <Label className="text-[10px] font-black uppercase text-primary tracking-[0.2em] flex items-center gap-2">
                       <Clock className="w-3.5 h-3.5" /> Agenda y Horarios
                     </Label>
-                    <div className="grid grid-cols-1 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
                         <div className="space-y-1">
                           <span className="text-[9px] font-bold text-slate-500 uppercase">Fecha Programada</span>
@@ -529,58 +543,56 @@ Hora: ${timeBold}${confirmedBold}`;
 
                   <div className="space-y-4">
                     <Label className="text-[10px] font-black uppercase text-blue-400 tracking-[0.2em] flex items-center gap-2">
-                      <ClipboardList className="w-3.5 h-3.5" /> Detalles de Trámite
+                      <LayoutList className="w-3.5 h-3.5" /> Detalles
                     </Label>
-                    <div className="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10 space-y-1">
-                      <span className="text-[9px] font-bold text-blue-400/60 uppercase">Motivo de la Consulta</span>
-                      <p className="text-sm font-black text-white uppercase">{appointment.type}</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10 space-y-1">
+                        <span className="text-[9px] font-bold text-blue-400/60 uppercase">Motivo</span>
+                        <p className="text-sm font-black text-white uppercase">{appointment.type}</p>
+                      </div>
+                      <div className="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10 space-y-1">
+                        <span className="text-[9px] font-bold text-blue-400/60 uppercase">Resultado</span>
+                        <p className="text-sm font-black text-white uppercase">{appointment.status || 'En Proceso'}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-6">
-                  <div className="space-y-4">
-                    <Label className="text-[10px] font-black uppercase text-slate-500 tracking-[0.2em] flex items-center gap-2">
-                      <UserCheck className="w-3.5 h-3.5" /> Participantes
-                    </Label>
-                    <div className="space-y-3">
-                      {appointment.prospectorName ? (
-                        <div className="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10 flex items-center gap-4">
-                          <div className="p-2 bg-blue-500/10 rounded-xl text-blue-400"><UserCog className="w-5 h-5" /></div>
-                          <div className="flex-1 overflow-hidden">
-                            <span className="text-[9px] font-bold text-blue-400/60 uppercase">Prospectado por</span>
-                            <p className="text-xs font-black text-white truncate">{appointment.prospectorName}</p>
+                {hasExtraParticipants && (
+                  <div className="space-y-6">
+                    <div className="space-y-4">
+                      <Label className="text-[10px] font-black uppercase text-slate-500 tracking-[0.2em] flex items-center gap-2">
+                        <UserCheck className="w-3.5 h-3.5" /> Participantes
+                      </Label>
+                      <div className="space-y-3">
+                        {appointment.prospectorName && (
+                          <div className="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10 flex items-center gap-4">
+                            <div className="p-2 bg-blue-500/10 rounded-xl text-blue-400"><UserCog className="w-5 h-5" /></div>
+                            <div className="flex-1 overflow-hidden">
+                              <span className="text-[9px] font-bold text-blue-400/60 uppercase">Prospectado por</span>
+                              <p className="text-xs font-black text-white truncate">{appointment.prospectorName}</p>
+                            </div>
+                            {appointment.prospectorPhone && (
+                              <Button variant="ghost" size="icon" onClick={copyProspectorPhone} className="h-8 w-8 text-blue-400 hover:bg-blue-500/10 rounded-full">
+                                <Copy className="w-3 h-3" />
+                              </Button>
+                            )}
                           </div>
-                          {appointment.prospectorPhone && (
-                            <Button variant="ghost" size="icon" onClick={copyProspectorPhone} className="h-8 w-8 text-blue-400 hover:bg-blue-500/10 rounded-full">
-                              <Copy className="w-3 h-3" />
-                            </Button>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="p-4 rounded-2xl bg-white/5 border border-white/5 border-dashed flex items-center gap-3 text-slate-600 italic">
-                          <UserCog className="w-4 h-4 opacity-40" />
-                          <span className="text-[10px] font-bold uppercase">Sin prospectador externo</span>
-                        </div>
-                      )}
+                        )}
 
-                      {appointment.attendingExecutive ? (
-                        <div className="p-4 rounded-2xl bg-purple-500/5 border border-purple-500/10 flex items-center gap-4">
-                          <div className="p-2 bg-purple-500/10 rounded-xl text-purple-400"><UserCheck className="w-5 h-5" /></div>
-                          <div className="flex-1 overflow-hidden">
-                            <span className="text-[9px] font-bold text-purple-400/60 uppercase">Atendido por</span>
-                            <p className="text-xs font-black text-white truncate">{appointment.attendingExecutive}</p>
+                        {appointment.attendingExecutive && (
+                          <div className="p-4 rounded-2xl bg-purple-500/5 border border-purple-500/10 flex items-center gap-4">
+                            <div className="p-2 bg-purple-500/10 rounded-xl text-purple-400"><UserCheck className="w-5 h-5" /></div>
+                            <div className="flex-1 overflow-hidden">
+                              <span className="text-[9px] font-bold text-purple-400/60 uppercase">Atendido por</span>
+                              <p className="text-xs font-black text-white truncate">{appointment.attendingExecutive}</p>
+                            </div>
                           </div>
-                        </div>
-                      ) : (
-                        <div className="p-4 rounded-2xl bg-white/5 border border-white/5 border-dashed flex items-center gap-3 text-slate-600 italic">
-                          <UserCheck className="w-4 h-4 opacity-40" />
-                          <span className="text-[10px] font-bold uppercase">Sin ejecutivo asignado</span>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
 
               {/* Panel de Comisión (Solo si es Cierre) */}
@@ -637,14 +649,14 @@ Hora: ${timeBold}${confirmedBold}`;
                 </div>
               )}
 
-              {/* Notas del Cliente */}
+              {/* NOTAS */}
               <div className="space-y-4">
                 <Label className="flex items-center gap-2 text-white text-[10px] font-black uppercase tracking-[0.3em]">
-                  <FileText className="w-4 h-4 text-primary" /> Diario de Seguimiento
+                  <FileText className="w-4 h-4 text-primary" /> NOTAS
                 </Label>
-                <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 min-h-[120px] relative">
-                  <p className="text-sm leading-relaxed text-slate-300 font-medium italic">
-                    {appointment.notes ? `"${appointment.notes}"` : 'Sin comentarios u observaciones registradas para este expediente.'}
+                <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 min-h-[120px] max-h-[250px] overflow-y-auto scrollbar-thin relative group/notes">
+                  <p className="text-sm leading-relaxed text-slate-300 font-medium whitespace-pre-wrap">
+                    {appointment.notes ? appointment.notes : 'Sin comentarios u observaciones registradas para este expediente.'}
                   </p>
                 </div>
               </div>
@@ -756,7 +768,7 @@ Hora: ${timeBold}${confirmedBold}`;
                 <Textarea 
                   value={newNotes} 
                   onChange={e => setNewNotes(e.target.value)} 
-                  className="bg-white/5 border-white/10 h-24 resize-none text-xs text-white" 
+                  className="bg-white/5 border-white/10 h-24 resize-none text-xs text-white scrollbar-thin" 
                   placeholder="Temas pendientes para la siguiente sesión..."
                 />
               </div>
