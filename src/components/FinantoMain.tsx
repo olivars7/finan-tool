@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -199,10 +198,10 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
                 {[
                   { id: 'corporativo', label: 'Corporativo', icon: MessageSquare, color: 'bg-[#1877F2]' },
                   { id: 'corporativo-oscuro', label: 'Corporativo Oscuro', icon: Sparkles, color: 'bg-slate-900' },
-                  { id: 'tranquilo', label: 'Tranquilo', icon: Palette, color: 'bg-primary' },
-                  { id: 'moderno', label: 'Moderno', icon: Cpu, color: 'bg-cyan-500' },
-                  { id: 'discreto', label: 'Discreto', icon: Moon, color: 'bg-slate-700' },
-                  { id: 'olivares', label: 'Olivares', icon: Crown, color: 'bg-yellow-600' },
+                  { id: 'tranquilo', label: 'Atlántico', icon: Palette, color: 'bg-primary' },
+                  { id: 'moderno', label: 'Neo-Tech', icon: Cpu, color: 'bg-cyan-500' },
+                  { id: 'discreto', label: 'Nocturno', icon: Moon, color: 'bg-slate-700' },
+                  { id: 'olivares', label: 'Prestigio', icon: Crown, color: 'bg-yellow-600' },
                 ].map((t) => (
                   <DropdownMenuItem key={t.id} onClick={() => handleThemeChange(t.id as Theme)} className="cursor-pointer">
                     <t.icon className="w-4 h-4 text-muted-foreground mr-2" />
@@ -305,7 +304,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
           </DialogHeader>
           
           <ScrollArea className="flex-1 p-6 scrollbar-thin">
-            <div className="pb-20">
+            <div className="pb-32">
               <AppointmentForm onAdd={(data) => {
                 addAppointment(data);
                 setIsNewAppointmentOpen(false);
