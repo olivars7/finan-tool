@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { 
   TrendingUp, BarChart3, Maximize2, X, Activity, CalendarDays, Trophy, Users, Coins, ArrowUpRight, ArrowDownRight, Zap, Target, Receipt, Percent, Info, LineChart as LineIcon, AlertCircle, Lightbulb, CalendarClock
 } from "lucide-react";
-import { Bar, CartesianGrid, XAxis, YAxis, Cell, ReferenceArea, Line, ResponsiveContainer, ComposedChart, LineChart } from "recharts";
+import { Bar, CartesianGrid, XAxis, YAxis, Cell, ReferenceArea, Line, ResponsiveContainer, ComposedChart, LineChart, ReferenceLine } from "recharts";
 import { ChartContainer, ChartTooltip, type ChartConfig } from "@/components/ui/chart";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
@@ -30,7 +30,8 @@ const CustomXAxisTick = (props: any) => {
 
   const isCorte = item.isCorte;
   const isPaga = item.isPaga;
-  const dotColor = isCorte ? "#64748b" : "#1877F2"; // Gris para corte, Azul para pago
+  // Gris para corte, Azul para pago
+  const dotColor = isCorte ? "#64748b" : isPaga ? "#1877F2" : null;
 
   return (
     <g transform={`translate(${x},${y})`}>
@@ -39,8 +40,8 @@ const CustomXAxisTick = (props: any) => {
         y={0} 
         dy={16} 
         textAnchor="middle" 
-        fill={isCorte || isPaga ? dotColor : "currentColor"} 
-        fillOpacity={isCorte || isPaga ? 1 : 0.5}
+        fill="currentColor" 
+        fillOpacity={0.5}
         className="text-[9px] font-bold uppercase"
       >
         {item.dayNumber}
@@ -49,19 +50,19 @@ const CustomXAxisTick = (props: any) => {
         x={0} 
         y={32} 
         textAnchor="middle" 
-        fill={isCorte || isPaga ? dotColor : "currentColor"} 
+        fill="currentColor" 
         fillOpacity={1}
         className="text-[10px] font-black uppercase"
       >
         {item.dayInitial}
       </text>
-      {(isCorte || isPaga) && (
+      {dotColor && (
         <circle 
           cx={0} 
           cy={44} 
           r={3} 
           fill={dotColor} 
-          className="animate-pulse shadow-sm"
+          className="shadow-sm"
         />
       )}
     </g>
@@ -257,6 +258,10 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
   };
 
   const WeeklyHistoryChart = ({ markedBorder = false }: { markedBorder?: boolean }) => {
+    const data = stats.charts.weeklyIncomeHistory;
+    const lastIdx = data.length - 1;
+    const secondLastIdx = data.length - 2;
+
     return (
       <div className={cn(
         "bg-muted/5 rounded-2xl p-6 space-y-6",
@@ -273,7 +278,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
         </div>
         <div className="h-[280px]">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={stats.charts.weeklyIncomeHistory} margin={{ left: 10, right: 10, top: 20, bottom: 10 }}>
+            <LineChart data={data} margin={{ left: 10, right: 10, top: 20, bottom: 10 }}>
               <defs>
                 <linearGradient id="historyLineGradient" x1="0" y1="0" x2="1" y2="0">
                   <stop offset="0%" stopColor="#00F5FF" />
@@ -294,13 +299,13 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
               <ChartTooltip 
                 content={({ active, payload }) => {
                   if (active && payload && payload.length) {
-                    const data = payload[0].payload;
+                    const d = payload[0].payload;
                     return (
-                      <div className={cn("bg-card/95 p-3 rounded-lg shadow-2xl border-none space-y-2 backdrop-blur-xl", data.isCurrentWeek ? "shadow-[0_0_20px_rgba(24,119,242,0.2)]" : "")}>
-                        <p className={cn("text-[10px] font-black uppercase border-b border-border/10 pb-1 mb-1", data.isCurrentWeek ? "text-primary" : "opacity-60")}>Semana: {data.week}</p>
+                      <div className={cn("bg-card/95 p-3 rounded-lg shadow-2xl border-none space-y-2 backdrop-blur-xl", d.isCurrentWeek ? "shadow-[0_0_20px_rgba(24,119,242,0.2)]" : "")}>
+                        <p className={cn("text-[10px] font-black uppercase border-b border-border/10 pb-1 mb-1", d.isCurrentWeek ? "text-primary" : "opacity-60")}>Semana: {d.week}</p>
                         <div className="space-y-1">
-                          <p className="text-xs font-bold text-foreground flex items-center justify-between gap-4"><span className="opacity-60 text-[9px] uppercase">Cobro:</span><span className="text-primary">{formatCurrency(data.income)}</span></p>
-                          <p className="text-[10px] font-bold flex items-center justify-between gap-4"><span className="opacity-60 uppercase text-[8px]">Cierres:</span><span className="text-green-500">{data.cierres}</span></p>
+                          <p className="text-xs font-bold text-foreground flex items-center justify-between gap-4"><span className="opacity-60 text-[9px] uppercase">Cobro:</span><span className="text-primary">{formatCurrency(d.income)}</span></p>
+                          <p className="text-[10px] font-bold flex items-center justify-between gap-4"><span className="opacity-60 uppercase text-[8px]">Cierres:</span><span className="text-green-500">{d.cierres}</span></p>
                         </div>
                       </div>
                     );
@@ -308,6 +313,25 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                   return null;
                 }}
               />
+              {/* Blinking lines for the last two vertical milestones */}
+              {data[lastIdx] && (
+                <ReferenceLine 
+                  x={data[lastIdx].week} 
+                  stroke="#1877F2" 
+                  strokeWidth={2} 
+                  strokeDasharray="3 3" 
+                  className="animate-pulse"
+                />
+              )}
+              {data[secondLastIdx] && (
+                <ReferenceLine 
+                  x={data[secondLastIdx].week} 
+                  stroke="#1877F2" 
+                  strokeWidth={2} 
+                  strokeDasharray="3 3" 
+                  className="animate-pulse opacity-50"
+                />
+              )}
               <Line 
                 type="monotone" dataKey="income" stroke="url(#historyLineGradient)" strokeWidth={3} 
                 dot={(props: any) => {
