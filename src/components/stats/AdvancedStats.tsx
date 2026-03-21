@@ -27,10 +27,18 @@ const CustomXAxisTick = (props: any) => {
   const item = data[payload.index];
   if (!item) return null;
 
-  let initialColor = "currentColor";
+  let labelColor = "currentColor";
+  let opacityNumber = 0.5;
+  
   // FORZADO: Corte (Martes) = Amarillo-Naranja, Pago (Viernes) = Verde
-  if (item.isCorte) initialColor = "#f59e0b"; // Amber-500 (Amarillo-Naranja)
-  if (item.isPaga) initialColor = "#22c55e";  // Green-500 (Verde)
+  if (item.isCorte) {
+    labelColor = "#f59e0b"; // Amarillo-Naranja
+    opacityNumber = 0.8;
+  }
+  if (item.isPaga) {
+    labelColor = "#22c55e"; // Verde
+    opacityNumber = 0.8;
+  }
 
   return (
     <g transform={`translate(${x},${y})`}>
@@ -39,8 +47,8 @@ const CustomXAxisTick = (props: any) => {
         y={0} 
         dy={16} 
         textAnchor="middle" 
-        fill="currentColor" 
-        fillOpacity={0.5}
+        fill={labelColor} 
+        fillOpacity={item.isCorte || item.isPaga ? 0.8 : opacityNumber}
         className="text-[9px] font-bold uppercase"
       >
         {item.dayNumber}
@@ -49,7 +57,7 @@ const CustomXAxisTick = (props: any) => {
         x={0} 
         y={32} 
         textAnchor="middle" 
-        fill={initialColor} 
+        fill={labelColor} 
         className="text-[10px] font-black uppercase"
       >
         {item.dayInitial}
