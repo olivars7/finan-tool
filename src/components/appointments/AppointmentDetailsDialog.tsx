@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -19,11 +20,11 @@ import {
 } from "@/components/ui/select";
 import { Appointment, AppointmentStatus, AppointmentType, AppointmentProduct, getCommissionPaymentDate } from '@/services/appointment-service';
 import { 
-  User, Phone, Clock, Edit2, Save, Copy, ClipboardList, 
-  CheckCircle2, Box, CalendarPlus, Receipt, Coins, 
-  CalendarDays, UserCog, ChevronDown, History as HistoryIcon, 
-  Info, Trash2, UserCheck, MapPin, Briefcase, FileText, X,
-  LayoutList, Calendar as CalendarIcon, Percent, Wallet
+  User, Phone, Clock, Edit2, Save, Copy, 
+  CheckCircle2, Box, CalendarPlus, Receipt, 
+  CalendarDays, UserCog, History as HistoryIcon, 
+  Info, Trash2, UserCheck, X,
+  LayoutList, Percent
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { parseISO, format, isToday, isTomorrow, isYesterday, differenceInCalendarDays, startOfDay } from 'date-fns';
@@ -67,27 +68,68 @@ export default function AppointmentDetailsDialog({
   format12hTime
 }: Props) {
   const [isEditing, setIsEditing] = useState(false);
+  const [isCloning, setIsCloning] = useState(false); // Para el flujo de reagendado
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
   const [editData, setEditData] = useState<Partial<Appointment>>({});
   
   const { toast } = useToast();
 
   useEffect(() => {
-    if (appointment) {
+    if (appointment && !isCloning) {
       setEditData(appointment);
     }
-  }, [appointment]);
+  }, [appointment, isCloning]);
 
   if (!appointment) return null;
 
   const handleSave = () => {
     if (editData.date && !editData.date.includes('T')) {
-      // Asegurar formato ISO si se editó el input date
       editData.date = new Date(editData.date + 'T12:00:00Z').toISOString();
     }
-    onEdit(appointment.id, editData);
+
+    if (isCloning) {
+      // Crear nueva cita basada en los datos heredados
+      onAdd({
+        name: editData.name || '',
+        phone: editData.phone || '',
+        date: editData.date || new Date().toISOString(),
+        time: editData.time || '10:00',
+        type: editData.type || '2da consulta',
+        product: editData.product,
+        prospectorName: editData.prospectorName,
+        prospectorPhone: editData.prospectorPhone,
+        attendingExecutive: editData.attendingExecutive,
+        notes: editData.notes,
+        isArchived: false
+      });
+      toast({ title: "Cita Agendada", description: `Nueva cita de seguimiento para ${editData.name}.` });
+    } else {
+      // Guardar edición normal
+      onEdit(appointment.id, editData);
+      toast({ title: "Guardado", description: "La información ha sido actualizada." });
+    }
+    
     setIsEditing(false);
-    toast({ title: "Guardado", description: "La información ha sido actualizada." });
+    setIsCloning(false);
+    onOpenChange(false);
+  };
+
+  const handleStartReagendar = () => {
+    // Modo "Clonación": Heredar datos pero limpiar resultados y fecha para crear una nueva
+    setEditData({
+      ...appointment,
+      status: undefined,
+      isConfirmed: false,
+      date: '', // Forzar a elegir nueva fecha
+      time: '', // Forzar a elegir nueva hora
+      type: '2da consulta',
+      notes: `Seguimiento de la cita anterior del ${format(parseISO(appointment.date), "d/MM")}.`,
+      commissionStatus: undefined,
+      commissionPercent: undefined,
+      finalCreditAmount: undefined
+    });
+    setIsCloning(true);
+    setIsEditing(true);
   };
 
   const handleArchive = () => {
@@ -101,7 +143,6 @@ export default function AppointmentDetailsDialog({
   };
 
   const handleCopyData = () => {
-    if (!appointment) return;
     const dateObj = parseISO(appointment.date);
     const dateFormatted = format(dateObj, "EEEE d 'de' MMMM yyyy", { locale: es });
     const capitalizedDate = dateFormatted.charAt(0).toUpperCase() + dateFormatted.slice(1);
@@ -114,10 +155,7 @@ export default function AppointmentDetailsDialog({
                  `Hora: ${timeFormatted}`;
 
     navigator.clipboard.writeText(text).then(() => {
-      toast({ 
-        title: "Copiado", 
-        description: "Información de la cita lista para compartir." 
-      });
+      toast({ title: "Copiado", description: "Información de la cita lista para compartir." });
     });
   };
 
@@ -130,10 +168,7 @@ export default function AppointmentDetailsDialog({
   const copyPhoneOnly = () => {
     if (!appointment.phone) return;
     navigator.clipboard.writeText(appointment.phone).then(() => {
-      toast({
-        title: "Número copiado",
-        description: `${appointment.name}: ${appointment.phone} listo para usar.`,
-      });
+      toast({ title: "Número copiado", description: `${appointment.name}: ${appointment.phone}` });
     });
   };
 
@@ -151,13 +186,14 @@ export default function AppointmentDetailsDialog({
   if (isToday(appDate)) headerTimeText = "Hoy es el día de la cita";
   else if (isTomorrow(appDate)) headerTimeText = "La cita es mañana";
   else if (isYesterday(appDate)) headerTimeText = "La cita fue ayer";
-  else if (diffCalendar > 0) headerTimeText = `Faltan ${diffCalendar} ${diffCalendar === 1 ? 'día' : 'días'} para la cita`;
-  else headerTimeText = `Han pasado ${Math.abs(diffCalendar)} ${Math.abs(diffCalendar) === 1 ? 'día' : 'días'} desde la cita`;
+  else if (diffCalendar > 0) headerTimeText = `Faltan ${diffCalendar} días para la cita`;
+  else headerTimeText = `Han pasado ${Math.abs(diffCalendar)} días desde la cita`;
 
   return (
     <Dialog open={open} onOpenChange={(o) => { 
       if(!o) {
         setIsEditing(false);
+        setIsCloning(false);
         onOpenChange(false);
       } else {
         onOpenChange(true);
@@ -169,10 +205,10 @@ export default function AppointmentDetailsDialog({
         <DialogHeader className="px-6 sm:px-8 py-6 border-b border-border/10 flex flex-row items-center justify-between bg-primary/5 shrink-0">
           <div className="flex flex-col gap-1 min-w-0">
             <DialogTitle className="text-xl font-black text-foreground uppercase tracking-tighter truncate">
-              {isEditing ? 'Editar Registro' : 'Expediente'}
+              {isCloning ? 'Agendar Seguimiento' : isEditing ? 'Editar Registro' : 'Expediente'}
             </DialogTitle>
             <DialogDescription className="text-[9px] font-bold uppercase text-primary tracking-widest flex items-center gap-1 truncate">
-              <HistoryIcon className="w-2.5 h-2.5" /> {headerTimeText}
+              <HistoryIcon className="w-2.5 h-2.5" /> {isCloning ? 'Creando nueva cita desde base' : headerTimeText}
             </DialogDescription>
           </div>
 
@@ -259,11 +295,12 @@ export default function AppointmentDetailsDialog({
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[10px] font-bold uppercase text-muted-foreground ml-2">Resultado Final</Label>
-                    <Select value={editData.status || 'Asistencia'} onValueChange={(v) => setEditData({...editData, status: v as AppointmentStatus})}>
+                    <Select value={editData.status || "PENDIENTE"} onValueChange={(v) => setEditData({...editData, status: v === "PENDIENTE" ? undefined : v as AppointmentStatus})}>
                       <SelectTrigger className="h-11 bg-muted/20 border-border/40 text-foreground font-bold rounded-full px-6">
-                        <SelectValue />
+                        <SelectValue placeholder="--- Pendiente ---" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="PENDIENTE">⏳ Sin resultado (Pendiente)</SelectItem>
                         <SelectItem value="Asistencia">👤 Asistencia</SelectItem>
                         <SelectItem value="Cierre">💰 Cierre (Venta)</SelectItem>
                         <SelectItem value="Apartado">📑 Apartado</SelectItem>
@@ -276,6 +313,49 @@ export default function AppointmentDetailsDialog({
                   </div>
                 </div>
               </div>
+
+              {/* Panel Financiero en Edición */}
+              {editData.status === 'Cierre' && (
+                <div className="p-6 rounded-[2rem] bg-green-500/5 border-2 border-green-500/20 space-y-6">
+                  <Label className="text-[10px] font-black uppercase text-green-600 tracking-[0.2em] flex items-center gap-2">
+                    <Receipt className="w-3.5 h-3.5" /> Datos de Liquidación
+                  </Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-bold uppercase text-muted-foreground ml-2">Monto de Crédito Final</Label>
+                      <Input 
+                        type="number" 
+                        value={editData.finalCreditAmount || ''} 
+                        onChange={e => setEditData({...editData, finalCreditAmount: parseFloat(e.target.value) || 0})}
+                        className="h-11 bg-background border-green-500/20 font-bold rounded-full px-6"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-bold uppercase text-muted-foreground ml-2">Participación (%)</Label>
+                      <div className="relative">
+                        <Input 
+                          type="number" 
+                          value={editData.commissionPercent ?? 100} 
+                          onChange={e => setEditData({...editData, commissionPercent: parseFloat(e.target.value) || 0})}
+                          className="h-11 bg-background border-green-500/20 font-bold rounded-full px-6 pr-10"
+                        />
+                        <Percent className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-green-600" />
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between col-span-1 md:col-span-2 bg-muted/20 p-4 rounded-2xl border border-border/20">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold uppercase text-muted-foreground">Estado de Pago:</span>
+                        <span className="text-xs font-black uppercase">{editData.commissionStatus || 'Pendiente'}</span>
+                      </div>
+                      <Switch 
+                        checked={editData.commissionStatus === 'Pagada'} 
+                        onCheckedChange={(c) => setEditData({...editData, commissionStatus: c ? 'Pagada' : 'Pendiente'})}
+                        className="data-[state=checked]:bg-green-600"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Sección Atención */}
               <div className="space-y-4">
@@ -321,7 +401,6 @@ export default function AppointmentDetailsDialog({
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Panel Agenda */}
                 <div className="space-y-4">
                   <Label className="text-[10px] font-black uppercase text-primary tracking-[0.2em] flex items-center gap-2">
                     <Clock className="w-3.5 h-3.5" /> Agenda
@@ -338,7 +417,6 @@ export default function AppointmentDetailsDialog({
                   </div>
                 </div>
 
-                {/* Panel Detalles */}
                 <div className="space-y-4">
                   <Label className="text-[10px] font-black uppercase text-blue-600 dark:text-blue-400 tracking-[0.2em] flex items-center gap-2">
                     <LayoutList className="w-3.5 h-3.5" /> Estado
@@ -350,13 +428,13 @@ export default function AppointmentDetailsDialog({
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-[9px] font-bold text-blue-600/60 uppercase">Resultado</span>
-                      <p className="text-xs font-black text-foreground uppercase">{appointment.status || 'En Proceso'}</p>
+                      <p className="text-xs font-black text-foreground uppercase">{appointment.status || 'Pendiente'}</p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Equipo Responsable (Solo si existe) */}
+              {/* Equipo Responsable */}
               {(appointment.attendingExecutive || appointment.prospectorName) && (
                 <div className="space-y-4">
                   <Label className="text-[10px] font-black uppercase text-purple-600 tracking-[0.2em] flex items-center gap-2">
@@ -393,13 +471,8 @@ export default function AppointmentDetailsDialog({
                       <div className="p-2 bg-green-500/20 rounded-xl"><Receipt className="w-5 h-5 text-green-600" /></div>
                       <h4 className="text-[10px] font-black uppercase text-green-600 tracking-[0.2em]">Liquidación Final</h4>
                     </div>
-                    <div className="flex items-center gap-3 bg-muted/20 p-1.5 pr-3 rounded-full border border-green-500/20">
-                      <Switch checked={(editData.commissionStatus || 'Pendiente') === 'Pagada'} onCheckedChange={(checked) => {
-                        const newStatus = checked ? 'Pagada' : 'Pendiente';
-                        onEdit(appointment.id, { commissionStatus: newStatus });
-                        setEditData(prev => ({ ...prev, commissionStatus: newStatus }));
-                      }} className="data-[state=checked]:bg-green-600" />
-                      <span className="text-[9px] font-black uppercase tracking-widest text-foreground">{editData.commissionStatus || 'Pendiente'}</span>
+                    <div className="flex items-center gap-2 px-3 py-1 bg-muted/20 rounded-full border border-green-500/20">
+                      <span className="text-[9px] font-black uppercase tracking-widest text-foreground">{appointment.commissionStatus || 'Pendiente'}</span>
                     </div>
                   </div>
                   
@@ -410,7 +483,7 @@ export default function AppointmentDetailsDialog({
                         <p className="text-xl font-black text-foreground">{new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(finalCredit)}</p>
                       </div>
                       
-                      <div className="space-y-2">
+                      <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <span className="text-[9px] font-bold text-muted-foreground uppercase ml-1">Participación</span>
                           <TooltipProvider>
@@ -418,24 +491,13 @@ export default function AppointmentDetailsDialog({
                               <TooltipTrigger asChild>
                                 <Info className="w-3 h-3 text-muted-foreground/40 cursor-help" />
                               </TooltipTrigger>
-                              <TooltipContent side="top" className="text-[10px] font-bold">
-                                Porcentaje de comisión sobre el 0.7% del crédito.
+                              <TooltipContent side="top" className="text-[10px] font-bold max-w-[200px]">
+                                Calculado sobre el 0.7% bruto del crédito.
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
                         </div>
-                        <div className="relative w-24">
-                          <Input 
-                            type="number" 
-                            value={commissionPercent} 
-                            onChange={e => {
-                              const val = parseFloat(e.target.value) || 0;
-                              setEditData({...editData, commissionPercent: val});
-                            }}
-                            className="h-8 pr-6 text-xs font-bold bg-background border-green-500/20 rounded-lg"
-                          />
-                          <Percent className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-green-600" />
-                        </div>
+                        <p className="text-xl font-black text-foreground">{commissionPercent}%</p>
                       </div>
                     </div>
 
@@ -454,7 +516,7 @@ export default function AppointmentDetailsDialog({
                                 <Info className="w-3 h-3 text-muted-foreground/40 cursor-help" />
                               </TooltipTrigger>
                               <TooltipContent side="top" className="text-[10px] font-bold">
-                                Cobro el viernes de la siguiente o subsiguiente semana.
+                                Ciclo: Ventas D-M cobran viernes sig. semana. M-S cobran viernes subsiguiente.
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
@@ -469,14 +531,13 @@ export default function AppointmentDetailsDialog({
                 </div>
               )}
 
-              {/* Notas */}
               <div className="space-y-4">
                 <Label className="flex items-center gap-2 text-foreground text-[10px] font-black uppercase tracking-[0.3em]">
-                  <FileText className="w-4 h-4 text-primary" /> NOTAS DE EXPEDIENTE
+                  <LayoutList className="w-4 h-4 text-primary" /> NOTAS DE EXPEDIENTE
                 </Label>
                 <div className="p-6 rounded-[2rem] bg-muted/10 border border-border/20 min-h-[120px]">
                   <p className="text-sm leading-relaxed text-foreground font-medium whitespace-pre-wrap italic opacity-80">
-                    {appointment.notes ? appointment.notes : 'Sin acuerdos registrados en este expediente.'}
+                    {appointment.notes ? appointment.notes : 'Sin acuerdos registrados.'}
                   </p>
                 </div>
               </div>
@@ -484,25 +545,25 @@ export default function AppointmentDetailsDialog({
           )}
         </div>
 
-        <DialogFooter className="px-8 py-6 border-t border-border/10 bg-primary/5 flex flex-row justify-between items-center gap-4 shrink-0">
+        <DialogFooter className="px-8 py-6 border-t border-border/10 bg-primary/5 flex flex-row justify-between items-center gap-4 shrink-0 pb-24 md:pb-6">
           <div className="flex flex-1 gap-3">
             {!isEditing && (
-              <Button onClick={() => setIsEditing(true)} variant="ghost" size="sm" className="h-11 px-6 text-[10px] font-black uppercase text-primary hover:bg-primary/10 rounded-full gap-2">
-                <CalendarPlus className="w-4 h-4" /> Reagendar / Mover
+              <Button onClick={handleStartReagendar} variant="ghost" size="sm" className="h-11 px-6 text-[10px] font-black uppercase text-primary hover:bg-primary/10 rounded-full gap-2">
+                <CalendarPlus className="w-4 h-4" /> Reagendar (2da Cita)
               </Button>
             )}
           </div>
           <div className="flex gap-3">
             {isEditing ? (
               <>
-                <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)} className="h-11 px-6 text-[10px] font-black uppercase text-muted-foreground rounded-full">Cancelar</Button>
+                <Button variant="ghost" size="sm" onClick={() => { setIsEditing(false); setIsCloning(false); }} className="h-11 px-6 text-[10px] font-black uppercase text-muted-foreground rounded-full">Cancelar</Button>
                 <Button size="sm" onClick={handleSave} className="h-11 px-8 text-[10px] font-black uppercase bg-primary text-primary-foreground hover:bg-primary/80 rounded-full shadow-lg gap-2">
-                  <Save className="w-4 h-4" /> Guardar Cambios
+                  <Save className="w-4 h-4" /> {isCloning ? 'Confirmar Nueva Cita' : 'Guardar Cambios'}
                 </Button>
               </>
             ) : (
               <Button onClick={() => setIsEditing(true)} size="sm" className="h-11 px-10 text-[10px] font-black uppercase bg-foreground text-background hover:opacity-90 rounded-full gap-2 shadow-xl">
-                <Edit2 className="w-4 h-4" /> Editar Expediente
+                <Edit2 className="w-4 h-4" /> Editar Registro
               </Button>
             )}
           </div>
@@ -511,8 +572,8 @@ export default function AppointmentDetailsDialog({
         <AlertDialog open={showArchiveConfirm} onOpenChange={setShowArchiveConfirm}>
           <AlertDialogContent className="bg-background border-border shadow-2xl rounded-[2rem] text-foreground">
             <AlertDialogHeader>
-              <AlertDialogTitle className="text-xl font-black uppercase tracking-tighter">¿Archivar Expediente?</AlertDialogTitle>
-              <AlertDialogDescription className="text-muted-foreground font-medium">El registro se moverá a la papelera.</AlertDialogDescription>
+              <AlertDialogTitle className="text-xl font-black uppercase tracking-tighter">¿Archivar Registro?</AlertDialogTitle>
+              <AlertDialogDescription className="text-muted-foreground font-medium">El expediente se moverá a la papelera.</AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="gap-3">
               <AlertDialogCancel className="bg-muted/20 border-border text-foreground rounded-full h-11 px-6 text-xs font-bold uppercase">No</AlertDialogCancel>
