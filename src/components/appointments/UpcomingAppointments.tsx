@@ -195,6 +195,19 @@ export default function UpcomingAppointments({
     });
   };
 
+  const formatAppointmentForClipboard = (app: Appointment) => {
+    const dateObj = parseISO(app.date);
+    const dateFormatted = format(dateObj, "EEEE d 'de' MMMM yyyy", { locale: es });
+    const capitalizedDate = dateFormatted.charAt(0).toUpperCase() + dateFormatted.slice(1);
+    const timeFormatted = format12hTime(app.time);
+
+    return `Cita: ${capitalizedDate}\n` +
+           `Nombre: ${app.name}\n` +
+           `Teléfono: ${app.phone || 'N/A'}\n` +
+           `Producto: ${app.product || 'N/A'}\n` +
+           `Hora: ${timeFormatted}`;
+  };
+
   const copyAllTodayAppointments = () => {
     const todayApps = allAppointments
       .filter(a => isActuallyToday(a.date) && !a.isArchived)
@@ -205,25 +218,9 @@ export default function UpcomingAppointments({
       return;
     }
 
-    let text = "";
+    const text = todayApps.map(app => formatAppointmentForClipboard(app)).join('\n\n');
 
-    todayApps.forEach((app) => {
-      const dateObj = parseISO(app.date);
-      const dateFormatted = format(dateObj, "EEEE d 'de' MMMM yyyy", { locale: es });
-      const capitalizedDate = dateFormatted.charAt(0).toUpperCase() + dateFormatted.slice(1);
-      const timeFormatted = format12hTime(app.time);
-
-      text += `Cita: *${capitalizedDate}*\n`;
-      text += `Nombre: *${app.name}*\n`;
-      text += `Teléfono: *${app.phone || 'N/A'}*\n`;
-      if (app.type !== '1ra consulta') {
-        text += `Motivo: *${app.type}*\n`;
-      }
-      text += `Producto: *${app.product || 'N/A'}*\n`;
-      text += `Hora: *${timeFormatted}*\n\n`;
-    });
-
-    navigator.clipboard.writeText(text.trim()).then(() => {
+    navigator.clipboard.writeText(text).then(() => {
       toast({
         title: "Citas copiadas",
         description: "Listado de hoy listo para WhatsApp.",
@@ -241,25 +238,9 @@ export default function UpcomingAppointments({
       return;
     }
 
-    let text = "";
+    const text = tomorrowApps.map(app => formatAppointmentForClipboard(app)).join('\n\n');
 
-    tomorrowApps.forEach((app) => {
-      const dateObj = parseISO(app.date);
-      const dateFormatted = format(dateObj, "EEEE d 'de' MMMM yyyy", { locale: es });
-      const capitalizedDate = dateFormatted.charAt(0).toUpperCase() + dateFormatted.slice(1);
-      const timeFormatted = format12hTime(app.time);
-
-      text += `Cita: *${capitalizedDate}*\n`;
-      text += `Nombre: *${app.name}*\n`;
-      text += `Teléfono: *${app.phone || 'N/A'}*\n`;
-      if (app.type !== '1ra consulta') {
-        text += `Motivo: *${app.type}*\n`;
-      }
-      text += `Producto: *${app.product || 'N/A'}*\n`;
-      text += `Hora: *${timeFormatted}*\n\n`;
-    });
-
-    navigator.clipboard.writeText(text.trim()).then(() => {
+    navigator.clipboard.writeText(text).then(() => {
       toast({
         title: "Citas copiadas",
         description: "Listado de mañana listo para WhatsApp.",

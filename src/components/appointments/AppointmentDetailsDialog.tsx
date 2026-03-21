@@ -129,22 +129,21 @@ export default function AppointmentDetailsDialog({
 
   const handleCopyData = () => {
     if (!appointment) return;
-    const dateFormatted = format(parseISO(appointment.date), "EEEE d 'de' MMMM", { locale: es });
+    const dateObj = parseISO(appointment.date);
+    const dateFormatted = format(dateObj, "EEEE d 'de' MMMM yyyy", { locale: es });
+    const capitalizedDate = dateFormatted.charAt(0).toUpperCase() + dateFormatted.slice(1);
     const timeFormatted = format12hTime(appointment.time);
     
-    const text = `📋 *EXPEDIENTE FINANTO*\n\n` +
-                 `• Cliente: *${appointment.name}*\n` +
-                 `• Teléfono: *${appointment.phone}*\n` +
-                 `• Fecha: *${dateFormatted}*\n` +
-                 `• Hora: *${timeFormatted}*\n` +
-                 `• Producto: *${appointment.product || 'N/A'}*\n` +
-                 `• Motivo: *${appointment.type}*\n` +
-                 `• Notas: ${appointment.notes || 'Sin acuerdos registrados.'}`;
+    const text = `Cita: ${capitalizedDate}\n` +
+                 `Nombre: ${appointment.name}\n` +
+                 `Teléfono: ${appointment.phone}\n` +
+                 `Producto: ${appointment.product || 'N/A'}\n` +
+                 `Hora: ${timeFormatted}`;
 
     navigator.clipboard.writeText(text).then(() => {
       toast({ 
         title: "Copiado", 
-        description: "Información del cliente lista para compartir." 
+        description: "Información de la cita lista para compartir." 
       });
     });
   };
@@ -241,8 +240,7 @@ export default function AppointmentDetailsDialog({
                   className="h-8 px-3 text-[9px] font-black uppercase text-green-600 border-green-600/30 hover:bg-green-600/10 rounded-full gap-1.5 flex items-center"
                 >
                   <Copy className="w-3 h-3" /> 
-                  <span className="hidden xs:inline">Copiar Datos</span>
-                  <span className="xs:hidden">Copiar</span>
+                  <span>Copiar informacion de cita</span>
                 </Button>
                 <Button 
                   onClick={() => setShowArchiveConfirm(true)}
