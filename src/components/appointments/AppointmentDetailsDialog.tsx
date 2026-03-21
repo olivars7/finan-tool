@@ -172,11 +172,11 @@ export default function AppointmentDetailsDialog({
     });
   };
 
-  const showCommissionPanel = editData.status === 'Cierre';
-  const commissionPercent = editData.commissionPercent ?? 100;
-  const finalCredit = editData.finalCreditAmount ?? 0;
+  const showCommissionPanel = (isEditing ? editData.status : appointment.status) === 'Cierre';
+  const commissionPercent = (isEditing ? editData.commissionPercent : appointment.commissionPercent) ?? 100;
+  const finalCredit = (isEditing ? editData.finalCreditAmount : appointment.finalCreditAmount) ?? 0;
   const netIncome = (finalCredit * 0.007 * (commissionPercent / 100)) * 0.91;
-  const projectedPayDate = getCommissionPaymentDate(editData.date || appointment.date);
+  const projectedPayDate = getCommissionPaymentDate(isEditing ? editData.date || appointment.date : appointment.date);
 
   const appDate = startOfDay(parseISO(appointment.date));
   const today = startOfDay(new Date());
@@ -188,6 +188,14 @@ export default function AppointmentDetailsDialog({
   else if (isYesterday(appDate)) headerTimeText = "La cita fue ayer";
   else if (diffCalendar > 0) headerTimeText = `Faltan ${diffCalendar} días para la cita`;
   else headerTimeText = `Han pasado ${Math.abs(diffCalendar)} días desde la cita`;
+
+  const formatCurrency = (val: number) => {
+    return new Intl.NumberFormat('es-MX', { 
+      style: 'currency', 
+      currency: 'MXN', 
+      maximumFractionDigits: 0 
+    }).format(val);
+  };
 
   return (
     <Dialog open={open} onOpenChange={(o) => { 
@@ -471,8 +479,13 @@ export default function AppointmentDetailsDialog({
                       <div className="p-2 bg-green-500/20 rounded-xl"><Receipt className="w-5 h-5 text-green-600" /></div>
                       <h4 className="text-[10px] font-black uppercase text-green-600 tracking-[0.2em]">Liquidación Final</h4>
                     </div>
-                    <div className="flex items-center gap-2 px-3 py-1 bg-muted/20 rounded-full border border-green-500/20">
+                    <div className="flex items-center gap-3 px-3 py-1.5 bg-muted/20 rounded-full border border-green-500/20">
                       <span className="text-[9px] font-black uppercase tracking-widest text-foreground">{appointment.commissionStatus || 'Pendiente'}</span>
+                      <Switch 
+                        checked={appointment.commissionStatus === 'Pagada'} 
+                        onCheckedChange={(c) => onEdit(appointment.id, { commissionStatus: c ? 'Pagada' : 'Pendiente' })}
+                        className="h-4 w-8 data-[state=checked]:bg-green-600 scale-75"
+                      />
                     </div>
                   </div>
                   
@@ -480,7 +493,7 @@ export default function AppointmentDetailsDialog({
                     <div className="space-y-4">
                       <div className="space-y-1">
                         <span className="text-[9px] font-bold text-muted-foreground uppercase ml-1">Crédito Final</span>
-                        <p className="text-xl font-black text-foreground">{new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(finalCredit)}</p>
+                        <p className="text-xl font-black text-foreground">{formatCurrency(finalCredit)}</p>
                       </div>
                       
                       <div className="space-y-1">
@@ -504,7 +517,7 @@ export default function AppointmentDetailsDialog({
                     <div className="space-y-4">
                       <div className="space-y-1">
                         <span className="text-[9px] font-bold text-muted-foreground uppercase ml-1">Ingreso Neto (91%)</span>
-                        <p className="text-2xl font-black text-green-600">{new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(netIncome)}</p>
+                        <p className="text-2xl font-black text-green-600">{formatCurrency(netIncome)}</p>
                       </div>
 
                       <div className="space-y-1">
