@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useMemo } from 'react';
@@ -14,7 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { onAuthChange } from '@/lib/auth';
 import { User } from 'firebase/auth';
 import { ensureUserDocument } from '@/lib/user-service';
-import { doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '@/app/lib/firebase';
 
 export function useAppointments() {
@@ -30,29 +29,27 @@ export function useAppointments() {
       setUser(currentUser);
       
       if (currentUser) {
-        console.log('%c 🔑 AUTH: Usuario detectado, configurando tiempo real...', 'color: #7B61FF; font-weight: bold;');
+        console.log('%c 🔑 AUTH: Usuario detectado, sincronizando...', 'color: #7B61FF; font-weight: bold;');
         await ensureUserDocument(currentUser);
 
-        // Cargar perfil
-        const userRef = doc(db, "users", currentUser.uid);
-        getDoc(userRef).then(snap => {
-          if (snap.exists()) setProfile(snap.data());
-        });
-
-        // Migración inicial si existe
-        await FirebaseStore.migrateLocalAppointments(currentUser.uid);
-
-        // Listener en tiempo real para sincronización inmediata entre dispositivos
-        unsubscribeSnapshot = onSnapshot(userRef, (docSnap) => {
+        // Listener en tiempo real para datos del usuario
+        unsubscribeSnapshot = onSnapshot(doc(db, "users", currentUser.uid), (docSnap) => {
           if (docSnap.exists()) {
             const data = docSnap.data();
             const cloudApps = data.appointments || [];
-            console.log('%c ☁️ DB SNAPSHOT: Sincronizando cambios externos...', 'background: #1877F2; color: #fff; padding: 2px 5px; border-radius: 4px;');
+            
+            // Solo actualizamos si el hash de datos es diferente (evitar loops infinitos)
+            // Para simplicidad en este prototipo, confiamos en onSnapshot
+            console.log('%c ☁️ DB SNAPSHOT: Recibiendo actualización en tiempo real...', 'background: #1877F2; color: #fff; padding: 2px 5px; border-radius: 4px;');
             setAppointments(cloudApps);
+            setProfile(data);
           }
         }, (err) => {
           console.error("Error en listener Firestore:", err);
         });
+
+        // Migración inicial de local a nube si aplica
+        await FirebaseStore.migrateLocalAppointments(currentUser.uid);
 
       } else {
         console.log('%c 👤 AUTH: Modo local habilitado', 'color: #666; font-weight: bold;');
@@ -70,16 +67,16 @@ export function useAppointments() {
   }, []);
 
   const persistAppointments = async (updatedList: Appointment[]) => {
-    // Actualización de estado local inmediata para respuesta instantánea
+    // Actualización inmediata del estado para fluidez en la UI
     setAppointments(updatedList);
     Service.saveToDisk(updatedList);
     
     if (user) {
       try {
-        console.log('%c 🚀 DB UPDATE: Enviando cambios inmediatamente...', 'background: #22c55e; color: #fff; padding: 2px 5px; border-radius: 4px;');
+        console.log('%c 🚀 DB UPDATE: Guardando cambios inmediatamente...', 'background: #22c55e; color: #fff; padding: 2px 5px; border-radius: 4px;');
         await FirebaseStore.saveAppointments(user.uid, updatedList);
       } catch (err) {
-        console.error("Error al sincronizar con la nube:", err);
+        console.error("Error al sincronizar con Firestore:", err);
       }
     }
   };

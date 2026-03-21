@@ -33,11 +33,10 @@ const CustomXAxisTick = (props: any) => {
   // FORZADO: Corte (Martes) = Amarillo-Naranja, Pago (Viernes) = Verde
   if (item.isCorte) {
     labelColor = "#f59e0b"; // Amarillo-Naranja
-    opacityNumber = 0.8;
-  }
-  if (item.isPaga) {
+    opacityNumber = 0.9;
+  } else if (item.isPaga) {
     labelColor = "#22c55e"; // Verde
-    opacityNumber = 0.8;
+    opacityNumber = 0.9;
   }
 
   return (
@@ -48,7 +47,7 @@ const CustomXAxisTick = (props: any) => {
         dy={16} 
         textAnchor="middle" 
         fill={labelColor} 
-        fillOpacity={item.isCorte || item.isPaga ? 0.8 : opacityNumber}
+        fillOpacity={opacityNumber}
         className="text-[9px] font-bold uppercase"
       >
         {item.dayNumber}
@@ -58,6 +57,7 @@ const CustomXAxisTick = (props: any) => {
         y={32} 
         textAnchor="middle" 
         fill={labelColor} 
+        fillOpacity={1}
         className="text-[10px] font-black uppercase"
       >
         {item.dayInitial}
@@ -207,7 +207,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
                 const markerY = 15; 
                 const radius = barSize / 2;
                 return (
-                  <g key={`marker-cierre-${payload.dayNumber || Math.random()}`}>
+                  <g key={`marker-cierre-${payload.dayFull}-${payload.dayNumber}`}>
                     <circle 
                       cx={cx} 
                       cy={markerY} 
@@ -273,13 +273,13 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={stats.charts.weeklyIncomeHistory} margin={{ left: 10, right: 10, top: 20, bottom: 10 }}>
               <defs>
-                <linearGradient id="historyLineGradient" x1="0" x1="0" x2="1" y2="0">
+                <linearGradient id="historyLineGradient" x1="0" y1="0" x2="1" y2="0">
                   <stop offset="0%" stopColor="#00F5FF" />
                   <stop offset="50%" stopColor="#1877F2" />
                   <stop offset="100%" stopColor="#7B61FF" />
                 </linearGradient>
               </defs>
-              <CartesianGrid vertical={true} horizontal={false} stroke="currentColor" opacity={0.15} />
+              <CartesianGrid vertical={true} horizontal={false} stroke="currentColor" opacity={0.1} strokeDasharray="3 3" />
               <XAxis 
                 dataKey="week" 
                 interval={0}
