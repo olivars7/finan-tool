@@ -45,10 +45,10 @@ export default function MobileDashboard({
       title: 'CALCULADORA',
       sub: 'Simulador',
       icon: Calculator,
-      color: 'from-blue-600/20 to-blue-600/5',
+      color: 'from-blue-600/20 to-blue-600/10',
       borderColor: 'border-blue-500/30',
       iconColor: 'text-blue-500',
-      shadow: 'shadow-blue-500/20',
+      circleColor: 'bg-blue-500/20',
       action: onOpenCalculator
     },
     {
@@ -56,10 +56,10 @@ export default function MobileDashboard({
       title: 'NUEVA CITA',
       sub: 'Registro',
       icon: PlusCircle,
-      color: 'from-emerald-600/20 to-emerald-600/5',
+      color: 'from-emerald-600/20 to-emerald-600/10',
       borderColor: 'border-emerald-500/30',
       iconColor: 'text-emerald-500',
-      shadow: 'shadow-emerald-500/20',
+      circleColor: 'bg-emerald-500/20',
       action: onOpenNewAppointment
     },
     {
@@ -67,10 +67,10 @@ export default function MobileDashboard({
       title: 'AGENDA',
       sub: 'Próximas',
       icon: Calendar,
-      color: 'from-indigo-600/20 to-indigo-600/5',
+      color: 'from-indigo-600/20 to-indigo-600/10',
       borderColor: 'border-indigo-500/30',
       iconColor: 'text-indigo-500',
-      shadow: 'shadow-indigo-500/20',
+      circleColor: 'bg-indigo-500/20',
       action: onOpenAgenda
     },
     {
@@ -78,10 +78,10 @@ export default function MobileDashboard({
       title: 'STATS PRO',
       sub: 'Inteligencia',
       icon: BarChart3,
-      color: 'from-amber-600/20 to-amber-600/5',
+      color: 'from-amber-600/20 to-amber-600/10',
       borderColor: 'border-amber-500/30',
       iconColor: 'text-amber-500',
-      shadow: 'shadow-amber-500/20',
+      circleColor: 'bg-amber-500/20',
       action: onOpenStats
     }
   ];
@@ -104,29 +104,29 @@ export default function MobileDashboard({
         </div>
       </div>
 
-      {/* Mosaico 2x2 Cuadrado */}
+      {/* Mosaico Premium 2x2 Cuadrado */}
       <div className="grid grid-cols-2 gap-4">
         {quadrants.map((q) => (
           <button
             key={q.id}
             onClick={q.action}
             className={cn(
-              "relative aspect-square overflow-hidden flex flex-col items-center justify-center rounded-[2.5rem] border bg-gradient-to-br transition-all active:scale-95 shadow-lg group",
+              "relative aspect-square overflow-hidden flex flex-col items-center justify-center rounded-[2.5rem] border bg-gradient-to-br transition-all active:scale-95 shadow-xl group",
               q.color,
-              q.borderColor,
-              q.shadow
+              q.borderColor
             )}
           >
-            {/* Círculo decorativo en esquina superior derecha */}
+            {/* Círculo decorativo animado en esquina superior derecha */}
             <div className={cn(
-              "absolute -top-4 -right-4 w-12 h-12 rounded-full opacity-20 transition-transform duration-500 group-hover:scale-125 group-hover:-translate-x-2 group-hover:translate-y-2",
-              q.iconColor.replace('text-', 'bg-')
+              "absolute -top-4 -right-4 w-12 h-12 rounded-full transition-all duration-500 group-active:scale-150 group-active:-translate-x-2 group-active:translate-y-2 group-hover:scale-150",
+              q.circleColor
             )} />
 
-            {/* Icono de fondo con baja opacidad */}
-            <q.icon className={cn("absolute opacity-[0.03] w-24 h-24 -bottom-4 -left-4", q.iconColor)} />
+            {/* Icono de fondo con muy baja opacidad */}
+            <q.icon className={cn("absolute opacity-[0.03] w-24 h-24 -bottom-4 -left-4 transition-transform duration-700 group-active:scale-110", q.iconColor)} />
 
-            <div className={cn("p-4 rounded-2xl bg-background/50 mb-3 relative z-10", q.iconColor)}>
+            {/* Icono Principal Centrado */}
+            <div className={cn("p-4 rounded-2xl bg-background/80 mb-3 relative z-10 shadow-sm transition-transform duration-300 group-active:scale-110", q.iconColor)}>
               <q.icon size={28} />
             </div>
             
@@ -142,24 +142,24 @@ export default function MobileDashboard({
         ))}
       </div>
 
-      {/* Actividad Hoy */}
+      {/* Actividad Hoy (Nueva Sección debajo del mosaico) */}
       <div className="space-y-4 pt-2">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between px-1">
           <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
             <Clock className="w-3.5 h-3.5" /> Actividad Hoy
           </h3>
-          <Badge variant="outline" className="text-[9px] font-bold uppercase border-primary/20 bg-primary/5 text-primary">
-            {todayApps.length} Pendientes
+          <Badge variant="outline" className="text-[9px] font-bold uppercase border-primary/20 bg-primary/5 text-primary rounded-full">
+            {todayApps.length} Registros
           </Badge>
         </div>
 
         <div className="space-y-3">
           {todayApps.length === 0 ? (
             <div className="p-8 border border-dashed rounded-[2rem] text-center bg-muted/5">
-              <p className="text-[10px] font-bold uppercase text-muted-foreground/40 italic">No hay citas para hoy</p>
+              <p className="text-[10px] font-bold uppercase text-muted-foreground/40 italic">Sin actividad para hoy</p>
             </div>
           ) : (
-            todayApps.slice(0, 3).map((app) => (
+            todayApps.slice(0, 4).map((app) => (
               <div 
                 key={app.id} 
                 onClick={onOpenAgenda}
@@ -182,22 +182,22 @@ export default function MobileDashboard({
               </div>
             ))
           )}
-          {todayApps.length > 3 && (
+          {todayApps.length > 4 && (
             <Button 
               variant="ghost" 
               onClick={onOpenAgenda}
               className="w-full h-12 text-[10px] font-black uppercase tracking-widest text-primary gap-2 rounded-full"
             >
-              Ver {todayApps.length - 3} más <ChevronRight size={14} />
+              Ver {todayApps.length - 4} más <ChevronRight size={14} />
             </Button>
           )}
         </div>
       </div>
 
       {/* Footer Mobile Info */}
-      <div className="pt-4 border-t border-border/40 text-center">
-        <p className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/40">
-          Finanto Terminal v2.1 • CRM Élite
+      <div className="pt-4 border-t border-border/40 text-center opacity-40">
+        <p className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground">
+          Finanto Terminal v2.2 • CRM Élite
         </p>
       </div>
     </div>

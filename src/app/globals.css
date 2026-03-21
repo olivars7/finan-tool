@@ -226,6 +226,32 @@
   }
 }
 
+/* Mobile Responsive Overrides - ZERO TRANSPARENCY */
+@media (max-width: 1023px) {
+  /* Diálogos Full Screen en Móvil - 100% SÓLIDOS */
+  [role="dialog"] {
+    @apply !rounded-none !inset-0 !translate-y-0 !translate-x-0 !max-w-none !w-full !h-full !max-h-none !duration-200 !border-none;
+    margin: 0 !important;
+    padding-bottom: env(safe-area-inset-bottom) !important;
+    background-color: hsl(var(--background)) !important;
+    opacity: 1 !important;
+    backdrop-filter: none !important;
+  }
+
+  [data-state="open"][role="dialog"] {
+    animation: finanto-reveal 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  /* Notificaciones móviles 100% sólidas */
+  [role="status"] {
+    @apply !fixed !top-4 !bottom-auto !left-4 !right-4 !w-auto !max-w-none !mb-0 !rounded-2xl !p-4 !border-none;
+    background-color: hsl(var(--card)) !important;
+    opacity: 1 !important;
+    backdrop-filter: none !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2) !important;
+  }
+}
+
 @layer utilities {
   .text-gradient-aqua-blue {
     background: linear-gradient(to right, #00F5FF, #1877F2);
@@ -274,50 +300,4 @@
   .delay-300 { animation-delay: 300ms; }
   .delay-400 { animation-delay: 400ms; }
   .delay-500 { animation-delay: 500ms; }
-}
-
-@keyframes periodic-glow {
-  0%, 75%, 100% { background-color: transparent; }
-  87.5% { background-color: hsl(var(--primary) / 0.15); }
-}
-
-.animate-periodic-glow {
-  animation: periodic-glow 5s ease-in-out infinite;
-}
-
-@keyframes hud-flicker {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.85; }
-  51% { opacity: 0.9; }
-  52% { opacity: 0.8; }
-}
-
-[data-theme="moderno"] .animate-hud-flicker {
-  animation: hud-flicker 4s linear infinite;
-}
-
-/* Mobile Responsive Overrides - CRITICAL FOR ZERO TRANSPARENCY */
-@media (max-width: 1023px) {
-  /* Diálogos Full Screen en Móvil sin transparencias */
-  [role="dialog"] {
-    @apply !rounded-none !inset-0 !translate-y-0 !translate-x-0 !max-w-none !w-full !h-full !max-h-none !duration-200 !border-none;
-    margin: 0 !important;
-    padding-bottom: env(safe-area-inset-bottom) !important;
-    background-color: hsl(var(--background)) !important;
-    opacity: 1 !important;
-    backdrop-filter: none !important;
-  }
-
-  [data-state="open"][role="dialog"] {
-    animation: finanto-reveal 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  }
-
-  /* Notificaciones móviles sólidas */
-  [role="status"] {
-    @apply !fixed !top-4 !bottom-auto !left-4 !right-4 !w-auto !max-w-none !mb-0 !rounded-2xl !p-4 !border-none;
-    background-color: hsl(var(--card)) !important;
-    opacity: 1 !important;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1) !important;
-    transition: transform 200ms ease-out !important;
-  }
 }
