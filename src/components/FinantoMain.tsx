@@ -46,6 +46,7 @@ import {
   DialogDescription,
   DialogClose
 } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from 'next/image';
 
 type Theme = 'tranquilo' | 'moderno' | 'discreto' | 'olivares' | 'corporativo' | 'corporativo-oscuro';
@@ -285,13 +286,8 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
 
       {/* Diálogo de Nueva Cita (Móvil) */}
       <Dialog open={isNewAppointmentOpen} onOpenChange={setIsNewAppointmentOpen}>
-        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden rounded-[2rem] border-none bg-background shadow-2xl">
-          <DialogHeader className="p-8 border-b border-border/10 bg-primary/5 relative">
-            <DialogClose asChild>
-              <Button variant="ghost" size="icon" className="absolute right-4 top-4 rounded-full bg-muted/20 text-foreground hover:bg-destructive hover:text-destructive-foreground">
-                <X size={20} />
-              </Button>
-            </DialogClose>
+        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden rounded-[2rem] border-none bg-background shadow-2xl flex flex-col h-[90vh]">
+          <DialogHeader className="p-6 border-b border-border/10 bg-primary/5 relative shrink-0">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-primary text-primary-foreground rounded-2xl shadow-lg">
                 <UserPlus size={24} />
@@ -301,14 +297,23 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
                 <DialogDescription className="text-[10px] font-bold uppercase text-primary tracking-[0.2em] mt-1">Registro rápido de prospecto</DialogDescription>
               </div>
             </div>
+            <DialogClose asChild>
+              <Button variant="ghost" size="icon" className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-muted/20 text-foreground hover:bg-destructive hover:text-destructive-foreground transition-colors">
+                <X size={20} />
+              </Button>
+            </DialogClose>
           </DialogHeader>
-          <div className="p-8">
-            <AppointmentForm onAdd={(data) => {
-              addAppointment(data);
-              setIsNewAppointmentOpen(false);
-            }} />
-          </div>
-          <div className="p-4 bg-muted/20 flex justify-center">
+          
+          <ScrollArea className="flex-1 p-6">
+            <div className="pb-10">
+              <AppointmentForm onAdd={(data) => {
+                addAppointment(data);
+                setIsNewAppointmentOpen(false);
+              }} />
+            </div>
+          </ScrollArea>
+
+          <div className="p-4 bg-muted/20 flex justify-center shrink-0 border-t border-border/10">
             <DialogClose asChild>
               <Button variant="ghost" size="sm" className="h-10 px-8 rounded-full font-bold uppercase text-[10px] text-muted-foreground">
                 Cancelar Registro

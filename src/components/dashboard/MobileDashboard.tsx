@@ -81,10 +81,10 @@ export default function MobileDashboard({
       title: 'CALCULADORA',
       sub: 'Simulador',
       icon: Calculator,
-      color: 'from-blue-600 to-blue-700',
-      borderColor: 'border-blue-400/30',
-      iconColor: 'text-white',
-      circleColor: 'bg-white/20',
+      color: 'bg-blue-600/10',
+      borderColor: 'border-blue-500/20',
+      iconColor: 'text-blue-500',
+      circleColor: 'bg-blue-500/10',
       action: onOpenCalculator
     },
     {
@@ -92,10 +92,10 @@ export default function MobileDashboard({
       title: 'NUEVA CITA',
       sub: 'Registro',
       icon: PlusCircle,
-      color: 'from-emerald-600 to-emerald-700',
-      borderColor: 'border-emerald-400/30',
-      iconColor: 'text-white',
-      circleColor: 'bg-white/20',
+      color: 'bg-emerald-600/10',
+      borderColor: 'border-emerald-500/20',
+      iconColor: 'text-emerald-500',
+      circleColor: 'bg-emerald-500/10',
       action: onOpenNewAppointment
     },
     {
@@ -103,10 +103,10 @@ export default function MobileDashboard({
       title: 'AGENDA',
       sub: 'Próximas',
       icon: Calendar,
-      color: 'from-indigo-600 to-indigo-700',
-      borderColor: 'border-indigo-400/30',
-      iconColor: 'text-white',
-      circleColor: 'bg-white/20',
+      color: 'bg-indigo-600/10',
+      borderColor: 'border-indigo-500/20',
+      iconColor: 'text-indigo-500',
+      circleColor: 'bg-indigo-500/10',
       action: onOpenAgenda
     },
     {
@@ -114,10 +114,10 @@ export default function MobileDashboard({
       title: 'STATS PRO',
       sub: 'Inteligencia',
       icon: BarChart3,
-      color: 'from-amber-600 to-amber-700',
-      borderColor: 'border-amber-400/30',
-      iconColor: 'text-white',
-      circleColor: 'bg-white/20',
+      color: 'bg-amber-600/10',
+      borderColor: 'border-amber-500/20',
+      iconColor: 'text-amber-500',
+      circleColor: 'bg-amber-500/10',
       action: onOpenStats
     }
   ];
@@ -125,7 +125,7 @@ export default function MobileDashboard({
   return (
     <div className="flex flex-col space-y-8 animate-in fade-in duration-700 pb-24 overflow-x-hidden">
       
-      {/* Micro Stats Superiores (Idénticos a Escritorio, Sin bordes, Scroll invisible) */}
+      {/* Micro Stats Superiores (Desplazamiento Horizontal) */}
       <div className="w-full overflow-x-auto scrollbar-hide -mx-4 px-4 pb-2">
         <div className="flex gap-3 min-w-max">
           {microStats.map((s, i) => (
@@ -167,37 +167,36 @@ export default function MobileDashboard({
         </div>
       </div>
 
-      {/* Mosaico Premium 2x2 Cuadrado */}
+      {/* Mosaico Futurista 2x2 Cuadrado */}
       <div className="grid grid-cols-2 gap-5 px-1">
         {quadrants.map((q) => (
           <button
             key={q.id}
             onClick={q.action}
             className={cn(
-              "relative aspect-square overflow-hidden flex flex-col items-center justify-center rounded-[3rem] border bg-gradient-to-br transition-all active:scale-95 shadow-2xl group",
-              q.color,
-              q.borderColor
+              "relative aspect-square overflow-hidden flex flex-col items-center justify-center rounded-[3rem] border transition-all active:scale-95 shadow-xl group backdrop-blur-xl",
+              "bg-white/[0.03] border-white/10 hover:border-white/20 active:bg-white/10"
             )}
           >
             {/* Círculo decorativo GIGANTE animado */}
             <div className={cn(
-              "absolute -top-8 -right-8 w-24 h-24 rounded-full transition-all duration-700 group-active:scale-150 group-active:-translate-x-4 group-active:translate-y-4 group-hover:scale-150",
+              "absolute -top-10 -right-10 w-32 h-32 rounded-full transition-all duration-700 group-active:scale-125 group-active:-translate-x-6 group-active:translate-y-6 group-hover:scale-110",
               q.circleColor
             )} />
 
             {/* Icono de fondo con muy baja opacidad */}
-            <q.icon className={cn("absolute opacity-[0.02] w-32 h-32 -bottom-6 -left-6 transition-transform duration-700 group-active:scale-110", q.iconColor)} />
+            <q.icon className={cn("absolute opacity-[0.03] w-32 h-32 -bottom-6 -left-6 transition-transform duration-700 group-active:scale-110", q.iconColor)} />
 
             {/* Icono Principal Centrado GIGANTE */}
-            <div className={cn("p-5 rounded-[1.8rem] bg-white/10 mb-4 relative z-10 shadow-xl backdrop-blur-sm transition-all duration-300 group-active:scale-110 group-active:brightness-125 group-hover:brightness-110", q.iconColor)}>
-              <q.icon size={36} />
+            <div className={cn("p-5 rounded-[1.8rem] bg-white/5 mb-4 relative z-10 shadow-xl backdrop-blur-sm transition-all duration-300 group-active:scale-110 group-active:brightness-125 group-hover:brightness-110", q.iconColor)}>
+              <q.icon size={40} />
             </div>
             
             <div className="text-center space-y-1 relative z-10 px-2">
-              <span className="block text-base font-black tracking-tighter text-white uppercase leading-none">
+              <span className="block text-lg font-black tracking-tighter text-foreground uppercase leading-none">
                 {q.title}
               </span>
-              <span className="block text-[10px] font-bold uppercase tracking-[0.2em] text-white/60">
+              <span className="block text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
                 {q.sub}
               </span>
             </div>
