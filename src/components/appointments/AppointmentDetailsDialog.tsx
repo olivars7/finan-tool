@@ -127,6 +127,28 @@ export default function AppointmentDetailsDialog({
     });
   };
 
+  const handleCopyData = () => {
+    if (!appointment) return;
+    const dateFormatted = format(parseISO(appointment.date), "EEEE d 'de' MMMM", { locale: es });
+    const timeFormatted = format12hTime(appointment.time);
+    
+    const text = `📋 *EXPEDIENTE FINANTO*\n\n` +
+                 `• Cliente: *${appointment.name}*\n` +
+                 `• Teléfono: *${appointment.phone}*\n` +
+                 `• Fecha: *${dateFormatted}*\n` +
+                 `• Hora: *${timeFormatted}*\n` +
+                 `• Producto: *${appointment.product || 'N/A'}*\n` +
+                 `• Motivo: *${appointment.type}*\n` +
+                 `• Notas: ${appointment.notes || 'Sin acuerdos registrados.'}`;
+
+    navigator.clipboard.writeText(text).then(() => {
+      toast({ 
+        title: "Copiado", 
+        description: "Información del cliente lista para compartir." 
+      });
+    });
+  };
+
   const handleConfirmSecond = () => {
     if (!newDate || !newTime) {
       toast({ title: "Error", description: "Fecha y hora son obligatorias.", variant: "destructive" });
@@ -167,45 +189,8 @@ export default function AppointmentDetailsDialog({
     });
   };
 
-  const copyProspectorPhone = () => {
-    if (!appointment.prospectorPhone) return;
-    navigator.clipboard.writeText(appointment.prospectorPhone).then(() => {
-      toast({
-        title: "Prospectador copiado",
-        description: `${appointment.prospectorName}: ${appointment.prospectorPhone} listo.`,
-      });
-    });
-  };
-
   const showCommissionPanel = appointment.status === 'Cierre';
   const commissionValue = ((editData.finalCreditAmount || 0) * 0.007 * ((editData.commissionPercent || 0) / 100)) * 0.91;
-
-  const calculatePaymentDateText = (dateStr: string) => {
-    const paymentDate = getCommissionPaymentDate(dateStr);
-    const formatted = format(paymentDate, "EEEE d 'de' MMMM", { locale: es });
-    return formatted.charAt(0).toUpperCase() + formatted.slice(1);
-  };
-
-  const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: 'MXN',
-      maximumFractionDigits: 0
-    }).format(Math.round(val));
-  };
-
-  const handleCommissionToggle = (checked: boolean) => {
-    const newStatus = checked ? 'Pagada' : 'Pendiente';
-    const updates: Partial<Appointment> = { commissionStatus: newStatus };
-    
-    setEditData(prev => ({ ...prev, ...updates }));
-    onEdit(appointment.id, updates);
-    
-    toast({ 
-      title: newStatus === 'Pagada' ? "Comisión Pagada" : "Comisión Pendiente", 
-      description: `Estatus actualizado para ${appointment.name}.` 
-    });
-  };
 
   const appDate = startOfDay(parseISO(appointment.date));
   const today = startOfDay(new Date());
@@ -223,8 +208,6 @@ export default function AppointmentDetailsDialog({
   } else {
     headerTimeText = `Han pasado ${Math.abs(diffCalendar)} ${Math.abs(diffCalendar) === 1 ? 'día' : 'días'} desde la cita`;
   }
-
-  const hasExtraParticipants = !!appointment.prospectorName || !!appointment.attendingExecutive;
 
   return (
     <Dialog open={open} onOpenChange={(o) => { 
@@ -378,13 +361,17 @@ export default function AppointmentDetailsDialog({
                       <h4 className="text-[10px] font-black uppercase text-green-600 tracking-[0.2em]">Liquidación</h4>
                     </div>
                     <div className="flex items-center gap-3 bg-muted/20 p-1.5 pr-3 rounded-full border border-green-500/20">
-                      <Switch checked={(editData.commissionStatus || 'Pendiente') === 'Pagada'} onCheckedChange={handleCommissionToggle} className="data-[state=checked]:bg-green-600" />
+                      <Switch checked={(editData.commissionStatus || 'Pendiente') === 'Pagada'} onCheckedChange={(checked) => {
+                        const newStatus = checked ? 'Pagada' : 'Pendiente';
+                        onEdit(appointment.id, { commissionStatus: newStatus });
+                        setEditData(prev => ({ ...prev, commissionStatus: newStatus }));
+                      }} className="data-[state=checked]:bg-green-600" />
                       <span className="text-[9px] font-black uppercase tracking-widest text-foreground">{editData.commissionStatus || 'Pendiente'}</span>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-8">
-                    <div><span className="text-[9px] font-bold text-muted-foreground uppercase">Crédito</span><p className="text-lg font-black text-foreground">{formatCurrency(appointment.finalCreditAmount || 0)}</p></div>
-                    <div><span className="text-[9px] font-bold text-muted-foreground uppercase">Ingreso Neto</span><p className="text-xl font-black text-green-600">{formatCurrency(commissionValue)}</p></div>
+                    <div><span className="text-[9px] font-bold text-muted-foreground uppercase">Crédito</span><p className="text-lg font-black text-foreground">{new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(appointment.finalCreditAmount || 0)}</p></div>
+                    <div><span className="text-[9px] font-bold text-muted-foreground uppercase">Ingreso Neto</span><p className="text-xl font-black text-green-600">{new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(commissionValue)}</p></div>
                   </div>
                 </div>
               )}
@@ -404,11 +391,21 @@ export default function AppointmentDetailsDialog({
         </div>
 
         <DialogFooter className="px-8 py-6 border-t border-border/10 bg-primary/5 flex flex-row justify-between items-center gap-4 shrink-0">
-          <div className="flex-1">
+          <div className="flex flex-1 gap-3">
             {!isEditing && (
-              <Button onClick={() => setIsRescheduling(true)} variant="ghost" size="sm" className="h-11 px-6 text-[10px] font-black uppercase text-primary hover:bg-primary/10 rounded-full gap-2">
-                <CalendarPlus className="w-4 h-4" /> Reagendar
-              </Button>
+              <>
+                <Button onClick={() => setIsRescheduling(true)} variant="ghost" size="sm" className="h-11 px-6 text-[10px] font-black uppercase text-primary hover:bg-primary/10 rounded-full gap-2">
+                  <CalendarPlus className="w-4 h-4" /> Reagendar
+                </Button>
+                <Button 
+                  onClick={handleCopyData} 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-11 px-6 text-[10px] font-black uppercase text-green-600 border-green-600/30 hover:bg-green-600/10 rounded-full gap-2"
+                >
+                  <Copy className="w-4 h-4" /> Copiar Datos
+                </Button>
+              </>
             )}
           </div>
           <div className="flex gap-3">
