@@ -14,6 +14,8 @@ import {
 import { cn } from "@/lib/utils";
 import { Appointment } from '@/services/appointment-service';
 import { parseISO, isToday } from 'date-fns';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 interface MobileDashboardProps {
   userName: string;
