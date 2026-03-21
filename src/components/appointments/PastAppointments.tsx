@@ -106,12 +106,12 @@ export default function PastAppointments({
             <Table className="border-collapse separate border-spacing-0">
               <TableHeader className="sticky top-0 z-30 bg-card shadow-sm border-b">
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className={cn("bg-card pl-4", expanded ? "w-[180px]" : "")}>Nombre / Teléfono</TableHead>
-                  {expanded && <TableHead className="bg-card w-[180px]">Contacto</TableHead>}
-                  <TableHead className={cn("bg-card", expanded ? "w-[120px]" : "")}>Motivo</TableHead>
-                  {expanded && <TableHead className="bg-card w-[130px]">Producto</TableHead>}
-                  <TableHead className={cn("bg-card", expanded ? "w-[150px]" : "")}>Fecha / Hora</TableHead>
-                  {expanded && <TableHead className="bg-card w-[180px]">Notas</TableHead>}
+                  <TableHead className={cn("bg-card pl-4", expanded ? "w-[200px]" : "")}>Nombre / Teléfono</TableHead>
+                  {expanded && <TableHead className="bg-card w-[200px]">Contacto</TableHead>}
+                  <TableHead className={cn("bg-card", expanded ? "w-[140px]" : "")}>Motivo</TableHead>
+                  {expanded && <TableHead className="bg-card w-[140px]">Producto</TableHead>}
+                  <TableHead className={cn("bg-card", expanded ? "w-[180px]" : "")}>Fecha / Hora</TableHead>
+                  {expanded && <TableHead className="bg-card w-[100px]">Notas</TableHead>}
                   <TableHead className={cn("bg-card", !expanded ? "w-[160px]" : "w-[200px]")}>Resultado</TableHead>
                   <TableHead className="bg-card w-24 text-center"></TableHead>
                 </TableRow>
@@ -130,7 +130,7 @@ export default function PastAppointments({
                       key={app.id} 
                       onClick={() => onSelect(app)}
                       className={cn(
-                        "hover:bg-primary/10 transition-colors cursor-pointer group h-16",
+                        "hover:bg-primary/10 transition-colors cursor-pointer group h-24",
                         isSelected && "bg-primary/20 z-20"
                       )}
                     >
@@ -186,12 +186,12 @@ export default function PastAppointments({
                         </TableCell>
                       )}
                       <TableCell className="text-muted-foreground text-[10px] uppercase font-bold align-middle">
-                        <div>{formatDate(app.date)}</div>
-                        <div className="text-accent/80">{format12hTime(app.time)}</div>
+                        <div className="mb-1">{formatDate(app.date)}</div>
+                        <div className="text-accent/80 bg-accent/5 w-fit px-1.5 py-0.5 rounded border border-accent/10">{format12hTime(app.time)}</div>
                       </TableCell>
                       {expanded && (
                         <TableCell className="align-middle">
-                          <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">{app.notes || 'Sin notas.'}</p>
+                          <p className="text-[11px] text-muted-foreground line-clamp-1 leading-relaxed italic">{app.notes || '---'}</p>
                         </TableCell>
                       )}
                       <TableCell className="align-middle">
