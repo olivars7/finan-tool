@@ -1,4 +1,3 @@
-
 /**
  * @fileOverview Panel de Inteligencia Avanzada - Finanto
  */
@@ -29,8 +28,9 @@ const CustomXAxisTick = (props: any) => {
   if (!item) return null;
 
   let initialColor = "currentColor";
-  if (item.isCorte) initialColor = "#ef4444"; // Martes - Corte (Rojo)
-  if (item.isPaga) initialColor = "#1877f2";  // Viernes - Pago (Azul)
+  // Colores solicitados: Corte (Martes) = Amarillo-Naranja, Pago (Viernes) = Verde
+  if (item.isCorte) initialColor = "#f59e0b"; // Amber-500 (Amarillo-Naranja)
+  if (item.isPaga) initialColor = "#22c55e";  // Green-500 (Verde)
 
   return (
     <g transform={`translate(${x},${y})`}>
@@ -149,7 +149,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
                           </div>
                         ))}
                         {(d.isPaga || d.isCorte) && (
-                          <div className={cn("mt-2 pt-2 border-t border-border/10 text-[10px] font-black uppercase flex items-center gap-2", d.isPaga ? "text-primary" : "text-destructive")}>
+                          <div className={cn("mt-2 pt-2 border-t border-border/10 text-[10px] font-black uppercase flex items-center gap-2", d.isPaga ? "text-green-500" : "text-amber-500")}>
                             {d.isPaga ? <Coins className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
                             {d.isPaga ? `PAGA: ${new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(d.projectedPay)}` : "CORTE SEMANAL"}
                           </div>
@@ -199,7 +199,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
                 const markerY = 15; 
                 const radius = barSize / 2;
                 return (
-                  <g key={`marker-cierre-${payload.dayNumber}`}>
+                  <g key={`marker-cierre-${payload.dayNumber || Math.random()}`}>
                     <circle 
                       cx={cx} 
                       cy={markerY} 
