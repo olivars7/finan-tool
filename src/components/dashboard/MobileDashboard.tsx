@@ -141,14 +141,13 @@ export default function MobileDashboard({
   ];
 
   return (
-    <div className="flex flex-col space-y-8 animate-in fade-in duration-700 pb-24 overflow-x-hidden">
+    <div className="flex flex-col space-y-8 animate-in fade-in duration-700 pb-32 overflow-x-hidden">
       
-      {/* Micro Stats Superiores */}
       <div className="w-full overflow-x-auto scrollbar-hide -mx-4 px-4 pb-2">
         <div className="flex gap-3 min-w-max">
           {microStats.map((s, i) => (
             <div key={i} className="bg-card/30 backdrop-blur-md rounded-[2rem] p-5 flex items-center gap-4 min-w-[200px] shadow-sm border-none">
-              <div className={cn("p-2.5 rounded-2xl bg-muted/5 shadow-inner", s.color)}><s.icon size={18} /></div>
+              <div className={cn("p-2.5 rounded-2xl bg-muted/5", s.color)}><s.icon size={18} /></div>
               <div className="flex flex-col flex-1 overflow-hidden">
                 <span className="text-[9px] font-black uppercase text-muted-foreground tracking-widest truncate">{s.label}</span>
                 <div className="flex items-baseline gap-2">
@@ -169,7 +168,6 @@ export default function MobileDashboard({
         </div>
       </div>
 
-      {/* Saludo y Estado */}
       <div className="space-y-2 px-1">
         <h2 className="text-5xl font-black tracking-tighter text-foreground uppercase italic leading-none">
           Hola, <br /> <span className="text-primary">{userName.split(' ')[0]}</span>
@@ -185,7 +183,6 @@ export default function MobileDashboard({
         </div>
       </div>
 
-      {/* Mosaico Futurista 2x2 Cuadrado */}
       <div className="grid grid-cols-2 gap-5 px-1">
         {quadrants.map((q) => (
           <button
@@ -197,17 +194,14 @@ export default function MobileDashboard({
               q.activeStyles
             )}
           >
-            {/* Círculo decorativo GIGANTE animado */}
             <div className={cn(
               "absolute -top-12 -right-12 w-40 h-40 rounded-full transition-all duration-700 group-active:scale-125 group-active:-translate-x-10 group-active:translate-y-10 group-hover:scale-110",
               q.circleColor
             )} />
 
-            {/* Icono de fondo con opacidad ultra-baja */}
             <q.icon className={cn("absolute opacity-[0.02] w-32 h-32 -bottom-8 -left-8 transition-transform duration-700 group-active:scale-110", q.iconColor)} />
 
-            {/* Icono Principal Centrado */}
-            <div className={cn("p-5 rounded-[2.2rem] bg-white/5 mb-3 relative z-10 shadow-2xl backdrop-blur-sm transition-all duration-300 group-active:scale-110 group-active:brightness-125 group-hover:brightness-110", q.iconColor)}>
+            <div className={cn("p-4 rounded-[2rem] bg-white/5 mb-3 relative z-10 shadow-2xl backdrop-blur-sm transition-all duration-300 group-active:scale-110 group-active:brightness-125 group-hover:brightness-110", q.iconColor)}>
               <q.icon size={32} />
             </div>
             
@@ -223,8 +217,7 @@ export default function MobileDashboard({
         ))}
       </div>
 
-      {/* Actividad Hoy (Feed Interactivo) */}
-      <div className="space-y-5 pt-4 px-1">
+      <div className="space-y-5 pt-4 px-1 pb-24">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-black uppercase tracking-[0.3em] text-muted-foreground flex items-center gap-2">
             <Clock className="w-4 h-4 text-primary" /> Actividad Hoy
@@ -274,23 +267,20 @@ export default function MobileDashboard({
         </div>
       </div>
 
-      {/* Footer Mobile Info */}
-      <div className="pt-8 border-t border-border/40 text-center opacity-30">
+      <div className="pt-8 border-t border-border/40 text-center opacity-30 pb-32">
         <p className="text-[9px] font-black uppercase tracking-[0.4em] text-muted-foreground">
           Finanto Terminal v2.5 • Elite CRM
         </p>
       </div>
 
-      {/* Popup de Bienvenida Llamativo */}
       <Dialog open={showWelcome} onOpenChange={setShowWelcome}>
-        <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="w-[94%] max-w-[420px] rounded-[3.5rem] p-0 overflow-hidden border-none bg-background shadow-2xl z-[200]">
+        <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="w-[94%] max-w-[420px] rounded-[3rem] p-0 overflow-hidden border-none bg-background shadow-2xl z-[200]">
           <DialogHeader className="sr-only">
             <DialogTitle>Bienvenido a la Terminal Móvil</DialogTitle>
             <DialogDescription>Mensaje inicial de bienvenida para usuarios móviles.</DialogDescription>
           </DialogHeader>
           
           <div className="bg-primary p-12 flex flex-col items-center text-center gap-8 relative overflow-hidden">
-            {/* Fondos decorativos abstractos */}
             <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl" />
             <div className="absolute bottom-0 left-0 w-32 h-32 bg-black/10 rounded-full -ml-16 -mb-16 blur-2xl" />
             

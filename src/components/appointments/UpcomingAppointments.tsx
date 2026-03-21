@@ -33,6 +33,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogDescription,
+  DialogClose
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -598,7 +599,7 @@ export default function UpcomingAppointments({
             </div>
           </DialogHeader>
           
-          <div className="p-8 space-y-8 max-h-[60vh] overflow-y-auto scrollbar-thin pb-24">
+          <div className="p-8 space-y-8 max-h-[60vh] overflow-y-auto scrollbar-thin pb-32">
             <div className="space-y-3">
               <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest block text-center">Resultado Final</Label>
               <Select value={finalStatus} onValueChange={(v) => setFinalStatus(v as AppointmentStatus)}>
