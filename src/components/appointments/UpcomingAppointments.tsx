@@ -353,9 +353,7 @@ export default function UpcomingAppointments({
                           <TableCell className="align-middle">
                             <div className="flex items-center gap-2 text-xs font-medium">
                               <Phone className="w-3.5 h-3.5 text-primary" />
-                              <span onClick={(e) => copyPhone(e, app)} className="hover:text-primary transition-colors cursor-pointer font-bold">
-                                {app.phone}
-                              </span>
+                              <span onClick={(e) => copyPhone(e, app)} className="hover:text-primary transition-colors cursor-pointer font-bold">{app.phone}</span>
                             </div>
                           </TableCell>
                         )}

@@ -23,7 +23,7 @@ import {
   User, Phone, Clock, Edit2, Save, Copy, ClipboardList, 
   CheckCircle2, Box, CalendarPlus, Receipt, Coins, 
   CalendarDays, UserCog, ChevronDown, History as HistoryIcon, 
-  Info, Trash2, UserCheck, MapPin, Briefcase, FileText
+  Info, Trash2, UserCheck, MapPin, Briefcase, FileText, X
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { parseISO, format, isToday, isTomorrow, isYesterday, differenceInCalendarDays, startOfDay } from 'date-fns';
@@ -235,14 +235,6 @@ Hora: ${timeBold}${confirmedBold}`;
     }).format(Math.round(val));
   };
 
-  const formatWithCommas = (val: string) => {
-    const num = val.replace(/[^0-9.]/g, '');
-    if (!num) return '';
-    const parts = num.split('.');
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    return parts.join('.');
-  };
-
   const handleCommissionToggle = (checked: boolean) => {
     const newStatus = checked ? 'Pagada' : 'Pendiente';
     const updates: Partial<Appointment> = { commissionStatus: newStatus };
@@ -254,18 +246,6 @@ Hora: ${timeBold}${confirmedBold}`;
       title: newStatus === 'Pagada' ? "Comisión Pagada" : "Comisión Pendiente", 
       description: `Estatus actualizado para ${appointment.name}.` 
     });
-  };
-
-  const handleFinalCreditChange = (val: string) => {
-    const cleanVal = val.replace(/,/g, '');
-    const num = parseFloat(cleanVal) || 0;
-    setEditData(prev => ({ ...prev, finalCreditAmount: num }));
-  };
-
-  const handleCommissionPercentChange = (val: string) => {
-    let num = parseFloat(val) || 0;
-    if (num > 100) num = 100;
-    setEditData(prev => ({ ...prev, commissionPercent: num }));
   };
 
   const isCierre = appointment.status === 'Cierre';
