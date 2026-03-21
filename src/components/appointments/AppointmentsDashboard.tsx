@@ -263,9 +263,9 @@ export default function AppointmentsDashboard({
               <div className="bg-blue-600/20 p-2 rounded-xl border border-blue-600/30">
                 <LayoutDashboard className="text-blue-600 w-6 h-6" />
               </div>
-              <div className="hidden sm:block">
+              <div>
                 <DialogTitle className="text-xl font-bold">Agenda</DialogTitle>
-                <DialogDescription className="text-xs">Vista completa del flujo.</DialogDescription>
+                <DialogDescription className="text-xs">Vista completa del flujo de prospectos.</DialogDescription>
               </div>
             </div>
             <div className="flex items-center gap-2 sm:gap-4 flex-1 justify-end px-2">

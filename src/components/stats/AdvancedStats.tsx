@@ -438,11 +438,13 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
 
       <Dialog open={isExpanded} onOpenChange={onExpandedChange}>
         <DialogContent data-calculator-dialog="true" className="max-w-none w-screen h-screen m-0 rounded-none bg-background border-none p-0 flex flex-col overflow-hidden">
-          <DialogTitle className="sr-only">Inteligencia Pro Finanto</DialogTitle>
           <DialogHeader className="px-6 py-4 border-b border-border/10 flex flex-row items-center justify-between bg-card/10 shrink-0">
             <div className="flex items-center gap-3">
               <div className="bg-primary/20 p-2 rounded-xl"><BarChart3 className="text-primary w-6 h-6" /></div>
-              <div><h3 className="text-xl font-black uppercase tracking-tighter">Panel de Inteligencia</h3><DialogDescription className="text-xs">Monitor de rendimiento y ciclos financieros.</DialogDescription></div>
+              <div>
+                <DialogTitle className="text-xl font-black uppercase tracking-tighter">Panel de Inteligencia</DialogTitle>
+                <DialogDescription className="text-xs">Monitor de rendimiento y ciclos financieros del ejecutivo.</DialogDescription>
+              </div>
             </div>
             <DialogClose asChild><Button variant="ghost" size="icon" className="rounded-full hover:bg-destructive/10 h-10 w-10"><X className="w-5 h-5" /></Button></DialogClose>
           </DialogHeader>

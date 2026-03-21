@@ -558,6 +558,10 @@ export default function LoginPage() {
       {/* Demo Modal Enriquecido */}
       <Dialog open={!!selectedDemoApp} onOpenChange={() => setSelectedDemoApp(null)}>
         <DialogContent className="bg-slate-900 border-white/10 text-white sm:max-w-lg p-0 overflow-hidden rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Detalles del Prospecto: {selectedDemoApp?.name}</DialogTitle>
+            <DialogDescription>Expediente completo del cliente de demostración de Finanto CRM.</DialogDescription>
+          </DialogHeader>
           <div className="bg-primary/10 p-8 border-b border-white/5">
             <div className="flex items-center gap-4 mb-2">
               <div className="p-4 bg-primary text-white rounded-2xl shadow-lg"><User className="w-8 h-8" /></div>
