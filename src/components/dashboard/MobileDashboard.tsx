@@ -78,46 +78,42 @@ export default function MobileDashboard({
   const quadrants = [
     {
       id: 'calc',
-      title: 'CALCULADORA',
-      sub: 'Simulador',
+      title: 'SIMULADOR',
+      sub: 'CRÉDITO',
       icon: Calculator,
-      color: 'bg-blue-600/10',
-      borderColor: 'border-blue-500/20',
       iconColor: 'text-blue-500',
       circleColor: 'bg-blue-500/10',
+      activeStyles: 'active:shadow-blue-500/40 active:bg-blue-500/20 active:border-blue-500/30',
       action: onOpenCalculator
     },
     {
       id: 'new',
       title: 'NUEVA CITA',
-      sub: 'Registro',
+      sub: 'REGISTRO',
       icon: PlusCircle,
-      color: 'bg-emerald-600/10',
-      borderColor: 'border-emerald-500/20',
       iconColor: 'text-emerald-500',
       circleColor: 'bg-emerald-500/10',
+      activeStyles: 'active:shadow-emerald-500/40 active:bg-emerald-500/20 active:border-emerald-500/30',
       action: onOpenNewAppointment
     },
     {
       id: 'agenda',
       title: 'AGENDA',
-      sub: 'Próximas',
+      sub: 'PRÓXIMAS',
       icon: Calendar,
-      color: 'bg-indigo-600/10',
-      borderColor: 'border-indigo-500/20',
       iconColor: 'text-indigo-500',
       circleColor: 'bg-indigo-500/10',
+      activeStyles: 'active:shadow-indigo-500/40 active:bg-indigo-500/20 active:border-indigo-500/30',
       action: onOpenAgenda
     },
     {
       id: 'stats',
       title: 'STATS PRO',
-      sub: 'Inteligencia',
+      sub: 'KPIs',
       icon: BarChart3,
-      color: 'bg-amber-600/10',
-      borderColor: 'border-amber-500/20',
       iconColor: 'text-amber-500',
       circleColor: 'bg-amber-500/10',
+      activeStyles: 'active:shadow-amber-500/40 active:bg-amber-500/20 active:border-amber-500/30',
       action: onOpenStats
     }
   ];
@@ -125,7 +121,7 @@ export default function MobileDashboard({
   return (
     <div className="flex flex-col space-y-8 animate-in fade-in duration-700 pb-24 overflow-x-hidden">
       
-      {/* Micro Stats Superiores (Desplazamiento Horizontal) */}
+      {/* Micro Stats Superiores (Scroll Horizontal Limpio) */}
       <div className="w-full overflow-x-auto scrollbar-hide -mx-4 px-4 pb-2">
         <div className="flex gap-3 min-w-max">
           {microStats.map((s, i) => (
@@ -174,26 +170,27 @@ export default function MobileDashboard({
             key={q.id}
             onClick={q.action}
             className={cn(
-              "relative aspect-square overflow-hidden flex flex-col items-center justify-center rounded-[3rem] border transition-all active:scale-95 shadow-xl group backdrop-blur-xl",
-              "bg-white/[0.03] border-white/10 hover:border-white/20 active:bg-white/10"
+              "relative aspect-square overflow-hidden flex flex-col items-center justify-center rounded-[3.5rem] border transition-all duration-300 active:scale-95 shadow-xl group backdrop-blur-2xl",
+              "bg-white/[0.05] border-white/10",
+              q.activeStyles
             )}
           >
             {/* Círculo decorativo GIGANTE animado */}
             <div className={cn(
-              "absolute -top-10 -right-10 w-32 h-32 rounded-full transition-all duration-700 group-active:scale-125 group-active:-translate-x-6 group-active:translate-y-6 group-hover:scale-110",
+              "absolute -top-12 -right-12 w-40 h-40 rounded-full transition-all duration-700 group-active:scale-125 group-active:-translate-x-10 group-active:translate-y-10 group-hover:scale-110",
               q.circleColor
             )} />
 
-            {/* Icono de fondo con muy baja opacidad */}
-            <q.icon className={cn("absolute opacity-[0.03] w-32 h-32 -bottom-6 -left-6 transition-transform duration-700 group-active:scale-110", q.iconColor)} />
+            {/* Icono de fondo con opacidad ultra-baja */}
+            <q.icon className={cn("absolute opacity-[0.02] w-36 h-36 -bottom-8 -left-8 transition-transform duration-700 group-active:scale-110", q.iconColor)} />
 
             {/* Icono Principal Centrado GIGANTE */}
-            <div className={cn("p-5 rounded-[1.8rem] bg-white/5 mb-4 relative z-10 shadow-xl backdrop-blur-sm transition-all duration-300 group-active:scale-110 group-active:brightness-125 group-hover:brightness-110", q.iconColor)}>
-              <q.icon size={40} />
+            <div className={cn("p-6 rounded-[2.2rem] bg-white/5 mb-4 relative z-10 shadow-2xl backdrop-blur-sm transition-all duration-300 group-active:scale-110 group-active:brightness-125 group-hover:brightness-110", q.iconColor)}>
+              <q.icon size={48} />
             </div>
             
             <div className="text-center space-y-1 relative z-10 px-2">
-              <span className="block text-lg font-black tracking-tighter text-foreground uppercase leading-none">
+              <span className="block text-xl font-black tracking-tighter text-foreground uppercase leading-none">
                 {q.title}
               </span>
               <span className="block text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">
@@ -204,7 +201,7 @@ export default function MobileDashboard({
         ))}
       </div>
 
-      {/* Actividad Hoy */}
+      {/* Actividad Hoy (Feed Interactivo) */}
       <div className="space-y-5 pt-4 px-1">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-black uppercase tracking-[0.3em] text-muted-foreground flex items-center gap-2">

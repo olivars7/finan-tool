@@ -284,9 +284,9 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
         </div>
       </footer>
 
-      {/* Diálogo de Nueva Cita (Móvil) */}
+      {/* Diálogo de Nueva Cita (Móvil - Optimizado con Scroll) */}
       <Dialog open={isNewAppointmentOpen} onOpenChange={setIsNewAppointmentOpen}>
-        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden rounded-[2rem] border-none bg-background shadow-2xl flex flex-col h-[90vh]">
+        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden rounded-[2.5rem] border-none bg-background shadow-2xl flex flex-col h-[90vh]">
           <DialogHeader className="p-6 border-b border-border/10 bg-primary/5 relative shrink-0">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-primary text-primary-foreground rounded-2xl shadow-lg">
@@ -304,8 +304,8 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
             </DialogClose>
           </DialogHeader>
           
-          <ScrollArea className="flex-1 p-6">
-            <div className="pb-10">
+          <ScrollArea className="flex-1 p-6 scrollbar-thin">
+            <div className="pb-20">
               <AppointmentForm onAdd={(data) => {
                 addAppointment(data);
                 setIsNewAppointmentOpen(false);
