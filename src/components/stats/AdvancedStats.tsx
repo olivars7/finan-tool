@@ -26,18 +26,36 @@ const CustomXAxisTick = (props: any) => {
   const { x, y, payload, data } = props;
   const item = data[payload.index];
   if (!item) return null;
+
+  // Colores condicionales según el tipo de día
+  let initialColor = "currentColor";
+  if (item.isCorte) initialColor = "#ef4444"; // Martes - Corte (Rojo)
+  if (item.isPaga) initialColor = "#1877f2";  // Viernes - Pago (Azul)
+
   return (
     <g transform={`translate(${x},${y})`}>
-      <text x={0} y={0} dy={16} textAnchor="middle" fill="currentColor" className="text-[9px] font-bold opacity-60 uppercase">
+      {/* Número del día con opacidad menor */}
+      <text 
+        x={0} 
+        y={0} 
+        dy={16} 
+        textAnchor="middle" 
+        fill="currentColor" 
+        fillOpacity={0.5}
+        className="text-[9px] font-bold uppercase"
+      >
         {item.dayNumber}
       </text>
-      <g transform="translate(0, 32)">
-        <text x={0} y={0} textAnchor="middle" fill="currentColor" className="text-[10px] font-black">
-          {item.dayInitial}
-        </text>
-        {item.isCorte && <circle cx={10} cy={-3} r={2.5} fill="#ef4444" />}
-        {item.isPaga && <circle cx={10} cy={-3} r={2.5} fill="#1877f2" />}
-      </g>
+      {/* Inicial del día con mayor opacidad y color condicional */}
+      <text 
+        x={0} 
+        y={32} 
+        textAnchor="middle" 
+        fill={initialColor} 
+        className="text-[10px] font-black uppercase"
+      >
+        {item.dayInitial}
+      </text>
     </g>
   );
 };
@@ -60,21 +78,17 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
     }
   }), [isCorporate]);
 
-  // Colores base para días normales
+  // Configuración de barras y colores
+  const barSize = expanded ? 14 : 22;
   const agendadasNormalColor = "hsl(var(--primary) / 0.25)";
   const atendidasNormalColor = isCorporate ? "hsl(187 100% 42%)" : "hsl(var(--accent))";
   
-  // Colores vibrantes para el día actual
-  const todayAgendadasColor = "hsl(var(--primary))";
-  const todayAtendidasColor = "hsl(142 70% 45%)"; // Esmeralda vibrante para "Hoy"
-  
-  // Grosor de barras consistente
-  const barSize = expanded ? 14 : 22;
+  const todayAgendadasColor = "hsl(var(--primary))"; // Azul sólido para hoy
+  const todayAtendidasColor = "hsl(142 70% 45%)"; // Esmeralda para hoy
 
-  // Estilo de resaltado premium para Hoy y Hover
+  // Estilo de resaltado premium
   const highlightColor = "hsl(var(--primary))";
   const highlightOpacity = 0.08;
-  const strokeColor = "hsl(var(--primary) / 0.3)";
 
   return (
     <div className={cn(
@@ -108,7 +122,14 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
             </defs>
             <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.1} />
             
-            <XAxis xAxisId={0} dataKey="dayNumber" tickLine={false} axisLine={false} interval={expanded ? 1 : 0} tick={<CustomXAxisTick data={data} />} />
+            <XAxis 
+              xAxisId={0} 
+              dataKey="dayNumber" 
+              tickLine={false} 
+              axisLine={false} 
+              interval={0} // Mostrar TODOS los números de fechas
+              tick={<CustomXAxisTick data={data} />} 
+            />
             <XAxis xAxisId={1} dataKey="dayNumber" hide />
             
             <YAxis hide domain={[0, globalMax + 2]} />
@@ -117,7 +138,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
               cursor={{ 
                 fill: highlightColor, 
                 fillOpacity: highlightOpacity,
-                stroke: strokeColor,
+                stroke: highlightColor,
                 strokeDasharray: "4 4",
                 strokeWidth: 1
               }}
@@ -155,7 +176,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
                 x2={todayItem.dayNumber} 
                 fill={highlightColor} 
                 fillOpacity={highlightOpacity} 
-                stroke={strokeColor}
+                stroke={highlightColor}
                 strokeDasharray="4 4"
                 strokeWidth={1}
               />
@@ -168,14 +189,14 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
               ))}
             </Bar>
 
-            {/* ATENDIDAS (FRENTE - ALINEACIÓN EXACTA POR XAXISID 1) */}
+            {/* ATENDIDAS (FRENTE) */}
             <Bar xAxisId={1} dataKey="atendidas" name="Atendidas" radius={[6, 6, 0, 0]} barSize={barSize}>
               {data.map((e: any, i: number) => (
                 <Cell key={`bar-atendida-${i}`} fill={e.isToday ? todayAtendidasColor : atendidasNormalColor} />
               ))}
             </Bar>
             
-            {/* MARCADORES DE CIERRE EN LA PARTE SUPERIOR */}
+            {/* MARCADORES DE CIERRE (CÍRCULOS GRADIENTES EN EL TECHO CON NÚMERO) */}
             <Line 
               xAxisId={0}
               type="monotone" 
@@ -185,29 +206,27 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
               dot={(props: any) => {
                 const { cx, payload, index } = props;
                 if (!payload || payload.cierres <= 0) return null;
-                const markerY = 10; 
+                const markerY = 15; 
+                const radius = barSize / 2;
                 return (
                   <g key={`marker-cierre-${payload.dayNumber}-${index}`}>
-                    <rect 
-                      x={cx - (barSize / 2)} 
-                      y={markerY} 
-                      width={barSize} 
-                      height={6} 
-                      rx={3} 
+                    <circle 
+                      cx={cx} 
+                      cy={markerY} 
+                      r={radius} 
                       fill="url(#cierreGradient)" 
                       className="animate-pulse"
                     />
-                    <rect 
-                      x={cx - (barSize / 2)} 
+                    <text 
+                      x={cx} 
                       y={markerY} 
-                      width={barSize} 
-                      height={6} 
-                      rx={3} 
-                      fill="none" 
-                      stroke="white" 
-                      strokeOpacity={0.2} 
-                      strokeWidth={1} 
-                    />
+                      dy={3.5} 
+                      textAnchor="middle" 
+                      fill="white" 
+                      className="text-[8px] font-black"
+                    >
+                      {payload.cierres}
+                    </text>
                   </g>
                 );
               }}
