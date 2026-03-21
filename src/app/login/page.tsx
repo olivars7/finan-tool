@@ -9,14 +9,15 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { 
-  Loader2, ShieldCheck, Zap, Globe, Sparkles, TrendingUp, 
+  Loader2, ShieldCheck, Zap, Sparkles, TrendingUp, 
   ChevronRight, BarChart3, CalendarClock, Smartphone, 
-  Users, CheckCircle2, Star, Target, Lightbulb, ArrowDown,
-  Calculator, Receipt, Coins, Info, MessageSquare, Phone, User, Clock, X
+  Users, CheckCircle2, Target, ArrowDown,
+  Calculator, Receipt, Coins, MessageSquare, Phone, User, Clock, X,
+  MapPin, Briefcase, Calendar as CalendarIcon, FileText
 } from 'lucide-react';
 import { 
   Bar, CartesianGrid, XAxis, YAxis, ResponsiveContainer, 
-  ComposedChart, LineChart, Line, Tooltip as RechartsTooltip, Cell 
+  ComposedChart, LineChart, Line, Tooltip as RechartsTooltip
 } from "recharts";
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
@@ -27,7 +28,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogClose,
 } from "@/components/ui/dialog";
 
 // --- COMPONENTE DE REVELADO POR SCROLL ---
@@ -72,7 +72,7 @@ const ScrollReveal = ({ children, className, animation = "fade-in", delay = 0 }:
   );
 };
 
-// --- DATOS DE DEMOSTRACIÓN (NO PERSISTENTES) ---
+// --- DATOS DE DEMOSTRACIÓN ENRIQUECIDOS ---
 const DEMO_OPERATIVO = [
   { day: 'Lun', agendadas: 4, atendidas: 3, cierres: 0 },
   { day: 'Mar', agendadas: 6, atendidas: 5, cierres: 1 },
@@ -89,9 +89,45 @@ const DEMO_FLUJO = [
 ];
 
 const DEMO_APPS = [
-  { id: '1', name: 'Roberto Martínez', time: '10:30 AM', type: '1ra consulta', product: 'Casa', phone: '664 123 4567', notes: 'Interesado en zona dorada, presupuesto 2.5M. Perfilamiento bancario pendiente.' },
-  { id: '2', name: 'Elena Guajardo', time: '01:00 PM', type: 'Cierre', product: 'Terreno', phone: '664 987 6543', notes: 'Firma de contrato y entrega de enganche. Ya se validó el documento de identidad.' },
-  { id: '3', name: 'Carlos Slim (Prospecto)', time: '04:30 PM', type: 'Seguimiento', product: 'Departamento', phone: '664 555 0000', notes: 'Dudas sobre el plan de financiamiento a 192 meses. Enviar tabla de amortización por WA.' },
+  { 
+    id: '1', 
+    name: 'Roberto Martínez', 
+    time: '10:30 AM', 
+    date: '15 Oct 2026',
+    type: '1ra consulta', 
+    product: 'Casa Habitación', 
+    phone: '664 123 4567', 
+    status: 'Pendiente',
+    notes: 'Interesado en zona dorada, presupuesto 2.5M. Requiere perfilamiento bancario para crédito tradicional. Muy interesado en el plan de 192 meses.',
+    prospector: 'Marketing Facebook',
+    executive: 'Marco Olivares'
+  },
+  { 
+    id: '2', 
+    name: 'Elena Guajardo', 
+    time: '01:00 PM', 
+    date: '15 Oct 2026',
+    type: 'Cierre', 
+    product: 'Terreno Comercial', 
+    phone: '664 987 6543', 
+    status: 'Cerrado',
+    notes: 'Firma de contrato y entrega de enganche. Ya se validó el documento de identidad. Pago de comisión proyectado para el viernes de la siguiente semana.',
+    prospector: 'Directo / Recomendación',
+    executive: 'Brenda Solis'
+  },
+  { 
+    id: '3', 
+    name: 'Carlos Slim (Prospecto)', 
+    time: '04:30 PM', 
+    date: '16 Oct 2026',
+    type: 'Seguimiento', 
+    product: 'Departamento', 
+    phone: '664 555 0000', 
+    status: 'En Proceso',
+    notes: 'Dudas sobre la tabla de amortización y plazos de entrega. Enviar PDF por WhatsApp con el resumen de gastos operativos (escrituración y avalúo).',
+    prospector: 'Lona en propiedad',
+    executive: 'Kevin Castro'
+  },
 ];
 
 export default function LoginPage() {
@@ -425,7 +461,7 @@ export default function LoginPage() {
         </div>
       </section>
 
-      {/* Sección: CRM Table Demo */}
+      {/* Sección: CRM Table Demo (Agenda Enriquecida) */}
       <section className="py-32 px-6 bg-slate-950">
         <div className="container max-w-5xl mx-auto space-y-16">
           <ScrollReveal animation="slide-up">
@@ -441,32 +477,46 @@ export default function LoginPage() {
                 <table className="w-full text-left border-collapse">
                   <thead className="bg-white/5">
                     <tr>
-                      <th className="p-6 text-[10px] font-black uppercase tracking-widest text-slate-500">Cliente</th>
+                      <th className="p-6 text-[10px] font-black uppercase tracking-widest text-slate-500">Cliente / Registro</th>
                       <th className="p-6 text-[10px] font-black uppercase tracking-widest text-slate-500">Motivo</th>
+                      <th className="p-6 text-[10px] font-black uppercase tracking-widest text-slate-500">Producto</th>
                       <th className="p-6 text-[10px] font-black uppercase tracking-widest text-slate-500">Hora</th>
                       <th className="p-6 text-right"></th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
                     {DEMO_APPS.map((app, i) => (
-                      <tr key={app.id} className="group hover:bg-white/5 transition-colors cursor-pointer" onClick={() => setSelectedDemoApp(app)}>
+                      <tr 
+                        key={app.id} 
+                        className="group hover:bg-white/5 transition-all cursor-pointer" 
+                        onClick={() => setSelectedDemoApp(app)}
+                      >
                         <td className="p-6">
-                          <div className="font-bold text-sm">{app.name}</div>
-                          <div className="text-[10px] text-primary font-bold uppercase tracking-tighter">{app.phone}</div>
+                          <div className="font-bold text-sm text-white">{app.name}</div>
+                          <div className="text-[10px] text-primary font-bold uppercase tracking-tighter flex items-center gap-1.5 mt-1">
+                            <Phone className="w-2.5 h-2.5" /> {app.phone}
+                          </div>
                         </td>
                         <td className="p-6">
                           <span className={cn(
                             "px-3 py-1 rounded-full text-[9px] font-black uppercase border",
-                            app.type === 'Cierre' ? "bg-green-500/10 text-green-500 border-green-500/20" : "bg-primary/10 text-primary border-primary/20"
+                            app.type === 'Cierre' ? "bg-green-500/10 text-green-500 border-green-500/20" : 
+                            app.type === 'Seguimiento' ? "bg-amber-500/10 text-amber-500 border-amber-500/20" :
+                            "bg-primary/10 text-primary border-primary/20"
                           )}>{app.type}</span>
                         </td>
                         <td className="p-6">
+                          <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
+                            <Briefcase className="w-3.5 h-3.5 text-blue-400" /> {app.product}
+                          </div>
+                        </td>
+                        <td className="p-6">
                           <div className="flex items-center gap-2 text-xs font-bold text-slate-400">
-                            <Clock className="w-3 h-3" /> {app.time}
+                            <Clock className="w-3.5 h-3.5" /> {app.time}
                           </div>
                         </td>
                         <td className="p-6 text-right">
-                          <Button variant="ghost" size="icon" className="group-hover:text-primary transition-colors"><ChevronRight className="w-5 h-5" /></Button>
+                          <Button variant="ghost" size="icon" className="group-hover:text-primary transition-colors group-hover:translate-x-1 duration-300"><ChevronRight className="w-5 h-5" /></Button>
                         </td>
                       </tr>
                     ))}
@@ -505,36 +555,69 @@ export default function LoginPage() {
         </ScrollReveal>
       </footer>
 
-      {/* Demo Modal */}
+      {/* Demo Modal Enriquecido */}
       <Dialog open={!!selectedDemoApp} onOpenChange={() => setSelectedDemoApp(null)}>
-        <DialogContent className="bg-slate-900 border-white/10 text-white sm:max-w-md">
-          <DialogHeader>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-3 bg-primary/20 rounded-xl"><User className="text-primary w-6 h-6" /></div>
+        <DialogContent className="bg-slate-900 border-white/10 text-white sm:max-w-lg p-0 overflow-hidden rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+          <div className="bg-primary/10 p-8 border-b border-white/5">
+            <div className="flex items-center gap-4 mb-2">
+              <div className="p-4 bg-primary text-white rounded-2xl shadow-lg"><User className="w-8 h-8" /></div>
               <div>
-                <DialogTitle className="text-xl font-black uppercase tracking-tight text-white">{selectedDemoApp?.name}</DialogTitle>
-                <DialogDescription className="text-slate-500 font-bold uppercase text-[10px]">Expediente de demostración</DialogDescription>
+                <h3 className="text-2xl font-black uppercase tracking-tight text-white leading-none">{selectedDemoApp?.name}</h3>
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="px-2 py-0.5 bg-white/10 rounded text-[9px] font-black uppercase text-primary border border-primary/20">Demo Mode</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{selectedDemoApp?.status}</span>
+                </div>
               </div>
-            </div>
-          </DialogHeader>
-          <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <span className="text-[9px] font-black text-slate-500 uppercase">Producto</span>
-                <p className="text-sm font-bold text-white">{selectedDemoApp?.product}</p>
-              </div>
-              <div className="space-y-1">
-                <span className="text-[9px] font-black text-slate-500 uppercase">Teléfono</span>
-                <p className="text-sm font-bold text-primary">{selectedDemoApp?.phone}</p>
-              </div>
-            </div>
-            <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
-              <span className="text-[9px] font-black text-slate-500 uppercase mb-2 block">Notas de la cita</span>
-              <p className="text-xs leading-relaxed text-slate-300 italic">"{selectedDemoApp?.notes}"</p>
             </div>
           </div>
-          <div className="pt-4 flex justify-end">
-            <Button onClick={() => setSelectedDemoApp(null)} className="bg-primary hover:bg-primary/80 font-bold uppercase text-[10px] tracking-widest px-6 rounded-full">Entendido</Button>
+
+          <div className="p-8 space-y-8">
+            <div className="grid grid-cols-2 gap-8">
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2"><CalendarIcon className="w-3 h-3" /> Fecha Programada</Label>
+                  <p className="text-sm font-bold text-white">{selectedDemoApp?.date} • {selectedDemoApp?.time}</p>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2"><Briefcase className="w-3 h-3" /> Tipo de Inmueble</Label>
+                  <p className="text-sm font-bold text-white">{selectedDemoApp?.product}</p>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2"><Phone className="w-3 h-3" /> Teléfono de Contacto</Label>
+                  <p className="text-sm font-bold text-primary">{selectedDemoApp?.phone}</p>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2"><MapPin className="w-3 h-3" /> Prospectado vía</Label>
+                  <p className="text-sm font-bold text-white">{selectedDemoApp?.prospector}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 bg-white/5 rounded-3xl border border-white/10 space-y-3">
+              <Label className="text-[10px] font-black text-primary uppercase tracking-[0.2em] flex items-center gap-2">
+                <FileText className="w-3.5 h-3.5" /> Acuerdos y Notas del Cliente
+              </Label>
+              <p className="text-sm leading-relaxed text-slate-200 font-medium italic">
+                "{selectedDemoApp?.notes}"
+              </p>
+            </div>
+
+            <div className="flex items-center justify-between pt-4 border-t border-white/5">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center text-[10px] font-bold">
+                  {selectedDemoApp?.executive?.charAt(0)}
+                </div>
+                <div className="text-[10px] font-bold">
+                  <span className="text-slate-500 uppercase block leading-none mb-1">Atiende:</span>
+                  <span className="text-white">{selectedDemoApp?.executive}</span>
+                </div>
+              </div>
+              <Button onClick={() => setSelectedDemoApp(null)} className="bg-primary hover:bg-primary/80 font-black uppercase text-[10px] tracking-widest px-8 h-12 rounded-2xl shadow-xl">
+                Cerrar Expediente
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
