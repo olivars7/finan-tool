@@ -102,18 +102,9 @@ export default function AppointmentDetailsDialog({
       setNewProduct(appointment.product || 'Casa');
       setNewNotes(appointment.notes || '');
       setNewType(appointment.status === 'Cierre' ? 'Seguimiento' : '2da consulta');
-      
-      if (appointment.prospectorName) {
-        setNewName(appointment.name);
-        setNewProspectorName(appointment.prospectorName);
-        setNewProspectorPhone(appointment.prospectorPhone || '');
-        setNewAttendingExecutive('');
-      } else {
-        setNewAttendingExecutive(appointment.attendingExecutive || '');
-        setNewProspectorName('');
-        setNewProspectorPhone('');
-      }
-      
+      setNewAttendingExecutive(appointment.attendingExecutive || '');
+      setNewProspectorName(appointment.prospectorName || '');
+      setNewProspectorPhone(appointment.prospectorPhone || '');
       setNewDate('');
       setNewTime('');
     }
@@ -175,6 +166,12 @@ export default function AppointmentDetailsDialog({
       setShowEditProspector(false);
       setEditData(prev => ({ ...prev, prospectorName: undefined, prospectorPhone: undefined }));
     }
+  };
+
+  const copyName = () => {
+    navigator.clipboard.writeText(appointment.name).then(() => {
+      toast({ title: "Nombre copiado", description: appointment.name });
+    });
   };
 
   const copyPhoneOnly = () => {
@@ -476,7 +473,7 @@ Hora: ${timeBold}${confirmedBold}`;
                 <Textarea 
                   value={editData.notes || ''} 
                   onChange={e => setEditData({...editData, notes: e.target.value})} 
-                  className="bg-white/5 border-white/10 min-h-[120px] text-sm text-white resize-none scrollbar-thin" 
+                  className="bg-white/5 border-white/10 min-h-[200px] text-sm text-white resize-none scrollbar-thin" 
                   placeholder="Escribe acuerdos o detalles importantes..."
                 />
               </div>
@@ -485,22 +482,14 @@ Hora: ${timeBold}${confirmedBold}`;
             <div className="space-y-8 animate-in fade-in duration-500">
               {/* Perfil Principal */}
               <div className="flex items-center gap-6 p-6 rounded-3xl bg-white/[0.03] border border-white/5 shadow-inner">
-                <div className="h-20 w-20 rounded-full bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white shadow-lg ring-4 ring-primary/10">
-                  <User className="w-10 h-10" />
-                </div>
                 <div className="flex-1 space-y-2">
                   <div className="flex items-center gap-3">
-                    <h3 className="text-3xl font-black text-white uppercase tracking-tighter leading-none">{appointment.name}</h3>
-                    {appointment.status && (
-                      <span className={cn(
-                        "px-3 py-1 rounded-full text-[9px] font-black uppercase border shadow-sm",
-                        appointment.status === 'Cierre' ? "bg-green-500/10 text-green-500 border-green-500/20" : 
-                        appointment.status === 'Apartado' ? "bg-blue-500/10 text-blue-500 border-blue-500/20" :
-                        "bg-white/10 text-white border-white/20"
-                      )}>
-                        {appointment.status}
-                      </span>
-                    )}
+                    <h3 
+                      onClick={copyName}
+                      className="text-3xl font-black text-white uppercase tracking-tighter leading-none cursor-pointer hover:text-primary transition-colors"
+                    >
+                      {appointment.name}
+                    </h3>
                   </div>
                   <div className="flex items-center gap-4">
                     <div onClick={copyPhoneOnly} className="flex items-center gap-2 cursor-pointer group/phone">
@@ -581,7 +570,7 @@ Hora: ${timeBold}${confirmedBold}`;
                         )}
 
                         {appointment.attendingExecutive && (
-                          <div className="p-4 rounded-2xl bg-purple-500/5 border border-purple-500/10 flex items-center gap-4">
+                          <div className="p-4 rounded-2xl bg-purple-500/5 border-purple-500/10 flex items-center gap-4">
                             <div className="p-2 bg-purple-500/10 rounded-xl text-purple-400"><UserCheck className="w-5 h-5" /></div>
                             <div className="flex-1 overflow-hidden">
                               <span className="text-[9px] font-bold text-purple-400/60 uppercase">Atendido por</span>
@@ -715,7 +704,7 @@ Hora: ${timeBold}${confirmedBold}`;
 
         <Dialog open={isRescheduling} onOpenChange={setIsRescheduling}>
           <DialogContent 
-            className="sm:max-w-[500px] bg-[#020617] border-white/10 shadow-2xl rounded-[2.5rem] p-0 overflow-hidden"
+            className="sm:max-w-[550px] bg-[#020617] border-white/10 shadow-2xl rounded-[2.5rem] p-0 overflow-hidden"
           >
             <DialogHeader className="p-8 border-b border-white/5 bg-primary/5">
               <div className="flex items-center gap-4">
@@ -729,24 +718,23 @@ Hora: ${timeBold}${confirmedBold}`;
               </div>
             </DialogHeader>
             
-            <div className="p-8 space-y-6">
+            <div className="p-8 space-y-6 max-h-[65vh] overflow-y-auto scrollbar-thin">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Cliente</Label>
                   <Input value={newName} readOnly className="h-10 bg-white/5 border-white/10 text-slate-400 font-bold" />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Producto</Label>
-                  <Select value={newProduct} onValueChange={(v) => setNewProduct(v as AppointmentProduct)}>
+                  <Label className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Motivo</Label>
+                  <Select value={newType} onValueChange={(v) => setNewType(v as AppointmentType)}>
                     <SelectTrigger className="h-10 bg-white/5 border-white/10 text-white font-bold">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Casa">Casa</SelectItem>
-                      <SelectItem value="Departamento">Departamento</SelectItem>
-                      <SelectItem value="Terreno">Terreno</SelectItem>
-                      <SelectItem value="Transporte">Transporte</SelectItem>
-                      <SelectItem value="Préstamo">Préstamo</SelectItem>
+                      <SelectItem value="1ra consulta">1ra consulta</SelectItem>
+                      <SelectItem value="2da consulta">2da consulta</SelectItem>
+                      <SelectItem value="cierre">Cierre</SelectItem>
+                      <SelectItem value="Seguimiento">Seguimiento</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -760,6 +748,33 @@ Hora: ${timeBold}${confirmedBold}`;
                 <div className="space-y-2">
                   <Label className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Nueva Hora</Label>
                   <Input type="time" value={newTime} onChange={e => setNewTime(e.target.value)} className="h-10 bg-white/5 border-white/10 text-white font-bold" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-4 border rounded-2xl bg-blue-500/5 border-blue-500/10 space-y-3">
+                  <Label className="text-[9px] font-black uppercase text-blue-400/60">Info Prospectador</Label>
+                  <Input 
+                    value={newProspectorName} 
+                    onChange={e => setNewProspectorName(e.target.value)} 
+                    className="h-9 bg-[#020617] border-blue-500/20 text-xs text-white" 
+                    placeholder="Nombre"
+                  />
+                  <Input 
+                    value={newProspectorPhone} 
+                    onChange={e => setNewProspectorPhone(e.target.value)} 
+                    className="h-9 bg-[#020617] border-blue-500/20 text-xs text-white" 
+                    placeholder="Teléfono"
+                  />
+                </div>
+                <div className="p-4 border rounded-2xl bg-purple-500/5 border-purple-500/10 space-y-3">
+                  <Label className="text-[9px] font-black uppercase text-purple-400/60">Ejecutivo de Atención</Label>
+                  <Input 
+                    value={newAttendingExecutive} 
+                    onChange={e => setNewAttendingExecutive(e.target.value)} 
+                    className="h-9 bg-[#020617] border-purple-500/20 text-xs text-white" 
+                    placeholder="Nombre del ejecutivo"
+                  />
                 </div>
               </div>
 
