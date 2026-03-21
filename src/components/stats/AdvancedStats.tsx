@@ -30,6 +30,7 @@ const CustomXAxisTick = (props: any) => {
 
   const isCorte = item.isCorte;
   const isPaga = item.isPaga;
+  
   // Gris para corte, Azul para pago
   const dotColor = isCorte ? "#64748b" : isPaga ? "#1877F2" : null;
 
@@ -40,8 +41,8 @@ const CustomXAxisTick = (props: any) => {
         y={0} 
         dy={16} 
         textAnchor="middle" 
-        fill="currentColor" 
-        fillOpacity={0.5}
+        fill={dotColor || "currentColor"} 
+        fillOpacity={dotColor ? 1 : 0.5}
         className="text-[9px] font-bold uppercase"
       >
         {item.dayNumber}
@@ -50,7 +51,7 @@ const CustomXAxisTick = (props: any) => {
         x={0} 
         y={32} 
         textAnchor="middle" 
-        fill="currentColor" 
+        fill={dotColor || "currentColor"} 
         fillOpacity={1}
         className="text-[10px] font-black uppercase"
       >
@@ -313,7 +314,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                   return null;
                 }}
               />
-              {/* Blinking lines for the last two vertical milestones */}
+              {/* Animated blinking lines for the last two vertical milestones */}
               {data[lastIdx] && (
                 <ReferenceLine 
                   x={data[lastIdx].week} 
