@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState } from 'react';
@@ -175,16 +174,6 @@ export default function UpcomingAppointments({
       }
     }
   };
-
-  const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: 'MXN',
-      maximumFractionDigits: 0
-    }).format(Math.round(val));
-  };
-
-  const calculatedCommission = (finalCreditAmount * 0.007 * (finalCommissionPercent / 100)) * 0.91;
 
   const copyPhone = (e: React.MouseEvent | React.TouchEvent, app: Appointment) => {
     e.stopPropagation();
@@ -431,7 +420,7 @@ export default function UpcomingAppointments({
                               <TooltipProvider>
                                 <Tooltip delayDuration={0}>
                                   <TooltipTrigger asChild>
-                                    <UserCog className="w-3.5 h-3.5 text-blue-500" />
+                                    <UserCog className="w-3 h-3 text-blue-500" />
                                   </TooltipTrigger>
                                   <TooltipContent side="top" className="text-[10px] font-bold">
                                     {app.prospectorName}
@@ -443,7 +432,7 @@ export default function UpcomingAppointments({
                               <TooltipProvider>
                                 <Tooltip delayDuration={0}>
                                   <TooltipTrigger asChild>
-                                    <UserCheck className="w-3.5 h-3.5 text-purple-500" />
+                                    <UserCheck className="w-3 h-3 text-purple-500" />
                                   </TooltipTrigger>
                                   <TooltipContent side="top" className="text-[10px] font-bold">
                                     {app.attendingExecutive}

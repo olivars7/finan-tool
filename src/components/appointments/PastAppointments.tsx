@@ -91,14 +91,6 @@ export default function PastAppointments({
     });
   };
 
-  const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: 'MXN',
-      maximumFractionDigits: 0
-    }).format(Math.round(val));
-  };
-
   const visibleAppointments = appointments.slice(0, visibleCount);
 
   return (
@@ -114,11 +106,11 @@ export default function PastAppointments({
               <TableHeader className="sticky top-0 z-30 bg-card shadow-sm border-b">
                 <TableRow className="hover:bg-transparent">
                   <TableHead className={cn("bg-card pl-4", expanded ? "w-[180px]" : "")}>Nombre / Teléfono</TableHead>
-                  {expanded && <TableHead className="bg-card w-[140px]">Contacto</TableHead>}
-                  <TableHead className="bg-card">Motivo</TableHead>
-                  {expanded && <TableHead className="bg-card">Producto</TableHead>}
-                  <TableHead className="bg-card">Fecha / Hora</TableHead>
-                  {expanded && <TableHead className="bg-card w-[300px]">Notas</TableHead>}
+                  {expanded && <TableHead className="bg-card w-[180px]">Contacto</TableHead>}
+                  <TableHead className={cn("bg-card", expanded ? "w-[120px]" : "")}>Motivo</TableHead>
+                  {expanded && <TableHead className="bg-card w-[130px]">Producto</TableHead>}
+                  <TableHead className={cn("bg-card", expanded ? "w-[150px]" : "")}>Fecha / Hora</TableHead>
+                  {expanded && <TableHead className="bg-card w-[180px]">Notas</TableHead>}
                   <TableHead className={cn("bg-card", !expanded ? "w-[160px]" : "w-[200px]")}>Resultado</TableHead>
                   <TableHead className="bg-card w-24 text-center"></TableHead>
                 </TableRow>
@@ -173,7 +165,7 @@ export default function PastAppointments({
                         </div>
                         {!expanded && (
                           <div className="text-[10px] text-muted-foreground inline-flex items-center gap-1 mt-0.5">
-                            <Phone className="w-2.5 h-2.5 ml-4" /> 
+                            <Phone className="w-2.5 h-2.5" /> 
                             <span onClick={(e) => copyPhone(e, app)} className="hover:text-primary cursor-pointer font-medium">{app.phone}</span>
                           </div>
                         )}
