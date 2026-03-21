@@ -1,4 +1,3 @@
-
 /**
  * @fileOverview Panel de Inteligencia Avanzada - Finanto
  */
@@ -15,6 +14,7 @@ import { Bar, CartesianGrid, XAxis, YAxis, Cell, ReferenceArea, Line, Responsive
 import { ChartContainer, ChartTooltip, type ChartConfig } from "@/components/ui/chart";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const chartConfig = {
   agendadas: { label: "Agendadas", color: "hsl(var(--primary))" },
@@ -31,7 +31,6 @@ const CustomXAxisTick = (props: any) => {
   const isCorte = item.isCorte;
   const isPaga = item.isPaga;
   
-  // Gris para corte, Azul para pago
   const dotColor = isCorte ? "#64748b" : isPaga ? "#1877F2" : null;
 
   return (
@@ -71,6 +70,16 @@ const CustomXAxisTick = (props: any) => {
 };
 
 const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBorder = false, globalMax }: { data: any, title: string, icon: any, expanded?: boolean, markedBorder?: boolean, globalMax: number }) => {
+  const isMobile = useIsMobile();
+  
+  // Lógica de acortar monitor operativo a 25 días en móvil
+  const displayData = useMemo(() => {
+    if (expanded && isMobile) {
+      return data.slice(-25);
+    }
+    return data;
+  }, [data, expanded, isMobile]);
+
   const [isCorporate, setIsCorporate] = useState(false);
   
   useEffect(() => {
@@ -78,7 +87,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
     setIsCorporate(!theme || theme === 'corporativo-v2');
   }, []);
 
-  const todayItem = data.find((d: any) => d.isToday);
+  const todayItem = displayData.find((d: any) => d.isToday);
   
   const localConfig = useMemo(() => ({
     ...chartConfig,
@@ -88,13 +97,12 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
     }
   }), [isCorporate]);
 
-  const barSize = expanded ? 14 : 22;
+  const barSize = expanded ? (isMobile ? 10 : 14) : 22;
   const agendadasNormalColor = "hsl(var(--primary) / 0.25)";
   const atendidasNormalColor = isCorporate ? "hsl(187 100% 42%)" : "hsl(var(--accent))";
   
-  // Colores especiales para el día de HOY
-  const todayAgendadasColor = "hsl(45 100% 50%)"; // Oro brillante para resaltar hoy
-  const todayAtendidasColor = "hsl(160 100% 45%)"; // Esmeralda brillante para hoy
+  const todayAgendadasColor = "hsl(45 100% 50%)"; 
+  const todayAtendidasColor = "hsl(160 100% 45%)"; 
 
   return (
     <div className={cn(
@@ -106,18 +114,15 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
           <div className="p-2 bg-primary/10 rounded-xl"><Icon className="w-4 h-4 text-primary" /></div>
           <div>
             <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">{title}</h4>
-            <p className="text-[8px] font-medium text-muted-foreground/40 uppercase">{expanded ? "Monitor Extendido (35 días)" : "Monitor de 15 días"}</p>
+            <p className="text-[8px] font-medium text-muted-foreground/40 uppercase">
+              {expanded ? (isMobile ? "Monitor 25 días" : "Monitor 35 días") : "Monitor de 15 días"}
+            </p>
           </div>
-        </div>
-        <div className="hidden sm:flex items-center gap-3">
-           <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-primary/40" /> <span className="text-[8px] font-bold uppercase opacity-60">Agendadas</span></div>
-           <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: atendidasNormalColor }} /> <span className="text-[8px] font-bold uppercase opacity-60">Atendidas</span></div>
-           <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-[url(#cierreGradient)]" /> <span className="text-[8px] font-bold uppercase opacity-60">Cierres</span></div>
         </div>
       </div>
       <div className={cn("overflow-visible", expanded ? "h-[320px]" : "h-[220px]")}>
         <ChartContainer config={localConfig} className="h-full w-full">
-          <ComposedChart data={data} margin={{ top: 35, right: 10, left: 10, bottom: 55 }}>
+          <ComposedChart data={displayData} margin={{ top: 35, right: 10, left: 10, bottom: 55 }}>
             <defs>
               <linearGradient id="cierreGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#00F5FF" />
@@ -133,8 +138,8 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
               dataKey="dayNumber" 
               tickLine={false} 
               axisLine={false} 
-              interval={0}
-              tick={<CustomXAxisTick data={data} />} 
+              interval={isMobile ? 1 : 0}
+              tick={<CustomXAxisTick data={displayData} />} 
             />
             <XAxis xAxisId={1} dataKey="dayNumber" hide />
             
@@ -161,12 +166,6 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
                             <span style={{ color: p.color === 'url(#cierreGradient)' ? '#00F5FF' : (d.isToday && p.dataKey === 'atendidas' ? todayAtendidasColor : p.color) }}>{p.value}</span>
                           </div>
                         ))}
-                        {(d.isPaga || d.isCorte) && (
-                          <div className={cn("mt-2 pt-2 border-t border-border/10 text-[10px] font-black uppercase flex items-center gap-2", d.isPaga ? "text-primary" : "text-slate-500")}>
-                            {d.isPaga ? <Coins className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
-                            {d.isPaga ? `PAGA: ${new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(d.projectedPay)}` : "CORTE SEMANAL"}
-                          </div>
-                        )}
                       </div>
                     </div>
                   );
@@ -189,13 +188,13 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
             )}
             
             <Bar xAxisId={0} dataKey="agendadas" name="Agendadas" radius={[6, 6, 0, 0]} barSize={barSize}>
-              {data.map((e: any, i: number) => (
+              {displayData.map((e: any, i: number) => (
                 <Cell key={`bar-agenda-${i}`} fill={e.isToday ? todayAgendadasColor : agendadasNormalColor} />
               ))}
             </Bar>
 
             <Bar xAxisId={1} dataKey="atendidas" name="Atendidas" radius={[6, 6, 0, 0]} barSize={barSize}>
-              {data.map((e: any, i: number) => (
+              {displayData.map((e: any, i: number) => (
                 <Cell key={`bar-atendida-${i}`} fill={e.isToday ? todayAtendidasColor : atendidasNormalColor} />
               ))}
             </Bar>
@@ -242,6 +241,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
 };
 
 export default function AdvancedStats({ stats, isExpanded = false, onExpandedChange }: any) {
+  const isMobile = useIsMobile();
   const attendanceRate = (stats.todayConfirmed / (stats.todayCount || 1)) * 100;
   const closingRate = attendanceRate > 0 ? (stats.conversionRate / (attendanceRate / 100)) : 0;
   const monthlyGrowth = stats.lastMonthProspects > 0 ? ((stats.currentMonthProspects - stats.lastMonthProspects) / stats.lastMonthProspects) * 100 : 0;
@@ -260,10 +260,11 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
   };
 
   const WeeklyHistoryChart = ({ markedBorder = false }: { markedBorder?: boolean }) => {
-    // Remover la última semana para un enfoque de mayor proximidad
-    const data = useMemo(() => stats.charts.weeklyIncomeHistory.slice(0, -1), [stats.charts.weeklyIncomeHistory]);
-    const lastIdx = data.length - 1;
-    const secondLastIdx = data.length - 2;
+    // Acortar flujo de cobro semanal a 15 semanas en móvil
+    const data = useMemo(() => {
+      const fullData = stats.charts.weeklyIncomeHistory;
+      return isMobile ? fullData.slice(-15) : fullData;
+    }, [stats.charts.weeklyIncomeHistory, isMobile]);
 
     return (
       <div className={cn(
@@ -275,7 +276,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
             <div className="p-2 bg-primary/10 rounded-xl"><LineIcon className="w-5 h-5 text-primary" /></div>
             <div>
               <h4 className="text-[11px] font-bold uppercase tracking-widest">Flujo de Cobro Semanal</h4>
-              <p className="text-[9px] text-muted-foreground/60">Ingreso neto por semana de pago</p>
+              <p className="text-[9px] text-muted-foreground/60">{isMobile ? "Últimas 15 semanas" : "Historial extendido"}</p>
             </div>
           </div>
         </div>
@@ -292,7 +293,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
               <CartesianGrid vertical={true} horizontal={false} stroke="currentColor" opacity={0.1} strokeDasharray="3 3" />
               <XAxis 
                 dataKey="week" 
-                interval={0}
+                interval={isMobile ? 2 : 0}
                 tickLine={false} 
                 axisLine={false} 
                 tickMargin={10} 
@@ -316,25 +317,6 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                   return null;
                 }}
               />
-              {/* Animated blinking lines for the last two vertical milestones */}
-              {data[lastIdx] && (
-                <ReferenceLine 
-                  x={data[lastIdx].week} 
-                  stroke="#1877F2" 
-                  strokeWidth={2} 
-                  strokeDasharray="3 3" 
-                  className="animate-pulse"
-                />
-              )}
-              {data[secondLastIdx] && (
-                <ReferenceLine 
-                  x={data[secondLastIdx].week} 
-                  stroke="#1877F2" 
-                  strokeWidth={2} 
-                  strokeDasharray="3 3" 
-                  className="animate-pulse opacity-50"
-                />
-              )}
               <Line 
                 type="monotone" dataKey="income" stroke="url(#historyLineGradient)" strokeWidth={3} 
                 dot={(props: any) => {
@@ -477,7 +459,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                     <WeeklyHistoryChart markedBorder />
                   </div>
                   <div className="animate-finanto-reveal opacity-0 delay-300">
-                    <FortnightMonitor data={stats.charts.expandedActivity || stats.charts.fortnightActivity} title="Monitor Operativo de 35 Días" icon={CalendarDays} expanded markedBorder globalMax={stats.charts.globalMax} />
+                    <FortnightMonitor data={stats.charts.expandedActivity || stats.charts.fortnightActivity} title="Monitor Operativo Extendido" icon={CalendarDays} expanded markedBorder globalMax={stats.charts.globalMax} />
                   </div>
                 </div>
 

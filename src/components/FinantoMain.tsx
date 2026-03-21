@@ -224,6 +224,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
         <div className="block lg:hidden flex-1 flex flex-col">
           <MobileDashboard 
             userName={user?.displayName || 'Ejecutivo'}
+            appointments={appointments}
             onOpenCalculator={() => handleToggleSimulator(true)}
             onOpenNewAppointment={() => setIsNewAppointmentOpen(true)}
             onOpenAgenda={() => handleToggleGestor(true)}
@@ -242,7 +243,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
             addAppointment={addAppointment}
             editAppointment={editAppointment}
             archiveAppointment={appointmentState.archiveAppointment}
-            unarchiveAppointment={appointmentState.unarchiveAppointment}
+            unarchiveAppointment={unarchiveAppointment}
             formatFriendlyDate={appointmentState.formatFriendlyDate}
             format12hTime={appointmentState.format12hTime}
             isSimulatorExpanded={isSimulatorExpanded}
@@ -281,7 +282,12 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
       {/* Diálogo de Nueva Cita (Móvil) */}
       <Dialog open={isNewAppointmentOpen} onOpenChange={setIsNewAppointmentOpen}>
         <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden rounded-[2rem] border-none bg-background shadow-2xl">
-          <DialogHeader className="p-8 border-b border-border/10 bg-primary/5">
+          <DialogHeader className="p-8 border-b border-border/10 bg-primary/5 relative">
+            <DialogClose asChild>
+              <Button variant="ghost" size="icon" className="absolute right-4 top-4 rounded-full bg-white/10 hover:bg-destructive/10 hover:text-destructive">
+                <X size={20} />
+              </Button>
+            </DialogClose>
             <div className="flex items-center gap-4">
               <div className="p-3 bg-primary text-white rounded-2xl shadow-lg">
                 <UserPlus size={24} />
