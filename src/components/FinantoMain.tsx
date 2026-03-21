@@ -16,7 +16,7 @@ import {
   CalendarClock, HandCoins, CheckCircle, BadgeAlert, 
   MoreHorizontal, ArrowUpRight, ArrowDownRight, Coins, Star, Trophy,
   TrendingUp, Trash2, User, Receipt, BarChart3, PartyPopper as PartyIcon, ArrowRight,
-  LogOut, UserPlus, X, Search, Bell
+  LogOut, UserPlus, X, Search, Bell, Construction
 } from 'lucide-react';
 import { useAppointments } from '@/hooks/use-appointments';
 import { Button } from '@/components/ui/button';
@@ -331,7 +331,32 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <header className="border-b border-border/40 sticky top-0 z-50 backdrop-blur-[12px] bg-card/10 shrink-0 animate-in slide-in-from-top duration-700">
+      {/* Mobile Construction Banner */}
+      <div className="md:hidden fixed inset-0 z-[200] bg-slate-950 flex flex-col items-center justify-center p-6 text-center space-y-6">
+        <div className="bg-yellow-500/10 p-10 rounded-[3rem] border border-yellow-500/20 animate-in fade-in zoom-in duration-700">
+          <div className="relative mb-6">
+            <div className="absolute inset-0 bg-yellow-500/20 blur-2xl rounded-full animate-pulse" />
+            <Construction className="w-20 h-20 text-yellow-500 mx-auto relative z-10" />
+          </div>
+          <h2 className="text-3xl font-black text-white uppercase tracking-tighter leading-tight">
+            EN CONSTRUCCIÓN
+          </h2>
+          <p className="text-yellow-500/80 text-[11px] font-black uppercase tracking-[0.3em] mt-3">
+            LA VERSIÓN MÓVIL POR EL MOMENTO
+          </p>
+        </div>
+        <p className="text-slate-400 text-sm font-medium max-w-[280px] leading-relaxed italic">
+          "Estamos optimizando la terminal táctil para ofrecerte la experiencia de gestión inmobiliaria más potente del mercado."
+        </p>
+        <div className="pt-12 flex items-center gap-3 opacity-30">
+          <div className="bg-white p-1.5 rounded-lg">
+            <Image src="/favicon.ico" alt="Finanto" width={24} height={24} className="object-contain" />
+          </div>
+          <span className="font-black tracking-tighter text-sm uppercase text-white">Finanto CRM v2.0</span>
+        </div>
+      </div>
+
+      <header className="border-b border-border/40 sticky top-0 z-50 backdrop-blur-[12px] bg-card/10 shrink-0 animate-in slide-in-from-top duration-700 hidden md:block">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="bg-primary/20 p-1.5 rounded-lg border border-primary/30 flex items-center justify-center overflow-hidden">
@@ -415,7 +440,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
         </div>
       </header>
 
-      <main className="flex-1 container mx-auto px-2 sm:px-4 py-4 md:py-12">
+      <main className="flex-1 container mx-auto px-2 sm:px-4 py-4 md:py-12 hidden md:block">
         <div className="flex overflow-x-auto pb-4 md:pb-0 md:grid md:grid-cols-5 gap-2 sm:gap-4 mb-6 sm:mb-8 scrollbar-thin">
           {statsCards.map((stat, i) => {
             const isTargetCommission = stat.label === 'Comisiones Mes';
@@ -484,7 +509,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
           })}
         </div>
 
-        <div className="hidden md:grid grid-cols-1 xl:grid-cols-12 gap-4 sm:gap-8 items-start">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 sm:gap-8 items-start">
           <section className="xl:col-span-5 space-y-4 sm:space-y-6 animate-finanto-reveal opacity-0 delay-300">
             <CreditCalculator 
               isExpanded={isSimulatorExpanded} 
@@ -519,7 +544,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
         </div>
       </main>
 
-      <footer className="border-t border-border/40 py-4 sm:py-6 bg-card/10 backdrop-blur-md animate-in fade-in slide-in-from-bottom duration-700">
+      <footer className="border-t border-border/40 py-4 sm:py-6 bg-card/10 backdrop-blur-md animate-in fade-in slide-in-from-bottom duration-700 hidden md:block">
         <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-3">
             <span className="font-bold text-foreground">Finanto v2.0</span>
