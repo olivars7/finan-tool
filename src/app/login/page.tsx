@@ -55,7 +55,7 @@ const DEMO_APPS = [
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [scrolled, setSetScrolled] = useState(false);
-  const [demoAmount, setDemoAmount] = useState('1200000');
+  const [demoAmount, setDemoAmount] = useState('1,200,000');
   const [selectedDemoApp, setSelectedDemoApp] = useState<any>(null);
   
   const router = useRouter();
@@ -80,6 +80,16 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const formatWithCommas = (val: string) => {
+    const num = val.replace(/[^0-9]/g, '');
+    if (!num) return '';
+    return num.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
+
+  const handlePriceInputChange = (val: string) => {
+    setDemoAmount(formatWithCommas(val));
   };
 
   const formatCurrency = (val: number) => {
@@ -180,7 +190,7 @@ export default function LoginPage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="p-8 rounded-[2.5rem] bg-white/[0.03] border border-white/5 space-y-6">
+            <div className="p-8 rounded-[2.5rem] bg-white/[0.03] border border-white/5 space-y-6 animate-in slide-in-from-left duration-1000">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-primary/10 rounded-xl"><BarChart3 className="text-primary w-5 h-5" /></div>
                 <h3 className="font-bold uppercase tracking-widest text-sm">Monitor Operativo (Demo)</h3>
@@ -200,7 +210,7 @@ export default function LoginPage() {
               <p className="text-xs text-slate-500 italic text-center">Gráficas dinámicas que comparan tus citas agendadas vs asistencias reales.</p>
             </div>
 
-            <div className="p-8 rounded-[2.5rem] bg-white/[0.03] border border-white/5 space-y-6">
+            <div className="p-8 rounded-[2.5rem] bg-white/[0.03] border border-white/5 space-y-6 animate-in slide-in-from-right duration-1000">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-blue-500/10 rounded-xl"><TrendingUp className="text-blue-500 w-5 h-5" /></div>
                 <h3 className="font-bold uppercase tracking-widest text-sm">Flujo de Cobro Semanal</h3>
@@ -218,6 +228,90 @@ export default function LoginPage() {
               </div>
               <p className="text-xs text-slate-500 italic text-center">Proyección de ingresos netos basada en tus cierres registrados.</p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Sección: Características */}
+      <section className="py-32 px-6 bg-[#020617]">
+        <div className="container max-w-6xl mx-auto space-y-20">
+          <div className="text-center space-y-4">
+            <h2 className="text-xs font-black text-primary uppercase tracking-[0.4em]">Características Élite</h2>
+            <p className="text-4xl md:text-5xl font-black tracking-tighter uppercase">Todo lo que necesitas para <span className="text-primary italic">dominar el mercado.</span></p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { icon: Smartphone, title: "Sincronización Total", desc: "Tus datos siempre disponibles en móvil, tablet o PC. Sin pérdida de información." },
+              { icon: Target, title: "Cálculos de Comisión", desc: "Deducciones de ISR automáticas y cálculo de participación neto al instante." },
+              { icon: Users, title: "Gestión de Prospectos", desc: "Organiza tus citas por motivo (1ra, 2da consulta o Cierre) con un solo clic." },
+              { icon: CalendarClock, title: "Ciclos de Pago", desc: "Visualiza exactamente qué viernes recibirás tu liquidación según el día de cierre." },
+              { icon: BarChart3, title: "KPIs en Tiempo Real", desc: "Monitoriza tu tasa de conversión y crecimiento mensual con analítica integrada." },
+              { icon: ShieldCheck, title: "Seguridad Cloud", desc: "Tus expedientes protegidos con infraestructura de Google Cloud para máxima confiabilidad." }
+            ].map((f, i) => (
+              <div key={i} className="p-10 rounded-[2.5rem] bg-white/[0.02] border border-white/5 hover:border-primary/20 transition-all hover:bg-white/[0.04] group">
+                <div className="bg-primary/10 p-4 rounded-2xl w-fit mb-6 group-hover:scale-110 transition-transform"><f.icon className="text-primary w-6 h-6" /></div>
+                <h3 className="text-xl font-black uppercase tracking-tight mb-3 italic">{f.title}</h3>
+                <p className="text-slate-500 text-sm font-medium leading-relaxed">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Sección: Finanto vs Otros */}
+      <section className="py-32 px-6 bg-slate-950">
+        <div className="container max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="space-y-10">
+            <div className="space-y-4">
+              <h2 className="text-4xl font-black tracking-tighter uppercase">¿Por qué <span className="text-primary">Finanto</span>?</h2>
+              <p className="text-slate-400 font-medium text-lg leading-relaxed italic">
+                Superamos al Excel y a las libretas tradicionales con una interfaz diseñada para el campo de batalla inmobiliario.
+              </p>
+            </div>
+            
+            <div className="space-y-6">
+              {[
+                { title: "No más errores manuales", desc: "Olvídate de fórmulas de Excel rotas. Finanto automatiza cada cálculo financiero." },
+                { title: "Movilidad absoluta", desc: "Actualiza el estatus de tu cita mientras caminas al auto, no esperes a llegar a tu escritorio." },
+                { title: "Ficha técnica instantánea", desc: "Copia resúmenes de crédito para WhatsApp en 2 segundos, no en 10 minutos de redacción." }
+              ].map((item, i) => (
+                <div key={i} className="flex gap-4">
+                  <div className="bg-green-500/20 p-1.5 rounded-full h-fit mt-1"><CheckCircle2 className="text-green-500 w-4 h-4" /></div>
+                  <div>
+                    <h4 className="font-bold uppercase text-sm tracking-widest">{item.title}</h4>
+                    <p className="text-slate-500 text-sm font-medium">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="relative group">
+            <div className="absolute -inset-4 bg-primary/10 blur-3xl rounded-full opacity-50" />
+            <Card className="relative bg-slate-900 border-white/10 p-10 rounded-[2.5rem] shadow-2xl">
+              <div className="space-y-8">
+                <div className="flex items-center gap-4 border-b border-white/5 pb-6">
+                  <div className="p-3 bg-red-500/10 rounded-xl"><X className="text-red-500 w-6 h-6" /></div>
+                  <h3 className="text-xl font-black uppercase text-slate-500 line-through">El método tradicional</h3>
+                </div>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center p-4 bg-white/5 rounded-2xl opacity-50 grayscale">
+                    <span className="text-sm font-bold uppercase">Excel / Papel</span>
+                    <span className="text-[10px] font-black text-red-500">INEFICIENTE</span>
+                  </div>
+                  <div className="flex justify-between items-center p-4 bg-white/5 rounded-2xl opacity-50 grayscale">
+                    <span className="text-sm font-bold uppercase">Calculadora de Mano</span>
+                    <span className="text-[10px] font-black text-red-500">LENTO</span>
+                  </div>
+                  <div className="flex justify-between items-center p-4 bg-white/5 rounded-2xl opacity-50 grayscale">
+                    <span className="text-sm font-bold uppercase">WhatsApp Manual</span>
+                    <span className="text-[10px] font-black text-red-500">PROpenso a ERRORES</span>
+                  </div>
+                </div>
+                <div className="pt-6 text-center italic text-xs text-slate-600 font-bold uppercase tracking-[0.2em]">Evoluciona a la era digital con Finanto</div>
+              </div>
+            </Card>
           </div>
         </div>
       </section>
@@ -242,14 +336,14 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <div className="p-8 bg-slate-900 border border-primary/20 rounded-[2.5rem] shadow-2xl space-y-8">
+          <div className="p-8 bg-slate-900 border border-primary/20 rounded-[2.5rem] shadow-2xl space-y-8 animate-in zoom-in duration-1000">
             <div className="space-y-2">
               <Label className="text-[10px] font-black uppercase text-primary tracking-widest">Monto del Crédito</Label>
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-primary">$</span>
                 <Input 
                   value={demoAmount} 
-                  onChange={e => setDemoAmount(e.target.value.replace(/\D/g, ''))}
+                  onChange={e => handlePriceInputChange(e.target.value)}
                   className="h-14 pl-10 bg-primary/5 border-primary/20 text-2xl font-black text-white"
                 />
               </div>
