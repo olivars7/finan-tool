@@ -4,13 +4,13 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import CreditCalculator from '@/components/calculator/CreditCalculator';
 import AppointmentsDashboard from '@/components/appointments/AppointmentsDashboard';
-import AppointmentForm from '@/components/appointments/AppointmentForm';
 import AdvancedStats from '@/components/stats/AdvancedStats';
+import GuideDialog from '@/components/guide/GuideDialog';
 import TrashDialog from '@/components/appointments/TrashDialog';
 import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 import { 
-  Wallet, CalendarDays, Users, CheckCircle2, RotateCcw,
+  Wallet, CalendarDays, Users, CheckCircle2, 
   Palette, Moon, Sun, Cpu, BookOpen, Calculator, Maximize2, Sparkles,
   ClipboardList, Copy, Crown, MessageSquare, 
   CalendarClock, HandCoins, CheckCircle, BadgeAlert, 
@@ -20,27 +20,7 @@ import {
 } from 'lucide-react';
 import { useAppointments } from '@/hooks/use-appointments';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { logout } from '@/lib/auth';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogClose
-} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,14 +29,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-  type CarouselApi,
-} from "@/components/ui/carousel"
 import {
   Tooltip,
   TooltipProvider,
@@ -77,24 +49,12 @@ import { isBefore } from 'date-fns';
 
 type Theme = 'tranquilo' | 'moderno' | 'discreto' | 'olivares' | 'corporativo' | 'corporativo-oscuro';
 
-const APP_TIPS = [
-  { icon: Calculator, title: "Calculadora Rápida", color: "text-primary", text: "Usa la calculadora rapida en caso de tener una llamada con un interesado que pregunte montos aproximados." },
-  { icon: ClipboardList, title: "Gestión Eficiente", color: "text-accent", text: "Nunca olvides registrar todas tus citas en el gestionador de citas, para tener un orden eficiente de fechas y datos en un solo lugar." },
-  { icon: Sparkles, title: "Seguridad Cloud", color: "text-destructive", text: "Tus datos están ahora sincronizados en Firebase para tu máxima seguridad." },
-  { icon: Maximize2, title: "Modo Presentación", color: "text-primary", text: "Usa el icono de expansión para mostrar los números al cliente de forma limpia y profesional." },
-  { icon: Palette, title: "Imagen Corporativa", color: "text-accent", text: "Usa el tema <<Corporativo>> para mostrar pantalla a tus clientes presenciales." },
-  { icon: Copy, title: "Envío a WhatsApp", color: "text-green-500", text: "Copia los datos de cada cliente para mandarlos por el grupo de WhatsApp rápidamente." }
-];
-
 export interface FinantoMainProps {
   initialSection?: 'guia' | 'simulador' | 'gestor' | 'stats';
 }
 
 export default function FinantoMain({ initialSection }: FinantoMainProps) {
-  const [showResetConfirm, setShowResetConfirm] = useState(false);
-  const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showTrash, setShowTrash] = useState(false);
-  
   const [showHelp, setShowHelp] = useState(false);
   const [isSimulatorExpanded, setIsSimulatorExpanded] = useState(false);
   const [isGestorExpanded, setIsGestorExpanded] = useState(false);
@@ -103,11 +63,8 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
   
   const [selectedAppId, setSelectedAppId] = useState<string | null>(null);
   const [theme, setTheme] = useState<Theme>('corporativo');
-  const [api, setApi] = useState<CarouselApi>();
-  const [timerKey, setTimerKey] = useState(0);
   
   const [pendingCommissionApp, setPendingCommissionApp] = useState<Service.Appointment | null>(null);
-  const [celebrationApp, setCelebrationApp] = useState<Service.Appointment | null>(null);
 
   const shownCommissionIds = useRef<Set<string>>(new Set());
   const overdueQueue = useRef<Service.Appointment[]>([]);
@@ -148,26 +105,34 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
   const handleToggleHelp = (open: boolean) => {
     setShowHelp(open);
     if (open) { syncUrl('/guia'); document.title = "Manual - Finanto"; }
-    else if (!isSimulatorExpanded && !isGestorExpanded && !isStatsExpanded && !isNewAppExpanded) { syncUrl('/'); document.title = "Finanto"; }
+    else { syncUrl('/'); document.title = "Finanto"; }
   };
 
   const handleToggleSimulator = (open: boolean) => {
     setIsSimulatorExpanded(open);
     if (open) { syncUrl('/simulador'); document.title = "Simulador - Finanto"; }
-    else if (!showHelp && !isGestorExpanded && !isStatsExpanded && !isNewAppExpanded) { syncUrl('/'); document.title = "Finanto"; }
+    else { syncUrl('/'); document.title = "Finanto"; }
   };
 
   const handleToggleGestor = (open: boolean) => {
     setIsGestorExpanded(open);
     if (open) { syncUrl('/gestor'); document.title = "Agenda - Finanto"; }
-    else if (!showHelp && !isSimulatorExpanded && !isStatsExpanded && !isNewAppExpanded) { syncUrl('/'); document.title = "Finanto"; }
+    else { syncUrl('/'); document.title = "Finanto"; }
   };
 
   const handleToggleStats = (open: boolean) => {
     setIsStatsExpanded(open);
     if (open) { syncUrl('/stats'); document.title = "Stats - Finanto"; }
-    else if (!showHelp && !isSimulatorExpanded && !isGestorExpanded && !isNewAppExpanded) { syncUrl('/'); document.title = "Finanto"; }
+    else { syncUrl('/'); document.title = "Finanto"; }
   };
+
+  // Manejo de la ruta inicial por prop
+  useEffect(() => {
+    if (initialSection === 'guia') setShowHelp(true);
+    if (initialSection === 'simulador') setIsSimulatorExpanded(true);
+    if (initialSection === 'gestor') setIsGestorExpanded(true);
+    if (initialSection === 'stats') setIsStatsExpanded(true);
+  }, [initialSection]);
 
   useEffect(() => {
     const handlePopState = () => {
@@ -185,20 +150,13 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
     };
 
     window.addEventListener('popstate', handlePopState);
-    handlePopState(); 
-
+    
     const savedTheme = localStorage.getItem('finanto-theme') as Theme;
     if (savedTheme) applyTheme(savedTheme);
     else applyTheme('corporativo');
 
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
-
-  useEffect(() => {
-    if (!api) return;
-    const intervalId = setInterval(() => api.scrollNext(), 18000);
-    return () => clearInterval(intervalId);
-  }, [api, timerKey]);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -232,58 +190,6 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
     };
   }, [isLoaded, toast, user]);
 
-  useEffect(() => {
-    if (!isLoaded) return;
-
-    const performCommissionSearch = () => {
-      const currentApps = appointmentsRef.current.filter(a => !a.isArchived);
-      const today = new Date();
-
-      const overdueCommissions = currentApps.filter(app => {
-        const isSalesStatus = app.status === 'Cierre';
-        const isPending = (app.commissionStatus || 'Pendiente') === 'Pendiente';
-        const notShownYet = !shownCommissionIds.current.has(app.id);
-        
-        if (!isSalesStatus || !isPending || !notShownYet) return false;
-
-        const paymentDate = Service.getCommissionPaymentDate(app.date);
-        return isBefore(paymentDate, today);
-      });
-
-      overdueQueue.current = overdueCommissions;
-    };
-
-    const showNextPending = () => {
-      const now = Date.now();
-      if (pendingAppRef.current) return;
-      if (lastClosedTimeRef.current > 0 && (now - lastClosedTimeRef.current < 30000)) return;
-
-      if (overdueQueue.current.length === 0) {
-        performCommissionSearch();
-      }
-
-      if (overdueQueue.current.length > 0) {
-        const nextApp = overdueQueue.current.shift();
-        if (nextApp) {
-          shownCommissionIds.current.add(nextApp.id);
-          setPendingCommissionApp(nextApp);
-        }
-      }
-    };
-
-    const startTimer = setTimeout(() => {
-      showNextPending();
-      const intervalId = setInterval(showNextPending, 5000);
-      return () => clearInterval(intervalId);
-    }, 15000);
-
-    return () => clearTimeout(startTimer);
-  }, [isLoaded]);
-
-  const resetTimer = useCallback(() => setTimerKey(prev => prev + 1), []);
-  const handleNext = useCallback(() => { if (api) { api.scrollNext(); resetTimer(); } }, [api, resetTimer]);
-  const handlePrev = useCallback(() => { if (api) { api.scrollPrev(); resetTimer(); } }, [api, resetTimer]);
-
   const applyTheme = (themeId: Theme) => {
     setTheme(themeId);
     document.documentElement.setAttribute('data-theme', themeId);
@@ -297,40 +203,6 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
   const handleThemeChange = (themeId: Theme) => {
     applyTheme(themeId);
     localStorage.setItem('finanto-theme', themeId);
-  };
-
-  const handleConfirmCommissionPayment = () => {
-    if (pendingCommissionApp) {
-      const updates: Partial<Service.Appointment> = { commissionStatus: 'Pagada' };
-      if (pendingCommissionApp.status === 'Apartado') {
-        updates.status = 'Cierre';
-      }
-      editAppointment(pendingCommissionApp.id, updates);
-      toast({
-        title: updates.status === 'Cierre' ? "¡Venta Cerrada!" : "Comisión Conciliada",
-        description: updates.status === 'Cierre' 
-          ? `El apartado de ${pendingCommissionApp.name} se ha convertido en Cierre tras el pago.`
-          : `Se ha registrado el pago de ${pendingCommissionApp.name}.`,
-      });
-      setPendingCommissionApp(null);
-      lastClosedTimeRef.current = Date.now();
-    }
-  };
-
-  const handleCelebration = (app: Service.Appointment) => {
-    setCelebrationApp(app);
-  };
-
-  const handleGlobalReset = () => {
-    resetData(); 
-    setShowResetConfirm(false);
-    toast({ title: "Datos restaurados", description: "La agenda ha vuelto a su estado inicial. Sincronizando..." });
-  };
-
-  const handleGlobalClear = () => {
-    clearAll(); 
-    setShowClearConfirm(false);
-    toast({ title: "Base de datos limpia", description: "Toda la información ha sido eliminada de este equipo.", variant: "destructive" });
   };
 
   const handleLogout = async () => {
@@ -642,7 +514,6 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
               formatFriendlyDate={appointmentState.formatFriendlyDate} 
               format12hTime={appointmentState.format12hTime} 
               stats={appointmentState.stats}
-              onCelebrate={handleCelebration}
             />
           </section>
         </div>
@@ -666,6 +537,18 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
           </div>
         </div>
       </footer>
+
+      {/* DIÁLOGOS DE APOYO */}
+      <GuideDialog open={showHelp} onOpenChange={handleToggleHelp} />
+      <TrashDialog 
+        open={showTrash} 
+        onOpenChange={setShowTrash} 
+        archivedAppointments={appointments.filter(a => a.isArchived)}
+        onRestore={unarchiveAppointment}
+        onDelete={deletePermanent}
+        formatDate={appointmentState.formatFriendlyDate}
+        format12hTime={appointmentState.format12hTime}
+      />
     </div>
   );
 }
