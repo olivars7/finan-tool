@@ -233,14 +233,32 @@ export default function AppointmentDetailsDialog({
 
           <div className="flex items-center gap-2">
             {!isEditing && (
-              <Button 
-                onClick={() => setShowArchiveConfirm(true)}
-                variant="ghost" 
-                size="icon"
-                className="h-9 w-9 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
+              <>
+                <Button 
+                  onClick={handleCopyData} 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-9 px-4 text-[10px] font-black uppercase text-green-600 border-green-600/30 hover:bg-green-600/10 rounded-full gap-2 hidden sm:flex"
+                >
+                  <Copy className="w-3.5 h-3.5" /> Copiar Datos
+                </Button>
+                <Button 
+                  onClick={handleCopyData} 
+                  variant="outline" 
+                  size="icon" 
+                  className="h-9 w-9 text-green-600 border-green-600/30 hover:bg-green-600/10 rounded-full flex sm:hidden"
+                >
+                  <Copy className="w-4 h-4" />
+                </Button>
+                <Button 
+                  onClick={() => setShowArchiveConfirm(true)}
+                  variant="ghost" 
+                  size="icon"
+                  className="h-9 w-9 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </>
             )}
             <DialogClose className="h-10 w-10 flex items-center justify-center rounded-full bg-muted/20 text-foreground hover:bg-destructive hover:text-destructive-foreground transition-colors group">
               <X className="w-5 h-5" />
@@ -254,11 +272,11 @@ export default function AppointmentDetailsDialog({
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Nombre del Cliente</Label>
-                  <Input value={editData.name || ''} onChange={e => setEditData({...editData, name: e.target.value})} className="h-11 bg-muted/20 border-border/40 text-foreground font-bold" />
+                  <Input value={editData.name || ''} onChange={e => setEditData({...editData, name: e.target.value})} className="h-11 bg-muted/20 border-border/40 text-foreground font-bold rounded-full px-6" />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Teléfono de Contacto</Label>
-                  <Input value={editData.phone || ''} onChange={e => setEditData({...editData, phone: e.target.value})} className="h-11 bg-muted/20 border-border/40 text-foreground font-bold" />
+                  <Input value={editData.phone || ''} onChange={e => setEditData({...editData, phone: e.target.value})} className="h-11 bg-muted/20 border-border/40 text-foreground font-bold rounded-full px-6" />
                 </div>
               </div>
               
@@ -266,7 +284,7 @@ export default function AppointmentDetailsDialog({
                 <div className="space-y-2">
                   <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Motivo</Label>
                   <Select value={editData.type} onValueChange={(v) => setEditData({...editData, type: v as AppointmentType})}>
-                    <SelectTrigger className="h-11 bg-muted/20 border-border/40 text-foreground font-bold rounded-xl">
+                    <SelectTrigger className="h-11 bg-muted/20 border-border/40 text-foreground font-bold rounded-full px-6">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -280,7 +298,7 @@ export default function AppointmentDetailsDialog({
                 <div className="space-y-2">
                   <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Producto</Label>
                   <Select value={editData.product || 'Casa'} onValueChange={(v) => setEditData({...editData, product: v as AppointmentProduct})}>
-                    <SelectTrigger className="h-11 bg-muted/20 border-border/40 text-foreground font-bold rounded-xl">
+                    <SelectTrigger className="h-11 bg-muted/20 border-border/40 text-foreground font-bold rounded-full px-6">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -299,7 +317,7 @@ export default function AppointmentDetailsDialog({
                 <Textarea 
                   value={editData.notes || ''} 
                   onChange={e => setEditData({...editData, notes: e.target.value})} 
-                  className="bg-muted/20 border-border/40 min-h-[150px] text-sm text-foreground resize-none rounded-2xl" 
+                  className="bg-muted/20 border-border/40 min-h-[150px] text-sm text-foreground resize-none rounded-[2rem] p-6" 
                 />
               </div>
             </div>
@@ -324,7 +342,7 @@ export default function AppointmentDetailsDialog({
                   <Label className="text-[10px] font-black uppercase text-primary tracking-[0.2em] flex items-center gap-2">
                     <Clock className="w-3.5 h-3.5" /> Agenda
                   </Label>
-                  <div className="p-4 rounded-2xl bg-muted/10 border border-border/20 space-y-3">
+                  <div className="p-4 rounded-[1.5rem] bg-muted/10 border border-border/20 space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="text-[9px] font-bold text-muted-foreground uppercase">Fecha</span>
                       <p className="text-xs font-black text-foreground">{format(parseISO(appointment.date), "EEEE d 'de' MMMM", { locale: es })}</p>
@@ -340,7 +358,7 @@ export default function AppointmentDetailsDialog({
                   <Label className="text-[10px] font-black uppercase text-blue-600 dark:text-blue-400 tracking-[0.2em] flex items-center gap-2">
                     <LayoutList className="w-3.5 h-3.5" /> Detalles
                   </Label>
-                  <div className="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10 space-y-3">
+                  <div className="p-4 rounded-[1.5rem] bg-blue-500/5 border border-blue-500/10 space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="text-[9px] font-bold text-blue-600/60 uppercase">Motivo</span>
                       <p className="text-xs font-black text-foreground uppercase">{appointment.type}</p>
@@ -381,7 +399,7 @@ export default function AppointmentDetailsDialog({
                   <FileText className="w-4 h-4 text-primary" /> NOTAS
                 </Label>
                 <div className="p-6 rounded-[2rem] bg-muted/10 border border-border/20 min-h-[120px]">
-                  <p className="text-sm leading-relaxed text-foreground font-medium whitespace-pre-wrap">
+                  <p className="text-sm leading-relaxed text-foreground font-medium whitespace-pre-wrap italic opacity-80">
                     {appointment.notes ? appointment.notes : 'Sin comentarios registrados.'}
                   </p>
                 </div>
@@ -393,19 +411,9 @@ export default function AppointmentDetailsDialog({
         <DialogFooter className="px-8 py-6 border-t border-border/10 bg-primary/5 flex flex-row justify-between items-center gap-4 shrink-0">
           <div className="flex flex-1 gap-3">
             {!isEditing && (
-              <>
-                <Button onClick={() => setIsRescheduling(true)} variant="ghost" size="sm" className="h-11 px-6 text-[10px] font-black uppercase text-primary hover:bg-primary/10 rounded-full gap-2">
-                  <CalendarPlus className="w-4 h-4" /> Reagendar
-                </Button>
-                <Button 
-                  onClick={handleCopyData} 
-                  variant="outline" 
-                  size="sm" 
-                  className="h-11 px-6 text-[10px] font-black uppercase text-green-600 border-green-600/30 hover:bg-green-600/10 rounded-full gap-2"
-                >
-                  <Copy className="w-4 h-4" /> Copiar Datos
-                </Button>
-              </>
+              <Button onClick={() => setIsRescheduling(true)} variant="ghost" size="sm" className="h-11 px-6 text-[10px] font-black uppercase text-primary hover:bg-primary/10 rounded-full gap-2">
+                <CalendarPlus className="w-4 h-4" /> Reagendar
+              </Button>
             )}
           </div>
           <div className="flex gap-3">
