@@ -14,7 +14,9 @@ import {
   CalendarDays,
   Wallet,
   CheckCircle2,
-  Coins
+  Coins,
+  ArrowUpRight,
+  ArrowDownRight
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Appointment } from '@/services/appointment-service';
@@ -58,6 +60,19 @@ export default function MobileDashboard({
       maximumFractionDigits: 0
     }).format(Math.round(val));
   };
+
+  const getDynamicGradient = (val: number) => {
+    if (val < 5000) return "";
+    return "text-gradient-aqua-blue";
+  };
+
+  const microStats = [
+    { label: 'Citas hoy', value: stats.todayCount.toString(), icon: CalendarDays, color: 'text-primary' },
+    { label: 'Pendientes', value: stats.pendingCount.toString(), icon: Wallet, color: 'text-primary' },
+    { label: 'Prospectos Mes', value: stats.currentMonthProspects.toString(), icon: Users, color: 'text-accent', comparison: stats.lastMonthProspects },
+    { label: 'Ventas Mes', value: stats.currentMonthSales.toString(), icon: CheckCircle2, color: 'text-green-500', comparison: stats.lastMonthSales },
+    { label: 'Comisiones Mes', value: formatCurrency(stats.currentMonthCommission), icon: Coins, color: 'text-yellow-500', comparison: stats.lastMonthCommission, isCurrency: true },
+  ];
 
   const quadrants = [
     {
@@ -106,25 +121,31 @@ export default function MobileDashboard({
     }
   ];
 
-  const microStats = [
-    { label: 'Hoy', value: stats.todayCount, icon: CalendarDays, color: 'text-blue-500' },
-    { label: 'Pend.', value: stats.pendingCount, icon: Wallet, color: 'text-blue-400' },
-    { label: 'Ventas', value: stats.currentMonthOnlyCierre, icon: CheckCircle2, color: 'text-emerald-500' },
-    { label: 'Ingresos', value: formatCurrency(stats.currentMonthCommission), icon: Coins, color: 'text-amber-500' },
-  ];
+  const Users = ({ size, className }: { size?: number, className?: string }) => <div className={className}><BarChart3 size={size} /></div>;
 
   return (
     <div className="flex flex-col space-y-8 animate-in fade-in duration-700 pb-24 overflow-x-hidden">
       
-      {/* Micro Stats Superiores */}
+      {/* Micro Stats Superiores (Idénticos a Escritorio) */}
       <div className="w-full overflow-x-auto scrollbar-hide -mx-4 px-4 pb-2">
         <div className="flex gap-3 min-w-max">
           {microStats.map((s, i) => (
-            <div key={i} className="bg-card/50 border border-border/40 rounded-3xl p-4 flex items-center gap-3 min-w-[140px] shadow-sm">
-              <div className={cn("p-2 rounded-xl bg-background/80 shadow-inner", s.color)}><s.icon size={16} /></div>
-              <div className="flex flex-col">
-                <span className="text-[8px] font-black uppercase text-muted-foreground tracking-widest">{s.label}</span>
-                <span className="text-sm font-black text-foreground">{s.value}</span>
+            <div key={i} className="bg-card/30 backdrop-blur-md rounded-3xl p-4 flex items-center gap-3 min-w-[180px] shadow-sm">
+              <div className={cn("p-2 rounded-xl bg-muted/5 shadow-inner", s.color)}><s.icon size={18} /></div>
+              <div className="flex flex-col flex-1 overflow-hidden">
+                <span className="text-[8px] font-black uppercase text-muted-foreground tracking-widest truncate">{s.label}</span>
+                <div className="flex items-baseline gap-2">
+                  <span className={cn("text-base font-black text-foreground truncate", s.label === 'Comisiones Mes' ? getDynamicGradient(stats.currentMonthCommission) : "")}>{s.value}</span>
+                  {s.comparison !== undefined && (
+                    <span className={cn(
+                      "text-[8px] font-bold flex items-center",
+                      (parseFloat(s.value.replace(/[^0-9.-]+/g,"")) >= s.comparison) ? "text-green-500" : "text-destructive"
+                    )}>
+                      {s.comparison >= 0 ? <ArrowUpRight className="w-2 h-2 mr-0.5" /> : <ArrowDownRight className="w-2 h-2 mr-0.5" />}
+                      {s.isCurrency ? formatCurrency(s.comparison) : s.comparison}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           ))}

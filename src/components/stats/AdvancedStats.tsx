@@ -1,3 +1,4 @@
+
 /**
  * @fileOverview Panel de Inteligencia Avanzada - Finanto
  */
@@ -73,7 +74,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
   const isMobile = useIsMobile();
   
   const displayData = useMemo(() => {
-    if (isMobile) return data.slice(-20); // Monitor de 20 días en móvil
+    if (isMobile) return data.slice(-25); // Monitor de 25 días en móvil tal como se solicitó
     return data;
   }, [data, isMobile]);
 
@@ -91,7 +92,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
           <div>
             <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">{title}</h4>
             <p className="text-[8px] font-medium text-muted-foreground/40 uppercase">
-              {isMobile ? "Últimos 20 días" : "Ciclo de 35 días"}
+              {isMobile ? "Vista de 25 días" : "Ciclo de 35 días"}
             </p>
           </div>
         </div>
@@ -120,7 +121,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
               dataKey="dayNumber" 
               tickLine={false} 
               axisLine={false} 
-              interval={isMobile ? 1 : 0}
+              interval={0} // Mostrar todos los números e iniciales en móvil
               tick={<CustomXAxisTick data={displayData} />} 
             />
             <XAxis xAxisId={1} dataKey="dayNumber" hide />
@@ -205,7 +206,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
 
   const WeeklyHistoryChart = ({ markedBorder = false }: { markedBorder?: boolean }) => {
     const data = useMemo(() => {
-      if (isMobile) return stats.charts.weeklyIncomeHistory.slice(-8); // 2 meses en móvil
+      if (isMobile) return stats.charts.weeklyIncomeHistory.slice(-12); // 3 meses (12 semanas) en móvil tal como se pidió
       return stats.charts.weeklyIncomeHistory;
     }, [stats.charts.weeklyIncomeHistory, isMobile]);
 
@@ -218,7 +219,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
           <div className="p-2 bg-primary/10 rounded-xl"><LineIcon className="w-5 h-5 text-primary" /></div>
           <div>
             <h4 className="text-[11px] font-bold uppercase tracking-widest">Flujo de Cobro Semanal</h4>
-            <p className="text-[9px] text-muted-foreground/60">{isMobile ? "Últimos 2 meses" : "Historial extendido"}</p>
+            <p className="text-[9px] text-muted-foreground/60">{isMobile ? "Vista de 3 meses" : "Historial extendido"}</p>
           </div>
         </div>
         <div className="h-[280px]">
