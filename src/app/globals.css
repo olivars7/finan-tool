@@ -143,6 +143,33 @@
     --tooltip-border: 45 90% 30%;
     --tooltip-opacity: 0.85;
   }
+
+  [data-theme="corporativo-oscuro"] {
+    color-scheme: dark;
+    --background: 222 47% 5%; /* #020617 de la landing */
+    --foreground: 0 0% 100%;
+    --card: 222 47% 10% / 0.4;
+    --card-foreground: 0 0% 100%;
+    --popover: 222 47% 8% / 0.8;
+    --popover-foreground: 0 0% 100%;
+    --primary: 214 89% 52%; /* #1877F2 Azul Finanto */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 222 47% 15%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 222 47% 12% / 0.5;
+    --muted-foreground: 215 20% 65%;
+    --accent: 214 89% 52%;
+    --accent-foreground: 0 0% 100%;
+    --border: 214 89% 52% / 0.15;
+    --input: 222 47% 15% / 0.5;
+    --ring: 214 89% 52%;
+    --radius: 1rem;
+    --calendar-filter: invert(1);
+    --tooltip-bg: 222 47% 8%;
+    --tooltip-foreground: 0 0% 100%;
+    --tooltip-border: 214 89% 52% / 0.3;
+    --tooltip-opacity: 0.9;
+  }
 }
 
 @layer base {
@@ -167,7 +194,9 @@
 
   /* Full screen dialogs specific to themes */
   [data-theme="moderno"] [data-calculator-dialog="true"],
-  [data-theme="moderno"] [data-appointments-dialog="true"] {
+  [data-theme="moderno"] [data-appointments-dialog="true"],
+  [data-theme="corporativo-oscuro"] [data-calculator-dialog="true"],
+  [data-theme="corporativo-oscuro"] [data-appointments-dialog="true"] {
     background-color: hsla(var(--background) / 0.6) !important;
     backdrop-filter: blur(16px) !important;
   }

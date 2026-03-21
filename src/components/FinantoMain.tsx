@@ -75,7 +75,7 @@ import { cn } from "@/lib/utils";
 import * as Service from '@/services/appointment-service';
 import { isBefore } from 'date-fns';
 
-type Theme = 'tranquilo' | 'moderno' | 'discreto' | 'olivares' | 'corporativo';
+type Theme = 'tranquilo' | 'moderno' | 'discreto' | 'olivares' | 'corporativo' | 'corporativo-oscuro';
 
 const APP_TIPS = [
   { icon: Calculator, title: "Calculadora Rápida", color: "text-primary", text: "Usa la calculadora rapida en caso de tener una llamada con un interesado que pregunte montos aproximados." },
@@ -521,6 +521,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
                 <DropdownMenuLabel className="text-[10px] uppercase font-bold text-muted-foreground">Temas Visuales</DropdownMenuLabel>
                 {[
                   { id: 'corporativo', label: 'Corporativo', icon: MessageSquare, color: 'bg-[#1877F2]' },
+                  { id: 'corporativo-oscuro', label: 'Corporativo Oscuro', icon: Sparkles, color: 'bg-slate-900' },
                   { id: 'tranquilo', label: 'Tranquilo', icon: Palette, color: 'bg-primary' },
                   { id: 'moderno', label: 'Moderno', icon: Cpu, color: 'bg-cyan-500' },
                   { id: 'discreto', label: 'Discreto', icon: Moon, color: 'bg-slate-700' },
@@ -555,7 +556,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
                 )}
               >
                 <CardContent className="p-3 sm:p-4 flex items-center gap-2 sm:gap-3 relative z-10">
-                  <div className={cn("p-1.5 sm:p-2 rounded-full bg-muted/50", stat.color)}><stat.icon className="w-4 h-4 sm:w-5 sm:h-5" /></div>
+                  <div className={cn("p-1.5 sm:p-2 rounded-full bg-muted/5", stat.color)}><stat.icon className="w-4 h-4 sm:w-5 sm:h-5" /></div>
                   <div className="flex-1 overflow-hidden">
                     <p className="text-[8px] sm:text-[9px] uppercase font-bold text-muted-foreground truncate">{stat.label}</p>
                     <div className="flex items-baseline gap-1 sm:gap-2">
