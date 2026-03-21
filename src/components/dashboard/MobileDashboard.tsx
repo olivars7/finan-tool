@@ -148,7 +148,7 @@ export default function MobileDashboard({
         <div className="flex gap-3 min-w-max">
           {microStats.map((s, i) => (
             <div key={i} className="bg-card/30 backdrop-blur-md rounded-[2rem] p-5 flex items-center gap-4 min-w-[200px] shadow-sm border-none">
-              <div className={cn("p-2.5 rounded-2xl bg-muted/5 shadow-inner", s.color)}><s.icon size={20} /></div>
+              <div className={cn("p-2.5 rounded-2xl bg-muted/5 shadow-inner", s.color)}><s.icon size={18} /></div>
               <div className="flex flex-col flex-1 overflow-hidden">
                 <span className="text-[9px] font-black uppercase text-muted-foreground tracking-widest truncate">{s.label}</span>
                 <div className="flex items-baseline gap-2">
@@ -204,11 +204,11 @@ export default function MobileDashboard({
             )} />
 
             {/* Icono de fondo con opacidad ultra-baja */}
-            <q.icon className={cn("absolute opacity-[0.02] w-36 h-36 -bottom-8 -left-8 transition-transform duration-700 group-active:scale-110", q.iconColor)} />
+            <q.icon className={cn("absolute opacity-[0.02] w-32 h-32 -bottom-8 -left-8 transition-transform duration-700 group-active:scale-110", q.iconColor)} />
 
-            {/* Icono Principal Centrado GIGANTE */}
+            {/* Icono Principal Centrado */}
             <div className={cn("p-6 rounded-[2.2rem] bg-white/5 mb-4 relative z-10 shadow-2xl backdrop-blur-sm transition-all duration-300 group-active:scale-110 group-active:brightness-125 group-hover:brightness-110", q.iconColor)}>
-              <q.icon size={48} />
+              <q.icon size={40} />
             </div>
             
             <div className="text-center space-y-1 relative z-10 px-2">
@@ -281,7 +281,7 @@ export default function MobileDashboard({
         </p>
       </div>
 
-      {/* Popup de Bienvenida Llamativo Remodelado */}
+      {/* Popup de Bienvenida Llamativo */}
       <Dialog open={showWelcome} onOpenChange={setShowWelcome}>
         <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="w-[94%] max-w-[420px] rounded-[3.5rem] p-0 overflow-hidden border-none bg-background shadow-2xl z-[200]">
           <DialogHeader className="sr-only">
@@ -295,7 +295,7 @@ export default function MobileDashboard({
             <div className="absolute bottom-0 left-0 w-32 h-32 bg-black/10 rounded-full -ml-16 -mb-16 blur-2xl" />
             
             <div className="bg-white/20 p-8 rounded-[3rem] backdrop-blur-md relative z-10 shadow-2xl border border-white/20">
-              <Construction size={80} className="text-white animate-bounce" />
+              <Construction size={64} className="text-white animate-bounce" />
             </div>
             
             <div className="space-y-3 relative z-10">
