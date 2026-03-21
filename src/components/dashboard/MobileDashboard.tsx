@@ -16,7 +16,8 @@ import {
   CheckCircle2,
   Coins,
   ArrowUpRight,
-  ArrowDownRight
+  ArrowDownRight,
+  Users
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Appointment } from '@/services/appointment-service';
@@ -121,27 +122,25 @@ export default function MobileDashboard({
     }
   ];
 
-  const Users = ({ size, className }: { size?: number, className?: string }) => <div className={className}><BarChart3 size={size} /></div>;
-
   return (
     <div className="flex flex-col space-y-8 animate-in fade-in duration-700 pb-24 overflow-x-hidden">
       
-      {/* Micro Stats Superiores (Idénticos a Escritorio) */}
+      {/* Micro Stats Superiores (Idénticos a Escritorio, Sin bordes, Scroll invisible) */}
       <div className="w-full overflow-x-auto scrollbar-hide -mx-4 px-4 pb-2">
         <div className="flex gap-3 min-w-max">
           {microStats.map((s, i) => (
-            <div key={i} className="bg-card/30 backdrop-blur-md rounded-3xl p-4 flex items-center gap-3 min-w-[180px] shadow-sm">
-              <div className={cn("p-2 rounded-xl bg-muted/5 shadow-inner", s.color)}><s.icon size={18} /></div>
+            <div key={i} className="bg-card/30 backdrop-blur-md rounded-[2rem] p-5 flex items-center gap-4 min-w-[200px] shadow-sm border-none">
+              <div className={cn("p-2.5 rounded-2xl bg-muted/5 shadow-inner", s.color)}><s.icon size={20} /></div>
               <div className="flex flex-col flex-1 overflow-hidden">
-                <span className="text-[8px] font-black uppercase text-muted-foreground tracking-widest truncate">{s.label}</span>
+                <span className="text-[9px] font-black uppercase text-muted-foreground tracking-widest truncate">{s.label}</span>
                 <div className="flex items-baseline gap-2">
-                  <span className={cn("text-base font-black text-foreground truncate", s.label === 'Comisiones Mes' ? getDynamicGradient(stats.currentMonthCommission) : "")}>{s.value}</span>
+                  <span className={cn("text-lg font-black text-foreground truncate", s.label === 'Comisiones Mes' ? getDynamicGradient(stats.currentMonthCommission) : "")}>{s.value}</span>
                   {s.comparison !== undefined && (
                     <span className={cn(
-                      "text-[8px] font-bold flex items-center",
+                      "text-[9px] font-bold flex items-center",
                       (parseFloat(s.value.replace(/[^0-9.-]+/g,"")) >= s.comparison) ? "text-green-500" : "text-destructive"
                     )}>
-                      {s.comparison >= 0 ? <ArrowUpRight className="w-2 h-2 mr-0.5" /> : <ArrowDownRight className="w-2 h-2 mr-0.5" />}
+                      {s.comparison >= 0 ? <ArrowUpRight className="w-3 h-3 mr-0.5" /> : <ArrowDownRight className="w-3 h-3 mr-0.5" />}
                       {s.isCurrency ? formatCurrency(s.comparison) : s.comparison}
                     </span>
                   )}
@@ -195,7 +194,7 @@ export default function MobileDashboard({
             </div>
             
             <div className="text-center space-y-1 relative z-10 px-2">
-              <span className="block text-sm font-black tracking-tighter text-white uppercase leading-none">
+              <span className="block text-base font-black tracking-tighter text-white uppercase leading-none">
                 {q.title}
               </span>
               <span className="block text-[10px] font-bold uppercase tracking-[0.2em] text-white/60">
