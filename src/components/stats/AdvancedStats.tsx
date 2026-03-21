@@ -1,3 +1,4 @@
+
 /**
  * @fileOverview Panel de Inteligencia Avanzada - Finanto
  */
@@ -29,7 +30,7 @@ const CustomXAxisTick = (props: any) => {
 
   const isCorte = item.isCorte;
   const isPaga = item.isPaga;
-  const dotColor = isCorte ? "#f59e0b" : "#22c55e";
+  const dotColor = isCorte ? "#64748b" : "#1877F2"; // Gris para corte, Azul para pago
 
   return (
     <g transform={`translate(${x},${y})`}>
@@ -38,8 +39,8 @@ const CustomXAxisTick = (props: any) => {
         y={0} 
         dy={16} 
         textAnchor="middle" 
-        fill="currentColor" 
-        fillOpacity={0.5}
+        fill={isCorte || isPaga ? dotColor : "currentColor"} 
+        fillOpacity={isCorte || isPaga ? 1 : 0.5}
         className="text-[9px] font-bold uppercase"
       >
         {item.dayNumber}
@@ -48,7 +49,7 @@ const CustomXAxisTick = (props: any) => {
         x={0} 
         y={32} 
         textAnchor="middle" 
-        fill="currentColor" 
+        fill={isCorte || isPaga ? dotColor : "currentColor"} 
         fillOpacity={1}
         className="text-[10px] font-black uppercase"
       >
@@ -158,7 +159,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
                           </div>
                         ))}
                         {(d.isPaga || d.isCorte) && (
-                          <div className={cn("mt-2 pt-2 border-t border-border/10 text-[10px] font-black uppercase flex items-center gap-2", d.isPaga ? "text-green-500" : "text-amber-500")}>
+                          <div className={cn("mt-2 pt-2 border-t border-border/10 text-[10px] font-black uppercase flex items-center gap-2", d.isPaga ? "text-primary" : "text-slate-500")}>
                             {d.isPaga ? <Coins className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
                             {d.isPaga ? `PAGA: ${new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(d.projectedPay)}` : "CORTE SEMANAL"}
                           </div>
@@ -208,7 +209,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
                 const markerY = 15; 
                 const radius = barSize / 2;
                 return (
-                  <g key={`marker-cierre-${payload.dayFull}-${payload.dayNumber}`}>
+                  <g key={`marker-cierre-${payload.dayFull}-${payload.dayNumber}-${cx}`}>
                     <circle 
                       cx={cx} 
                       cy={markerY} 

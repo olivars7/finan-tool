@@ -218,7 +218,9 @@ export default function UpcomingAppointments({
       text += `Cita: *${capitalizedDate}*\n`;
       text += `Nombre: *${app.name}*\n`;
       text += `Teléfono: *${app.phone || 'N/A'}*\n`;
-      text += `Motivo: *${app.type}*\n`;
+      if (app.type !== '1ra consulta') {
+        text += `Motivo: *${app.type}*\n`;
+      }
       text += `Producto: *${app.product || 'N/A'}*\n`;
       text += `Hora: *${timeFormatted}*\n\n`;
     });
@@ -252,7 +254,9 @@ export default function UpcomingAppointments({
       text += `Cita: *${capitalizedDate}*\n`;
       text += `Nombre: *${app.name}*\n`;
       text += `Teléfono: *${app.phone || 'N/A'}*\n`;
-      text += `Motivo: *${app.type}*\n`;
+      if (app.type !== '1ra consulta') {
+        text += `Motivo: *${app.type}*\n`;
+      }
       text += `Producto: *${app.product || 'N/A'}*\n`;
       text += `Hora: *${timeFormatted}*\n\n`;
     });
@@ -515,22 +519,41 @@ export default function UpcomingAppointments({
       </div>
 
       <div className="flex flex-wrap justify-center sm:justify-end gap-2 sm:gap-3 pt-2 shrink-0">
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={copyAllTodayAppointments} 
-          className="text-[10px] font-bold uppercase border-blue-500/40 bg-blue-500/5 text-blue-600 h-9 gap-2 px-3 sm:px-4 flex-1 sm:flex-none"
-        >
-          <ClipboardList className="w-4 h-4" /> <span>Citas Hoy</span>
-        </Button>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={copyAllTomorrowAppointments} 
-          className="text-[10px] font-bold uppercase border-accent/40 bg-accent/5 text-accent h-9 gap-2 px-3 sm:px-4 flex-1 sm:flex-none"
-        >
-          <ClipboardList className="w-4 h-4" /> <span>Citas Mañana</span>
-        </Button>
+        <TooltipProvider>
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={copyAllTodayAppointments} 
+                className="text-[10px] font-bold uppercase border-blue-500/40 bg-blue-500/5 text-blue-600 h-9 gap-2 px-3 sm:px-4 flex-1 sm:flex-none"
+              >
+                <ClipboardList className="w-4 h-4" /> <span>Citas Hoy</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="text-[10px]">
+              Copia el listado de citas de hoy para enviar por WhatsApp
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider>
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={copyAllTomorrowAppointments} 
+                className="text-[10px] font-bold uppercase border-accent/40 bg-accent/5 text-accent h-9 gap-2 px-3 sm:px-4 flex-1 sm:flex-none"
+              >
+                <ClipboardList className="w-4 h-4" /> <span>Citas Mañana</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="text-[10px]">
+              Copia el listado de citas de mañana para enviar por WhatsApp
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       <AlertDialog open={!!confirmingApp} onOpenChange={(o) => !o && setConfirmingApp(null)}>
