@@ -147,7 +147,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
       {/* Header Universal */}
       <header className="border-b border-border/40 sticky top-0 z-50 backdrop-blur-[12px] bg-card/10 shrink-0">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3" onClick={() => syncUrl('/')}>
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => syncUrl('/')}>
             <div className="bg-primary/20 p-1.5 rounded-lg border border-primary/30 flex items-center justify-center overflow-hidden">
               <Image 
                 src="/favicon.ico" 
@@ -288,16 +288,16 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
         <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden rounded-[2rem] border-none bg-background shadow-2xl">
           <DialogHeader className="p-8 border-b border-border/10 bg-primary/5 relative">
             <DialogClose asChild>
-              <Button variant="ghost" size="icon" className="absolute right-4 top-4 rounded-full bg-white/10 hover:bg-destructive/10 hover:text-destructive">
+              <Button variant="ghost" size="icon" className="absolute right-4 top-4 rounded-full bg-muted/20 text-foreground hover:bg-destructive hover:text-destructive-foreground">
                 <X size={20} />
               </Button>
             </DialogClose>
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-primary text-white rounded-2xl shadow-lg">
+              <div className="p-3 bg-primary text-primary-foreground rounded-2xl shadow-lg">
                 <UserPlus size={24} />
               </div>
               <div>
-                <DialogTitle className="text-xl font-black uppercase tracking-tighter">Nueva Cita</DialogTitle>
+                <DialogTitle className="text-xl font-black uppercase tracking-tighter text-foreground">Nueva Cita</DialogTitle>
                 <DialogDescription className="text-[10px] font-bold uppercase text-primary tracking-[0.2em] mt-1">Registro rápido de prospecto</DialogDescription>
               </div>
             </div>

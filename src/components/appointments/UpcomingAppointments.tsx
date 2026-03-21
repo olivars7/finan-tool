@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState } from 'react';
@@ -272,7 +271,7 @@ export default function UpcomingAppointments({
   return (
     <div className="space-y-4 flex flex-col h-full">
       <div className={cn(
-        "border rounded-xl overflow-hidden relative backdrop-blur-sm bg-card/20 flex flex-col",
+        "border rounded-xl overflow-hidden relative backdrop-blur-sm bg-card/10 flex flex-col",
         !expanded ? "h-[400px]" : "h-full flex-1"
       )}>
         {appointments.length === 0 ? (
@@ -423,7 +422,7 @@ export default function UpcomingAppointments({
                     <div className="flex items-start justify-between">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <h4 className="font-bold text-base leading-tight">{app.name}</h4>
+                          <h4 className="font-bold text-base leading-tight text-foreground">{app.name}</h4>
                           <div className="flex gap-1">
                             {app.prospectorName && (
                               <TooltipProvider>
@@ -555,19 +554,19 @@ export default function UpcomingAppointments({
       </div>
 
       <AlertDialog open={!!confirmingApp} onOpenChange={(o) => !o && setConfirmingApp(null)}>
-        <AlertDialogContent className="bg-slate-900 border-white/10 rounded-[2rem] text-white">
+        <AlertDialogContent className="bg-background border-border rounded-[2rem] text-foreground">
           <AlertDialogHeader>
             <div className="flex items-center gap-3 mb-2">
               <div className="p-3 bg-primary/20 rounded-2xl"><AlertCircle className="w-6 h-6 text-primary" /></div>
               <AlertDialogTitle className="text-xl font-black uppercase tracking-tighter">Confirmar Asistencia</AlertDialogTitle>
             </div>
-            <AlertDialogDescription className="text-slate-400 font-medium">
+            <AlertDialogDescription className="text-muted-foreground font-medium">
               ¿Confirmas que el cliente <strong>{confirmingApp?.name}</strong> asistirá a su cita programada para el día de hoy?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-3 mt-4">
-            <AlertDialogCancel className="bg-white/5 border-white/10 text-white rounded-full h-11 px-6 text-xs font-bold uppercase">Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={processConfirmation} className="bg-primary hover:bg-primary/80 text-white rounded-full h-11 px-8 text-xs font-black uppercase shadow-lg">
+            <AlertDialogCancel className="bg-muted/20 border-border text-foreground rounded-full h-11 px-6 text-xs font-bold uppercase">Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={processConfirmation} className="bg-primary hover:bg-primary/80 text-primary-foreground rounded-full h-11 px-8 text-xs font-black uppercase shadow-lg">
               Confirmar Llegada
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -576,15 +575,15 @@ export default function UpcomingAppointments({
 
       <Dialog open={!!finalizingApp} onOpenChange={(o) => !o && setFinalizingApp(null)}>
         <DialogContent 
-          className="sm:max-w-[550px] bg-[#020617] border-white/10 shadow-2xl rounded-[2.5rem] p-0 overflow-hidden z-[160]"
+          className="sm:max-w-[550px] bg-background border-border shadow-2xl rounded-[2.5rem] p-0 overflow-hidden z-[160]"
         >
           <DialogHeader className="bg-green-500/5 p-8 border-b border-green-500/10">
             <div className="flex items-center gap-4">
-              <div className="p-4 bg-green-500 text-white rounded-2xl shadow-xl shadow-green-500/20">
+              <div className="p-4 bg-green-600 text-white rounded-2xl shadow-xl shadow-green-500/20">
                 <CheckIcon className="w-6 h-6" />
               </div>
               <div>
-                <DialogTitle className="text-2xl font-black uppercase tracking-tighter text-white leading-none">Finalizar Consulta</DialogTitle>
+                <DialogTitle className="text-2xl font-black uppercase tracking-tighter text-foreground leading-none">Finalizar Consulta</DialogTitle>
                 <DialogDescription className="text-[10px] font-bold uppercase text-green-600 tracking-widest mt-1">
                   Registrando resultado para {finalizingApp?.name}
                 </DialogDescription>
@@ -594,12 +593,12 @@ export default function UpcomingAppointments({
           
           <div className="p-8 space-y-8 max-h-[60vh] overflow-y-auto scrollbar-thin">
             <div className="space-y-3">
-              <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest block text-center">Resultado Final de la Cita</Label>
+              <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest block text-center">Resultado Final de la Cita</Label>
               <Select value={finalStatus} onValueChange={(v) => setFinalStatus(v as AppointmentStatus)}>
-                <SelectTrigger className="w-full h-14 bg-white/5 border-white/10 text-white text-lg font-bold rounded-2xl">
+                <SelectTrigger className="w-full h-14 bg-muted/10 border-border text-foreground text-lg font-bold rounded-2xl">
                   <SelectValue placeholder="Selecciona el resultado" />
                 </SelectTrigger>
-                <SelectContent className="z-[200] bg-slate-900 border-white/10 text-white">
+                <SelectContent className="z-[200]">
                   <SelectItem value="Asistencia" className="focus:bg-primary/20">👤 Asistencia (Visto)</SelectItem>
                   <SelectItem value="Cierre" className="focus:bg-green-500/20">💰 CIERRE (VENTA) ✨</SelectItem>
                   <SelectItem value="Apartado" className="focus:bg-blue-500/20">📑 Apartado (Reserva)</SelectItem>
@@ -614,20 +613,20 @@ export default function UpcomingAppointments({
             {finalStatus === 'Cierre' && (
               <div className="p-6 bg-green-500/5 border-2 border-green-500/20 rounded-[2rem] space-y-6 animate-in zoom-in-95 duration-300">
                 <div className="flex items-center gap-3 border-b border-green-500/10 pb-4">
-                  <Coins className="w-5 h-5 text-green-500" />
+                  <Coins className="w-5 h-5 text-green-600" />
                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-green-600">Configuración Financiera</span>
                 </div>
                 
                 <div className="grid grid-cols-1 gap-6">
                   <div className="space-y-2">
-                    <Label className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Monto de Crédito Final</Label>
+                    <Label className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Monto de Crédito Final</Label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-bold text-green-500">$</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-bold text-green-600">$</span>
                       <Input 
                         type="text" 
                         value={creditInput} 
                         onChange={e => handleCreditChange(e.target.value)}
-                        className="h-14 pl-10 bg-[#020617] border-green-500/20 text-2xl font-black text-white rounded-xl"
+                        className="h-14 pl-10 bg-background border-green-500/20 text-2xl font-black text-foreground rounded-xl"
                         placeholder="0"
                       />
                     </div>
@@ -635,23 +634,23 @@ export default function UpcomingAppointments({
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="text-[9px] font-black uppercase text-slate-500 tracking-widest flex items-center gap-2">Participación <Info className="w-3 h-3 opacity-40" /></Label>
+                      <Label className="text-[9px] font-black uppercase text-muted-foreground tracking-widest flex items-center gap-2">Participación <Info className="w-3 h-3 opacity-40" /></Label>
                       <div className="relative">
                         <Input 
                           type="number"
                           max={100}
                           value={finalCommissionPercent || ''} 
                           onChange={e => setFinalCommissionPercent(parseFloat(e.target.value) || 0)}
-                          className="h-11 pr-8 bg-[#020617] border-green-500/20 text-lg font-black text-white rounded-xl"
+                          className="h-11 pr-8 bg-background border-green-500/20 text-lg font-black text-foreground rounded-xl"
                           placeholder="100"
                         />
-                        <span className="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-green-500">%</span>
+                        <span className="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-green-600">%</span>
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Ingreso Neto (91%)</Label>
+                      <Label className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Ingreso Neto (91%)</Label>
                       <div className="h-11 flex items-center px-4 bg-green-500/10 border border-green-500/20 rounded-xl">
-                        <span className="text-lg font-black text-green-500 truncate">{formatCurrency(calculatedCommission)}</span>
+                        <span className="text-lg font-black text-green-600 truncate">{formatCurrency(calculatedCommission)}</span>
                       </div>
                     </div>
                   </div>
@@ -660,12 +659,12 @@ export default function UpcomingAppointments({
             )}
 
             <div className="space-y-2">
-              <Label className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-500 tracking-widest">
+              <Label className="flex items-center gap-2 text-[10px] font-black uppercase text-muted-foreground tracking-widest">
                 <MessageSquare className="w-4 h-4 text-primary" /> Notas Finales del Registro
               </Label>
               <Textarea 
                 placeholder="Escribe acuerdos, detalles del cierre o motivos del resultado..."
-                className="bg-white/5 border-white/10 min-h-[120px] resize-none text-sm text-white font-medium p-4 rounded-2xl"
+                className="bg-muted/10 border-border min-h-[120px] resize-none text-sm text-foreground font-medium p-4 rounded-2xl"
                 value={finalNotes}
                 onChange={(e) => setFinalNotes(e.target.value)}
               />
@@ -673,17 +672,17 @@ export default function UpcomingAppointments({
 
             <Collapsible open={showExecutiveSection} onOpenChange={setShowExecutiveSection}>
               <CollapsibleTrigger asChild>
-                <Button type="button" variant="ghost" size="sm" className="h-8 text-[10px] font-black uppercase text-purple-400 hover:bg-purple-500/10 px-0 w-full justify-between">
+                <Button type="button" variant="ghost" size="sm" className="h-8 text-[10px] font-black uppercase text-purple-600 dark:text-purple-400 hover:bg-purple-500/10 px-0 w-full justify-between">
                   <span className="flex items-center"><UserCheck className="w-4 h-4 mr-2" /> ¿Atendió otro ejecutivo?</span>
                   <ChevronDown className={cn("h-4 w-4 transition-transform", showExecutiveSection && "rotate-180")} />
                 </Button>
               </CollapsibleTrigger>
               <CollapsibleContent className="mt-3 animate-in fade-in slide-in-from-top-2">
                 <div className="p-4 border rounded-2xl bg-purple-500/5 border-purple-500/10">
-                  <Label className="text-[9px] font-bold uppercase text-purple-400/70 mb-2 block">Nombre del Ejecutivo de Atención</Label>
+                  <Label className="text-[9px] font-bold uppercase text-purple-600/70 dark:text-purple-400/70 mb-2 block">Nombre del Ejecutivo de Atención</Label>
                   <Input 
                     placeholder="Escribe el nombre completo..."
-                    className="bg-[#020617] border-purple-500/20 h-11 text-white font-bold"
+                    className="bg-background border-purple-500/20 h-11 text-foreground font-bold"
                     value={attendingExecutive}
                     onChange={(e) => setAttendingExecutive(e.target.value)}
                   />
@@ -692,8 +691,8 @@ export default function UpcomingAppointments({
             </Collapsible>
           </div>
 
-          <DialogFooter className="p-8 border-t border-white/5 bg-primary/5 flex flex-row gap-4">
-            <Button variant="ghost" onClick={() => setFinalizingApp(null)} className="h-12 px-6 font-black uppercase text-[10px] text-slate-500 flex-1 rounded-full">Cancelar</Button>
+          <DialogFooter className="p-8 border-t border-border/10 bg-primary/5 flex flex-row gap-4">
+            <Button variant="ghost" onClick={() => setFinalizingApp(null)} className="h-12 px-6 font-black uppercase text-[10px] text-muted-foreground flex-1 rounded-full">Cancelar</Button>
             <Button onClick={handleSaveFinalization} className="bg-green-600 hover:bg-green-700 text-white h-12 px-10 font-black uppercase text-[10px] shadow-xl shadow-green-600/20 rounded-full gap-2 flex-[2] transition-all active:scale-95">
               <Save className="w-4 h-4" /> Guardar Registro
             </Button>

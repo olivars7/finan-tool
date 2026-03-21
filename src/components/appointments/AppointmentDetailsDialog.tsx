@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -277,11 +276,11 @@ Hora: ${timeBold}${confirmedBold}`;
       }
     }}>
       <DialogContent 
-        className="sm:max-w-[650px] bg-[#020617] border-white/10 p-0 shadow-2xl overflow-hidden flex flex-col max-h-[90vh] rounded-[2rem]"
+        className="sm:max-w-[650px] bg-background border-border/40 p-0 shadow-2xl overflow-hidden flex flex-col max-h-[90vh] rounded-[2rem]"
       >
-        <DialogHeader className="px-8 py-6 border-b border-white/5 flex flex-row items-center justify-between bg-primary/5 shrink-0">
+        <DialogHeader className="px-8 py-6 border-b border-border/10 flex flex-row items-center justify-between bg-primary/5 shrink-0">
           <div className="flex flex-col gap-1">
-            <DialogTitle className="text-xl font-black text-white uppercase tracking-tighter">
+            <DialogTitle className="text-xl font-black text-foreground uppercase tracking-tighter">
               {isEditing ? 'Editar Registro' : 'Expediente de Cita'}
             </DialogTitle>
             <DialogDescription className="text-[10px] font-bold uppercase text-primary tracking-widest flex items-center gap-2">
@@ -305,14 +304,14 @@ Hora: ${timeBold}${confirmedBold}`;
                   onClick={() => setShowArchiveConfirm(true)}
                   variant="ghost" 
                   size="sm"
-                  className="h-9 px-4 text-[10px] font-black uppercase text-slate-500 hover:text-destructive hover:bg-destructive/10 transition-colors gap-2 rounded-full"
+                  className="h-9 px-4 text-[10px] font-black uppercase text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors gap-2 rounded-full"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                   Archivar
                 </Button>
               </>
             )}
-            <DialogClose className="h-9 w-9 flex items-center justify-center rounded-full bg-white/5 text-white hover:bg-destructive transition-colors group">
+            <DialogClose className="h-9 w-9 flex items-center justify-center rounded-full bg-muted/20 text-foreground hover:bg-destructive hover:text-destructive-foreground transition-colors group">
               <X className="w-4 h-4" />
             </DialogClose>
           </div>
@@ -323,12 +322,12 @@ Hora: ${timeBold}${confirmedBold}`;
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Nombre del Cliente</Label>
-                  <Input value={editData.name || ''} onChange={e => setEditData({...editData, name: e.target.value})} className="h-11 bg-white/5 border-white/10 text-white font-bold" />
+                  <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Nombre del Cliente</Label>
+                  <Input value={editData.name || ''} onChange={e => setEditData({...editData, name: e.target.value})} className="h-11 bg-muted/20 border-border/40 text-foreground font-bold" />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Teléfono de Contacto</Label>
-                  <Input value={editData.phone || ''} onChange={e => setEditData({...editData, phone: e.target.value})} className="h-11 bg-white/5 border-white/10 text-white font-bold" />
+                  <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Teléfono de Contacto</Label>
+                  <Input value={editData.phone || ''} onChange={e => setEditData({...editData, phone: e.target.value})} className="h-11 bg-muted/20 border-border/40 text-foreground font-bold" />
                 </div>
               </div>
 
@@ -338,7 +337,7 @@ Hora: ${timeBold}${confirmedBold}`;
                     variant="ghost"
                     size="sm"
                     onClick={() => handleToggleEditProspector(!showEditProspector)}
-                    className="h-8 text-[10px] font-black uppercase text-blue-400 hover:bg-blue-500/10 px-0 w-full justify-between"
+                    className="h-8 text-[10px] font-black uppercase text-blue-600 dark:text-blue-400 hover:bg-blue-500/10 px-0 w-full justify-between"
                     type="button"
                   >
                     <span className="flex items-center"><UserCog className="w-4 h-4 mr-2" /> Info Prospectador</span>
@@ -348,20 +347,20 @@ Hora: ${timeBold}${confirmedBold}`;
                   {showEditProspector && (
                     <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
                       <div className="space-y-1.5">
-                        <Label className="text-[9px] font-bold uppercase text-blue-400/60">Nombre</Label>
+                        <Label className="text-[9px] font-bold uppercase text-blue-600/60 dark:text-blue-400/60">Nombre</Label>
                         <Input 
                           value={editData.prospectorName || ''} 
                           onChange={e => setEditData({...editData, prospectorName: e.target.value})} 
-                          className="h-10 bg-[#020617] border-blue-500/20 text-xs text-white" 
+                          className="h-10 bg-background border-blue-500/20 text-xs text-foreground" 
                           placeholder="Ej. Juan Perez"
                         />
                       </div>
                       <div className="space-y-1.5">
-                        <Label className="text-[9px] font-bold uppercase text-blue-400/60">Teléfono</Label>
+                        <Label className="text-[9px] font-bold uppercase text-blue-600/60 dark:text-blue-400/60">Teléfono</Label>
                         <Input 
                           value={editData.prospectorPhone || ''} 
                           onChange={e => setEditData({...editData, prospectorPhone: e.target.value})} 
-                          className="h-10 bg-[#020617] border-blue-500/20 text-xs text-white" 
+                          className="h-10 bg-background border-blue-500/20 text-xs text-foreground" 
                           placeholder="664 000 0000"
                         />
                       </div>
@@ -374,7 +373,7 @@ Hora: ${timeBold}${confirmedBold}`;
                     variant="ghost"
                     size="sm"
                     onClick={() => handleToggleEditExecutive(!showEditExecutive)}
-                    className="h-8 text-[10px] font-black uppercase text-purple-400 hover:bg-purple-500/10 px-0 w-full justify-between"
+                    className="h-8 text-[10px] font-black uppercase text-purple-600 dark:text-purple-400 hover:bg-purple-500/10 px-0 w-full justify-between"
                     type="button"
                   >
                     <span className="flex items-center"><UserCheck className="w-4 h-4 mr-2" /> Info Ejecutivo</span>
@@ -384,11 +383,11 @@ Hora: ${timeBold}${confirmedBold}`;
                   {showEditExecutive && (
                     <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
                       <div className="space-y-1.5">
-                        <Label className="text-[9px] font-bold uppercase text-purple-400/60">Atendido por</Label>
+                        <Label className="text-[9px] font-bold uppercase text-purple-600/60 dark:text-purple-400/60">Atendido por</Label>
                         <Input 
                           value={editData.attendingExecutive || ''} 
                           onChange={e => setEditData({...editData, attendingExecutive: e.target.value})} 
-                          className="h-10 bg-[#020617] border-purple-500/20 text-xs text-white" 
+                          className="h-10 bg-background border-purple-500/20 text-xs text-foreground" 
                           placeholder="Nombre del ejecutivo..."
                         />
                       </div>
@@ -399,9 +398,9 @@ Hora: ${timeBold}${confirmedBold}`;
               
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Motivo de Consulta</Label>
+                  <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Motivo de Consulta</Label>
                   <Select value={editData.type} onValueChange={(v) => setEditData({...editData, type: v as AppointmentType})}>
-                    <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white font-bold">
+                    <SelectTrigger className="h-11 bg-muted/20 border-border/40 text-foreground font-bold">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -413,9 +412,9 @@ Hora: ${timeBold}${confirmedBold}`;
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Producto Interesado</Label>
+                  <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Producto Interesado</Label>
                   <Select value={editData.product || 'Casa'} onValueChange={(v) => setEditData({...editData, product: v as AppointmentProduct})}>
-                    <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white font-bold">
+                    <SelectTrigger className="h-11 bg-muted/20 border-border/40 text-foreground font-bold">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -431,12 +430,12 @@ Hora: ${timeBold}${confirmedBold}`;
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Resultado / Estatus</Label>
+                  <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Resultado / Estatus</Label>
                   <Select 
                     value={editData.status || 'Asistencia'} 
                     onValueChange={(v) => setEditData({...editData, status: v as AppointmentStatus, isConfirmed: true})}
                   >
-                    <SelectTrigger className="h-11 bg-white/5 border-white/10 text-white font-bold">
+                    <SelectTrigger className="h-11 bg-muted/20 border-border/40 text-foreground font-bold">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -451,29 +450,29 @@ Hora: ${timeBold}${confirmedBold}`;
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Fecha Programada</Label>
+                  <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Fecha Programada</Label>
                   <Input 
                     type="date" 
                     value={editData.date ? parseISO(editData.date).toISOString().split('T')[0] : ''} 
                     onChange={e => setEditData({...editData, date: new Date(e.target.value + 'T12:00:00Z').toISOString()})} 
-                    className="h-11 bg-white/5 border-white/10 text-white font-bold"
+                    className="h-11 bg-muted/20 border-border/40 text-foreground font-bold"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Hora de la Cita</Label>
-                  <Input type="time" value={editData.time || ''} onChange={e => setEditData({...editData, time: e.target.value})} className="h-11 bg-white/5 border-white/10 text-white font-bold" />
+                  <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Hora de la Cita</Label>
+                  <Input type="time" value={editData.time || ''} onChange={e => setEditData({...editData, time: e.target.value})} className="h-11 bg-muted/20 border-border/40 text-foreground font-bold" />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Notas del Registro</Label>
+                <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Notas del Registro</Label>
                 <Textarea 
                   value={editData.notes || ''} 
                   onChange={e => setEditData({...editData, notes: e.target.value})} 
-                  className="bg-white/5 border-white/10 min-h-[200px] text-sm text-white resize-none scrollbar-thin" 
+                  className="bg-muted/20 border-border/40 min-h-[200px] text-sm text-foreground resize-none scrollbar-thin" 
                   placeholder="Escribe acuerdos o detalles importantes..."
                 />
               </div>
@@ -481,12 +480,12 @@ Hora: ${timeBold}${confirmedBold}`;
           ) : (
             <div className="space-y-8 animate-in fade-in duration-500">
               {/* Perfil Principal */}
-              <div className="flex items-center gap-6 p-6 rounded-3xl bg-white/[0.03] border border-white/5 shadow-inner">
+              <div className="flex items-center gap-6 p-6 rounded-3xl bg-muted/10 border border-border/20 shadow-inner">
                 <div className="flex-1 space-y-2">
                   <div className="flex items-center gap-3">
                     <h3 
                       onClick={copyName}
-                      className="text-3xl font-black text-white uppercase tracking-tighter leading-none cursor-pointer hover:text-primary transition-colors"
+                      className="text-3xl font-black text-foreground uppercase tracking-tighter leading-none cursor-pointer hover:text-primary transition-colors"
                     >
                       {appointment.name}
                     </h3>
@@ -494,12 +493,12 @@ Hora: ${timeBold}${confirmedBold}`;
                   <div className="flex items-center gap-4">
                     <div onClick={copyPhoneOnly} className="flex items-center gap-2 cursor-pointer group/phone">
                       <Phone className="w-3.5 h-3.5 text-primary group-hover/phone:scale-110 transition-transform" />
-                      <span className="text-sm font-bold text-slate-400 group-hover/phone:text-primary transition-colors">{appointment.phone || 'N/A'}</span>
+                      <span className="text-sm font-bold text-muted-foreground group-hover/phone:text-primary transition-colors">{appointment.phone || 'N/A'}</span>
                     </div>
-                    <div className="h-4 w-px bg-white/10" />
+                    <div className="h-4 w-px bg-border/40" />
                     <div className="flex items-center gap-2">
-                      <Briefcase className="w-3.5 h-3.5 text-blue-400" />
-                      <span className="text-sm font-bold text-slate-400">{appointment.product || 'Casa'}</span>
+                      <Briefcase className="w-3.5 h-3.5 text-blue-500" />
+                      <span className="text-sm font-bold text-muted-foreground">{appointment.product || 'Casa'}</span>
                     </div>
                   </div>
                 </div>
@@ -513,35 +512,35 @@ Hora: ${timeBold}${confirmedBold}`;
                       <Clock className="w-3.5 h-3.5" /> Agenda y Horarios
                     </Label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
+                      <div className="p-4 rounded-2xl bg-muted/10 border border-border/20 flex items-center justify-between">
                         <div className="space-y-1">
-                          <span className="text-[9px] font-bold text-slate-500 uppercase">Fecha Programada</span>
-                          <p className="text-sm font-black text-white">{format(parseISO(appointment.date), "EEEE d 'de' MMMM", { locale: es })}</p>
+                          <span className="text-[9px] font-bold text-muted-foreground uppercase">Fecha Programada</span>
+                          <p className="text-sm font-black text-foreground">{format(parseISO(appointment.date), "EEEE d 'de' MMMM", { locale: es })}</p>
                         </div>
-                        <CalendarDays className="w-5 h-5 text-slate-600" />
+                        <CalendarDays className="w-5 h-5 text-muted-foreground/40" />
                       </div>
-                      <div className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
+                      <div className="p-4 rounded-2xl bg-muted/10 border border-border/20 flex items-center justify-between">
                         <div className="space-y-1">
-                          <span className="text-[9px] font-bold text-slate-500 uppercase">Hora de Atención</span>
-                          <p className="text-sm font-black text-white">{format12hTime(appointment.time)}</p>
+                          <span className="text-[9px] font-bold text-muted-foreground uppercase">Hora de Atención</span>
+                          <p className="text-sm font-black text-foreground">{format12hTime(appointment.time)}</p>
                         </div>
-                        <Clock className="w-5 h-5 text-slate-600" />
+                        <Clock className="w-5 h-5 text-muted-foreground/40" />
                       </div>
                     </div>
                   </div>
 
                   <div className="space-y-4">
-                    <Label className="text-[10px] font-black uppercase text-blue-400 tracking-[0.2em] flex items-center gap-2">
+                    <Label className="text-[10px] font-black uppercase text-blue-600 dark:text-blue-400 tracking-[0.2em] flex items-center gap-2">
                       <LayoutList className="w-3.5 h-3.5" /> Detalles
                     </Label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10 space-y-1">
-                        <span className="text-[9px] font-bold text-blue-400/60 uppercase">Motivo</span>
-                        <p className="text-sm font-black text-white uppercase">{appointment.type}</p>
+                        <span className="text-[9px] font-bold text-blue-600/60 dark:text-blue-400/60 uppercase">Motivo</span>
+                        <p className="text-sm font-black text-foreground uppercase">{appointment.type}</p>
                       </div>
                       <div className="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10 space-y-1">
-                        <span className="text-[9px] font-bold text-blue-400/60 uppercase">Resultado</span>
-                        <p className="text-sm font-black text-white uppercase">{appointment.status || 'En Proceso'}</p>
+                        <span className="text-[9px] font-bold text-blue-600/60 dark:text-blue-400/60 uppercase">Resultado</span>
+                        <p className="text-sm font-black text-foreground uppercase">{appointment.status || 'En Proceso'}</p>
                       </div>
                     </div>
                   </div>
@@ -550,19 +549,19 @@ Hora: ${timeBold}${confirmedBold}`;
                 {hasExtraParticipants && (
                   <div className="space-y-6">
                     <div className="space-y-4">
-                      <Label className="text-[10px] font-black uppercase text-slate-500 tracking-[0.2em] flex items-center gap-2">
+                      <Label className="text-[10px] font-black uppercase text-muted-foreground tracking-[0.2em] flex items-center gap-2">
                         <UserCheck className="w-3.5 h-3.5" /> Participantes
                       </Label>
                       <div className="space-y-3">
                         {appointment.prospectorName && (
                           <div className="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10 flex items-center gap-4">
-                            <div className="p-2 bg-blue-500/10 rounded-xl text-blue-400"><UserCog className="w-5 h-5" /></div>
+                            <div className="p-2 bg-blue-500/10 rounded-xl text-blue-600 dark:text-blue-400"><UserCog className="w-5 h-5" /></div>
                             <div className="flex-1 overflow-hidden">
-                              <span className="text-[9px] font-bold text-blue-400/60 uppercase">Prospectado por</span>
-                              <p className="text-xs font-black text-white truncate">{appointment.prospectorName}</p>
+                              <span className="text-[9px] font-bold text-blue-600/60 dark:text-blue-400/60 uppercase">Prospectado por</span>
+                              <p className="text-xs font-black text-foreground truncate">{appointment.prospectorName}</p>
                             </div>
                             {appointment.prospectorPhone && (
-                              <Button variant="ghost" size="icon" onClick={copyProspectorPhone} className="h-8 w-8 text-blue-400 hover:bg-blue-500/10 rounded-full">
+                              <Button variant="ghost" size="icon" onClick={copyProspectorPhone} className="h-8 w-8 text-blue-600 dark:text-blue-400 hover:bg-blue-500/10 rounded-full">
                                 <Copy className="w-3 h-3" />
                               </Button>
                             )}
@@ -570,11 +569,11 @@ Hora: ${timeBold}${confirmedBold}`;
                         )}
 
                         {appointment.attendingExecutive && (
-                          <div className="p-4 rounded-2xl bg-purple-500/5 border-purple-500/10 flex items-center gap-4">
-                            <div className="p-2 bg-purple-500/10 rounded-xl text-purple-400"><UserCheck className="w-5 h-5" /></div>
+                          <div className="p-4 rounded-2xl bg-purple-500/5 border border-purple-500/10 flex items-center gap-4">
+                            <div className="p-2 bg-purple-500/10 rounded-xl text-purple-600 dark:text-purple-400"><UserCheck className="w-5 h-5" /></div>
                             <div className="flex-1 overflow-hidden">
-                              <span className="text-[9px] font-bold text-purple-400/60 uppercase">Atendido por</span>
-                              <p className="text-xs font-black text-white truncate">{appointment.attendingExecutive}</p>
+                              <span className="text-[9px] font-bold text-purple-600/60 dark:text-purple-400/60 uppercase">Atendido por</span>
+                              <p className="text-xs font-black text-foreground truncate">{appointment.attendingExecutive}</p>
                             </div>
                           </div>
                         )}
@@ -587,25 +586,25 @@ Hora: ${timeBold}${confirmedBold}`;
               {/* Panel de Comisión (Solo si es Cierre) */}
               {showCommissionPanel && (
                 <div className="p-6 rounded-[2rem] bg-green-500/5 border-2 border-green-500/20 space-y-6 shadow-xl relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform"><Coins className="w-24 h-24 text-green-500" /></div>
+                  <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform"><Coins className="w-24 h-24 text-green-600" /></div>
                   
                   <div className="flex items-center justify-between border-b border-green-500/10 pb-4 relative z-10">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-green-500/20 rounded-xl"><Receipt className="w-5 h-5 text-green-500" /></div>
+                      <div className="p-2 bg-green-500/20 rounded-xl"><Receipt className="w-5 h-5 text-green-600" /></div>
                       <div>
                         <h4 className="text-[10px] font-black uppercase text-green-600 tracking-[0.2em]">Liquidación Final</h4>
                         <p className="text-[8px] font-bold text-green-700/60 uppercase">Cierre de trámite inmobiliario</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 bg-background/40 p-1.5 pr-3 rounded-full border border-green-500/20">
+                    <div className="flex items-center gap-3 bg-muted/20 p-1.5 pr-3 rounded-full border border-green-500/20">
                       <Switch 
                         checked={(editData.commissionStatus || 'Pendiente') === 'Pagada'} 
                         onCheckedChange={handleCommissionToggle}
-                        className="data-[state=checked]:bg-green-500"
+                        className="data-[state=checked]:bg-green-600"
                       />
                       <span className={cn(
                         "text-[9px] font-black uppercase tracking-widest",
-                        (editData.commissionStatus || 'Pendiente') === 'Pagada' ? "text-green-500" : "text-amber-500"
+                        (editData.commissionStatus || 'Pendiente') === 'Pagada' ? "text-green-600" : "text-amber-600"
                       )}>
                         {editData.commissionStatus || 'Pendiente'}
                       </span>
@@ -614,11 +613,11 @@ Hora: ${timeBold}${confirmedBold}`;
 
                   <div className="grid grid-cols-2 gap-8 relative z-10">
                     <div className="space-y-1">
-                      <span className="text-[9px] font-bold text-slate-500 uppercase flex items-center gap-1.5"><Coins className="w-3 h-3" /> Crédito Final</span>
-                      <p className="text-xl font-black text-white">{formatCurrency(appointment.finalCreditAmount || 0)}</p>
+                      <span className="text-[9px] font-bold text-muted-foreground uppercase flex items-center gap-1.5"><Coins className="w-3 h-3" /> Crédito Final</span>
+                      <p className="text-xl font-black text-foreground">{formatCurrency(appointment.finalCreditAmount || 0)}</p>
                     </div>
                     <div className="space-y-1">
-                      <span className="text-[9px] font-bold text-slate-500 uppercase flex items-center gap-1.5">Participación <Info className="w-3 h-3 opacity-40" /></span>
+                      <span className="text-[9px] font-bold text-muted-foreground uppercase flex items-center gap-1.5">Participación <Info className="w-3 h-3 opacity-40" /></span>
                       <p className="text-xl font-black text-primary">{appointment.commissionPercent || 0}%</p>
                     </div>
                   </div>
@@ -626,13 +625,13 @@ Hora: ${timeBold}${confirmedBold}`;
                   <div className="grid grid-cols-2 gap-8 pt-4 border-t border-green-500/10 relative z-10">
                     <div className="space-y-1">
                       <span className="text-[9px] font-black text-green-600 uppercase">Ingreso Neto</span>
-                      <p className="text-2xl font-black text-green-500">{formatCurrency(commissionValue)}</p>
-                      <p className="text-[8px] font-bold text-slate-500 uppercase italic">Deducido 9% ISR</p>
+                      <p className="text-2xl font-black text-green-600">{formatCurrency(commissionValue)}</p>
+                      <p className="text-[8px] font-bold text-muted-foreground uppercase italic">Deducido 9% ISR</p>
                     </div>
                     <div className="space-y-1">
-                      <span className="text-[9px] font-black text-slate-500 uppercase">Fecha de Pago Proyectada</span>
-                      <p className="text-sm font-black text-white">{calculatePaymentDateText(appointment.date)}</p>
-                      <p className="text-[8px] font-bold text-slate-500 uppercase">Viernes de liquidación</p>
+                      <span className="text-[9px] font-black text-muted-foreground uppercase">Fecha de Pago Proyectada</span>
+                      <p className="text-sm font-black text-foreground">{calculatePaymentDateText(appointment.date)}</p>
+                      <p className="text-[8px] font-bold text-muted-foreground uppercase">Viernes de liquidación</p>
                     </div>
                   </div>
                 </div>
@@ -640,11 +639,11 @@ Hora: ${timeBold}${confirmedBold}`;
 
               {/* NOTAS */}
               <div className="space-y-4">
-                <Label className="flex items-center gap-2 text-white text-[10px] font-black uppercase tracking-[0.3em]">
+                <Label className="flex items-center gap-2 text-foreground text-[10px] font-black uppercase tracking-[0.3em]">
                   <FileText className="w-4 h-4 text-primary" /> NOTAS
                 </Label>
-                <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 min-h-[120px] max-h-[250px] overflow-y-auto scrollbar-thin relative group/notes">
-                  <p className="text-sm leading-relaxed text-slate-300 font-medium whitespace-pre-wrap">
+                <div className="p-6 rounded-[2rem] bg-muted/10 border border-border/20 min-h-[120px] max-h-[250px] overflow-y-auto scrollbar-thin relative group/notes">
+                  <p className="text-sm leading-relaxed text-foreground font-medium whitespace-pre-wrap">
                     {appointment.notes ? appointment.notes : 'Sin comentarios u observaciones registradas para este expediente.'}
                   </p>
                 </div>
@@ -653,7 +652,7 @@ Hora: ${timeBold}${confirmedBold}`;
           )}
         </div>
 
-        <DialogFooter className="px-8 py-6 border-t border-white/5 bg-primary/5 flex flex-row justify-between items-center gap-4 shrink-0">
+        <DialogFooter className="px-8 py-6 border-t border-border/10 bg-primary/5 flex flex-row justify-between items-center gap-4 shrink-0">
           <div className="flex-1">
             {!isEditing && (
               <Button 
@@ -671,13 +670,13 @@ Hora: ${timeBold}${confirmedBold}`;
           <div className="flex gap-3">
             {isEditing ? (
               <>
-                <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)} className="h-10 px-6 text-[10px] font-black uppercase text-slate-500 rounded-full" type="button">Cancelar</Button>
-                <Button size="sm" onClick={handleSave} className="h-10 px-8 text-[10px] font-black uppercase bg-primary text-white hover:bg-primary/80 rounded-full shadow-lg gap-2" type="button">
+                <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)} className="h-10 px-6 text-[10px] font-black uppercase text-muted-foreground rounded-full" type="button">Cancelar</Button>
+                <Button size="sm" onClick={handleSave} className="h-10 px-8 text-[10px] font-black uppercase bg-primary text-primary-foreground hover:bg-primary/80 rounded-full shadow-lg gap-2" type="button">
                   <Save className="w-4 h-4" /> Guardar Cambios
                 </Button>
               </>
             ) : (
-              <Button onClick={() => setIsEditing(true)} size="sm" className="h-10 px-8 text-[10px] font-black uppercase bg-white text-slate-950 hover:bg-slate-200 rounded-full gap-2 shadow-xl" type="button">
+              <Button onClick={() => setIsEditing(true)} size="sm" className="h-10 px-8 text-[10px] font-black uppercase bg-foreground text-background hover:opacity-90 rounded-full gap-2 shadow-xl" type="button">
                 <Edit2 className="w-4 h-4" /> Editar Expediente
               </Button>
             )}
@@ -686,16 +685,16 @@ Hora: ${timeBold}${confirmedBold}`;
 
         {/* DIALOGOS INTERNOS (ARCHIVAR Y REAGENDAR) */}
         <AlertDialog open={showArchiveConfirm} onOpenChange={setShowArchiveConfirm}>
-          <AlertDialogContent className="bg-slate-900 border-white/10 rounded-[2rem] text-white">
+          <AlertDialogContent className="bg-background border-border shadow-2xl rounded-[2rem] text-foreground">
             <AlertDialogHeader>
               <AlertDialogTitle className="text-xl font-black uppercase tracking-tighter">¿Archivar Expediente?</AlertDialogTitle>
-              <AlertDialogDescription className="text-slate-400 font-medium">
+              <AlertDialogDescription className="text-muted-foreground font-medium">
                 El registro de <strong>{appointment.name}</strong> se moverá a la papelera. Podrás recuperarlo en cualquier momento desde el historial de archivados.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="gap-3">
-              <AlertDialogCancel onClick={() => setShowArchiveConfirm(false)} className="bg-white/5 border-white/10 text-white rounded-full h-11 px-6 text-xs font-bold uppercase">Cancelar</AlertDialogCancel>
-              <AlertDialogAction onClick={handleArchive} className="bg-destructive hover:bg-destructive/90 text-white rounded-full h-11 px-8 text-xs font-black uppercase">
+              <AlertDialogCancel onClick={() => setShowArchiveConfirm(false)} className="bg-muted/20 border-border text-foreground rounded-full h-11 px-6 text-xs font-bold uppercase">Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={handleArchive} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full h-11 px-8 text-xs font-black uppercase">
                 Sí, Archivar
               </AlertDialogAction>
             </AlertDialogFooter>
@@ -704,13 +703,13 @@ Hora: ${timeBold}${confirmedBold}`;
 
         <Dialog open={isRescheduling} onOpenChange={setIsRescheduling}>
           <DialogContent 
-            className="sm:max-w-[550px] bg-[#020617] border-white/10 shadow-2xl rounded-[2.5rem] p-0 overflow-hidden"
+            className="sm:max-w-[550px] bg-background border-border/40 shadow-2xl rounded-[2.5rem] p-0 overflow-hidden"
           >
-            <DialogHeader className="p-8 border-b border-white/5 bg-primary/5">
+            <DialogHeader className="p-8 border-b border-border/10 bg-primary/5">
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-primary text-white rounded-2xl shadow-lg"><CalendarPlus className="w-6 h-6" /></div>
+                <div className="p-3 bg-primary text-primary-foreground rounded-2xl shadow-lg"><CalendarPlus className="w-6 h-6" /></div>
                 <div>
-                  <DialogTitle className="text-xl font-black uppercase tracking-tighter text-white leading-none">Nueva Consulta</DialogTitle>
+                  <DialogTitle className="text-xl font-black uppercase tracking-tighter text-foreground leading-none">Nueva Consulta</DialogTitle>
                   <DialogDescription className="text-[10px] font-bold uppercase text-primary tracking-widest mt-1">
                     Continuidad de Trámite: {newName}
                   </DialogDescription>
@@ -721,13 +720,13 @@ Hora: ${timeBold}${confirmedBold}`;
             <div className="p-8 space-y-6 max-h-[65vh] overflow-y-auto scrollbar-thin">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Cliente</Label>
-                  <Input value={newName} readOnly className="h-10 bg-white/5 border-white/10 text-slate-400 font-bold" />
+                  <Label className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Cliente</Label>
+                  <Input value={newName} readOnly className="h-10 bg-muted/10 border-border/40 text-muted-foreground font-bold" />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Motivo</Label>
+                  <Label className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Motivo</Label>
                   <Select value={newType} onValueChange={(v) => setNewType(v as AppointmentType)}>
-                    <SelectTrigger className="h-10 bg-white/5 border-white/10 text-white font-bold">
+                    <SelectTrigger className="h-10 bg-muted/10 border-border/40 text-foreground font-bold">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -742,56 +741,56 @@ Hora: ${timeBold}${confirmedBold}`;
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Nueva Fecha</Label>
-                  <Input type="date" value={newDate} onChange={e => setNewDate(e.target.value)} className="h-10 bg-white/5 border-white/10 text-white font-bold" />
+                  <Label className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Nueva Fecha</Label>
+                  <Input type="date" value={newDate} onChange={e => setNewDate(e.target.value)} className="h-10 bg-muted/10 border-border/40 text-foreground font-bold" />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Nueva Hora</Label>
-                  <Input type="time" value={newTime} onChange={e => setNewTime(e.target.value)} className="h-10 bg-white/5 border-white/10 text-white font-bold" />
+                  <Label className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Nueva Hora</Label>
+                  <Input type="time" value={newTime} onChange={e => setNewTime(e.target.value)} className="h-10 bg-muted/10 border-border/40 text-foreground font-bold" />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="p-4 border rounded-2xl bg-blue-500/5 border-blue-500/10 space-y-3">
-                  <Label className="text-[9px] font-black uppercase text-blue-400/60">Info Prospectador</Label>
+                  <Label className="text-[9px] font-black uppercase text-blue-600 dark:text-blue-400/60">Info Prospectador</Label>
                   <Input 
                     value={newProspectorName} 
                     onChange={e => setNewProspectorName(e.target.value)} 
-                    className="h-9 bg-[#020617] border-blue-500/20 text-xs text-white" 
+                    className="h-9 bg-background border-blue-500/20 text-xs text-foreground" 
                     placeholder="Nombre"
                   />
                   <Input 
                     value={newProspectorPhone} 
                     onChange={e => setNewProspectorPhone(e.target.value)} 
-                    className="h-9 bg-[#020617] border-blue-500/20 text-xs text-white" 
+                    className="h-9 bg-background border-blue-500/20 text-xs text-foreground" 
                     placeholder="Teléfono"
                   />
                 </div>
                 <div className="p-4 border rounded-2xl bg-purple-500/5 border-purple-500/10 space-y-3">
-                  <Label className="text-[9px] font-black uppercase text-purple-400/60">Ejecutivo de Atención</Label>
+                  <Label className="text-[9px] font-black uppercase text-purple-600 dark:text-purple-400/60">Ejecutivo de Atención</Label>
                   <Input 
                     value={newAttendingExecutive} 
                     onChange={e => setNewAttendingExecutive(e.target.value)} 
-                    className="h-9 bg-[#020617] border-purple-500/20 text-xs text-white" 
+                    className="h-9 bg-background border-purple-500/20 text-xs text-foreground" 
                     placeholder="Nombre del ejecutivo"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label className="text-[9px] font-black uppercase text-slate-500 tracking-widest">Acuerdos Previos</Label>
+                <Label className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Acuerdos Previos</Label>
                 <Textarea 
                   value={newNotes} 
                   onChange={e => setNewNotes(e.target.value)} 
-                  className="bg-white/5 border-white/10 h-24 resize-none text-xs text-white scrollbar-thin" 
+                  className="bg-muted/10 border-border/40 h-24 resize-none text-xs text-foreground scrollbar-thin" 
                   placeholder="Temas pendientes para la siguiente sesión..."
                 />
               </div>
             </div>
 
-            <DialogFooter className="p-8 border-t border-white/5 bg-primary/5 gap-3">
-              <Button variant="ghost" onClick={() => setIsRescheduling(false)} className="h-11 px-6 text-[10px] font-black uppercase text-slate-500 rounded-full" type="button">Cancelar</Button>
-              <Button onClick={handleConfirmSecond} className="h-11 px-8 text-[10px] font-black uppercase bg-primary text-white hover:bg-primary/80 rounded-full shadow-lg" type="button">
+            <DialogFooter className="p-8 border-t border-border/10 bg-primary/5 gap-3">
+              <Button variant="ghost" onClick={() => setIsRescheduling(false)} className="h-11 px-6 text-[10px] font-black uppercase text-muted-foreground rounded-full" type="button">Cancelar</Button>
+              <Button onClick={handleConfirmSecond} className="h-11 px-8 text-[10px] font-black uppercase bg-primary text-primary-foreground hover:bg-primary/80 rounded-full shadow-lg" type="button">
                 Confirmar Registro
               </Button>
             </DialogFooter>
