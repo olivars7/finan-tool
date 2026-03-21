@@ -101,14 +101,23 @@ export default function MobileDashboard({
       value: stats.todayCount.toString(), 
       icon: CalendarDays, 
       color: 'text-primary',
-      tip: `Conf: ${stats.todayConfirmed} / Total: ${stats.todayCount}`
+      tip: (
+        <div className="space-y-1 py-0.5">
+          <p className="flex justify-between gap-4">Confirmadas: <span className="text-green-500 font-bold">{stats.todayConfirmed}</span></p>
+          <p className="flex justify-between gap-4">Total: <span className="text-blue-400 font-bold">{stats.todayCount}</span></p>
+        </div>
+      )
     },
     { 
       label: 'Pendientes', 
       value: stats.pendingCount.toString(), 
       icon: Wallet, 
       color: 'text-primary',
-      tip: `Prospectos por atender`
+      tip: (
+        <div className="space-y-1 py-0.5">
+          <p className="flex justify-between gap-4">Por atender: <span className="text-blue-400 font-bold">{stats.pendingCount}</span></p>
+        </div>
+      )
     },
     { 
       label: 'Prospectos Mes', 
@@ -116,7 +125,12 @@ export default function MobileDashboard({
       icon: Users, 
       color: 'text-accent', 
       comparison: stats.lastMonthProspects,
-      tip: `Registros nuevos este ciclo`
+      tip: (
+        <div className="space-y-1 py-0.5">
+          <p className="flex justify-between gap-4">Registros: <span className="text-blue-400 font-bold">{stats.currentMonthProspects}</span></p>
+          <p className="flex justify-between gap-4">Mes anterior: <span className="text-muted-foreground font-bold">{stats.lastMonthProspects}</span></p>
+        </div>
+      )
     },
     { 
       label: 'Ventas Mes', 
@@ -124,7 +138,12 @@ export default function MobileDashboard({
       icon: CheckCircle2, 
       color: 'text-green-500', 
       comparison: stats.lastMonthSales,
-      tip: `Cierres: ${stats.currentMonthOnlyCierre} | Reservas: ${stats.currentMonthApartados}`
+      tip: (
+        <div className="space-y-1 py-0.5">
+          <p className="flex justify-between gap-4">Cierres: <span className="text-green-500 font-bold">{stats.currentMonthOnlyCierre}</span></p>
+          <p className="flex justify-between gap-4">Apartados: <span className="text-blue-400 font-bold">{stats.currentMonthApartados}</span></p>
+        </div>
+      )
     },
     { 
       label: 'Comisiones Mes', 
@@ -133,7 +152,12 @@ export default function MobileDashboard({
       color: 'text-yellow-500', 
       comparison: stats.lastMonthCommission, 
       isCurrency: true,
-      tip: `Próx. pago: ${formatCurrency(stats.thisFridayCommission)}`
+      tip: (
+        <div className="space-y-1 py-0.5">
+          <p className="flex justify-between gap-4">Este viernes: <span className="text-yellow-500 font-bold">{formatCurrency(stats.thisFridayCommission)}</span></p>
+          <p className="flex justify-between gap-4">Siguiente: <span className="text-blue-400 font-bold">{formatCurrency(stats.nextFridayCommission)}</span></p>
+        </div>
+      )
     },
   ];
 
@@ -208,7 +232,7 @@ export default function MobileDashboard({
                     </div>
                   </div>
                 </TooltipTrigger>
-                <TooltipContent side="bottom" className="text-[10px] font-bold">
+                <TooltipContent side="bottom" className="p-3 min-w-[160px] border-border/40">
                   {s.tip}
                 </TooltipContent>
               </Tooltip>

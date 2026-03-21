@@ -83,14 +83,24 @@ export default function DesktopDashboard({
       value: stats.todayCount.toString(), 
       icon: CalendarDays, 
       color: 'text-primary',
-      tip: `Confirmadas: ${stats.todayConfirmed} / Total agendado: ${stats.todayCount}`
+      tip: (
+        <div className="space-y-1.5 py-1">
+          <p className="flex justify-between gap-6 border-b border-white/5 pb-1">Confirmadas: <span className="text-green-500 font-black">{stats.todayConfirmed}</span></p>
+          <p className="flex justify-between gap-6">Total agendadas: <span className="text-blue-400 font-black">{stats.todayCount}</span></p>
+        </div>
+      )
     },
     { 
       label: 'Pendientes', 
       value: stats.pendingCount.toString(), 
       icon: Wallet, 
       color: 'text-primary',
-      tip: `Prospectos activos esperando atención o seguimiento.`
+      tip: (
+        <div className="space-y-1.5 py-1">
+          <p className="text-muted-foreground uppercase text-[9px] font-black tracking-widest mb-1">Estatus Operativo</p>
+          <p className="flex justify-between gap-6">Por atender: <span className="text-blue-400 font-black">{stats.pendingCount}</span></p>
+        </div>
+      )
     },
     { 
       label: 'Prospectos Mes', 
@@ -98,7 +108,12 @@ export default function DesktopDashboard({
       icon: Users, 
       color: 'text-accent', 
       comparison: stats.lastMonthProspects,
-      tip: `Total de nuevos registros en el ciclo actual.`
+      tip: (
+        <div className="space-y-1.5 py-1">
+          <p className="flex justify-between gap-6 border-b border-white/5 pb-1">Nuevos registros: <span className="text-blue-400 font-black">{stats.currentMonthProspects}</span></p>
+          <p className="flex justify-between gap-6">Ciclo anterior: <span className="text-muted-foreground font-black">{stats.lastMonthProspects}</span></p>
+        </div>
+      )
     },
     { 
       label: 'Ventas Mes', 
@@ -106,7 +121,12 @@ export default function DesktopDashboard({
       icon: CheckCircle2, 
       color: 'text-green-500', 
       comparison: stats.lastMonthSales,
-      tip: `Cierres: ${stats.currentMonthOnlyCierre} | Apartados: ${stats.currentMonthApartados}`
+      tip: (
+        <div className="space-y-1.5 py-1">
+          <p className="flex justify-between gap-6 border-b border-white/5 pb-1">Cierres (Ventas): <span className="text-green-500 font-black">{stats.currentMonthOnlyCierre}</span></p>
+          <p className="flex justify-between gap-6">Apartados: <span className="text-blue-400 font-black">{stats.currentMonthApartados}</span></p>
+        </div>
+      )
     },
     { 
       label: 'Comisiones Mes', 
@@ -115,7 +135,12 @@ export default function DesktopDashboard({
       color: 'text-yellow-500', 
       comparison: stats.lastMonthCommission, 
       isCurrency: true,
-      tip: `Próximo viernes: ${formatCurrency(stats.thisFridayCommission)} | Siguiente: ${formatCurrency(stats.nextFridayCommission)}`
+      tip: (
+        <div className="space-y-1.5 py-1">
+          <p className="flex justify-between gap-6 border-b border-white/5 pb-1">Este viernes: <span className="text-yellow-500 font-black">{formatCurrency(stats.thisFridayCommission)}</span></p>
+          <p className="flex justify-between gap-6">Siguiente: <span className="text-blue-400 font-black">{formatCurrency(stats.nextFridayCommission)}</span></p>
+        </div>
+      )
     },
   ];
 
@@ -153,7 +178,7 @@ export default function DesktopDashboard({
                   </CardContent>
                 </Card>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-[10px] font-bold">
+              <TooltipContent side="bottom" className="p-3 border-border/40 min-w-[180px]">
                 {stat.tip}
               </TooltipContent>
             </Tooltip>
