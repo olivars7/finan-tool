@@ -102,7 +102,7 @@ export default function MobileDashboard({
       icon: CalendarDays, 
       color: 'text-primary',
       tip: (
-        <div className="space-y-1 py-0.5">
+        <div className="space-y-1 py-0.5 text-[10px]">
           <p className="flex justify-between gap-4">Confirmadas: <span className="text-green-500 font-bold">{stats.todayConfirmed}</span></p>
           <p className="flex justify-between gap-4">Total: <span className="text-blue-400 font-bold">{stats.todayCount}</span></p>
         </div>
@@ -114,7 +114,7 @@ export default function MobileDashboard({
       icon: Wallet, 
       color: 'text-primary',
       tip: (
-        <div className="space-y-1 py-0.5">
+        <div className="space-y-1 py-0.5 text-[10px]">
           <p className="flex justify-between gap-4">Por atender: <span className="text-blue-400 font-bold">{stats.pendingCount}</span></p>
         </div>
       )
@@ -126,7 +126,7 @@ export default function MobileDashboard({
       color: 'text-accent', 
       comparison: stats.lastMonthProspects,
       tip: (
-        <div className="space-y-1 py-0.5">
+        <div className="space-y-1 py-0.5 text-[10px]">
           <p className="flex justify-between gap-4">Registros: <span className="text-blue-400 font-bold">{stats.currentMonthProspects}</span></p>
           <p className="flex justify-between gap-4">Mes anterior: <span className="text-muted-foreground font-bold">{stats.lastMonthProspects}</span></p>
         </div>
@@ -139,7 +139,7 @@ export default function MobileDashboard({
       color: 'text-green-500', 
       comparison: stats.lastMonthSales,
       tip: (
-        <div className="space-y-1 py-0.5">
+        <div className="space-y-1 py-0.5 text-[10px]">
           <p className="flex justify-between gap-4">Cierres: <span className="text-green-500 font-bold">{stats.currentMonthOnlyCierre}</span></p>
           <p className="flex justify-between gap-4">Apartados: <span className="text-blue-400 font-bold">{stats.currentMonthApartados}</span></p>
         </div>
@@ -153,7 +153,7 @@ export default function MobileDashboard({
       comparison: stats.lastMonthCommission, 
       isCurrency: true,
       tip: (
-        <div className="space-y-1 py-0.5">
+        <div className="space-y-1 py-0.5 text-[10px]">
           <p className="flex justify-between gap-4">Este viernes: <span className="text-yellow-500 font-bold">{formatCurrency(stats.thisFridayCommission)}</span></p>
           <p className="flex justify-between gap-4">Siguiente: <span className="text-blue-400 font-bold">{formatCurrency(stats.nextFridayCommission)}</span></p>
         </div>
@@ -232,7 +232,7 @@ export default function MobileDashboard({
                     </div>
                   </div>
                 </TooltipTrigger>
-                <TooltipContent side="bottom" className="p-3 min-w-[160px] border-border/40">
+                <TooltipContent side="bottom" className="p-2 min-w-[140px] border-border/40">
                   {s.tip}
                 </TooltipContent>
               </Tooltip>

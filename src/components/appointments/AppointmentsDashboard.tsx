@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useMemo } from 'react';
@@ -103,11 +102,64 @@ const DashboardContent = ({
   };
 
   const microStats = [
-    { label: 'Hoy', icon: CalendarDays, val: `${stats.todayConfirmed}/${stats.todayCount}`, color: 'text-blue-600', tip: "Citas confirmadas vs agendadas para hoy." },
-    { label: 'Cierres Mes', icon: CheckCircle2, val: stats.currentMonthOnlyCierre, color: 'text-green-600', tip: "Ventas cerradas en el mes actual." },
-    { label: 'Apartados', icon: Coins, val: stats.currentMonthApartados, color: 'text-blue-500', tip: "Trámites en fase de reserva/apartado." },
-    { label: 'Conversión', icon: TrendingUp, val: `${stats.conversionRate}%`, color: 'text-primary', tip: "Efectividad de cierre sobre prospectos totales." },
-    { label: 'Ingresos Mes', icon: Coins, val: formatCurrency(stats.currentMonthCommission), color: 'text-yellow-600', isCurrency: true, tip: "Total neto proyectado para este ciclo." }
+    { 
+      label: 'Hoy', 
+      icon: CalendarDays, 
+      val: `${stats.todayConfirmed}/${stats.todayCount}`, 
+      color: 'text-blue-600', 
+      tip: (
+        <div className="space-y-1 py-0.5 text-[10px]">
+          <p className="flex justify-between gap-4">Confirmadas: <span className="text-green-500 font-bold">{stats.todayConfirmed}</span></p>
+          <p className="flex justify-between gap-4">Totales: <span className="text-blue-400 font-bold">{stats.todayCount}</span></p>
+        </div>
+      )
+    },
+    { 
+      label: 'Cierres Mes', 
+      icon: CheckCircle2, 
+      val: stats.currentMonthOnlyCierre, 
+      color: 'text-green-600', 
+      tip: (
+        <div className="space-y-1 py-0.5 text-[10px]">
+          <p className="text-green-600 font-bold">Ventas cerradas este ciclo.</p>
+        </div>
+      )
+    },
+    { 
+      label: 'Apartados', 
+      icon: Coins, 
+      val: stats.currentMonthApartados, 
+      color: 'text-blue-500', 
+      tip: (
+        <div className="space-y-1 py-0.5 text-[10px]">
+          <p className="text-blue-500 font-bold">Trámites en fase de reserva.</p>
+        </div>
+      )
+    },
+    { 
+      label: 'Conversión', 
+      icon: TrendingUp, 
+      val: `${stats.conversionRate}%`, 
+      color: 'text-primary', 
+      tip: (
+        <div className="space-y-1 py-0.5 text-[10px]">
+          <p className="text-primary font-bold">Efectividad sobre prospectos.</p>
+        </div>
+      )
+    },
+    { 
+      label: 'Ingresos Mes', 
+      icon: Coins, 
+      val: formatCurrency(stats.currentMonthCommission), 
+      color: 'text-yellow-600', 
+      isCurrency: true, 
+      tip: (
+        <div className="space-y-1 py-0.5 text-[10px]">
+          <p className="flex justify-between gap-4 border-b border-white/5 pb-1">Este viernes: <span className="text-yellow-500 font-bold">{formatCurrency(stats.thisFridayCommission)}</span></p>
+          <p className="flex justify-between gap-4">Siguiente: <span className="text-blue-400 font-bold">{formatCurrency(stats.nextFridayCommission)}</span></p>
+        </div>
+      )
+    }
   ];
 
   return (
@@ -130,7 +182,7 @@ const DashboardContent = ({
                       </div>
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent side="bottom">
+                  <TooltipContent side="bottom" className="p-2 min-w-[130px] border-border/40">
                     {s.tip}
                   </TooltipContent>
                 </Tooltip>
