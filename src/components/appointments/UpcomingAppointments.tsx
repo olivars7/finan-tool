@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState } from 'react';
@@ -370,11 +371,9 @@ export default function UpcomingAppointments({
                         </TableCell>
                         <TableCell className="align-middle text-center" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center justify-center gap-1">
-                            {appToday && (
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground/40 hover:text-green-500" onClick={(e) => handleOpenFinalize(e, app)}>
-                                <CheckIcon className="w-4 h-4" />
-                              </Button>
-                            )}
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground/40 hover:text-green-500" onClick={(e) => handleOpenFinalize(e, app)}>
+                              <CheckIcon className="w-4 h-4" />
+                            </Button>
                             <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground/40 hover:text-primary transition-colors" onClick={() => onSelect(app)}>
                               <ChevronRight className="h-4 w-4" />
                             </Button>
@@ -455,39 +454,27 @@ export default function UpcomingAppointments({
                       </Button>
                       
                       {appToday && (
-                        <>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className={cn(
-                              "h-8 text-[10px] font-bold uppercase flex-1 border-dashed rounded-full",
-                              app.isConfirmed ? "bg-green-500/10 text-green-600 border-green-500/30" : "bg-orange-500/10 text-orange-600 border-orange-500/30"
-                            )}
-                            onClick={(e) => handleToggleConfirmation(e, app)}
-                          >
-                            {app.isConfirmed ? 'Confirmado' : 'Confirmar'}
-                          </Button>
-                          <Button 
-                            variant="secondary" 
-                            size="sm" 
-                            className="h-8 text-[10px] font-bold uppercase gap-2 flex-1 border border-border/50 rounded-full"
-                            onClick={(e) => handleOpenFinalize(e, app)}
-                          >
-                            <CheckIcon className="w-3 h-3 text-green-600" /> Finalizar
-                          </Button>
-                        </>
-                      )}
-                      
-                      {!appToday && (
                         <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-8 w-8 text-muted-foreground/40 rounded-full"
-                          onClick={(e) => { e.stopPropagation(); onSelect(app); }}
+                          variant="outline" 
+                          size="sm" 
+                          className={cn(
+                            "h-8 text-[10px] font-bold uppercase flex-1 rounded-full border-dashed",
+                            app.isConfirmed ? "bg-green-500/10 text-green-600 border-green-500/30" : "bg-orange-500/10 text-orange-600 border-orange-500/30"
+                          )}
+                          onClick={(e) => handleToggleConfirmation(e, app)}
                         >
-                          <ChevronRight className="w-4 h-4" />
+                          {app.isConfirmed ? 'Confirmado' : 'Confirmar'}
                         </Button>
                       )}
+                      
+                      <Button 
+                        variant="secondary" 
+                        size="sm" 
+                        className="h-8 text-[10px] font-bold uppercase gap-2 flex-1 border border-border/50 rounded-full"
+                        onClick={(e) => handleOpenFinalize(e, app)}
+                      >
+                        <CheckIcon className="w-3 h-3 text-green-600" /> Finalizar
+                      </Button>
                     </div>
                   </div>
                 );
@@ -497,7 +484,7 @@ export default function UpcomingAppointments({
         )}
       </div>
 
-      <div className="flex flex-wrap justify-center sm:justify-end gap-2 sm:gap-3 pt-2 shrink-0 pb-16">
+      <div className="flex flex-wrap justify-center sm:justify-end gap-2 sm:gap-3 pt-2 shrink-0 pb-4">
         <TooltipProvider>
           <Tooltip delayDuration={0}>
             <TooltipTrigger asChild>

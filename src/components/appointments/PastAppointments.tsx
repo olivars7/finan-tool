@@ -18,7 +18,8 @@ import {
   Coins,
   Calendar,
   Percent,
-  UserCheck
+  UserCheck,
+  Receipt
 } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -92,6 +93,10 @@ export default function PastAppointments({
     });
   };
 
+  const formatCurrency = (val: number) => {
+    return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(val);
+  };
+
   const visibleAppointments = appointments.slice(0, visibleCount);
 
   return (
@@ -101,7 +106,6 @@ export default function PastAppointments({
         !expanded ? "h-[400px]" : "h-full flex-1"
       )}>
         <ScrollArea className="flex-1 scrollbar-thin">
-          {/* Desktop Table View */}
           <div className="hidden md:block">
             <Table className="border-collapse separate border-spacing-0">
               <TableHeader className="sticky top-0 z-30 bg-card shadow-sm border-b">
@@ -125,6 +129,8 @@ export default function PastAppointments({
                   const paymentDate = getCommissionPaymentDate(app.date);
                   const isCommissionOverdue = isCierre && isPending && isBefore(paymentDate, new Date());
                   
+                  const netCommission = isCierre ? (Number(app.finalCreditAmount) * 0.007 * ((app.commissionPercent || 100) / 100)) * 0.91 : 0;
+
                   return (
                     <TableRow 
                       key={app.id} 
@@ -195,13 +201,41 @@ export default function PastAppointments({
                         </TableCell>
                       )}
                       <TableCell className="align-middle">
-                        <div className="flex items-center gap-2">
-                          <div className={cn("text-[9px] uppercase font-bold px-2 py-1 rounded-full border min-w-[80px] text-center", getStatusColor(app.status))}>
-                            {app.status || 'N/A'}
-                          </div>
-                          {isCommissionPaid && <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />}
-                          {isCommissionOverdue && <ShieldAlert className="w-3.5 h-3.5 text-destructive animate-pulse" />}
-                        </div>
+                        <TooltipProvider>
+                          <Tooltip delayDuration={0}>
+                            <TooltipTrigger asChild>
+                              <div className="flex items-center gap-2">
+                                <div className={cn("text-[9px] uppercase font-bold px-2 py-1 rounded-full border min-w-[80px] text-center", getStatusColor(app.status))}>
+                                  {app.status || 'N/A'}
+                                </div>
+                                {isCommissionPaid && <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />}
+                                {isCommissionOverdue && <ShieldAlert className="w-3.5 h-3.5 text-destructive animate-pulse" />}
+                              </div>
+                            </TooltipTrigger>
+                            {isCierre && (
+                              <TooltipContent side="top" className="p-3 bg-card border-border shadow-2xl rounded-xl space-y-2">
+                                <div className="flex items-center gap-2 text-green-600 border-b border-border pb-1.5 mb-1.5">
+                                  <Receipt className="w-3.5 h-3.5" />
+                                  <span className="text-[10px] font-black uppercase tracking-widest">Liquidación</span>
+                                </div>
+                                <div className="space-y-1">
+                                  <p className="flex justify-between gap-6 text-[10px]">
+                                    <span className="text-muted-foreground uppercase font-bold">Crédito:</span>
+                                    <span className="font-black">{formatCurrency(app.finalCreditAmount || 0)}</span>
+                                  </p>
+                                  <p className="flex justify-between gap-6 text-[10px]">
+                                    <span className="text-muted-foreground uppercase font-bold">Ingreso Neto:</span>
+                                    <span className="font-black text-green-600">{formatCurrency(netCommission)}</span>
+                                  </p>
+                                  <p className="flex justify-between gap-6 text-[10px] pt-1 border-t border-border mt-1">
+                                    <span className="text-muted-foreground uppercase font-bold">Fecha Pago:</span>
+                                    <span className="font-black text-primary">{format(paymentDate, "d MMM yyyy", { locale: es })}</span>
+                                  </p>
+                                </div>
+                              </TooltipContent>
+                            )}
+                          </Tooltip>
+                        </TooltipProvider>
                       </TableCell>
                       <TableCell className="align-middle text-right">
                         <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
@@ -217,7 +251,6 @@ export default function PastAppointments({
             </Table>
           </div>
 
-          {/* Mobile Card View */}
           <div className="block md:hidden divide-y divide-border/10">
             {visibleAppointments.map((app) => {
               const isSelected = activeId === app.id;
@@ -289,7 +322,7 @@ export default function PastAppointments({
       
       {visibleCount < appointments.length && (
         <div className="flex justify-center shrink-0">
-          <Button variant="outline" size="sm" onClick={() => setVisibleCount((p: number) => p + 25)} className="text-[10px] font-bold uppercase tracking-widest h-9 px-6">
+          <Button variant="outline" size="sm" onClick={() => setVisibleCount((p: number) => p + 25)} className="text-[10px] font-bold uppercase tracking-widest h-9 px-6 rounded-full">
             Cargar más historial
           </Button>
         </div>
