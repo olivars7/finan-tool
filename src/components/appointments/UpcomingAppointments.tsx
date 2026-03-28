@@ -159,9 +159,18 @@ export default function UpcomingAppointments({
     if (finalizingApp) {
       const isCierre = finalStatus === 'Cierre';
       
+      // LOGICA: Si la cita no es de hoy (es de un día próximo), actualizar fecha a la actual
+      const appDate = parseISO(finalizingApp.date);
+      let finalDate = finalizingApp.date;
+      
+      if (!isToday(appDate)) {
+        finalDate = new Date().toISOString();
+      }
+      
       editAppointment(finalizingApp.id, { 
         status: finalStatus, 
         notes: finalNotes,
+        date: finalDate, // Se actualiza la fecha a la actual si no lo era
         isConfirmed: true, 
         finalCreditAmount: isCierre ? finalCreditAmount : undefined,
         commissionPercent: isCierre ? finalCommissionPercent : undefined,
