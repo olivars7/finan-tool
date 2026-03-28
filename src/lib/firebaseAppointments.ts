@@ -5,7 +5,6 @@ import { Appointment, STORAGE_KEY, calculateStats } from "@/services/appointment
 
 /**
  * Carga las citas desde el documento del usuario en Firestore.
- * users/{userId} -> { appointments: [], statsSummary: {} }
  */
 export const loadAppointments = async (userId: string): Promise<Appointment[]> => {
   const docRef = doc(db, "users", userId);
@@ -15,45 +14,18 @@ export const loadAppointments = async (userId: string): Promise<Appointment[]> =
     if (docSnap.exists()) {
       const data = docSnap.data();
       const appointments = data.appointments || [];
-      
-      if (!data.statsSummary || Array.isArray(data.statsSummary)) {
-        const stats = calculateStats(appointments);
-        const statsSummary = {
-          monthlyIncome: Math.round(stats.currentMonthCommission || 0),
-          totalCreditSold: Math.round(stats.totalCreditSold || 0),
-          monthlyProspects: stats.currentMonthProspects || 0
-        };
-        
-        await setDoc(docRef, { 
-          statsSummary,
-          updatedAt: new Date().toISOString()
-        }, { merge: true });
-      }
-      
       return appointments;
-    } else {
-      const initialStats = {
-        monthlyIncome: 0,
-        totalCreditSold: 0,
-        monthlyProspects: 0
-      };
-      await setDoc(docRef, { 
-        appointments: [], 
-        statsSummary: initialStats,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      });
-      
-      return [];
     }
+    return [];
   } catch (error) {
-    console.error("Error al cargar citas o inicializar stats desde Firestore:", error);
+    console.error("Error al cargar citas desde Firestore:", error);
     return [];
   }
 };
 
 /**
- * Guarda el array completo de citas en el documento del usuario.
+ * Guarda el array completo de citas en el documento del usuario de forma inmediata.
+ * También actualiza el resumen de estadísticas para consumo rápido.
  */
 export const saveAppointments = async (userId: string, appointments: Appointment[]) => {
   const docRef = doc(db, "users", userId);
@@ -62,9 +34,11 @@ export const saveAppointments = async (userId: string, appointments: Appointment
     const statsSummary = {
       monthlyIncome: Math.round(stats.currentMonthCommission || 0),
       totalCreditSold: Math.round(stats.totalCreditSold || 0),
-      monthlyProspects: stats.currentMonthProspects || 0
+      monthlyProspects: stats.currentMonthProspects || 0,
+      lastUpdated: new Date().toISOString()
     };
 
+    // Actualización atómica del registro
     await setDoc(docRef, { 
       appointments, 
       statsSummary,
@@ -72,13 +46,13 @@ export const saveAppointments = async (userId: string, appointments: Appointment
     }, { merge: true });
     
   } catch (error) {
-    console.error("Error al guardar citas en Firestore:", error);
+    console.error("Error al guardar en Firestore:", error);
     throw error;
   }
 };
 
 /**
- * Migra los datos de localStorage a Firestore si existen.
+ * Migra los datos de localStorage a Firestore si existen (Solo una vez).
  */
 export const migrateLocalAppointments = async (userId: string): Promise<Appointment[] | null> => {
   if (typeof window === 'undefined') return null;

@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from 'react';
@@ -16,6 +17,10 @@ import { ensureUserDocument } from '@/lib/user-service';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '@/app/lib/firebase';
 
+/**
+ * @fileOverview Hook Maestro de Gestión de Citas.
+ * Maneja la lógica de negocio y la sincronización bidireccional con Firestore.
+ */
 export function useAppointments() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -29,18 +34,15 @@ export function useAppointments() {
       setUser(currentUser);
       
       if (currentUser) {
-        console.log('%c 🔑 AUTH: Usuario detectado, sincronizando...', 'color: #7B61FF; font-weight: bold;');
+        console.log('%c 🔑 AUTH: Sincronizando con la nube...', 'color: #7B61FF; font-weight: bold;');
         await ensureUserDocument(currentUser);
 
-        // Listener en tiempo real para datos del usuario
+        // Listener en tiempo real: Cualquier cambio en la DB se refleja aquí inmediatamente
         unsubscribeSnapshot = onSnapshot(doc(db, "users", currentUser.uid), (docSnap) => {
           if (docSnap.exists()) {
             const data = docSnap.data();
             const cloudApps = data.appointments || [];
-            
-            // Solo actualizamos si el hash de datos es diferente (evitar loops infinitos)
-            // Para simplicidad en este prototipo, confiamos en onSnapshot
-            console.log('%c ☁️ DB SNAPSHOT: Recibiendo actualización en tiempo real...', 'background: #1877F2; color: #fff; padding: 2px 5px; border-radius: 4px;');
+            console.log('%c ☁️ Firestore Sync: Datos actualizados', 'color: #1877F2; font-weight: bold;');
             setAppointments(cloudApps);
             setProfile(data);
           }
@@ -48,7 +50,7 @@ export function useAppointments() {
           console.error("Error en listener Firestore:", err);
         });
 
-        // Migración inicial de local a nube si aplica
+        // Migración única de local a nube
         await FirebaseStore.migrateLocalAppointments(currentUser.uid);
 
       } else {
@@ -66,14 +68,18 @@ export function useAppointments() {
     };
   }, []);
 
+  /**
+   * Persiste los cambios inmediatamente en la base de datos.
+   * SOLO se dispara al crear, editar, borrar o mover datos.
+   */
   const persistAppointments = async (updatedList: Appointment[]) => {
-    // Actualización inmediata del estado para fluidez en la UI
+    // Actualización optimista de la UI
     setAppointments(updatedList);
     Service.saveToDisk(updatedList);
     
     if (user) {
       try {
-        console.log('%c 🚀 DB UPDATE: Guardando cambios inmediatamente...', 'background: #22c55e; color: #fff; padding: 2px 5px; border-radius: 4px;');
+        console.log('%c 🚀 DB UPDATE: Guardando cambio atómico...', 'background: #22c55e; color: #fff; padding: 2px 5px; border-radius: 4px;');
         await FirebaseStore.saveAppointments(user.uid, updatedList);
       } catch (err) {
         console.error("Error al sincronizar con Firestore:", err);
@@ -115,18 +121,6 @@ export function useAppointments() {
   const deletePermanent = async (id: string) => {
     const updated = appointments.filter(a => a.id !== id);
     await persistAppointments(updated);
-  };
-
-  const resetData = async () => {
-    const seed = Service.generateSeedData();
-    await persistAppointments(seed);
-  };
-
-  const clearAll = async () => {
-    await persistAppointments([]);
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('FINANTO_MIGRATED');
-    }
   };
 
   const activeAppointments = useMemo(() => appointments.filter(a => !a.isArchived), [appointments]);
@@ -193,7 +187,7 @@ export function useAppointments() {
   return {
     appointments, upcoming, past, activeAppointments, 
     addAppointment, editAppointment, archiveAppointment, unarchiveAppointment, deletePermanent,
-    resetData, clearAll, formatFriendlyDate, format12hTime,
+    formatFriendlyDate, format12hTime,
     stats: statsData, isLoaded, user, profile
   };
 }
