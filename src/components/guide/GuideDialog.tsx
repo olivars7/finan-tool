@@ -107,7 +107,7 @@ export default function GuideDialog({ open, onOpenChange }: GuideDialogProps) {
               <section className="space-y-4">
                 <h3 className="text-lg font-black uppercase text-primary italic">Motor Financiero (Plan 12pp)</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  El simulador utiliza el factor base de <code className="bg-primary/10 text-primary px-1 rounded">0.00699</code> optimizado para el plan tradicional de Finanto.
+                  El simulador utiliza el factor base de <code className="bg-primary/10 text-primary px-1 rounded">0.00699</code> (0.699%) optimizado para el plan tradicional de Finanto.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
                   <div className="space-y-4">
@@ -116,7 +116,7 @@ export default function GuideDialog({ open, onOpenChange }: GuideDialogProps) {
                       <h4 className="font-bold text-sm uppercase">Cálculo Rápido</h4>
                     </div>
                     <p className="text-xs text-muted-foreground italic">"Si el cliente pide números en la primera llamada..."</p>
-                    <p className="text-xs leading-relaxed">Ingresa solo el monto de crédito. El sistema calculará la mensualidad sugerida y el enganche mínimo del <strong>3%</strong> automáticamente.</p>
+                    <p className="text-xs leading-relaxed">Ingresa solo el monto de crédito. El sistema calculará la mensualidad sugerida y el enganche mínimo del <strong>6%</strong> automáticamente.</p>
                   </div>
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
