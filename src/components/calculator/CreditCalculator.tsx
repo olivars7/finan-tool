@@ -360,11 +360,11 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
           </TooltipProvider>
 
           <div className="p-6 border-t border-border/40 bg-card/10 backdrop-blur-md flex items-center justify-between shrink-0 animate-in fade-in slide-in-from-bottom duration-500">
-            <div className="flex items-center gap-4">
+            <div className="hidden md:flex items-center gap-4">
               <div className="p-2 px-4 rounded-xl bg-muted border border-border/50 text-[10px] font-bold uppercase flex items-center gap-2"><Coins className="w-4 h-4 text-primary" /> Proyección Informativa</div>
             </div>
-            <div className="flex gap-4">
-              <Button onClick={handleCopySummary} variant="outline" className="h-12 px-6 border-green-500 text-green-500 font-bold rounded-xl"><Copy className="w-4 h-4 mr-2" /> Copiar Resumen</Button>
+            <div className="flex gap-4 w-full md:w-auto">
+              <Button onClick={handleCopySummary} variant="outline" className="flex-1 md:flex-none h-12 px-6 border-green-500 text-green-500 font-bold rounded-xl"><Copy className="w-4 h-4 mr-2" /> Copiar Resumen</Button>
               <Button variant="ghost" onClick={clear} className="h-12 px-4 text-muted-foreground hover:text-destructive"><RotateCcw className="w-4 h-4 mr-2" /> Limpiar</Button>
             </div>
           </div>
