@@ -1,7 +1,6 @@
-
 "use client"
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   isToday, isAfter, isBefore, startOfDay, parseISO, 
   format, differenceInDays
@@ -16,6 +15,7 @@ import { User } from 'firebase/auth';
 import { ensureUserDocument } from '@/lib/user-service';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '@/app/lib/firebase';
+import { useToast } from '@/hooks/use-toast';
 
 /**
  * @fileOverview Hook Maestro de Gestión de Citas.
@@ -26,23 +26,48 @@ export function useAppointments() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<any>(null);
+  const { toast } = useToast();
+
+  // Refs para control de sincronización externa
+  const isInitialLoad = useRef(true);
+  const pendingLocalUpdate = useRef(false);
 
   useEffect(() => {
     let unsubscribeSnapshot: (() => void) | null = null;
 
     const unsubscribeAuth = onAuthChange(async (currentUser) => {
       setUser(currentUser);
+      isInitialLoad.current = true; // Resetear al cambiar de usuario
       
       if (currentUser) {
         console.log('%c 🔑 AUTH: Sincronizando con la nube...', 'color: #7B61FF; font-weight: bold;');
         await ensureUserDocument(currentUser);
 
-        // Listener en tiempo real: Cualquier cambio en la DB se refleja aquí inmediatamente
+        // Listener en tiempo real con detección de cambios externos
         unsubscribeSnapshot = onSnapshot(doc(db, "users", currentUser.uid), (docSnap) => {
           if (docSnap.exists()) {
             const data = docSnap.data();
             const cloudApps = data.appointments || [];
-            console.log('%c ☁️ Firestore Sync: Datos actualizados', 'color: #1877F2; font-weight: bold;');
+            const hasPendingWrites = docSnap.metadata.hasPendingWrites;
+
+            // Si los cambios vienen del servidor (!hasPendingWrites)
+            if (!hasPendingWrites) {
+              if (isInitialLoad.current) {
+                isInitialLoad.current = false;
+              } else if (!pendingLocalUpdate.current) {
+                // DETECCIÓN DE CAMBIO EXTERNO:
+                // Si no hay actualizaciones locales pendientes y recibimos un snapshot del servidor,
+                // significa que los datos vinieron de otro dispositivo.
+                toast({
+                  variant: "warning",
+                  title: "Sincronización en la nube",
+                  description: "Se han recibido cambios desde otro dispositivo.",
+                });
+              }
+              // Resetear flag local una vez que el servidor confirma la escritura o llega cambio externo
+              pendingLocalUpdate.current = false;
+            }
+
             setAppointments(cloudApps);
             setProfile(data);
           }
@@ -70,9 +95,11 @@ export function useAppointments() {
 
   /**
    * Persiste los cambios inmediatamente en la base de datos.
-   * SOLO se dispara al crear, editar, borrar o mover datos.
    */
   const persistAppointments = async (updatedList: Appointment[]) => {
+    // Marcamos que nosotros iniciamos la actualización para no disparar la alerta amarilla a nosotros mismos
+    pendingLocalUpdate.current = true;
+    
     // Actualización optimista de la UI
     setAppointments(updatedList);
     Service.saveToDisk(updatedList);
@@ -83,6 +110,7 @@ export function useAppointments() {
         await FirebaseStore.saveAppointments(user.uid, updatedList);
       } catch (err) {
         console.error("Error al sincronizar con Firestore:", err);
+        pendingLocalUpdate.current = false; // Resetear en caso de error
       }
     }
   };
