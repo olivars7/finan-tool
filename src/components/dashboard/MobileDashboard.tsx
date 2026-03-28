@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -21,7 +22,8 @@ import {
   X,
   CheckCircle,
   AlertCircle,
-  Save
+  Save,
+  CheckCircle as CheckIcon
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Appointment, AppointmentStatus } from '@/services/appointment-service';
@@ -156,6 +158,25 @@ export default function MobileDashboard({
     }
   };
 
+  const getCardStyles = (status?: AppointmentStatus) => {
+    if (!status) return "bg-card border-border/40 shadow-sm";
+    switch (status) {
+      case 'Cierre': return "bg-green-500/5 border-green-500/20 shadow-none";
+      case 'Apartado': return "bg-blue-500/5 border-blue-500/20 shadow-none";
+      case 'No asistencia': return "bg-destructive/5 border-destructive/20 opacity-80 shadow-none";
+      default: return "bg-muted/30 border-border/40 shadow-none";
+    }
+  };
+
+  const getStatusBadgeStyles = (status?: AppointmentStatus) => {
+    switch (status) {
+      case 'Cierre': return "bg-green-500/10 text-green-600 border-green-500/20";
+      case 'Apartado': return "bg-blue-500/10 text-blue-600 border-blue-500/20";
+      case 'No asistencia': return "bg-destructive/10 text-destructive border-destructive/20";
+      default: return "bg-primary/10 text-primary border-primary/20";
+    }
+  };
+
   const microStats = [
     { 
       label: 'Citas hoy', 
@@ -176,6 +197,7 @@ export default function MobileDashboard({
       color: 'text-primary',
       tip: (
         <div className="space-y-1.5 py-0.5 text-[10px]">
+          <p className="text-muted-foreground uppercase text-[8px] font-black tracking-widest mb-1">Estatus Operativo</p>
           <p className="flex justify-between gap-4">Por atender: <span className="text-blue-400 font-bold">{stats.pendingCount}</span></p>
         </div>
       )
@@ -371,14 +393,20 @@ export default function MobileDashboard({
               <div 
                 key={app.id} 
                 onClick={() => onSelectApp(app.id)}
-                className="p-6 bg-card border border-border/40 rounded-[2.5rem] flex flex-col gap-4 group active:bg-muted/50 transition-all active:scale-[0.98] shadow-sm"
+                className={cn(
+                  "p-6 border rounded-[2.5rem] flex flex-col gap-4 group active:bg-muted/50 transition-all active:scale-[0.98]",
+                  getCardStyles(app.status)
+                )}
               >
                 <div className="flex items-center justify-between w-full">
                   <div className="flex items-center gap-5">
-                    <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary text-[11px] font-black shadow-inner">
+                    <div className={cn(
+                      "w-14 h-14 rounded-2xl flex items-center justify-center text-[11px] font-black shadow-inner",
+                      app.status ? "bg-muted/20 text-muted-foreground" : "bg-primary/10 text-primary"
+                    )}>
                       {format12hTime(app.time)}
                     </div>
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <p className="text-base font-black uppercase tracking-tight text-foreground truncate max-w-[160px]">{app.name}</p>
                       <div className="flex items-center gap-3 mt-1">
                         <span className="text-[10px] font-bold uppercase text-muted-foreground/60 tracking-wider">{app.type}</span>
@@ -387,31 +415,39 @@ export default function MobileDashboard({
                       </div>
                     </div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-muted-foreground/20 group-active:text-primary transition-colors" />
+                  {app.status ? (
+                    <Badge variant="outline" className={cn("text-[9px] font-black uppercase rounded-full px-3 py-1 border", getStatusBadgeStyles(app.status))}>
+                      {app.status}
+                    </Badge>
+                  ) : (
+                    <ChevronRight className="w-5 h-5 text-muted-foreground/20 group-active:text-primary transition-colors" />
+                  )}
                 </div>
 
-                <div className="flex items-center gap-2 pt-2 border-t border-border/5">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className={cn(
-                      "h-10 text-[10px] font-bold uppercase flex-1 rounded-full border-dashed",
-                      app.isConfirmed ? "bg-green-500/10 text-green-600 border-green-500/30" : "bg-orange-500/10 text-orange-600 border-orange-500/30"
-                    )}
-                    onClick={(e) => { e.stopPropagation(); setConfirmingApp(app); }}
-                  >
-                    {app.isConfirmed ? <CheckCircle size={14} className="mr-1.5" /> : <AlertCircle size={14} className="mr-1.5" />}
-                    {app.isConfirmed ? 'Confirmado' : 'Confirmar'}
-                  </Button>
-                  <Button 
-                    variant="secondary" 
-                    size="sm" 
-                    className="h-10 text-[10px] font-bold uppercase flex-1 rounded-full bg-muted/20 border border-border/50 text-foreground"
-                    onClick={(e) => handleOpenFinalize(e, app)}
-                  >
-                    <CheckCircle2 size={14} className="mr-1.5 text-green-600" /> Finalizar
-                  </Button>
-                </div>
+                {!app.status && (
+                  <div className="flex items-center gap-2 pt-2 border-t border-border/5">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className={cn(
+                        "h-10 text-[10px] font-bold uppercase flex-1 rounded-full border-dashed",
+                        app.isConfirmed ? "bg-green-500/10 text-green-600 border-green-500/30" : "bg-orange-500/10 text-orange-600 border-orange-500/30"
+                      )}
+                      onClick={(e) => { e.stopPropagation(); setConfirmingApp(app); }}
+                    >
+                      {app.isConfirmed ? <CheckCircle size={14} className="mr-1.5" /> : <AlertCircle size={14} className="mr-1.5" />}
+                      {app.isConfirmed ? 'Confirmado' : 'Confirmar'}
+                    </Button>
+                    <Button 
+                      variant="secondary" 
+                      size="sm" 
+                      className="h-10 text-[10px] font-bold uppercase flex-1 rounded-full bg-muted/20 border border-border/50 text-foreground"
+                      onClick={(e) => handleOpenFinalize(e, app)}
+                    >
+                      <CheckCircle2 size={14} className="mr-1.5 text-green-600" /> Finalizar
+                    </Button>
+                  </div>
+                )}
               </div>
             ))
           )}
