@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -139,6 +138,13 @@ export default function AppointmentDetailsDialog({
     });
   };
 
+  const copyToClipboard = (text: string, label: string) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+      toast({ title: "Copiado", description: `${label} copiado al portapapeles.` });
+    });
+  };
+
   const handleCopyData = () => {
     const dateObj = parseISO(appointment.date);
     const dateFormatted = format(dateObj, "EEEE d 'de' MMMM yyyy", { locale: es });
@@ -181,7 +187,6 @@ export default function AppointmentDetailsDialog({
     }).format(val);
   };
 
-  // Clase para resaltar campos heredados en modo seguimiento
   const inheritedClass = isCloning ? "border-primary/50 bg-primary/5 focus-visible:ring-primary shadow-[0_0_15px_rgba(24,119,242,0.1)]" : "bg-muted/20 border-border/40";
 
   return (
@@ -218,7 +223,7 @@ export default function AppointmentDetailsDialog({
                 >
                   <Copy className="w-3 h-3" /> 
                   <span>
-                    <span className="hidden sm:inline">Copiar informacion de cita</span>
+                    <span className="hidden sm:inline">Copiar datos</span>
                     <span className="sm:hidden">Copiar datos</span>
                   </span>
                 </Button>
@@ -381,11 +386,19 @@ export default function AppointmentDetailsDialog({
             <div className="space-y-8 animate-in fade-in duration-500 text-foreground">
               <div className="flex items-center gap-6 p-6 rounded-[2rem] bg-muted/10 border border-border/20">
                 <div className="flex-1 space-y-2">
-                  <h3 className="text-3xl font-black text-foreground uppercase tracking-tighter leading-none">{appointment.name}</h3>
+                  <h3 
+                    onClick={() => copyToClipboard(appointment.name, "Nombre")}
+                    className="text-3xl font-black text-foreground uppercase tracking-tighter leading-none cursor-pointer hover:text-primary transition-colors active:scale-95 origin-left"
+                  >
+                    {appointment.name}
+                  </h3>
                   <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2">
-                      <Phone className="w-3.5 h-3.5 text-primary" />
-                      <span className="text-sm font-bold text-muted-foreground">{appointment.phone || 'N/A'}</span>
+                    <div 
+                      onClick={() => copyToClipboard(appointment.phone, "Teléfono")}
+                      className="flex items-center gap-2 cursor-pointer group"
+                    >
+                      <Phone className="w-3.5 h-3.5 text-primary group-hover:scale-110 transition-transform" />
+                      <span className="text-sm font-bold text-muted-foreground group-hover:text-primary transition-colors">{appointment.phone || 'N/A'}</span>
                     </div>
                     <div className="h-4 w-px bg-border/40" />
                     <span className="text-sm font-bold text-muted-foreground uppercase">{appointment.product || 'Casa'}</span>
@@ -476,7 +489,12 @@ export default function AppointmentDetailsDialog({
                     <div className="space-y-4">
                       <div className="space-y-1">
                         <span className="text-[9px] font-bold text-muted-foreground uppercase ml-1">Crédito Final</span>
-                        <p className="text-xl font-black text-foreground">{formatCurrency(finalCredit)}</p>
+                        <p 
+                          onClick={() => copyToClipboard(formatCurrency(finalCredit), "Monto de Crédito")}
+                          className="text-xl font-black text-foreground cursor-pointer hover:text-green-600 transition-colors"
+                        >
+                          {formatCurrency(finalCredit)}
+                        </p>
                       </div>
                       
                       <div className="space-y-1">
