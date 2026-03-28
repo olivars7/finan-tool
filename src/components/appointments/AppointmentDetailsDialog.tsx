@@ -217,7 +217,10 @@ export default function AppointmentDetailsDialog({
                   className="h-8 px-3 text-[9px] font-black uppercase text-green-600 border-green-600/30 hover:bg-green-600/10 rounded-full gap-1.5 flex items-center"
                 >
                   <Copy className="w-3 h-3" /> 
-                  <span>Copiar informacion de cita</span>
+                  <span>
+                    <span className="hidden sm:inline">Copiar informacion de cita</span>
+                    <span className="sm:hidden">Copiar datos</span>
+                  </span>
                 </Button>
                 <Button 
                   onClick={() => setShowArchiveConfirm(true)}
@@ -542,7 +545,11 @@ export default function AppointmentDetailsDialog({
           <div className="flex flex-1 gap-3">
             {!isEditing && (
               <Button onClick={handleStartReagendar} variant="ghost" size="sm" className="h-11 px-6 text-[10px] font-black uppercase text-primary hover:bg-primary/10 rounded-full gap-2">
-                <CalendarPlus className="w-4 h-4" /> Reagendar (2da Cita)
+                <CalendarPlus className="w-4 h-4" /> 
+                <span>
+                  <span className="hidden sm:inline">Reagendar (2da Cita)</span>
+                  <span className="sm:hidden">Reagendar</span>
+                </span>
               </Button>
             )}
           </div>
@@ -556,7 +563,11 @@ export default function AppointmentDetailsDialog({
               </>
             ) : (
               <Button onClick={() => setIsEditing(true)} size="sm" className="h-11 px-10 text-[10px] font-black uppercase bg-foreground text-background hover:opacity-90 rounded-full gap-2 shadow-xl">
-                <Edit2 className="w-4 h-4" /> Editar Registro
+                <Edit2 className="w-4 h-4" /> 
+                <span>
+                  <span className="hidden sm:inline">Editar Registro</span>
+                  <span className="sm:hidden">Editar</span>
+                </span>
               </Button>
             )}
           </div>
