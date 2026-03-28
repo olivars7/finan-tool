@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -232,6 +231,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
             onOpenAgenda={() => handleToggleGestor(true)}
             onOpenStats={() => handleToggleStats(true)}
             onSelectApp={setSelectedId}
+            onEditApp={editAppointment}
             format12hTime={appointmentState.format12hTime}
           />
         </div>

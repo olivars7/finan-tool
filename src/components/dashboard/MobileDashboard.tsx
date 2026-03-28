@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -21,7 +20,8 @@ import {
   Construction,
   X,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Save
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Appointment, AppointmentStatus } from '@/services/appointment-service';
@@ -75,6 +75,7 @@ interface MobileDashboardProps {
   onOpenAgenda: () => void;
   onOpenStats: () => void;
   onSelectApp: (id: string) => void;
+  onEditApp: (id: string, data: Partial<Appointment>) => void;
   format12hTime: (time: string) => string;
 }
 
@@ -87,6 +88,7 @@ export default function MobileDashboard({
   onOpenAgenda, 
   onOpenStats,
   onSelectApp,
+  onEditApp,
   format12hTime
 }: MobileDashboardProps) {
   const [visibleCount, setVisibleCount] = useState(4);
@@ -99,8 +101,6 @@ export default function MobileDashboard({
   // Finalization form states
   const [finalStatus, setFinalStatus] = useState<AppointmentStatus>('Asistencia');
   const [finalNotes, setFinalNotes] = useState('');
-  const [creditInput, setCreditInput] = useState('');
-  const [finalCreditAmount, setFinalCreditAmount] = useState(0);
   
   const { toast } = useToast();
 
@@ -139,9 +139,21 @@ export default function MobileDashboard({
     setFinalizingApp(app);
     setFinalStatus('Asistencia');
     setFinalNotes(app.notes || '');
-    const amount = app.finalCreditAmount || 0;
-    setFinalCreditAmount(amount);
-    setCreditInput(amount > 0 ? amount.toLocaleString('en-US') : '');
+  };
+
+  const handleSaveFinalization = () => {
+    if (finalizingApp) {
+      onEditApp(finalizingApp.id, {
+        status: finalStatus,
+        notes: finalNotes,
+        isConfirmed: true
+      });
+      toast({
+        title: "Cita Finalizada",
+        description: `Resultado "${finalStatus}" guardado para ${finalizingApp.name}.`
+      });
+      setFinalizingApp(null);
+    }
   };
 
   const microStats = [
@@ -151,8 +163,8 @@ export default function MobileDashboard({
       icon: CalendarDays, 
       color: 'text-primary',
       tip: (
-        <div className="space-y-1 py-0.5 text-[10px]">
-          <p className="flex justify-between gap-4">Confirmadas: <span className="text-green-500 font-bold">{stats.todayConfirmed}</span></p>
+        <div className="space-y-1.5 py-0.5 text-[10px]">
+          <p className="flex justify-between gap-4 border-b border-white/5 pb-1">Confirmadas: <span className="text-green-500 font-bold">{stats.todayConfirmed}</span></p>
           <p className="flex justify-between gap-4">Total: <span className="text-blue-400 font-bold">{stats.todayCount}</span></p>
         </div>
       )
@@ -163,7 +175,7 @@ export default function MobileDashboard({
       icon: Wallet, 
       color: 'text-primary',
       tip: (
-        <div className="space-y-1 py-0.5 text-[10px]">
+        <div className="space-y-1.5 py-0.5 text-[10px]">
           <p className="flex justify-between gap-4">Por atender: <span className="text-blue-400 font-bold">{stats.pendingCount}</span></p>
         </div>
       )
@@ -175,8 +187,8 @@ export default function MobileDashboard({
       color: 'text-accent', 
       comparison: stats.lastMonthProspects,
       tip: (
-        <div className="space-y-1 py-0.5 text-[10px]">
-          <p className="flex justify-between gap-4">Registros: <span className="text-blue-400 font-bold">{stats.currentMonthProspects}</span></p>
+        <div className="space-y-1.5 py-0.5 text-[10px]">
+          <p className="flex justify-between gap-4 border-b border-white/5 pb-1">Registros: <span className="text-blue-400 font-bold">{stats.currentMonthProspects}</span></p>
           <p className="flex justify-between gap-4">Mes anterior: <span className="text-muted-foreground font-bold">{stats.lastMonthProspects}</span></p>
         </div>
       )
@@ -188,8 +200,8 @@ export default function MobileDashboard({
       color: 'text-green-500', 
       comparison: stats.lastMonthSales,
       tip: (
-        <div className="space-y-1 py-0.5 text-[10px]">
-          <p className="flex justify-between gap-4">Cierres: <span className="text-green-500 font-bold">{stats.currentMonthOnlyCierre}</span></p>
+        <div className="space-y-1.5 py-0.5 text-[10px]">
+          <p className="flex justify-between gap-4 border-b border-white/5 pb-1">Cierres: <span className="text-green-500 font-bold">{stats.currentMonthOnlyCierre}</span></p>
           <p className="flex justify-between gap-4">Apartados: <span className="text-blue-400 font-bold">{stats.currentMonthApartados}</span></p>
         </div>
       )
@@ -202,8 +214,8 @@ export default function MobileDashboard({
       comparison: stats.lastMonthCommission, 
       isCurrency: true,
       tip: (
-        <div className="space-y-1 py-0.5 text-[10px]">
-          <p className="flex justify-between gap-4">Este viernes: <span className="text-yellow-500 font-bold">{formatCurrency(stats.thisFridayCommission)}</span></p>
+        <div className="space-y-1.5 py-0.5 text-[10px]">
+          <p className="flex justify-between gap-4 border-b border-white/5 pb-1">Este viernes: <span className="text-yellow-500 font-bold">{formatCurrency(stats.thisFridayCommission)}</span></p>
           <p className="flex justify-between gap-4">Siguiente: <span className="text-blue-400 font-bold">{formatCurrency(stats.nextFridayCommission)}</span></p>
         </div>
       )
@@ -429,36 +441,48 @@ export default function MobileDashboard({
               <AlertDialogTitle className="text-xl font-black uppercase tracking-tighter">Asistencia</AlertDialogTitle>
             </div>
             <AlertDialogDescription className="text-muted-foreground font-medium">
-              ¿Confirmas que el cliente asistirá hoy?
+              ¿Confirmas que el cliente <strong>{confirmingApp?.name}</strong> asistirá hoy?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-3 mt-4">
             <AlertDialogCancel className="rounded-full h-12 text-xs font-bold uppercase">No</AlertDialogCancel>
             <AlertDialogAction onClick={() => {
               if (confirmingApp) {
-                // Here you would call editAppointment, but since we are in MobileDashboard 
-                // we'll simulate the toast and state change if needed, 
-                // or assume useAppointments hook handles it via parent sync.
+                onEditApp(confirmingApp.id, { isConfirmed: true });
                 toast({ title: "Asistencia Confirmada", description: "Cita validada correctamente." });
                 setConfirmingApp(null);
               }
-            }} className="bg-primary rounded-full h-12 text-xs font-black uppercase">Confirmar</AlertDialogAction>
+            }} className="bg-primary rounded-full h-12 text-xs font-black uppercase shadow-lg text-white">
+              Confirmar
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Finalization Mockup - Usually handled by parent UpcomingAppointments but added here for Actividad Hoy consistency */}
+      {/* Finalization Dialog */}
       <Dialog open={!!finalizingApp} onOpenChange={(o) => !o && setFinalizingApp(null)}>
         <DialogContent className="w-[94%] max-w-[450px] rounded-[3rem] p-0 overflow-hidden border-none bg-background shadow-2xl z-[200]">
           <DialogHeader className="bg-green-500/5 p-8 border-b border-green-500/10">
-            <DialogTitle className="text-2xl font-black uppercase tracking-tighter text-foreground">Finalizar Cita</DialogTitle>
-            <DialogDescription className="text-[10px] font-bold uppercase text-green-600 tracking-widest">{finalizingApp?.name}</DialogDescription>
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="p-4 bg-green-600 text-white rounded-2xl shadow-xl">
+                  <CheckCircle2 size={24} />
+                </div>
+                <div>
+                  <DialogTitle className="text-2xl font-black uppercase tracking-tighter text-foreground leading-none">Finalizar Cita</DialogTitle>
+                  <DialogDescription className="text-[10px] font-bold uppercase text-green-600 tracking-widest mt-1">{finalizingApp?.name}</DialogDescription>
+                </div>
+              </div>
+              <DialogClose asChild>
+                <Button variant="ghost" size="icon" className="rounded-full bg-muted/20 text-foreground"><X size={20}/></Button>
+              </DialogClose>
+            </div>
           </DialogHeader>
-          <div className="p-8 space-y-6 max-h-[60vh] overflow-y-auto pb-32">
+          <div className="p-8 space-y-6 max-h-[60vh] overflow-y-auto pb-32 scrollbar-thin">
             <div className="space-y-3">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Resultado</Label>
+              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block text-center">Resultado de la Consulta</Label>
               <Select value={finalStatus} onValueChange={(v) => setFinalStatus(v as AppointmentStatus)}>
-                <SelectTrigger className="h-14 rounded-2xl font-bold">
+                <SelectTrigger className="h-14 rounded-2xl font-bold text-lg">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -466,14 +490,15 @@ export default function MobileDashboard({
                   <SelectItem value="Cierre">💰 Cierre (Venta)</SelectItem>
                   <SelectItem value="Apartado">📑 Apartado</SelectItem>
                   <SelectItem value="No asistencia">❌ No asistencia</SelectItem>
+                  <SelectItem value="Reagendó">📅 Reagendó</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-3">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Notas</Label>
+              <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">Notas y Acuerdos</Label>
               <Textarea 
-                className="rounded-2xl min-h-[100px]" 
-                placeholder="Escribe acuerdos..." 
+                className="rounded-2xl min-h-[120px] bg-muted/10 resize-none text-sm font-medium" 
+                placeholder="Escribe detalles del seguimiento..." 
                 value={finalNotes}
                 onChange={e => setFinalNotes(e.target.value)}
               />
@@ -481,7 +506,9 @@ export default function MobileDashboard({
           </div>
           <DialogFooter className="p-8 border-t bg-muted/5 flex flex-row gap-4">
             <Button variant="ghost" onClick={() => setFinalizingApp(null)} className="flex-1 h-12 rounded-full font-bold uppercase text-[10px]">Cancelar</Button>
-            <Button className="flex-[2] h-12 rounded-full bg-green-600 hover:bg-green-700 font-black uppercase text-[10px]">Guardar Resultado</Button>
+            <Button onClick={handleSaveFinalization} className="flex-[2] h-12 rounded-full bg-green-600 hover:bg-green-700 font-black uppercase text-[10px] text-white shadow-xl shadow-green-600/20 gap-2">
+              <Save size={16} /> Guardar
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
