@@ -59,28 +59,28 @@ const CalculatorInputs = ({
   formatWithCommas: (val: string) => string,
   customTerm?: string
 }) => {
-  const baseFactor = 0.0071; 
+  const baseFactor = 0.00699; 
   const term = parseInt(customTerm) || 192;
-  const displayFactor = ((baseFactor * (192 / term)) * 100).toFixed(4);
+  const displayFactor = ((baseFactor * (192 / term)) * 100).toFixed(3);
 
   return (
     <div className={isModal ? "grid grid-cols-1 md:grid-cols-2 gap-6" : "grid grid-cols-1 md:grid-cols-2 gap-4"}>
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor={isModal ? "totalPriceModal" : "totalPrice"} className="text-xs font-bold text-primary uppercase tracking-wider">
-            Monto del crédito (P)
+          <Label htmlFor={isModal ? "totalPriceModal" : "totalPrice"} className="text-[10px] font-black text-primary uppercase tracking-widest">
+            Crédito (P)
           </Label>
-          <span className="text-[9px] font-bold opacity-60 uppercase">Enganche Base: 3%</span>
+          <span className="text-[8px] font-bold opacity-40 uppercase">Enganche: 3%</span>
         </div>
         <div className="relative flex items-center">
           <span className={cn(
             "absolute left-3 font-bold pointer-events-none",
-            isModal ? "text-xl text-primary top-1/2 -translate-y-1/2" : "text-primary top-2.5"
+            isModal ? "text-xl text-primary top-1/2 -translate-y-1/2" : "text-primary text-sm top-1/2 -translate-y-1/2"
           )}>$</span>
           <Input
             id={isModal ? "totalPriceModal" : "totalPrice"}
             placeholder="0"
-            className={isModal ? "pl-9 font-bold text-2xl bg-primary/5 border-primary/30 focus-visible:ring-primary h-14" : "pl-7 font-semibold text-lg bg-primary/5 border-primary/30 focus-visible:ring-primary"}
+            className={isModal ? "pl-9 font-bold text-2xl bg-primary/5 border-primary/30 focus-visible:ring-primary h-14" : "h-10 pl-7 font-bold text-base bg-primary/5 border-primary/20 focus-visible:ring-primary rounded-xl"}
             type="text"
             value={formatWithCommas(totalPrice)}
             onChange={(e) => onPriceChange(e.target.value)}
@@ -89,20 +89,20 @@ const CalculatorInputs = ({
       </div>
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor={isModal ? "monthlyPaymentModal" : "monthlyPayment"} className="text-xs font-bold text-accent uppercase tracking-wider">
-            Mensualidad Total
+          <Label htmlFor={isModal ? "monthlyPaymentModal" : "monthlyPayment"} className="text-[10px] font-black text-accent uppercase tracking-widest">
+            Mensualidad
           </Label>
-          <span className="text-[9px] font-bold opacity-60 uppercase">Factor Base: {displayFactor}%</span>
+          <span className="text-[8px] font-bold opacity-40 uppercase">Factor: {displayFactor}%</span>
         </div>
         <div className="relative flex items-center">
           <span className={cn(
             "absolute left-3 font-bold pointer-events-none",
-            isModal ? "text-xl text-accent top-1/2 -translate-y-1/2" : "text-accent top-2.5"
+            isModal ? "text-xl text-accent top-1/2 -translate-y-1/2" : "text-accent text-sm top-1/2 -translate-y-1/2"
           )}>$</span>
           <Input
             id={isModal ? "monthlyPaymentModal" : "monthlyPayment"}
             placeholder="0"
-            className={isModal ? "pl-9 border-accent/30 focus-visible:ring-accent font-bold text-2xl text-accent bg-accent/5 h-14" : "pl-7 border-accent/30 focus-visible:ring-accent font-bold text-lg text-accent bg-accent/5"}
+            className={isModal ? "pl-9 border-accent/30 focus-visible:ring-accent font-bold text-2xl text-accent bg-accent/5 h-14" : "h-10 pl-7 border-accent/20 focus-visible:ring-accent font-bold text-base text-accent bg-accent/5 rounded-xl"}
             type="text"
             value={formatWithCommas(monthlyPayment)}
             onChange={(e) => onMonthlyChange(e.target.value)}
@@ -122,7 +122,7 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
 
   const { toast } = useToast();
   
-  const BASE_FACTOR = 0.0071; 
+  const BASE_FACTOR = 0.00699; 
   const FACTOR_ENGANCHE = 0.03; 
   const INCOME_RATIO = 0.35; 
 
@@ -236,30 +236,16 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
   return (
     <>
       <Card className="shadow-xl bg-card border-border overflow-hidden">
-        <CardHeader className="bg-primary/5 border-b border-border/50">
+        <CardHeader className="bg-primary/5 border-b border-border/50 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Calculator className="text-primary w-6 h-6" />
-              <div className="flex items-center gap-2">
-                <CardTitle className="text-xl font-headline font-semibold">Calculadora rápida</CardTitle>
-                <TooltipProvider>
-                  <Tooltip delayDuration={0}>
-                    <TooltipTrigger asChild>
-                      <Info className="w-4 h-4 opacity-40 cursor-help hover:text-primary transition-colors" />
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-[280px] p-3 text-[11px] leading-relaxed" side="top">
-                      <p className="font-bold mb-1 text-primary">Modelo de Negocio Finanto</p>
-                      Simulador basado en el Plan Tradicional 12pp. Proyecta mensualidades competitivas con un factor base del 0.71%, un enganche mínimo del 3% y plazos flexibles de hasta 192 meses.
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
+              <Calculator className="text-primary w-5 h-5" />
+              <CardTitle className="text-sm font-black uppercase tracking-widest text-primary">Calculadora</CardTitle>
             </div>
             <Button variant="ghost" size="icon" onClick={() => onExpandedChange(true)} className="h-8 w-8 text-muted-foreground/60 hover:text-primary">
               <Maximize2 className="w-4 h-4" />
             </Button>
           </div>
-          <CardDescription className="text-muted-foreground">Plan Tradicional 12pp (0.71%)</CardDescription>
         </CardHeader>
         <CardContent className="pt-6 space-y-6">
           <CalculatorInputs 
@@ -267,16 +253,23 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
             onPriceChange={handleTotalPriceChange} onMonthlyChange={handleMonthlyPaymentChange} 
             formatWithCommas={formatWithCommas} customTerm={customTerm}
           />
-          <div className="space-y-3 p-4 rounded-xl bg-primary/10 border border-primary/20 backdrop-blur-sm">
-            <div className="flex justify-between items-end mb-1">
-              <span className="text-[10px] text-primary uppercase font-bold tracking-widest">Inversión Inicial</span>
-              <span className="text-[10px] font-bold text-primary">{formatCurrency(totalDownPayment)}</span>
+          
+          <div className="grid grid-cols-2 gap-4 py-4 border-t border-border/10 pt-6">
+            <div className="space-y-1">
+              <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Inversión (3%+)</p>
+              <p className="text-lg font-black text-primary">{formatCurrency(totalDownPayment)}</p>
             </div>
-            <Progress value={Math.min(100, (totalDownPayment / (rawP || 1)) * 100)} className="h-2" />
+            <div className="space-y-1 text-right">
+              <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Sueldo Mínimo</p>
+              <p className="text-lg font-black text-foreground">{formatCurrency(minIncomeRequired)}</p>
+            </div>
           </div>
-          <div className="pt-2 flex items-center justify-between">
-            <span className="text-[10px] opacity-60 font-semibold uppercase">Factor: {(effectiveFactor * 100).toFixed(4)}%</span>
-            <Button variant="ghost" size="sm" onClick={clear} className="text-muted-foreground hover:text-destructive h-8 px-2"><RotateCcw className="mr-1 h-3.5 w-3.5" /> Reiniciar</Button>
+
+          <div className="flex items-center justify-between pt-2">
+            <span className="text-[8px] opacity-40 font-black uppercase tracking-tighter">Plan 192m • {(BASE_FACTOR * 100).toFixed(3)}%</span>
+            <Button variant="ghost" size="sm" onClick={clear} className="text-muted-foreground hover:text-destructive h-7 px-3 text-[9px] font-black uppercase tracking-widest rounded-full bg-muted/20">
+              <RotateCcw className="mr-1.5 h-3 w-3" /> Reiniciar
+            </Button>
           </div>
         </CardContent>
       </Card>
