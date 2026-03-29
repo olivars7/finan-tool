@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { 
   isToday, isAfter, isBefore, startOfDay, parseISO, 
   format, differenceInDays
@@ -37,7 +37,7 @@ export function useAppointments() {
 
     const unsubscribeAuth = onAuthChange(async (currentUser) => {
       setUser(currentUser);
-      isInitialLoad.current = true; // Resetear al cambiar de usuario
+      isInitialLoad.current = true;
       
       if (currentUser) {
         console.log('%c 🔑 AUTH: Sincronizando con la nube...', 'color: #7B61FF; font-weight: bold;');
@@ -56,8 +56,6 @@ export function useAppointments() {
                 isInitialLoad.current = false;
               } else if (!pendingLocalUpdate.current) {
                 // DETECCIÓN DE CAMBIO EXTERNO:
-                // Si no hay actualizaciones locales pendientes y recibimos un snapshot del servidor,
-                // significa que los datos vinieron de otro dispositivo.
                 toast({
                   variant: "warning",
                   title: "Sincronización en la nube",
@@ -91,29 +89,29 @@ export function useAppointments() {
       unsubscribeAuth();
       if (unsubscribeSnapshot) unsubscribeSnapshot();
     };
-  }, []);
+  }, [toast]);
 
   /**
    * Persiste los cambios inmediatamente en la base de datos.
    */
-  const persistAppointments = async (updatedList: Appointment[]) => {
-    // Marcamos que nosotros iniciamos la actualización para no disparar la alerta amarilla a nosotros mismos
+  const persistAppointments = useCallback(async (updatedList: Appointment[]) => {
+    // Marcamos que nosotros iniciamos la actualización
     pendingLocalUpdate.current = true;
     
-    // Actualización optimista de la UI
+    // Actualización local rápida
     setAppointments(updatedList);
     Service.saveToDisk(updatedList);
     
     if (user) {
       try {
-        console.log('%c 🚀 DB UPDATE: Guardando cambio atómico...', 'background: #22c55e; color: #fff; padding: 2px 5px; border-radius: 4px;');
+        // Guardado inmediato en Firestore
         await FirebaseStore.saveAppointments(user.uid, updatedList);
       } catch (err) {
         console.error("Error al sincronizar con Firestore:", err);
-        pendingLocalUpdate.current = false; // Resetear en caso de error
+        pendingLocalUpdate.current = false;
       }
     }
-  };
+  }, [user]);
 
   const addAppointment = async (data: Omit<Appointment, 'id'>) => {
     const newApp: Appointment = {
@@ -122,20 +120,28 @@ export function useAppointments() {
       phone: Service.formatPhoneNumber(data.phone),
       isArchived: false
     };
-    const updated = [newApp, ...appointments];
-    await persistAppointments(updated);
+    
+    // Usamos la lista más actual para evitar colisiones entre dispositivos
+    setAppointments(current => {
+      const updated = [newApp, ...current];
+      persistAppointments(updated);
+      return updated;
+    });
   };
 
   const editAppointment = async (id: string, partial: Partial<Appointment>) => {
-    const updated = appointments.map(a => {
-      if (a.id === id) {
-        const updatedApp = { ...a, ...partial };
-        if (partial.phone) updatedApp.phone = Service.formatPhoneNumber(partial.phone);
-        return updatedApp;
-      }
-      return a;
+    setAppointments(current => {
+      const updated = current.map(a => {
+        if (a.id === id) {
+          const updatedApp = { ...a, ...partial };
+          if (partial.phone) updatedApp.phone = Service.formatPhoneNumber(partial.phone);
+          return updatedApp;
+        }
+        return a;
+      });
+      persistAppointments(updated);
+      return updated;
     });
-    await persistAppointments(updated);
   };
 
   const archiveAppointment = (id: string) => {
@@ -147,8 +153,11 @@ export function useAppointments() {
   };
 
   const deletePermanent = async (id: string) => {
-    const updated = appointments.filter(a => a.id !== id);
-    await persistAppointments(updated);
+    setAppointments(current => {
+      const updated = current.filter(a => a.id !== id);
+      persistAppointments(updated);
+      return updated;
+    });
   };
 
   const activeAppointments = useMemo(() => appointments.filter(a => !a.isArchived), [appointments]);
