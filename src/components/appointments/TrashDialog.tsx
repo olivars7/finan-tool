@@ -142,7 +142,7 @@ export default function TrashDialog({
           )}
         </div>
 
-        <DialogFooter className="sm:justify-start">
+        <DialogFooter className="sm:justify-start pb-14 md:pb-0">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cerrar
           </Button>

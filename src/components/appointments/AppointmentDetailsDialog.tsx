@@ -223,7 +223,7 @@ export default function AppointmentDetailsDialog({
                 >
                   <Copy className="w-3 h-3" /> 
                   <span>
-                    <span className="hidden sm:inline">Copiar datos</span>
+                    <span className="hidden sm:inline">Copiar información de cita</span>
                     <span className="sm:hidden">Copiar datos</span>
                   </span>
                 </Button>
@@ -559,7 +559,7 @@ export default function AppointmentDetailsDialog({
           )}
         </div>
 
-        <DialogFooter className="px-8 py-6 border-t border-border/10 bg-primary/5 flex flex-row justify-between items-center gap-4 shrink-0 pb-24 md:pb-6">
+        <DialogFooter className="px-8 py-6 border-t border-border/10 bg-primary/5 flex flex-row justify-between items-center gap-4 shrink-0 pb-10 md:pb-6">
           <div className="flex flex-1 gap-3">
             {!isEditing && (
               <Button onClick={handleStartReagendar} variant="ghost" size="sm" className="h-11 px-6 text-[10px] font-black uppercase text-primary hover:bg-primary/10 rounded-full gap-2">

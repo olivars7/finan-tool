@@ -277,7 +277,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
               onClick={() => setShowTrash(true)} 
               className="text-muted-foreground hover:text-destructive gap-2 h-8 px-2 sm:px-3 rounded-full"
             >
-              <Trash2 className="w-4 h-4" /> <span className="hidden sm:inline">Papelera</span> ({appointments.filter(a => a.isArchived).length})
+              <Trash2 className="w-4 h-4" /> Archivados ({appointments.filter(a => a.isArchived).length})
             </Button>
           </div>
         </div>
@@ -312,7 +312,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
             </div>
           </ScrollArea>
 
-          <div className="p-4 bg-muted/20 flex justify-center shrink-0 border-t border-border/10">
+          <div className="p-6 pb-14 bg-muted/20 flex justify-center shrink-0 border-t border-border/10">
             <DialogClose asChild>
               <Button variant="ghost" size="sm" className="h-10 px-8 rounded-full font-bold uppercase text-[10px] text-muted-foreground">
                 Cancelar Registro
