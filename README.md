@@ -1,3 +1,4 @@
+
 # Finanto v2.0 - Sistema CRM Inmobiliario Profesional
 
 Finanto CRM es una herramienta de alta productividad diseñada específicamente para ejecutivos de financiamiento inmobiliario. Este sistema permite centralizar el perfilamiento financiero, la agenda de citas y el control de comisiones en una interfaz moderna y eficiente.

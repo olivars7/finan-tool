@@ -40,29 +40,25 @@ export function useAppointments() {
       isInitialLoad.current = true;
       
       if (currentUser) {
-        console.log('%c 🔑 AUTH: Sincronizando con la nube...', 'color: #7B61FF; font-weight: bold;');
-        await ensureUserDocument(currentUser);
-
-        // Listener en tiempo real con detección de cambios externos
+        // Al detectar usuario, primero establecemos el canal de LECTURA (onSnapshot)
+        // Esto garantiza que la app siempre sepa qué hay en la nube antes de cualquier acción
         unsubscribeSnapshot = onSnapshot(doc(db, "users", currentUser.uid), (docSnap) => {
           if (docSnap.exists()) {
             const data = docSnap.data();
             const cloudApps = data.appointments || [];
             const hasPendingWrites = docSnap.metadata.hasPendingWrites;
 
-            // Si los cambios vienen del servidor (!hasPendingWrites)
+            // Detección de cambios externos (Sync amarilla)
             if (!hasPendingWrites) {
               if (isInitialLoad.current) {
                 isInitialLoad.current = false;
               } else if (!pendingLocalUpdate.current) {
-                // DETECCIÓN DE CAMBIO EXTERNO:
                 toast({
                   variant: "warning",
                   title: "Sincronización en la nube",
                   description: "Se han recibido cambios desde otro dispositivo.",
                 });
               }
-              // Resetear flag local una vez que el servidor confirma la escritura o llega cambio externo
               pendingLocalUpdate.current = false;
             }
 
@@ -73,11 +69,14 @@ export function useAppointments() {
           console.error("Error en listener Firestore:", err);
         });
 
-        // Migración única de local a nube
-        await FirebaseStore.migrateLocalAppointments(currentUser.uid);
+        // DESPUÉS de iniciar la lectura, actualizamos el perfil (Única escritura permitida al cargar)
+        await ensureUserDocument(currentUser);
+
+        // NOTA: Se ha eliminado migrateLocalAppointments() para evitar escrituras 
+        // accidentales en la lista de citas al abrir la página.
 
       } else {
-        console.log('%c 👤 AUTH: Modo local habilitado', 'color: #666; font-weight: bold;');
+        // Modo offline / local
         const stored = Service.getFromDisk();
         setAppointments(stored);
         setProfile(null);
@@ -92,19 +91,18 @@ export function useAppointments() {
   }, [toast]);
 
   /**
-   * Persiste los cambios inmediatamente en la base de datos.
+   * Persiste los cambios inmediatamente en la base de datos solo por acción del usuario.
    */
   const persistAppointments = useCallback(async (updatedList: Appointment[]) => {
-    // Marcamos que nosotros iniciamos la actualización
     pendingLocalUpdate.current = true;
     
-    // Actualización local rápida
+    // Actualización local para UI instantánea
     setAppointments(updatedList);
     Service.saveToDisk(updatedList);
     
     if (user) {
       try {
-        // Guardado inmediato en Firestore
+        // Escritura explícita en Firestore por acción de usuario
         await FirebaseStore.saveAppointments(user.uid, updatedList);
       } catch (err) {
         console.error("Error al sincronizar con Firestore:", err);
@@ -121,27 +119,20 @@ export function useAppointments() {
       isArchived: false
     };
     
-    // Usamos la lista más actual para evitar colisiones entre dispositivos
-    setAppointments(current => {
-      const updated = [newApp, ...current];
-      persistAppointments(updated);
-      return updated;
-    });
+    const updated = [newApp, ...appointments];
+    await persistAppointments(updated);
   };
 
   const editAppointment = async (id: string, partial: Partial<Appointment>) => {
-    setAppointments(current => {
-      const updated = current.map(a => {
-        if (a.id === id) {
-          const updatedApp = { ...a, ...partial };
-          if (partial.phone) updatedApp.phone = Service.formatPhoneNumber(partial.phone);
-          return updatedApp;
-        }
-        return a;
-      });
-      persistAppointments(updated);
-      return updated;
+    const updated = appointments.map(a => {
+      if (a.id === id) {
+        const updatedApp = { ...a, ...partial };
+        if (partial.phone) updatedApp.phone = Service.formatPhoneNumber(partial.phone);
+        return updatedApp;
+      }
+      return a;
     });
+    await persistAppointments(updated);
   };
 
   const archiveAppointment = (id: string) => {
@@ -153,11 +144,8 @@ export function useAppointments() {
   };
 
   const deletePermanent = async (id: string) => {
-    setAppointments(current => {
-      const updated = current.filter(a => a.id !== id);
-      persistAppointments(updated);
-      return updated;
-    });
+    const updated = appointments.filter(a => a.id !== id);
+    await persistAppointments(updated);
   };
 
   const activeAppointments = useMemo(() => appointments.filter(a => !a.isArchived), [appointments]);
