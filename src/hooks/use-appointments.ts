@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
@@ -28,60 +29,67 @@ export function useAppointments() {
   const [profile, setProfile] = useState<any>(null);
   const { toast } = useToast();
 
-  // Refs para control de sincronización externa
-  const isInitialLoad = useRef(true);
+  const isInitialSnapshotReceived = useRef(false);
   const pendingLocalUpdate = useRef(false);
+  
+  // Guardamos una referencia al usuario actual para evitar cierres de ciclo obsoletos
+  const userRef = useRef<User | null>(null);
 
   useEffect(() => {
     let unsubscribeSnapshot: (() => void) | null = null;
 
     const unsubscribeAuth = onAuthChange(async (currentUser) => {
       setUser(currentUser);
-      isInitialLoad.current = true;
+      userRef.current = currentUser;
       
       if (currentUser) {
-        // Al detectar usuario, primero establecemos el canal de LECTURA (onSnapshot)
-        // Esto garantiza que la app siempre sepa qué hay en la nube antes de cualquier acción
+        // 1. Iniciamos el canal de LECTURA (onSnapshot) inmediatamente
         unsubscribeSnapshot = onSnapshot(doc(db, "users", currentUser.uid), (docSnap) => {
           if (docSnap.exists()) {
             const data = docSnap.data();
             const cloudApps = data.appointments || [];
             const hasPendingWrites = docSnap.metadata.hasPendingWrites;
 
-            // Detección de cambios externos (Sync amarilla)
-            if (!hasPendingWrites) {
-              if (isInitialLoad.current) {
-                isInitialLoad.current = false;
-              } else if (!pendingLocalUpdate.current) {
-                toast({
-                  variant: "warning",
-                  title: "Sincronización en la nube",
-                  description: "Se han recibido cambios desde otro dispositivo.",
-                });
-              }
-              pendingLocalUpdate.current = false;
+            // Detección de cambios externos (Si no hay escrituras locales pendientes y no es la primera carga)
+            if (!hasPendingWrites && isInitialSnapshotReceived.current && !pendingLocalUpdate.current) {
+              toast({
+                variant: "warning",
+                title: "Sincronización en la nube",
+                description: "Se han recibido cambios desde otro dispositivo.",
+              });
             }
 
             setAppointments(cloudApps);
             setProfile(data);
+            pendingLocalUpdate.current = false;
+            
+            // Una vez que recibimos el primer snapshot, marcamos la app como cargada
+            if (!isInitialSnapshotReceived.current) {
+              isInitialSnapshotReceived.current = true;
+              setIsLoaded(true);
+            }
+          } else {
+            // Documento no existe aún (usuario nuevo)
+            if (!isInitialSnapshotReceived.current) {
+              isInitialSnapshotReceived.current = true;
+              setIsLoaded(true);
+            }
           }
         }, (err) => {
           console.error("Error en listener Firestore:", err);
+          setIsLoaded(true); // Evitar bloqueo infinito
         });
 
-        // DESPUÉS de iniciar la lectura, actualizamos el perfil (Única escritura permitida al cargar)
+        // 2. Después de iniciar la escucha, actualizamos el perfil (Last Login)
         await ensureUserDocument(currentUser);
-
-        // NOTA: Se ha eliminado migrateLocalAppointments() para evitar escrituras 
-        // accidentales en la lista de citas al abrir la página.
 
       } else {
         // Modo offline / local
         const stored = Service.getFromDisk();
         setAppointments(stored);
         setProfile(null);
+        setIsLoaded(true);
       }
-      setIsLoaded(true);
     });
 
     return () => {
@@ -91,25 +99,24 @@ export function useAppointments() {
   }, [toast]);
 
   /**
-   * Persiste los cambios inmediatamente en la base de datos solo por acción del usuario.
+   * Persiste los cambios inmediatamente en la base de datos.
    */
   const persistAppointments = useCallback(async (updatedList: Appointment[]) => {
-    pendingLocalUpdate.current = true;
-    
-    // Actualización local para UI instantánea
+    // Actualización local inmediata para respuesta instantánea en UI
     setAppointments(updatedList);
     Service.saveToDisk(updatedList);
     
-    if (user) {
+    if (userRef.current) {
+      pendingLocalUpdate.current = true;
       try {
-        // Escritura explícita en Firestore por acción de usuario
-        await FirebaseStore.saveAppointments(user.uid, updatedList);
+        // Escritura inmediata a Firestore
+        await FirebaseStore.saveAppointments(userRef.current.uid, updatedList);
       } catch (err) {
         console.error("Error al sincronizar con Firestore:", err);
         pendingLocalUpdate.current = false;
       }
     }
-  }, [user]);
+  }, []);
 
   const addAppointment = async (data: Omit<Appointment, 'id'>) => {
     const newApp: Appointment = {
@@ -119,6 +126,7 @@ export function useAppointments() {
       isArchived: false
     };
     
+    // Usamos el estado funcional para asegurar que trabajamos con el array más reciente
     const updated = [newApp, ...appointments];
     await persistAppointments(updated);
   };
@@ -135,12 +143,12 @@ export function useAppointments() {
     await persistAppointments(updated);
   };
 
-  const archiveAppointment = (id: string) => {
-    editAppointment(id, { isArchived: true });
+  const archiveAppointment = async (id: string) => {
+    await editAppointment(id, { isArchived: true });
   };
 
-  const unarchiveAppointment = (id: string) => {
-    editAppointment(id, { isArchived: false });
+  const unarchiveAppointment = async (id: string) => {
+    await editAppointment(id, { isArchived: false });
   };
 
   const deletePermanent = async (id: string) => {
