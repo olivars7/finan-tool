@@ -30,7 +30,11 @@ export const loadAppointments = async (userId: string): Promise<Appointment[]> =
 export const saveAppointments = async (userId: string, appointments: Appointment[]) => {
   const docRef = doc(db, "users", userId);
   try {
-    const stats = calculateStats(appointments);
+    // Saneamiento de datos: Firestore NO soporta valores 'undefined'.
+    // Convertimos a JSON y de vuelta para eliminar claves con valor undefined de forma eficiente.
+    const sanitizedApps = JSON.parse(JSON.stringify(appointments));
+
+    const stats = calculateStats(sanitizedApps);
     const statsSummary = {
       monthlyIncome: Math.round(stats.currentMonthCommission || 0),
       totalCreditSold: Math.round(stats.totalCreditSold || 0),
@@ -40,7 +44,7 @@ export const saveAppointments = async (userId: string, appointments: Appointment
 
     // Actualización atómica del registro
     await setDoc(docRef, { 
-      appointments, 
+      appointments: sanitizedApps, 
       statsSummary,
       updatedAt: new Date().toISOString()
     }, { merge: true });
@@ -72,4 +76,14 @@ export const migrateLocalAppointments = async (userId: string): Promise<Appointm
     console.error("Error durante la migración de datos locales:", e);
   }
   return null;
+};
+
+/**
+ * Función especial para administración (Uso futuro o monitoreo)
+ * Recupera todas las citas de la colección global si el usuario tuviera permisos.
+ */
+export const fetchAllGlobalAppointments = async () => {
+  // Nota: Esta función asume que existe una estructura donde se pueden leer múltiples usuarios
+  // Por ahora devuelve un array vacío para evitar errores de compilación si se llama.
+  return [];
 };
