@@ -162,6 +162,7 @@ export default function UpcomingAppointments({
       const appDate = parseISO(finalizingApp.date);
       let finalDate = finalizingApp.date;
       
+      // Si la cita no es de hoy, actualizamos la fecha al momento del cierre para que las stats de venta caigan en el mes actual
       if (!isToday(appDate)) {
         finalDate = new Date().toISOString();
       }

@@ -115,123 +115,6 @@ export const formatPhoneNumber = (phone: string): string => {
 };
 
 /**
- * Genera datos de prueba realistas y variados (60 registros).
- */
-export const generateSeedData = (): Appointment[] => {
-  const data: Appointment[] = [];
-  
-  const firstNames = [
-    'Juan', 'María', 'Carlos', 'Ana', 'Luis', 'Elena', 'Roberto', 'Sofía', 'Diego', 'Lucía', 
-    'Fernando', 'Gabriela', 'Ricardo', 'Patricia', 'Héctor', 'Isabel', 'Jorge', 'Mónica', 'Andrés', 'Carmen',
-    'Alejandro', 'Daniela', 'Raúl', 'Verónica', 'Víctor', 'Adriana', 'Oscar', 'Paola', 'Miguel', 'Rosa'
-  ];
-  
-  const lastNames = [
-    'Pérez', 'García', 'López', 'Martínez', 'Rodríguez', 'Gómez', 'Díaz', 'Ruiz', 'Torres', 'Morales'
-  ];
-
-  const products: AppointmentProduct[] = ['Casa', 'Departamento', 'Terreno', 'Transporte', 'Préstamo'];
-  const hours = ['09:00', '10:30', '12:00', '13:30', '15:00', '16:30', '18:00'];
-  const executives = ['Marco Olivares', 'Brenda Solis', 'Kevin Castro', 'Diana Reyes', 'Andrés Luna'];
-
-  const now = new Date();
-
-  const getName = (index: number) => {
-    const fname = firstNames[index % firstNames.length];
-    const lname = lastNames[(index + 3) % lastNames.length];
-    return `${fname} ${lname}`;
-  };
-
-  const getPhone = (index: number) => {
-    const base = 6641000000 + (index * 54321) % 8999999;
-    return base.toString();
-  };
-
-  // 25 Citas Próximas (Hoy y Futuro)
-  for (let i = 0; i < 25; i++) {
-    let appDate;
-    if (i < 5) appDate = now; 
-    else if (i < 10) appDate = addDays(now, 1);
-    else appDate = addDays(now, (i % 10) + 2);
-    
-    const isTodayApp = isToday(appDate);
-    
-    // Lógica de exclusividad: 30% prospectador, 30% ejecutivo, 40% ninguno
-    const rand = Math.random();
-    let pName, pPhone, eName;
-    if (rand < 0.3) {
-      pName = 'Agente Externo ' + (i % 5);
-      pPhone = '664 555 0000';
-    } else if (rand < 0.6) {
-      eName = executives[i % executives.length];
-    }
-
-    data.push({
-      id: uuidv4(),
-      name: getName(i),
-      phone: formatPhoneNumber(getPhone(i)),
-      date: appDate.toISOString(),
-      time: hours[i % hours.length],
-      type: i % 3 === 0 ? '2da consulta' : '1ra consulta',
-      product: products[i % products.length],
-      isConfirmed: isTodayApp ? Math.random() > 0.5 : false,
-      isArchived: false,
-      notes: i % 4 === 0 ? `Interés en ${products[i % products.length]} zona centro.` : '',
-      prospectorName: pName,
-      prospectorPhone: pPhone,
-      attendingExecutive: eName
-    });
-  }
-
-  // 35 Citas Pasadas (Historial con cierres variados)
-  for (let i = 0; i < 35; i++) {
-    const pastDate = i < 15 ? subDays(now, (i % 20) + 1) : subMonths(subDays(now, i % 10), 1);
-    const globalIndex = i + 25;
-    
-    let status: AppointmentStatus = 'Asistencia';
-    if (i % 5 === 0) status = 'Cierre';
-    else if (i % 7 === 0) status = 'Apartado';
-    else if (i % 10 === 0) status = 'No asistencia';
-    else if (i % 12 === 0) status = 'Reagendó';
-
-    const isSale = status === 'Cierre';
-    
-    // Lógica de exclusividad
-    const rand = Math.random();
-    let pName, pPhone, eName;
-    if (rand < 0.3) {
-      pName = 'Marketing FB';
-      pPhone = '664 111 2222';
-    } else if (rand < 0.6) {
-      eName = executives[i % executives.length];
-    }
-
-    data.push({
-      id: uuidv4(),
-      name: getName(globalIndex),
-      phone: formatPhoneNumber(getPhone(globalIndex)),
-      date: pastDate.toISOString(),
-      time: hours[i % hours.length],
-      type: i % 4 === 0 ? 'Seguimiento' : '1ra consulta',
-      status: status,
-      product: products[i % products.length],
-      isConfirmed: true,
-      isArchived: false,
-      notes: isSale ? `Operación exitosa por ${products[i % products.length]}.` : '',
-      commissionStatus: isSale ? (i % 2 === 0 ? 'Pagada' : 'Pendiente') : undefined,
-      commissionPercent: isSale ? (i % 3 === 0 ? 50 : 100) : undefined,
-      finalCreditAmount: isSale ? Math.floor(800000 + Math.random() * 2500000) : undefined,
-      attendingExecutive: eName,
-      prospectorName: pName,
-      prospectorPhone: pPhone
-    });
-  }
-  
-  saveToDisk(data);
-  return data;
-};
-
-/**
  * Calcula las estadísticas individuales.
  */
 export const calculateStats = (appointments: Appointment[]) => {
@@ -243,6 +126,7 @@ export const calculateStats = (appointments: Appointment[]) => {
   const currentMonthProspects = activeApps.filter(a => isSameMonth(parseISO(a.date), now)).length;
   const lastMonthProspects = activeApps.filter(a => isSameMonth(parseISO(a.date), lastMonth)).length;
 
+  // REGLA: Los cierres y el volumen se cuentan en el mes de la CITA/CIERRE
   const currentMonthOnlyCierre = activeApps.filter(a => a.status === 'Cierre' && isSameMonth(parseISO(a.date), now)).length;
   const currentMonthApartados = activeApps.filter(a => a.status === 'Apartado' && isSameMonth(parseISO(a.date), now)).length;
   const currentMonthSales = currentMonthOnlyCierre + currentMonthApartados;
@@ -260,24 +144,10 @@ export const calculateStats = (appointments: Appointment[]) => {
     ? salesWithAmount.reduce((sum, a) => sum + (Number(a.commissionPercent) || 0), 0) / salesWithAmount.length 
     : 0;
 
-  // Ingreso Proyectado (por fecha de pago este mes)
+  // REGLA: El ingreso se cuenta en el mes de PAGO proyectado
   const currentMonthCommission = activeApps
     .filter(a => {
       if (a.status !== 'Cierre') return false;
-      const payDate = getCommissionPaymentDate(a.date);
-      return isSameMonth(payDate, now);
-    })
-    .reduce((sum, a) => {
-      const amount = Number(a.finalCreditAmount) || 0;
-      const percent = Number(a.commissionPercent) || 0;
-      return sum + (amount * 0.007 * (percent / 100)) * 0.91;
-    }, 0);
-
-  // Ingreso Neto Recibido (pagadas este mes)
-  const currentMonthPaidCommission = activeApps
-    .filter(a => {
-      if (a.status !== 'Cierre') return false;
-      if (a.commissionStatus !== 'Pagada') return false;
       const payDate = getCommissionPaymentDate(a.date);
       return isSameMonth(payDate, now);
     })
@@ -323,19 +193,6 @@ export const calculateStats = (appointments: Appointment[]) => {
       if (a.commissionStatus === 'Pagada') return false;
       const payDate = startOfDay(getCommissionPaymentDate(a.date));
       return payDate.getTime() === nextTargetFriday.getTime();
-    })
-    .reduce((sum, a) => {
-      const amount = Number(a.finalCreditAmount) || 0;
-      const percent = Number(a.commissionPercent) || 0;
-      return sum + (amount * 0.007 * (percent / 100)) * 0.91;
-    }, 0);
-
-  const overdueCommission = activeApps
-    .filter(a => {
-      if (a.status !== 'Cierre') return false;
-      if (a.commissionStatus === 'Pagada') return false;
-      const payDate = startOfDay(getCommissionPaymentDate(a.date));
-      return isBefore(payDate, todayStart);
     })
     .reduce((sum, a) => {
       const amount = Number(a.finalCreditAmount) || 0;
@@ -410,12 +267,6 @@ export const calculateStats = (appointments: Appointment[]) => {
     const weekEnd = addDays(weekStart, 6);
     const weekLabel = format(weekStart, 'd MMM', { locale: es });
     
-    const weekAtendidas = activeApps.filter(a => {
-      const d = parseISO(a.date);
-      const inWeek = (isSameDay(d, weekStart) || isAfter(d, weekStart)) && (isSameDay(d, weekEnd) || isBefore(d, weekEnd));
-      return inWeek && !!a.status && a.status !== 'No asistencia';
-    }).length;
-
     const income = activeApps
       .filter(a => {
         if (a.status !== 'Cierre') return false;
@@ -428,19 +279,11 @@ export const calculateStats = (appointments: Appointment[]) => {
         return sum + (amount * 0.007 * (percent / 100)) * 0.91;
       }, 0);
 
-    const cierres = activeApps.filter(a => {
-      const d = parseISO(a.date);
-      const inWeek = (isSameDay(d, weekStart) || isAfter(d, weekStart)) && (isSameDay(d, weekEnd) || isBefore(d, weekEnd));
-      return inWeek && a.status === 'Cierre';
-    }).length;
-
     const isCurrentWeek = (isSameDay(now, weekStart) || isAfter(now, weekStart)) && (isSameDay(now, weekEnd) || isBefore(now, weekEnd));
 
     return {
       week: weekLabel,
       income: Math.round(income),
-      cierres,
-      atendidas: weekAtendidas,
       isCurrentWeek
     };
   });
@@ -465,11 +308,9 @@ export const calculateStats = (appointments: Appointment[]) => {
     totalCreditSold,
     avgParticipation: parseFloat(avgParticipation.toFixed(1)),
     currentMonthCommission,
-    currentMonthPaidCommission,
     lastMonthCommission,
     thisFridayCommission,
     nextFridayCommission,
-    overdueCommission,
     conversionRate: parseFloat(conversionRate.toFixed(1)),
     commissionGrowth: parseFloat(commissionGrowth.toFixed(1)),
     charts: { 

@@ -23,7 +23,9 @@ import {
   CheckCircle,
   AlertCircle,
   Save,
-  CheckCircle as CheckIcon
+  CheckCircle as CheckIcon,
+  Receipt,
+  Percent
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Appointment, AppointmentStatus } from '@/services/appointment-service';
@@ -103,6 +105,9 @@ export default function MobileDashboard({
   // Finalization form states
   const [finalStatus, setFinalStatus] = useState<AppointmentStatus>('Asistencia');
   const [finalNotes, setFinalNotes] = useState('');
+  const [finalCreditAmount, setFinalCreditAmount] = useState<number>(0);
+  const [creditInput, setCreditInput] = useState('');
+  const [finalCommissionPercent, setFinalCommissionPercent] = useState<number>(100);
   
   const { toast } = useToast();
 
@@ -131,6 +136,12 @@ export default function MobileDashboard({
     }).format(Math.round(val));
   };
 
+  const formatWithCommas = (val: string) => {
+    const num = val.replace(/[^0-9]/g, '');
+    if (!num) return '';
+    return num.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
+
   const getDynamicGradient = (val: number) => {
     if (val < 5000) return "";
     return "text-gradient-aqua-blue";
@@ -141,17 +152,42 @@ export default function MobileDashboard({
     setFinalizingApp(app);
     setFinalStatus('Asistencia');
     setFinalNotes(app.notes || '');
+    const amount = app.finalCreditAmount || 0;
+    setFinalCreditAmount(amount);
+    setCreditInput(amount > 0 ? amount.toLocaleString('en-US') : '');
+    setFinalCommissionPercent(app.commissionPercent || 100);
+  };
+
+  const handleCreditChange = (val: string) => {
+    const formatted = formatWithCommas(val);
+    setCreditInput(formatted);
+    setFinalCreditAmount(parseInt(formatted.replace(/,/g, '')) || 0);
   };
 
   const handleSaveFinalization = () => {
     if (finalizingApp) {
+      const isCierre = finalStatus === 'Cierre';
+      
+      const appDate = parseISO(finalizingApp.date);
+      let finalDate = finalizingApp.date;
+      
+      // Actualizar fecha al momento del cierre si no es hoy
+      if (!isToday(appDate)) {
+        finalDate = new Date().toISOString();
+      }
+
       onEditApp(finalizingApp.id, {
         status: finalStatus,
         notes: finalNotes,
-        isConfirmed: true
+        date: finalDate,
+        isConfirmed: true,
+        finalCreditAmount: isCierre ? finalCreditAmount : undefined,
+        commissionPercent: isCierre ? finalCommissionPercent : undefined,
+        commissionStatus: isCierre ? 'Pendiente' : undefined
       });
+      
       toast({
-        title: "Cita Finalizada",
+        title: isCierre ? "¡Venta Cerrada!" : "Cita Finalizada",
         description: `Resultado "${finalStatus}" guardado para ${finalizingApp.name}.`
       });
       setFinalizingApp(null);
@@ -286,6 +322,8 @@ export default function MobileDashboard({
       action: onOpenStats
     }
   ];
+
+  const calculatedCommission = (finalCreditAmount * 0.007 * (finalCommissionPercent / 100)) * 0.91;
 
   return (
     <div className="flex flex-col space-y-8 animate-in fade-in duration-700 pb-32 overflow-x-hidden">
@@ -531,6 +569,53 @@ export default function MobileDashboard({
                 </SelectContent>
               </Select>
             </div>
+
+            {finalStatus === 'Cierre' && (
+              <div className="p-6 bg-green-500/5 border-2 border-green-500/20 rounded-[2.5rem] space-y-6">
+                <div className="flex items-center gap-2 text-green-600 mb-2">
+                  <Receipt size={16} />
+                  <span className="text-[10px] font-black uppercase tracking-widest">Liquidación de Venta</span>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-[9px] font-bold uppercase text-muted-foreground">Monto Crédito Final</Label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-green-600 font-bold">$</span>
+                      <Input 
+                        type="text" 
+                        value={creditInput} 
+                        onChange={e => handleCreditChange(e.target.value)}
+                        className="h-12 pl-8 font-black text-xl bg-background rounded-xl border-green-500/20"
+                        placeholder="0"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-[9px] font-bold uppercase text-muted-foreground">Participación %</Label>
+                      <div className="relative">
+                        <Input 
+                          type="number"
+                          value={finalCommissionPercent || ''} 
+                          onChange={e => setFinalCommissionPercent(parseFloat(e.target.value) || 0)}
+                          className="h-11 pr-8 font-bold bg-background rounded-xl border-green-500/20"
+                        />
+                        <Percent className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-green-600" />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[9px] font-bold uppercase text-muted-foreground">Ingreso Neto (91%)</Label>
+                      <div className="h-11 flex items-center px-3 bg-green-500/10 rounded-xl border border-green-500/20">
+                        <span className="text-sm font-black text-green-600 truncate">{formatCurrency(calculatedCommission)}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="space-y-3">
               <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">Notas y Acuerdos</Label>
               <Textarea 
