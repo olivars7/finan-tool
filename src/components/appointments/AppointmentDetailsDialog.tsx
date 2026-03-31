@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -253,11 +254,11 @@ export default function AppointmentDetailsDialog({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label className="text-[10px] font-bold uppercase text-muted-foreground ml-2">Nombre Completo</Label>
-                    <Input value={editData.name || ''} onChange={e => setEditData({...editData, name: e.target.value})} className={cn("h-11 font-bold rounded-full px-6 transition-all", inheritedClass)} />
+                    <Input value={editData.name || ''} onChange={e => setEditData({...editData, name: e.target.value})} className={cn("h-11 w-full font-bold rounded-full px-6 transition-all", inheritedClass)} />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[10px] font-bold uppercase text-muted-foreground ml-2">Teléfono</Label>
-                    <Input value={editData.phone || ''} onChange={e => setEditData({...editData, phone: e.target.value})} className={cn("h-11 font-bold rounded-full px-6 transition-all", inheritedClass)} />
+                    <Input value={editData.phone || ''} onChange={e => setEditData({...editData, phone: e.target.value})} className={cn("h-11 w-full font-bold rounded-full px-6 transition-all", inheritedClass)} />
                   </div>
                 </div>
               </div>
@@ -273,23 +274,25 @@ export default function AppointmentDetailsDialog({
                       type="date" 
                       value={editData.date ? format(parseISO(editData.date), 'yyyy-MM-dd') : ''} 
                       onChange={e => setEditData({...editData, date: e.target.value})} 
-                      className="h-11 bg-muted/20 border-border/40 text-foreground font-bold rounded-full px-6" 
+                      className="h-11 w-full bg-muted/20 border-border/40 text-foreground font-bold rounded-full px-6" 
                     />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[10px] font-bold uppercase text-muted-foreground ml-2">Hora</Label>
-                    <Input type="time" value={editData.time || ''} onChange={e => setEditData({...editData, time: e.target.value})} className="h-11 bg-muted/20 border-border/40 text-foreground font-bold rounded-full px-6" />
+                    <Input type="time" value={editData.time || ''} onChange={e => setEditData({...editData, time: e.target.value})} className="h-11 w-full bg-muted/20 border-border/40 text-foreground font-bold rounded-full px-6" />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[10px] font-bold uppercase text-muted-foreground ml-2">Motivo</Label>
                     <Select value={editData.type} onValueChange={(v) => setEditData({...editData, type: v as AppointmentType})}>
-                      <SelectTrigger className={cn("h-11 font-bold rounded-full px-6 transition-all", inheritedClass)}>
+                      <SelectTrigger className={cn("h-11 w-full font-bold rounded-full px-6 transition-all", inheritedClass)}>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="1ra consulta">1ra consulta</SelectItem>
                         <SelectItem value="2da consulta">2da consulta</SelectItem>
-                        <SelectItem value="cierre">Cierre</SelectItem>
+                        <SelectItem value="3ra consulta">3ra consulta</SelectItem>
+                        <SelectItem value="Cierre">Cierre</SelectItem>
+                        <SelectItem value="2do cierre">2do cierre</SelectItem>
                         <SelectItem value="Seguimiento">Seguimiento</SelectItem>
                       </SelectContent>
                     </Select>
@@ -297,7 +300,7 @@ export default function AppointmentDetailsDialog({
                   <div className="space-y-2">
                     <Label className="text-[10px] font-bold uppercase text-muted-foreground ml-2">Resultado Final</Label>
                     <Select value={editData.status || "PENDIENTE"} onValueChange={(v) => setEditData({...editData, status: v === "PENDIENTE" ? undefined : v as AppointmentStatus})}>
-                      <SelectTrigger className="h-11 bg-muted/20 border-border/40 text-foreground font-bold rounded-full px-6">
+                      <SelectTrigger className="h-11 w-full bg-muted/20 border-border/40 text-foreground font-bold rounded-full px-6">
                         <SelectValue placeholder="--- Pendiente ---" />
                       </SelectTrigger>
                       <SelectContent>
@@ -307,8 +310,23 @@ export default function AppointmentDetailsDialog({
                         <SelectItem value="Apartado">📑 Apartado</SelectItem>
                         <SelectItem value="No asistencia">❌ No asistencia</SelectItem>
                         <SelectItem value="Reagendó">📅 Reagendó</SelectItem>
-                        <SelectItem value="Continuación en otra cita">🔄 Continuación</SelectItem>
+                        <SelectItem value="Continuación en 2da cita">🔄 Continuación en 2da cita</SelectItem>
                         <SelectItem value="Reembolso">💸 Reembolso</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <Label className="text-[10px] font-bold uppercase text-muted-foreground ml-2">Producto</Label>
+                    <Select value={editData.product} onValueChange={(v) => setEditData({...editData, product: v as AppointmentProduct})}>
+                      <SelectTrigger className="h-11 w-full bg-muted/20 border-border/40 text-foreground font-bold rounded-full px-6">
+                        <SelectValue placeholder="Selecciona producto..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Casa">Casa</SelectItem>
+                        <SelectItem value="Departamento">Departamento</SelectItem>
+                        <SelectItem value="Terreno">Terreno</SelectItem>
+                        <SelectItem value="Transporte">Transporte</SelectItem>
+                        <SelectItem value="Préstamo">Préstamo</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -327,7 +345,7 @@ export default function AppointmentDetailsDialog({
                         type="number" 
                         value={editData.finalCreditAmount || ''} 
                         onChange={e => setEditData({...editData, finalCreditAmount: parseFloat(e.target.value) || 0})}
-                        className="h-11 bg-background border-green-500/20 font-bold rounded-full px-6"
+                        className="h-11 w-full bg-background border-green-500/20 font-bold rounded-full px-6"
                       />
                     </div>
                     <div className="space-y-2">
@@ -337,7 +355,7 @@ export default function AppointmentDetailsDialog({
                           type="number" 
                           value={editData.commissionPercent ?? 100} 
                           onChange={e => setEditData({...editData, commissionPercent: parseFloat(e.target.value) || 0})}
-                          className="h-11 bg-background border-green-500/20 font-bold rounded-full px-6 pr-10"
+                          className="h-11 w-full bg-background border-green-500/20 font-bold rounded-full px-6 pr-10"
                         />
                         <Percent className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-green-600" />
                       </div>
@@ -364,11 +382,11 @@ export default function AppointmentDetailsDialog({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label className="text-[10px] font-bold uppercase text-muted-foreground ml-2">Ejecutivo de atención</Label>
-                    <Input value={editData.attendingExecutive || ''} onChange={e => setEditData({...editData, attendingExecutive: e.target.value})} placeholder="Nombre del ejecutivo..." className={cn("h-11 font-bold rounded-full px-6 transition-all", inheritedClass)} />
+                    <Input value={editData.attendingExecutive || ''} onChange={e => setEditData({...editData, attendingExecutive: e.target.value})} placeholder="Nombre del ejecutivo..." className={cn("h-11 w-full font-bold rounded-full px-6 transition-all", inheritedClass)} />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[10px] font-bold uppercase text-muted-foreground ml-2">Prospectador Externo</Label>
-                    <Input value={editData.prospectorName || ''} onChange={e => setEditData({...editData, prospectorName: e.target.value})} placeholder="Nombre..." className={cn("h-11 font-bold rounded-full px-6 transition-all", inheritedClass)} />
+                    <Input value={editData.prospectorName || ''} onChange={e => setEditData({...editData, prospectorName: e.target.value})} placeholder="Nombre..." className={cn("h-11 w-full font-bold rounded-full px-6 transition-all", inheritedClass)} />
                   </div>
                 </div>
               </div>

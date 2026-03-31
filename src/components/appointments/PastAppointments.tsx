@@ -80,7 +80,7 @@ export default function PastAppointments({
       case 'Reagendó': return 'text-primary bg-primary/10 border-primary/20';
       case 'Asistencia': return 'text-blue-600 bg-blue-600/10 border-blue-600/20 font-bold';
       case 'Reembolso': return 'text-orange-400 bg-orange-400/10 border-orange-400/20';
-      case 'Continuación en otra cita': return 'text-blue-400 bg-blue-400/10 border-blue-400/20';
+      case 'Continuación en 2da cita': return 'text-blue-400 bg-blue-400/10 border-blue-400/20';
       default: return 'text-muted-foreground bg-muted/10 border-border/20';
     }
   };

@@ -233,7 +233,7 @@ export default function AppointmentForm({ onAdd }: AppointmentFormProps) {
                       value={prospectorName} 
                       onChange={(e) => setProspectorName(e.target.value)} 
                       placeholder="¿Quién agendó?" 
-                      className="bg-background border-blue-500/20 text-sm h-10" 
+                      className="bg-background border-blue-500/20 text-sm h-10 w-full" 
                     />
                   </div>
                   <div className="space-y-2">
@@ -243,7 +243,7 @@ export default function AppointmentForm({ onAdd }: AppointmentFormProps) {
                       value={prospectorPhone} 
                       onChange={(e) => setProspectorPhone(e.target.value)} 
                       placeholder="Ej. 664 000 0000" 
-                      className="bg-background border-blue-500/20 text-sm h-10" 
+                      className="bg-background border-blue-500/20 text-sm h-10 w-full" 
                     />
                   </div>
                 </div>
@@ -267,7 +267,7 @@ export default function AppointmentForm({ onAdd }: AppointmentFormProps) {
                       value={attendingExecutive} 
                       onChange={(e) => setAttendingExecutive(e.target.value)} 
                       placeholder="Nombre del ejecutivo que atiende..." 
-                      className="bg-background border-purple-500/20 text-sm h-10" 
+                      className="bg-background border-purple-500/20 text-sm h-10 w-full" 
                     />
                   </div>
                 </div>
@@ -285,7 +285,9 @@ export default function AppointmentForm({ onAdd }: AppointmentFormProps) {
                 <SelectContent>
                   <SelectItem value="1ra consulta">1ra consulta</SelectItem>
                   <SelectItem value="2da consulta">2da consulta</SelectItem>
-                  <SelectItem value="cierre">Cierre</SelectItem>
+                  <SelectItem value="3ra consulta">3ra consulta</SelectItem>
+                  <SelectItem value="Cierre">Cierre</SelectItem>
+                  <SelectItem value="2do cierre">2do cierre</SelectItem>
                   <SelectItem value="Seguimiento">Seguimiento</SelectItem>
                 </SelectContent>
               </Select>

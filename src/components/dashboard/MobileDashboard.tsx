@@ -527,6 +527,7 @@ export default function MobileDashboard({
                   <SelectItem value="Apartado">📑 Apartado</SelectItem>
                   <SelectItem value="No asistencia">❌ No asistencia</SelectItem>
                   <SelectItem value="Reagendó">📅 Reagendó</SelectItem>
+                  <SelectItem value="Continuación en 2da cita">🔄 Continuación en 2da cita</SelectItem>
                 </SelectContent>
               </Select>
             </div>

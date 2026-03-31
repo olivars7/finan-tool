@@ -159,7 +159,6 @@ export default function UpcomingAppointments({
     if (finalizingApp) {
       const isCierre = finalStatus === 'Cierre';
       
-      // LOGICA: Si la cita no es de hoy (es de un día próximo), actualizar fecha a la actual
       const appDate = parseISO(finalizingApp.date);
       let finalDate = finalizingApp.date;
       
@@ -170,7 +169,7 @@ export default function UpcomingAppointments({
       editAppointment(finalizingApp.id, { 
         status: finalStatus, 
         notes: finalNotes,
-        date: finalDate, // Se actualiza la fecha a la actual si no lo era
+        date: finalDate, 
         isConfirmed: true, 
         finalCreditAmount: isCierre ? finalCreditAmount : undefined,
         commissionPercent: isCierre ? finalCommissionPercent : undefined,
@@ -589,7 +588,7 @@ export default function UpcomingAppointments({
                   <SelectItem value="Apartado" className="focus:bg-blue-500/20">📑 Apartado (Reserva)</SelectItem>
                   <SelectItem value="No asistencia" className="focus:bg-destructive/20">❌ No asistencia</SelectItem>
                   <SelectItem value="Reagendó" className="focus:bg-primary/20">📅 Reagendó</SelectItem>
-                  <SelectItem value="Continuación en otra cita" className="focus:bg-primary/20">🔄 Continuación</SelectItem>
+                  <SelectItem value="Continuación en 2da cita" className="focus:bg-primary/20">🔄 Continuación en 2da cita</SelectItem>
                   <SelectItem value="Reembolso" className="focus:bg-orange-500/20">💸 Reembolso</SelectItem>
                 </SelectContent>
               </Select>
@@ -611,7 +610,7 @@ export default function UpcomingAppointments({
                         type="text" 
                         value={creditInput} 
                         onChange={e => handleCreditChange(e.target.value)}
-                        className="h-14 pl-10 bg-background border-green-500/20 text-2xl font-black text-foreground rounded-xl"
+                        className="h-14 pl-10 bg-background border-green-500/20 text-2xl font-black text-foreground rounded-xl w-full"
                         placeholder="0"
                       />
                     </div>
@@ -626,7 +625,7 @@ export default function UpcomingAppointments({
                           max={100}
                           value={finalCommissionPercent || ''} 
                           onChange={e => setFinalCommissionPercent(parseFloat(e.target.value) || 0)}
-                          className="h-11 pr-8 bg-background border-green-500/20 text-lg font-black text-foreground rounded-xl"
+                          className="h-11 pr-8 bg-background border-green-500/20 text-lg font-black text-foreground rounded-xl w-full"
                           placeholder="100"
                         />
                         <span className="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-green-600">%</span>
@@ -649,7 +648,7 @@ export default function UpcomingAppointments({
               </Label>
               <Textarea 
                 placeholder="Escribe acuerdos o detalles..."
-                className="bg-muted/10 border-border min-h-[120px] resize-none text-sm text-foreground font-medium p-4 rounded-2xl"
+                className="bg-muted/10 border-border min-h-[120px] resize-none text-sm text-foreground font-medium p-4 rounded-2xl w-full"
                 value={finalNotes}
                 onChange={(e) => setFinalNotes(e.target.value)}
               />
@@ -667,7 +666,7 @@ export default function UpcomingAppointments({
                   <Label className="text-[9px] font-bold uppercase text-purple-600/70 dark:text-purple-400/70 mb-2 block">Nombre del Ejecutivo</Label>
                   <Input 
                     placeholder="Escribe el nombre..."
-                    className="bg-background border-purple-500/20 h-11 text-foreground font-bold"
+                    className="bg-background border-purple-500/20 h-11 text-foreground font-bold w-full"
                     value={attendingExecutive}
                     onChange={(e) => setAttendingExecutive(e.target.value)}
                   />

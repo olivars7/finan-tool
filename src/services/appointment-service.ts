@@ -28,13 +28,13 @@ import { es } from 'date-fns/locale';
 export type AppointmentStatus = 
   | 'Asistencia' 
   | 'No asistencia' 
-  | 'Continuación en otra cita' 
+  | 'Continuación en 2da cita' 
   | 'Reagendó' 
   | 'Reembolso' 
   | 'Cierre'
   | 'Apartado';
 
-export type AppointmentType = '1ra consulta' | '2da consulta' | 'Cierre' | 'Seguimiento';
+export type AppointmentType = '1ra consulta' | '2da consulta' | '3ra consulta' | 'Cierre' | '2do cierre' | 'Seguimiento';
 
 export type AppointmentProduct = 'Casa' | 'Departamento' | 'Terreno' | 'Transporte' | 'Préstamo';
 

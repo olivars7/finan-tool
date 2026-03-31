@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview An AI assistant that generates professional and personalized follow-up message templates
@@ -15,7 +16,7 @@ const GenerateFollowUpMessageInputSchema = z.object({
   status: z
     .string()
     .describe(
-      "The status of the past appointment (e.g., 'Asistencia', 'No asistencia', 'Continuación en otra cita', 'Reagendó', 'Reembolso', 'Cierre')."
+      "The status of the past appointment (e.g., 'Asistencia', 'No asistencia', 'Continuación en 2da cita', 'Reagendó', 'Reembolso', 'Cierre')."
     ),
   clientName: z.string().describe('The name of the client for personalization.'),
   agentName: z
@@ -56,7 +57,7 @@ Considera los siguientes puntos al generar la plantilla:
 - 'Cierre': El mensaje debe ser de felicitación por concretar su trámite inmobiliario y agradecer la confianza.
 - 'Asistencia': Agradecer el tiempo, resumir brevemente que fue un gusto atenderle y quedar a sus órdenes para el siguiente paso.
 - 'No asistencia': Expresar que se le extrañó en la cita y preguntar si desea reprogramar o si hubo algún inconveniente.
-- 'Continuación en otra cita': Reforzar los puntos clave vistos y mencionar que se espera con gusto la siguiente sesión para profundizar.
+- 'Continuación en 2da cita': Reforzar los puntos clave vistos y mencionar que se espera con gusto la siguiente sesión para profundizar en el perfilamiento.
 - 'Reagendó': Confirmar la nueva fecha y hora, expresando entusiasmo por la reunión.
 - 'Reembolso': Mantener un tono muy profesional y empático, confirmando el trámite y dejando la puerta abierta para el futuro.
 - Mantén un tono profesional y amigable.
