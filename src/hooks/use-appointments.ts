@@ -126,9 +126,9 @@ export function useAppointments() {
       isArchived: false
     };
     
-    // Usamos el estado funcional para asegurar que trabajamos con el array más reciente
     const updated = [newApp, ...appointments];
     await persistAppointments(updated);
+    return newApp;
   };
 
   const editAppointment = async (id: string, partial: Partial<Appointment>) => {

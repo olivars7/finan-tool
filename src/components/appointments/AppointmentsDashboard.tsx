@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useMemo } from 'react';
@@ -85,12 +86,22 @@ const DashboardContent = ({
   const filteredUpcoming = filteredList.filter(a => {
     const d = startOfDay(parseISO(a.date));
     return (isToday(d) || isAfter(d, today)) && !a.status;
-  }).sort((a, b) => parseISO(a.date).getTime() - parseISO(b.date).getTime());
+  }).sort((a, b) => {
+    const dateA = parseISO(a.date).getTime();
+    const dateB = parseISO(b.date).getTime();
+    if (dateA !== dateB) return dateA - dateB;
+    return a.time.localeCompare(b.time);
+  });
 
   const filteredPast = filteredList.filter(a => {
     const d = startOfDay(parseISO(a.date));
     return isBefore(d, today) || !!a.status;
-  }).sort((a, b) => b.date.localeCompare(a.date));
+  }).sort((a, b) => {
+    const dateA = parseISO(a.date).getTime();
+    const dateB = parseISO(b.date).getTime();
+    if (dateA !== dateB) return dateB - dateA;
+    return b.time.localeCompare(a.time);
+  });
 
   const formatCurrency = (val: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(val);
 
@@ -228,7 +239,7 @@ interface AppointmentsDashboardProps {
   activeAppointments: Appointment[];
   upcoming: Appointment[];
   past: Appointment[];
-  addAppointment: (app: any) => void;
+  addAppointment: (app: any) => Promise<any>;
   editAppointment: (id: string, data: Partial<Appointment>) => void;
   archiveAppointment: (id: string) => void;
   unarchiveAppointment: (id: string) => void;
@@ -258,7 +269,10 @@ export default function AppointmentsDashboard({
   return (
     <div className="space-y-6">
       <div className="hidden md:block">
-        <AppointmentForm onAdd={addAppointment} />
+        <AppointmentForm onAdd={async (data) => {
+          const newApp = await addAppointment(data);
+          if (newApp) onSelectAppId(newApp.id);
+        }} />
       </div>
       
       <Card className="shadow-xl bg-card border-border border-l-4 border-l-blue-600 overflow-hidden">

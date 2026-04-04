@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -48,7 +49,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from 'next/image';
 
-type Theme = 'tranquilo' | 'moderno' | 'olivares' | 'corporativo' | 'corporativo-oscuro';
+type Theme = 'tranquilo' | 'moderno' | 'olivares' | 'corporativo' | 'corporativo-oscuro' | 'esmeralda' | 'vibrante' | 'nieve';
 
 export interface FinantoMainProps {
   initialSection?: 'simulador' | 'gestor' | 'stats';
@@ -123,7 +124,7 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
   const applyTheme = (themeId: Theme) => {
     setTheme(themeId);
     document.documentElement.setAttribute('data-theme', themeId);
-    if (themeId === 'corporativo') {
+    if (themeId === 'corporativo' || themeId === 'nieve') {
       document.documentElement.classList.remove('dark');
     } else {
       document.documentElement.classList.add('dark');
@@ -201,6 +202,9 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
                   { id: 'tranquilo', label: 'Atlántico', icon: Palette, color: 'bg-primary' },
                   { id: 'moderno', label: 'Neo', icon: Cpu, color: 'bg-cyan-500' },
                   { id: 'olivares', label: 'Prestigio', icon: Crown, color: 'bg-yellow-600' },
+                  { id: 'esmeralda', label: 'Esmeralda', icon: Sparkles, color: 'bg-emerald-600' },
+                  { id: 'vibrante', label: 'Vibrante', icon: Cpu, color: 'bg-magenta-500' },
+                  { id: 'nieve', label: 'Nieve', icon: Moon, color: 'bg-slate-100' },
                 ].map((t) => (
                   <DropdownMenuItem key={t.id} onClick={() => handleThemeChange(t.id as Theme)} className="cursor-pointer">
                     <t.icon className="w-4 h-4 text-muted-foreground mr-2" />
@@ -305,9 +309,10 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
           
           <ScrollArea className="flex-1 p-6 scrollbar-thin">
             <div className="pb-32">
-              <AppointmentForm onAdd={(data) => {
-                addAppointment(data);
+              <AppointmentForm onAdd={async (data) => {
+                const newApp = await addAppointment(data);
                 setIsNewAppointmentOpen(false);
+                if (newApp) setSelectedId(newApp.id);
               }} />
             </div>
           </ScrollArea>
