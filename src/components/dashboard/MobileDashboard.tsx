@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -185,16 +184,21 @@ export default function MobileDashboard({
       });
       
       toast({
-        title: isCierre ? "¡Venta Cerrada!" : "Cita Finalizada",
+        title: "Cita Finalizada",
         description: `Resultado "${finalStatus}" guardado para ${finalizingApp.name}.`
       });
       setFinalizingApp(null);
     }
   };
 
-  const handleCall = (e: React.MouseEvent, phone: string) => {
+  const handleCopyPhone = (e: React.MouseEvent, phone: string, name: string) => {
     e.stopPropagation();
-    window.location.href = `tel:${phone.replace(/\s/g, '')}`;
+    navigator.clipboard.writeText(phone).then(() => {
+      toast({
+        title: "Número copiado",
+        description: `${name}: ${phone} listo para usar.`,
+      });
+    });
   };
 
   const getCardStyles = (status?: AppointmentStatus) => {
@@ -456,7 +460,7 @@ export default function MobileDashboard({
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      onClick={(e) => handleCall(e, app.phone)}
+                      onClick={(e) => handleCopyPhone(e, app.phone, app.name)}
                       className="h-10 w-10 rounded-full bg-primary/10 text-primary border border-primary/5 active:bg-primary/20"
                     >
                       <Phone size={18} />
