@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -25,15 +26,15 @@ const ToastViewport = React.forwardRef<
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName
 
 const toastVariants = cva(
-  "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-xl border-none p-6 pr-8 shadow-2xl transition-all data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-top-full data-[state=closed]:sm:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full cursor-pointer transition-colors",
+  "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-2xl border p-6 pr-8 shadow-2xl transition-all data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-top-full data-[state=closed]:sm:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full cursor-pointer transition-colors backdrop-blur-xl",
   {
     variants: {
       variant: {
-        default: "bg-card/85 text-foreground backdrop-blur-md",
+        default: "bg-card/70 border-border/40 text-foreground",
         destructive:
-          "destructive group bg-destructive/15 text-destructive backdrop-blur-md",
+          "bg-destructive/15 border-destructive/20 text-destructive dark:text-red-400",
         warning: 
-          "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 backdrop-blur-md border border-yellow-500/20",
+          "bg-yellow-500/10 border-yellow-500/20 text-yellow-600 dark:text-yellow-400",
       },
     },
     defaultVariants: {

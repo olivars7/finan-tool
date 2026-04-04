@@ -171,6 +171,87 @@
     --tooltip-border: 214 89% 52% / 0.3;
     --tooltip-opacity: 0.9;
   }
+
+  [data-theme="esmeralda"] {
+    color-scheme: dark;
+    --background: 160 40% 4%;
+    --foreground: 160 20% 98%;
+    --card: 160 40% 8% / 0.6;
+    --card-foreground: 160 20% 98%;
+    --popover: 160 40% 6% / 0.8;
+    --popover-foreground: 160 20% 98%;
+    --primary: 160 84% 39%; /* Emerald */
+    --primary-foreground: 160 40% 2%;
+    --secondary: 160 40% 15%;
+    --secondary-foreground: 160 20% 98%;
+    --muted: 160 40% 10% / 0.5;
+    --muted-foreground: 160 10% 65%;
+    --accent: 45 90% 50%; /* Gold accents */
+    --accent-foreground: 160 40% 2%;
+    --border: 160 84% 39% / 0.2;
+    --input: 160 40% 15% / 0.5;
+    --ring: 160 84% 39%;
+    --radius: 0.75rem;
+    --calendar-filter: invert(1) hue-rotate(120deg);
+    --tooltip-bg: 160 40% 6%;
+    --tooltip-foreground: 160 20% 98%;
+    --tooltip-border: 160 84% 39% / 0.3;
+    --tooltip-opacity: 0.9;
+  }
+
+  [data-theme="vibrante"] {
+    color-scheme: dark;
+    --background: 280 50% 3%;
+    --foreground: 0 0% 100%;
+    --card: 280 50% 8% / 0.4;
+    --card-foreground: 0 0% 100%;
+    --popover: 280 50% 6% / 0.8;
+    --popover-foreground: 0 0% 100%;
+    --primary: 320 100% 60%; /* Neon Pink */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 280 50% 15%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 280 50% 12% / 0.5;
+    --muted-foreground: 280 10% 70%;
+    --accent: 190 100% 50%; /* Neon Cyan */
+    --accent-foreground: 280 50% 2%;
+    --border: 320 100% 60% / 0.3;
+    --input: 280 50% 15% / 0.5;
+    --ring: 320 100% 60%;
+    --radius: 0.5rem;
+    --calendar-filter: invert(1) hue-rotate(280deg);
+    --tooltip-bg: 280 50% 6%;
+    --tooltip-foreground: 0 0% 100%;
+    --tooltip-border: 320 100% 60% / 0.4;
+    --tooltip-opacity: 0.9;
+  }
+
+  [data-theme="nieve"] {
+    color-scheme: light;
+    --background: 210 20% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100% / 0.8;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100% / 0.9;
+    --popover-foreground: 222 47% 11%;
+    --primary: 200 100% 45%; /* Ice Blue */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 20% 90%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 20% 94%;
+    --muted-foreground: 210 10% 45%;
+    --accent: 200 100% 45%;
+    --accent-foreground: 0 0% 100%;
+    --border: 200 100% 45% / 0.1;
+    --input: 210 20% 94%;
+    --ring: 200 100% 45%;
+    --radius: 1.25rem;
+    --calendar-filter: none;
+    --tooltip-bg: 0 0% 100%;
+    --tooltip-foreground: 222 47% 11%;
+    --tooltip-border: 200 100% 45% / 0.2;
+    --tooltip-opacity: 1;
+  }
 }
 
 @layer base {
@@ -179,18 +260,16 @@
   
   header { @apply backdrop-blur-[12px] bg-card/10 !important; }
   
-  /* Generic Transparent Glass Style for small Dialogs and Toasts (Desktop Only usually) */
+  /* Generic Transparent Glass Style for small Dialogs */
   [role="dialog"]:not([data-calculator-dialog="true"]):not([data-appointments-dialog="true"]) { 
     @apply backdrop-blur-[16px] shadow-2xl border border-border/40 rounded-xl !important; 
     background-color: hsl(var(--card) / 0.8) !important;
     color: hsl(var(--foreground)) !important;
   }
 
-  /* Toasts (Notifications) */
+  /* Toasts (Notifications) Global Base */
   [role="status"] { 
-    @apply backdrop-blur-[16px] shadow-2xl border-none rounded-xl !important; 
-    background-color: hsl(var(--card) / 0.8) !important;
-    color: hsl(var(--foreground)) !important;
+    @apply shadow-2xl border border-border/40 rounded-2xl !important; 
   }
 
   /* Full screen dialogs specific to themes */
@@ -235,13 +314,12 @@
   }
 }
 
-/* Mobile Responsive Overrides - ZERO TRANSPARENCY & ZERO BLUR */
+/* Mobile Responsive Overrides - ZERO TRANSPARENCY & ZERO BLUR (Performance) */
 @media (max-width: 1023px) {
   /* Enforce 100% solid backgrounds on all overlay elements */
   [role="dialog"],
   [role="alertdialog"],
   [data-radix-popper-content-wrapper],
-  [role="status"],
   .bg-card\/80, 
   .bg-card\/10, 
   .bg-white\/5, 
@@ -262,12 +340,6 @@
 
   [data-state="open"][role="dialog"] {
     animation: finanto-reveal 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  }
-
-  /* Solid notifications */
-  [role="status"] {
-    @apply !fixed !top-4 !bottom-auto !left-4 !right-4 !w-auto !max-w-none !mb-0 !rounded-2xl !p-4 !border-none;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2) !important;
   }
 
   /* Ensure card elements inside popups are also solid */
