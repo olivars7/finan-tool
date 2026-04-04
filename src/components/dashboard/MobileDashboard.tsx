@@ -9,7 +9,6 @@ import {
   BarChart3, 
   Cloud,
   ChevronRight,
-  Clock,
   Phone,
   CalendarDays,
   Wallet,
@@ -23,9 +22,9 @@ import {
   CheckCircle,
   AlertCircle,
   Save,
-  CheckCircle as CheckIcon,
   Receipt,
-  Percent
+  Percent,
+  RotateCcw
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Appointment, AppointmentStatus } from '@/services/appointment-service';
@@ -60,7 +59,6 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Select,
   SelectContent,
@@ -100,6 +98,7 @@ export default function MobileDashboard({
   
   // States for Quick Actions
   const [confirmingApp, setConfirmingApp] = useState<Appointment | null>(null);
+  const [unconfirmingApp, setUnconfirmingApp] = useState<Appointment | null>(null);
   const [finalizingApp, setFinalizingApp] = useState<Appointment | null>(null);
   
   // Finalization form states
@@ -171,7 +170,6 @@ export default function MobileDashboard({
       const appDate = parseISO(finalizingApp.date);
       let finalDate = finalizingApp.date;
       
-      // Actualizar fecha al momento del cierre si no es hoy
       if (!isToday(appDate)) {
         finalDate = new Date().toISOString();
       }
@@ -195,21 +193,16 @@ export default function MobileDashboard({
   };
 
   const getCardStyles = (status?: AppointmentStatus) => {
-    if (!status) return "bg-card border-border/40 shadow-sm";
+    if (!status) return "bg-muted/5 border-border/10 shadow-none";
     switch (status) {
-      case 'Cierre': return "bg-green-500/5 border-green-500/20 shadow-none";
-      case 'Apartado': return "bg-blue-500/5 border-blue-500/20 shadow-none";
-      case 'No asistencia': return "bg-destructive/5 border-destructive/20 opacity-80 shadow-none";
-      default: return "bg-muted/30 border-border/40 shadow-none";
-    }
-  };
-
-  const getStatusBadgeStyles = (status?: AppointmentStatus) => {
-    switch (status) {
-      case 'Cierre': return "bg-green-500/10 text-green-600 border-green-500/20";
-      case 'Apartado': return "bg-blue-500/10 text-blue-600 border-blue-500/20";
-      case 'No asistencia': return "bg-destructive/10 text-destructive border-destructive/20";
-      default: return "bg-primary/10 text-primary border-primary/20";
+      case 'Cierre': return "bg-green-500/10 border-green-500/20 shadow-none";
+      case 'Apartado': return "bg-blue-500/10 border-blue-500/20 shadow-none";
+      case 'No asistencia': return "bg-destructive/10 border-destructive/20 shadow-none opacity-90";
+      case 'Asistencia': return "bg-primary/10 border-primary/20 shadow-none";
+      case 'Reagendó': return "bg-muted/20 border-border/10 shadow-none";
+      case 'Continuación en 2da cita': return "bg-indigo-500/10 border-indigo-500/20 shadow-none";
+      case 'Reembolso': return "bg-orange-500/10 border-orange-500/20 shadow-none";
+      default: return "bg-muted/5 border-border/10 shadow-none";
     }
   };
 
@@ -288,7 +281,7 @@ export default function MobileDashboard({
       icon: Calculator,
       iconColor: 'text-blue-500',
       circleColor: 'bg-blue-500/10',
-      activeStyles: 'active:shadow-blue-500/40 active:bg-blue-500/20 active:border-blue-500/30',
+      activeStyles: 'active:bg-blue-500/20 active:border-blue-500/30',
       action: onOpenCalculator
     },
     {
@@ -298,7 +291,7 @@ export default function MobileDashboard({
       icon: PlusCircle,
       iconColor: 'text-emerald-500',
       circleColor: 'bg-emerald-500/10',
-      activeStyles: 'active:shadow-emerald-500/40 active:bg-emerald-500/20 active:border-emerald-500/30',
+      activeStyles: 'active:bg-emerald-500/20 active:border-emerald-500/30',
       action: onOpenNewAppointment
     },
     {
@@ -308,7 +301,7 @@ export default function MobileDashboard({
       icon: Calendar,
       iconColor: 'text-indigo-500',
       circleColor: 'bg-indigo-500/10',
-      activeStyles: 'active:shadow-indigo-500/40 active:bg-indigo-500/20 active:border-indigo-500/30',
+      activeStyles: 'active:bg-indigo-500/20 active:border-indigo-500/30',
       action: onOpenAgenda
     },
     {
@@ -318,7 +311,7 @@ export default function MobileDashboard({
       icon: BarChart3,
       iconColor: 'text-amber-500',
       circleColor: 'bg-amber-500/10',
-      activeStyles: 'active:shadow-amber-500/40 active:bg-amber-500/20 active:border-amber-500/30',
+      activeStyles: 'active:bg-amber-500/20 active:border-amber-500/30',
       action: onOpenStats
     }
   ];
@@ -384,7 +377,7 @@ export default function MobileDashboard({
             onClick={q.action}
             className={cn(
               "relative aspect-square overflow-hidden flex flex-col items-center justify-center rounded-[3.5rem] border transition-all duration-300 active:scale-95 shadow-xl group backdrop-blur-2xl",
-              "bg-white/[0.05] border-white/10",
+              "bg-white/[0.05] border-white/5",
               q.activeStyles
             )}
           >
@@ -413,18 +406,18 @@ export default function MobileDashboard({
 
       <div className="space-y-5 pt-4 px-1 pb-24">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-black uppercase tracking-[0.3em] text-muted-foreground flex items-center gap-2">
-            <Clock className="w-4 h-4 text-primary" /> Actividad Hoy
+          <h3 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground/60 flex items-center gap-2">
+            Actividad Hoy
           </h3>
-          <Badge variant="outline" className="text-[10px] font-black uppercase border-primary/20 bg-primary/5 text-primary rounded-full px-3 py-1">
-            {todayApps.length} CITAS
+          <Badge variant="outline" className="text-[9px] font-black uppercase border-border/10 bg-muted/5 text-muted-foreground/60 rounded-full px-2 py-0.5">
+            {todayApps.length} REGISTROS
           </Badge>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {todayApps.length === 0 ? (
-            <div className="p-12 border border-dashed border-border/40 rounded-[3rem] text-center bg-muted/5">
-              <p className="text-[10px] font-bold uppercase text-muted-foreground/40 italic tracking-widest">Sin actividad para hoy</p>
+            <div className="p-12 border border-dashed border-border/10 rounded-[3rem] text-center bg-muted/5">
+              <p className="text-[10px] font-bold uppercase text-muted-foreground/20 italic tracking-widest">Sin actividad programada</p>
             </div>
           ) : (
             todayApps.slice(0, visibleCount).map((app) => (
@@ -432,46 +425,52 @@ export default function MobileDashboard({
                 key={app.id} 
                 onClick={() => onSelectApp(app.id)}
                 className={cn(
-                  "p-6 border rounded-[2.5rem] flex flex-col gap-4 group active:bg-muted/50 transition-all active:scale-[0.98]",
+                  "p-5 border rounded-[2rem] flex flex-col gap-4 group transition-all duration-300 active:scale-[0.98]",
                   getCardStyles(app.status)
                 )}
               >
                 <div className="flex items-center justify-between w-full">
-                  <div className="flex items-center gap-5">
+                  <div className="flex items-center gap-4">
                     <div className={cn(
-                      "w-14 h-14 rounded-2xl flex items-center justify-center text-[11px] font-black shadow-inner",
-                      app.status ? "bg-muted/20 text-muted-foreground" : "bg-primary/10 text-primary"
+                      "w-12 h-12 rounded-2xl flex items-center justify-center text-[10px] font-black",
+                      app.status ? "bg-background/20 text-muted-foreground" : "bg-primary/5 text-primary"
                     )}>
                       {format12hTime(app.time)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-base font-black uppercase tracking-tight text-foreground truncate max-w-[160px]">{app.name}</p>
-                      <div className="flex items-center gap-3 mt-1">
-                        <span className="text-[10px] font-bold uppercase text-muted-foreground/60 tracking-wider">{app.type}</span>
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary/30" />
-                        <span className="text-[10px] font-black text-primary flex items-center gap-1.5 uppercase tracking-tighter"><Phone size={10} /> {app.phone}</span>
+                      <p className="text-base font-black uppercase tracking-tight text-foreground truncate max-w-[160px] leading-none mb-1">{app.name}</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[9px] font-bold uppercase text-muted-foreground/40 tracking-wider">{app.type}</span>
+                        <div className="w-1 h-1 rounded-full bg-muted-foreground/20" />
+                        <span className="text-[10px] font-black text-primary/60 flex items-center gap-1 uppercase tracking-tighter"><Phone size={10} /> {app.phone}</span>
                       </div>
                     </div>
                   </div>
                   {app.status ? (
-                    <Badge variant="outline" className={cn("text-[9px] font-black uppercase rounded-full px-3 py-1 border", getStatusBadgeStyles(app.status))}>
+                    <Badge variant="outline" className="text-[8px] font-black uppercase rounded-full px-2 py-0.5 border-none bg-background/20 text-foreground/60">
                       {app.status}
                     </Badge>
                   ) : (
-                    <ChevronRight className="w-5 h-5 text-muted-foreground/20 group-active:text-primary transition-colors" />
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/20 group-active:text-primary transition-colors" />
                   )}
                 </div>
 
                 {!app.status && (
-                  <div className="flex items-center gap-2 pt-2 border-t border-border/5">
+                  <div className="flex items-center gap-2 pt-3 border-t border-border/5">
                     <Button 
                       variant="outline" 
                       size="sm" 
                       className={cn(
-                        "h-10 text-[10px] font-bold uppercase flex-1 rounded-full border-dashed",
-                        app.isConfirmed ? "bg-green-500/10 text-green-600 border-green-500/30" : "bg-orange-500/10 text-orange-600 border-orange-500/30"
+                        "h-9 text-[9px] font-black uppercase flex-1 rounded-full transition-all",
+                        app.isConfirmed 
+                          ? "bg-green-500/10 text-green-600 border-green-500/20" 
+                          : "bg-muted/10 text-muted-foreground/60 border-transparent"
                       )}
-                      onClick={(e) => { e.stopPropagation(); setConfirmingApp(app); }}
+                      onClick={(e) => { 
+                        e.stopPropagation(); 
+                        if (app.isConfirmed) setUnconfirmingApp(app);
+                        else setConfirmingApp(app);
+                      }}
                     >
                       {app.isConfirmed ? <CheckCircle size={14} className="mr-1.5" /> : <AlertCircle size={14} className="mr-1.5" />}
                       {app.isConfirmed ? 'Confirmado' : 'Confirmar'}
@@ -479,10 +478,10 @@ export default function MobileDashboard({
                     <Button 
                       variant="secondary" 
                       size="sm" 
-                      className="h-10 text-[10px] font-bold uppercase flex-1 rounded-full bg-muted/20 border border-border/50 text-foreground"
+                      className="h-9 text-[9px] font-black uppercase flex-1 rounded-full bg-foreground text-background border-none"
                       onClick={(e) => handleOpenFinalize(e, app)}
                     >
-                      <CheckCircle2 size={14} className="mr-1.5 text-green-600" /> Finalizar
+                      <CheckCircle2 size={14} className="mr-1.5" /> Finalizar
                     </Button>
                   </div>
                 )}
@@ -492,17 +491,17 @@ export default function MobileDashboard({
           {todayApps.length > visibleCount && (
             <button 
               onClick={() => setVisibleCount(prev => prev + 10)}
-              className="w-full h-16 text-[11px] font-black uppercase tracking-[0.3em] text-primary flex items-center justify-center gap-3 rounded-[2rem] border border-primary/10 bg-primary/5 active:bg-primary/10 transition-all"
+              className="w-full h-14 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 flex items-center justify-center gap-2 rounded-[1.5rem] border border-border/5 bg-muted/5 active:bg-muted/10 transition-all mt-2"
             >
-              Ver {todayApps.length - visibleCount} más <ChevronRight size={16} />
+              Ver {todayApps.length - visibleCount} más <ChevronRight size={14} />
             </button>
           )}
         </div>
       </div>
 
-      <div className="pt-8 border-t border-border/40 text-center opacity-30 pb-32">
-        <p className="text-[9px] font-black uppercase tracking-[0.4em] text-muted-foreground">
-          Finanto Terminal v2.5 • Elite CRM
+      <div className="pt-8 border-t border-border/5 text-center opacity-20 pb-32">
+        <p className="text-[8px] font-black uppercase tracking-[0.4em] text-muted-foreground">
+          Finanto Terminal v2.6 • Minimal CRM
         </p>
       </div>
 
@@ -526,8 +525,35 @@ export default function MobileDashboard({
                 toast({ title: "Asistencia Confirmada", description: "Cita validada correctamente." });
                 setConfirmingApp(null);
               }
-            }} className="bg-primary rounded-full h-12 text-xs font-black uppercase shadow-lg text-white">
+            }} className="bg-primary rounded-full h-12 text-xs font-black uppercase shadow-lg text-white border-none">
               Confirmar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Unconfirmation Dialog */}
+      <AlertDialog open={!!unconfirmingApp} onOpenChange={(o) => !o && setUnconfirmingApp(null)}>
+        <AlertDialogContent className="w-[90%] rounded-[2rem] bg-background border-border text-foreground">
+          <AlertDialogHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-3 bg-muted/20 rounded-2xl"><RotateCcw className="w-6 h-6 text-muted-foreground" /></div>
+              <AlertDialogTitle className="text-xl font-black uppercase tracking-tighter">Cancelar Marca</AlertDialogTitle>
+            </div>
+            <AlertDialogDescription className="text-muted-foreground font-medium">
+              ¿Deseas quitar la confirmación de asistencia para <strong>{unconfirmingApp?.name}</strong>?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-3 mt-4">
+            <AlertDialogCancel className="rounded-full h-12 text-xs font-bold uppercase">No</AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              if (unconfirmingApp) {
+                onEditApp(unconfirmingApp.id, { isConfirmed: false });
+                toast({ title: "Confirmación Removida", description: "La cita ha vuelto a estado pendiente." });
+                setUnconfirmingApp(null);
+              }
+            }} className="bg-destructive text-destructive-foreground rounded-full h-12 text-xs font-black uppercase border-none">
+              Quitar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -556,7 +582,7 @@ export default function MobileDashboard({
             <div className="space-y-3">
               <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block text-center">Resultado de la Consulta</Label>
               <Select value={finalStatus} onValueChange={(v) => setFinalStatus(v as AppointmentStatus)}>
-                <SelectTrigger className="h-14 rounded-2xl font-bold text-lg">
+                <SelectTrigger className="h-14 rounded-2xl font-bold text-lg border-border/40">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -602,7 +628,7 @@ export default function MobileDashboard({
                           onChange={e => setFinalCommissionPercent(parseFloat(e.target.value) || 0)}
                           className="h-11 pr-8 font-bold bg-background rounded-xl border-green-500/20"
                         />
-                        <Percent className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-green-600" />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-green-600">%</span>
                       </div>
                     </div>
                     <div className="space-y-2">
@@ -619,7 +645,7 @@ export default function MobileDashboard({
             <div className="space-y-3">
               <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground block">Notas y Acuerdos</Label>
               <Textarea 
-                className="rounded-2xl min-h-[120px] bg-muted/10 resize-none text-sm font-medium" 
+                className="rounded-2xl min-h-[120px] bg-muted/10 resize-none text-sm font-medium border-border/40" 
                 placeholder="Escribe detalles del seguimiento..." 
                 value={finalNotes}
                 onChange={e => setFinalNotes(e.target.value)}
@@ -628,7 +654,7 @@ export default function MobileDashboard({
           </div>
           <DialogFooter className="p-8 border-t bg-muted/5 flex flex-row gap-4">
             <Button variant="ghost" onClick={() => setFinalizingApp(null)} className="flex-1 h-12 rounded-full font-bold uppercase text-[10px]">Cancelar</Button>
-            <Button onClick={handleSaveFinalization} className="flex-[2] h-12 rounded-full bg-green-600 hover:bg-green-700 font-black uppercase text-[10px] text-white shadow-xl shadow-green-600/20 gap-2">
+            <Button onClick={handleSaveFinalization} className="flex-[2] h-12 rounded-full bg-green-600 hover:bg-green-700 font-black uppercase text-[10px] text-white shadow-xl shadow-green-600/20 gap-2 border-none">
               <Save size={16} /> Guardar
             </Button>
           </DialogFooter>
@@ -675,7 +701,7 @@ export default function MobileDashboard({
 
             <Button 
               onClick={handleCloseWelcome}
-              className="w-full h-20 rounded-full bg-primary hover:bg-primary/90 text-white font-black text-lg uppercase tracking-[0.25em] shadow-2xl shadow-primary/30 active:scale-95 transition-all"
+              className="w-full h-20 rounded-full bg-primary hover:bg-primary/90 text-white font-black text-lg uppercase tracking-[0.25em] shadow-2xl shadow-primary/30 active:scale-95 transition-all border-none"
             >
               ¡COMENZAR!
             </Button>
