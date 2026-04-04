@@ -22,12 +22,13 @@ import {
   AlertCircle,
   Save,
   Receipt,
-  Percent,
-  RotateCcw
+  RotateCcw,
+  ClipboardList
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Appointment, AppointmentStatus } from '@/services/appointment-service';
-import { parseISO, isToday } from 'date-fns';
+import { parseISO, isToday, isTomorrow, format } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -198,6 +199,52 @@ export default function MobileDashboard({
         title: "Número copiado",
         description: `${name}: ${phone} listo para usar.`,
       });
+    });
+  };
+
+  // WhatsApp format: Field: *Value*
+  const formatAppointmentForClipboard = (app: Appointment) => {
+    const dateObj = parseISO(app.date);
+    const dateFormatted = format(dateObj, "EEEE d 'de' MMMM yyyy", { locale: es });
+    const capitalizedDate = dateFormatted.charAt(0).toUpperCase() + dateFormatted.slice(1);
+    const timeFormatted = format12hTime(app.time);
+
+    return `Cita: *${capitalizedDate}*\n` +
+           `Nombre: *${app.name}*\n` +
+           `Teléfono: *${app.phone || 'N/A'}*\n` +
+           `Producto: *${app.product || 'N/A'}*\n` +
+           `Hora: *${timeFormatted}*`;
+  };
+
+  const copyTodayAppointments = () => {
+    const apps = appointments
+      .filter(a => !a.isArchived && isToday(parseISO(a.date)))
+      .sort((a, b) => a.time.localeCompare(b.time));
+
+    if (apps.length === 0) {
+      toast({ title: "Sin citas", description: "No hay citas registradas para hoy." });
+      return;
+    }
+
+    const text = apps.map(app => formatAppointmentForClipboard(app)).join('\n\n');
+    navigator.clipboard.writeText(text).then(() => {
+      toast({ title: "Citas de hoy copiadas", description: "Listado listo para WhatsApp." });
+    });
+  };
+
+  const copyTomorrowAppointments = () => {
+    const apps = appointments
+      .filter(a => !a.isArchived && isTomorrow(parseISO(a.date)))
+      .sort((a, b) => a.time.localeCompare(b.time));
+
+    if (apps.length === 0) {
+      toast({ title: "Sin citas", description: "No hay citas registradas para mañana." });
+      return;
+    }
+
+    const text = apps.map(app => formatAppointmentForClipboard(app)).join('\n\n');
+    navigator.clipboard.writeText(text).then(() => {
+      toast({ title: "Citas de mañana copiadas", description: "Listado listo para WhatsApp." });
     });
   };
 
@@ -411,6 +458,24 @@ export default function MobileDashboard({
             </div>
           </button>
         ))}
+      </div>
+
+      {/* Copy Report Actions */}
+      <div className="flex gap-3 px-1">
+        <Button 
+          onClick={copyTodayAppointments}
+          variant="outline" 
+          className="flex-1 h-12 rounded-2xl bg-blue-500/5 border-blue-500/20 text-blue-500 font-bold uppercase text-[9px] tracking-widest gap-2 active:bg-blue-500/10"
+        >
+          <ClipboardList size={14} /> Citas Hoy
+        </Button>
+        <Button 
+          onClick={copyTomorrowAppointments}
+          variant="outline" 
+          className="flex-1 h-12 rounded-2xl bg-cyan-500/5 border-cyan-500/20 text-cyan-500 font-bold uppercase text-[9px] tracking-widest gap-2 active:bg-cyan-500/10"
+        >
+          <ClipboardList size={14} /> Citas Mañana
+        </Button>
       </div>
 
       <div className="space-y-5 pt-4 px-1 pb-24">
