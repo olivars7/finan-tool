@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Calculator, 
   PlusCircle, 
@@ -123,9 +123,28 @@ export default function MobileDashboard({
     setShowWelcome(false);
   };
 
-  const todayApps = appointments
-    .filter(a => !a.isArchived && isToday(parseISO(a.date)))
-    .sort((a, b) => a.time.localeCompare(b.time));
+  // Hoy ordenado por prioridad: 1. Confirmadas, 2. Por confirmar, 3. Finalizadas
+  const todayApps = useMemo(() => {
+    return appointments
+      .filter(a => !a.isArchived && isToday(parseISO(a.date)))
+      .sort((a, b) => {
+        const getPriority = (app: Appointment) => {
+          if (app.status) return 3; // Finalizadas (Abajo)
+          if (app.isConfirmed) return 1; // Confirmadas (Arriba)
+          return 2; // Por confirmar (En medio)
+        };
+
+        const priorityA = getPriority(a);
+        const priorityB = getPriority(b);
+
+        if (priorityA !== priorityB) {
+          return priorityA - priorityB;
+        }
+
+        // Si tienen la misma prioridad, ordenar por hora
+        return a.time.localeCompare(b.time);
+      });
+  }, [appointments]);
 
   const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('es-MX', {
@@ -202,7 +221,6 @@ export default function MobileDashboard({
     });
   };
 
-  // WhatsApp format: Field: *Value*
   const formatAppointmentForClipboard = (app: Appointment) => {
     const dateObj = parseISO(app.date);
     const dateFormatted = format(dateObj, "EEEE d 'de' MMMM yyyy", { locale: es });
