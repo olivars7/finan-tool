@@ -152,11 +152,11 @@ export default function AppointmentDetailsDialog({
     const capitalizedDate = dateFormatted.charAt(0).toUpperCase() + dateFormatted.slice(1);
     const timeFormatted = format12hTime(appointment.time);
     
-    const text = `Cita: ${capitalizedDate}\n` +
-                 `Nombre: ${appointment.name}\n` +
-                 `Teléfono: ${appointment.phone}\n` +
-                 `Producto: ${appointment.product || 'N/A'}\n` +
-                 `Hora: ${timeFormatted}`;
+    const text = `Cita: *${capitalizedDate}*\n` +
+                 `Nombre: *${appointment.name}*\n` +
+                 `Teléfono: *${appointment.phone}*\n` +
+                 `Producto: *${appointment.product || 'N/A'}*\n` +
+                 `Hora: *${timeFormatted}*`;
 
     navigator.clipboard.writeText(text).then(() => {
       toast({ title: "Copiado", description: "Información de la cita lista para compartir." });

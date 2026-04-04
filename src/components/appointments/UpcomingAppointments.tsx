@@ -162,7 +162,6 @@ export default function UpcomingAppointments({
       const appDate = parseISO(finalizingApp.date);
       let finalDate = finalizingApp.date;
       
-      // Si la cita no es de hoy, actualizamos la fecha al momento del cierre para que las stats de venta caigan en el mes actual
       if (!isToday(appDate)) {
         finalDate = new Date().toISOString();
       }
@@ -211,11 +210,11 @@ export default function UpcomingAppointments({
     const capitalizedDate = dateFormatted.charAt(0).toUpperCase() + dateFormatted.slice(1);
     const timeFormatted = format12hTime(app.time);
 
-    return `Cita: ${capitalizedDate}\n` +
-           `Nombre: ${app.name}\n` +
-           `Teléfono: ${app.phone || 'N/A'}\n` +
-           `Producto: ${app.product || 'N/A'}\n` +
-           `Hora: ${timeFormatted}`;
+    return `Cita: *${capitalizedDate}*\n` +
+           `Nombre: *${app.name}*\n` +
+           `Teléfono: *${app.phone || 'N/A'}*\n` +
+           `Producto: *${app.product || 'N/A'}*\n` +
+           `Hora: *${timeFormatted}*`;
   };
 
   const copyAllTodayAppointments = () => {
