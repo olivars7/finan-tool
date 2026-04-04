@@ -192,17 +192,22 @@ export default function MobileDashboard({
     }
   };
 
+  const handleCall = (e: React.MouseEvent, phone: string) => {
+    e.stopPropagation();
+    window.location.href = `tel:${phone.replace(/\s/g, '')}`;
+  };
+
   const getCardStyles = (status?: AppointmentStatus) => {
-    if (!status) return "bg-muted/5 border-border/10 shadow-none";
+    if (!status) return "bg-muted/5 border-white/5 shadow-none";
     switch (status) {
-      case 'Cierre': return "bg-green-500/10 border-green-500/20 shadow-none";
-      case 'Apartado': return "bg-blue-500/10 border-blue-500/20 shadow-none";
-      case 'No asistencia': return "bg-destructive/10 border-destructive/20 shadow-none opacity-90";
-      case 'Asistencia': return "bg-primary/10 border-primary/20 shadow-none";
-      case 'Reagendó': return "bg-muted/20 border-border/10 shadow-none";
-      case 'Continuación en 2da cita': return "bg-indigo-500/10 border-indigo-500/20 shadow-none";
-      case 'Reembolso': return "bg-orange-500/10 border-orange-500/20 shadow-none";
-      default: return "bg-muted/5 border-border/10 shadow-none";
+      case 'Cierre': return "bg-green-500/10 border-green-500/10 shadow-none";
+      case 'Apartado': return "bg-blue-500/10 border-blue-500/10 shadow-none";
+      case 'No asistencia': return "bg-destructive/10 border-destructive/10 shadow-none opacity-90";
+      case 'Asistencia': return "bg-primary/10 border-primary/10 shadow-none";
+      case 'Reagendó': return "bg-muted/20 border-white/5 shadow-none";
+      case 'Continuación en 2da cita': return "bg-indigo-500/10 border-indigo-500/10 shadow-none";
+      case 'Reembolso': return "bg-orange-500/10 border-orange-500/10 shadow-none";
+      default: return "bg-muted/5 border-white/5 shadow-none";
     }
   };
 
@@ -425,11 +430,11 @@ export default function MobileDashboard({
                 key={app.id} 
                 onClick={() => onSelectApp(app.id)}
                 className={cn(
-                  "p-5 border rounded-[2rem] flex flex-col gap-4 group transition-all duration-300 active:scale-[0.98]",
+                  "p-5 border rounded-[2rem] flex flex-col gap-4 group transition-all duration-300 active:scale-[0.98] relative",
                   getCardStyles(app.status)
                 )}
               >
-                <div className="flex items-center justify-between w-full">
+                <div className="flex items-center justify-between w-full relative">
                   <div className="flex items-center gap-4">
                     <div className={cn(
                       "w-12 h-12 rounded-2xl flex items-center justify-center text-[10px] font-black",
@@ -442,17 +447,29 @@ export default function MobileDashboard({
                       <div className="flex items-center gap-2">
                         <span className="text-[9px] font-bold uppercase text-muted-foreground/40 tracking-wider">{app.type}</span>
                         <div className="w-1 h-1 rounded-full bg-muted-foreground/20" />
-                        <span className="text-[10px] font-black text-primary/60 flex items-center gap-1 uppercase tracking-tighter"><Phone size={10} /> {app.phone}</span>
+                        <span className="text-[10px] font-black text-primary/60 flex items-center gap-1 uppercase tracking-tighter">{app.phone}</span>
                       </div>
                     </div>
                   </div>
-                  {app.status ? (
-                    <Badge variant="outline" className="text-[8px] font-black uppercase rounded-full px-2 py-0.5 border-none bg-background/20 text-foreground/60">
-                      {app.status}
-                    </Badge>
-                  ) : (
-                    <ChevronRight className="w-4 h-4 text-muted-foreground/20 group-active:text-primary transition-colors" />
-                  )}
+                  
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={(e) => handleCall(e, app.phone)}
+                      className="h-10 w-10 rounded-full bg-primary/10 text-primary border border-primary/5 active:bg-primary/20"
+                    >
+                      <Phone size={18} />
+                    </Button>
+                    
+                    {app.status ? (
+                      <Badge variant="outline" className="text-[8px] font-black uppercase rounded-full px-2 py-0.5 border-none bg-background/20 text-foreground/60">
+                        {app.status}
+                      </Badge>
+                    ) : (
+                      <ChevronRight className="w-4 h-4 text-muted-foreground/20 group-active:text-primary transition-colors" />
+                    )}
+                  </div>
                 </div>
 
                 {!app.status && (
