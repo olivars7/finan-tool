@@ -60,7 +60,7 @@ const CalculatorInputs = ({
   formatWithCommas: (val: string) => string,
   customTerm?: string
 }) => {
-  const baseFactor = 0.00699; 
+  const baseFactor = 0.00896; 
   const term = parseInt(customTerm) || 192;
   const displayFactor = ((baseFactor * (192 / term)) * 100).toFixed(3);
 
@@ -71,7 +71,7 @@ const CalculatorInputs = ({
           <Label htmlFor={isModal ? "totalPriceModal" : "totalPrice"} className="text-[10px] font-black text-primary uppercase tracking-widest">
             Crédito (P)
           </Label>
-          <span className="text-[8px] font-bold opacity-40 uppercase">Enganche: 8%</span>
+          <span className="text-[8px] font-bold opacity-40 uppercase">Enganche: 7%</span>
         </div>
         <div className="relative flex items-center">
           <span className={cn(
@@ -123,9 +123,9 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
 
   const { toast } = useToast();
   
-  const BASE_FACTOR = 0.00699; 
-  const FACTOR_ENGANCHE = 0.08; // Actualizado a 8% como base
-  const FACTOR_MIN_ENGANCHE = 0.05; // 5% mínimo
+  const BASE_FACTOR = 0.00896; // 0.896%
+  const FACTOR_ENGANCHE = 0.07; // 7% base
+  const FACTOR_MIN_ENGANCHE = 0.03; // 3% mínimo
   const FACTOR_MAX_ENGANCHE = 0.30; // 30% máximo
   const INCOME_RATIO = 0.35; 
 
@@ -229,7 +229,7 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
     const text = `📊 *COTIZACIÓN FINANTO*\n\n` +
                  `• Crédito: *${formatCurrency(rawP)}*\n` +
                  `• Mensualidad: *${formatCurrency(totalMonthlyLoad)}*\n` +
-                 `• Enganche Base (8%): *${formatCurrency(totalDownPayment)}*\n` +
+                 `• Enganche Base (7%): *${formatCurrency(totalDownPayment)}*\n` +
                  `• Escrituración (5%): *${formatCurrency(taxesEscrituracion)}*\n` +
                  `• Avalúo (Est.): *${formatCurrency(appraisalFee)}*`;
 
@@ -261,7 +261,7 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
           
           <div className="grid grid-cols-2 gap-4 py-4 border-t border-border/10 pt-6">
             <div className="space-y-1">
-              <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Inversión (8%+)</p>
+              <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Inversión (7%+)</p>
               <p className="text-lg font-black text-primary">{formatCurrency(totalDownPayment)}</p>
             </div>
             <div className="space-y-1 text-right">
@@ -306,7 +306,7 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
                   </div>
                   <div className="grid grid-cols-2 gap-4 flex-1">
                     <div><span className="text-[10px] uppercase font-bold opacity-60">Monto Base</span><p className="font-bold text-lg">{formatCurrency(rawP)}</p></div>
-                    <div><span className="text-[10px] uppercase font-bold opacity-60">Enganche Base (8%)</span><p className="font-bold text-lg text-primary">{formatCurrency(totalDownPayment)}</p></div>
+                    <div><span className="text-[10px] uppercase font-bold opacity-60">Enganche Base (7%)</span><p className="font-bold text-lg text-primary">{formatCurrency(totalDownPayment)}</p></div>
                     <div><span className="text-[10px] uppercase font-bold opacity-60">Mensualidad</span><p className="font-bold text-lg text-primary">{formatCurrency(totalMonthlyLoad)}</p></div>
                   </div>
                   <div className="pt-4 border-t border-primary/20 space-y-4">
@@ -323,7 +323,7 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div className="p-3 rounded-xl bg-white/5 border border-white/5">
-                          <span className="text-[8px] font-bold uppercase opacity-40 block mb-1 text-center">Enganche 5% Mínimo</span>
+                          <span className="text-[8px] font-bold uppercase opacity-40 block mb-1 text-center">Enganche 3% Mínimo</span>
                           <p className="text-sm font-black text-center opacity-60">{formatCurrency(minPossibleDown)}</p>
                         </div>
                         <div className="p-3 rounded-xl bg-white/5 border border-white/5">
@@ -332,7 +332,7 @@ export default function CreditCalculator({ isExpanded = false, onExpandedChange 
                         </div>
                       </div>
                       <p className="text-[8px] text-muted-foreground italic text-center leading-tight">
-                        * Los montos anteriores dependen de la calificación final del cliente. El enganche base sugerido es del 8%.
+                        * Los montos anteriores dependen de la calificación final del cliente. El enganche base sugerido es del 7%.
                       </p>
                     </div>
                   </div>
