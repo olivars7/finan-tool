@@ -24,6 +24,7 @@ interface Props {
 export default function PaymentReminderDialog({ appointments, onConfirmPayment }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [initialCheckDone, setInitialCheckDone] = useState(false);
 
   // Filtrar cierres pendientes cuya fecha de pago es hoy o ya pasó
   const pendingPayments = useMemo(() => {
@@ -37,23 +38,31 @@ export default function PaymentReminderDialog({ appointments, onConfirmPayment }
     });
   }, [appointments]);
 
-  // Manejador de apertura inicial e intervalos de 3 minutos (180,000 ms)
+  // Manejador de apertura inicial y ciclo de 5 minutos después de cerrar
   useEffect(() => {
-    if (pendingPayments.length > 0 && !isOpen) {
-      // Primera apertura con pequeño delay estético
-      const initialTimer = setTimeout(() => setIsOpen(true), 2500);
-
-      // Intervalo de re-apertura cada 3 minutos exactamente
-      const reminderInterval = setInterval(() => {
-        setIsOpen(true);
-      }, 180000);
-
-      return () => {
-        clearTimeout(initialTimer);
-        clearInterval(reminderInterval);
-      };
+    if (pendingPayments.length === 0) {
+      setIsOpen(false);
+      return;
     }
-  }, [pendingPayments.length, isOpen]);
+
+    // Primera aparición rápida al detectar pagos
+    if (!initialCheckDone) {
+      const initialTimer = setTimeout(() => {
+        setIsOpen(true);
+        setInitialCheckDone(true);
+      }, 3000);
+      return () => clearTimeout(initialTimer);
+    }
+
+    // Si está cerrado y hay pendientes, esperar 5 minutos para volver a mostrar
+    if (!isOpen && initialCheckDone) {
+      const reminderTimer = setTimeout(() => {
+        setIsOpen(true);
+      }, 300000); // 5 minutos exactos (300,000 ms)
+
+      return () => clearTimeout(reminderTimer);
+    }
+  }, [pendingPayments.length, isOpen, initialCheckDone]);
 
   if (pendingPayments.length === 0) return null;
 
@@ -85,7 +94,7 @@ export default function PaymentReminderDialog({ appointments, onConfirmPayment }
   };
 
   const handleNext = () => {
-    setIsOpen(false); // Cierra el diálogo, el intervalo lo volverá a abrir en 3 min
+    setIsOpen(false); // Cierra el diálogo, el useEffect lo volverá a abrir en 5 min
     if (currentIndex < pendingPayments.length - 1) {
       setCurrentIndex(prev => prev + 1);
     } else {
@@ -97,15 +106,15 @@ export default function PaymentReminderDialog({ appointments, onConfirmPayment }
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent 
         onOpenAutoFocus={(e) => e.preventDefault()}
-        className="w-[94%] sm:max-w-[450px] aspect-square p-0 overflow-hidden rounded-[3.5rem] border-none bg-gradient-to-br from-emerald-700 via-green-700 to-teal-900 text-white shadow-[0_0_60px_rgba(0,0,0,0.4)] z-[250] flex flex-col"
+        className="w-[94%] sm:max-w-[450px] p-0 overflow-hidden rounded-[2.5rem] border-none bg-gradient-to-br from-emerald-800 via-green-800 to-teal-950 text-white shadow-[0_0_60px_rgba(0,0,0,0.5)] z-[250] flex flex-col"
       >
-        <DialogHeader className="p-8 pb-2 relative shrink-0">
+        <DialogHeader className="p-6 sm:p-8 pb-2 relative shrink-0">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-xl border border-white/10">
-              <HandCoins size={28} className="text-white" />
+              <HandCoins size={24} className="text-white" />
             </div>
             <div className="space-y-0.5">
-              <DialogTitle className="text-2xl font-black uppercase tracking-tighter text-white leading-none">
+              <DialogTitle className="text-xl sm:text-2xl font-black uppercase tracking-tighter text-white leading-none">
                 Cobro Pendiente
               </DialogTitle>
               <div className="flex items-center gap-2">
@@ -128,33 +137,33 @@ export default function PaymentReminderDialog({ appointments, onConfirmPayment }
           </DialogClose>
         </DialogHeader>
 
-        <div className="p-8 pt-2 flex-1 flex flex-col justify-between">
-          <div className="text-center space-y-1 py-2">
+        <div className="p-6 sm:p-8 pt-2 flex-1 flex flex-col gap-4 overflow-y-auto scrollbar-thin">
+          <div className="text-center space-y-1 py-2 shrink-0">
             <p className="text-[9px] font-black uppercase tracking-[0.3em] text-white/30">CLIENTE</p>
-            <h3 className="text-3xl font-black uppercase tracking-tighter leading-none">{currentApp.name}</h3>
+            <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter leading-tight">{currentApp.name}</h3>
           </div>
 
-          <div className="bg-black/20 rounded-[2.5rem] p-6 space-y-6 backdrop-blur-xl border border-white/5 shadow-inner flex-1 flex flex-col justify-center my-4">
+          <div className="bg-black/20 rounded-[2rem] p-5 sm:p-6 space-y-5 backdrop-blur-xl border border-white/5 shadow-inner">
             <div className="grid grid-cols-2 gap-4 border-b border-white/5 pb-4">
               <div className="space-y-0.5">
                 <span className="text-[8px] font-black uppercase text-white/40 tracking-widest flex items-center gap-1">
                   <Wallet size={8} /> Crédito
                 </span>
-                <p className="text-sm font-bold text-white/90">{formatCurrency(finalCredit)}</p>
+                <p className="text-xs sm:text-sm font-bold text-white/90">{formatCurrency(finalCredit)}</p>
               </div>
               <div className="space-y-0.5 text-right">
                 <span className="text-[8px] font-black uppercase text-white/40 tracking-widest flex items-center justify-end gap-1">
                   Part. % <Coins size={8} />
                 </span>
-                <p className="text-sm font-bold text-white/90">{commissionPercent}%</p>
+                <p className="text-xs sm:text-sm font-bold text-white/90">{commissionPercent}%</p>
               </div>
             </div>
 
             <div className="flex flex-col items-center justify-center py-1">
-              <div className="bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 mb-3">
+              <div className="bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 mb-2">
                 <span className="text-[9px] font-black uppercase text-emerald-400 tracking-[0.3em]">Ingreso Neto para ti</span>
               </div>
-              <p className="text-5xl font-black tracking-tighter text-white">
+              <p className="text-4xl sm:text-5xl font-black tracking-tighter text-white">
                 {formatCurrency(netIncome)}
               </p>
               <p className="text-[9px] font-bold text-white/30 mt-1 uppercase tracking-widest">ISR Deducido (9%)</p>
@@ -175,10 +184,10 @@ export default function PaymentReminderDialog({ appointments, onConfirmPayment }
             </div>
           </div>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 shrink-0">
             <Button 
               onClick={handleConfirm}
-              className="w-full h-14 rounded-[1.5rem] bg-white text-emerald-800 hover:bg-emerald-50 font-black uppercase text-sm tracking-widest shadow-lg transition-all active:scale-[0.97] border-none"
+              className="w-full h-12 sm:h-14 rounded-2xl sm:rounded-[1.5rem] bg-white text-emerald-900 hover:bg-emerald-50 font-black uppercase text-xs sm:text-sm tracking-widest shadow-lg transition-all active:scale-[0.97] border-none"
             >
               <CheckCircle2 className="mr-2 h-5 w-5" /> Confirmar Cobro
             </Button>
@@ -188,14 +197,14 @@ export default function PaymentReminderDialog({ appointments, onConfirmPayment }
               onClick={handleNext}
               className="w-full h-10 rounded-full text-white/40 hover:text-white hover:bg-white/5 font-bold uppercase text-[8px] tracking-[0.2em] border-none"
             >
-              Pausar por 3 minutos <ArrowRight size={12} className="ml-1" />
+              Pausar por 5 minutos <ArrowRight size={12} className="ml-1" />
             </Button>
           </div>
         </div>
 
         <div className="p-4 bg-black/10 text-center border-t border-white/5 shrink-0">
           <p className="text-[7px] font-black uppercase tracking-[0.4em] text-white/20">
-            FINANTO SETTLEMENT ENGINE
+            FINANTO SETTLEMENT ENGINE • V2.8
           </p>
         </div>
       </DialogContent>
