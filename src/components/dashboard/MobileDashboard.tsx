@@ -1,6 +1,7 @@
+
 "use client"
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Calculator, 
   PlusCircle, 
@@ -16,7 +17,6 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Users,
-  Construction,
   X,
   CheckCircle,
   AlertCircle,
@@ -94,7 +94,6 @@ export default function MobileDashboard({
   format12hTime
 }: MobileDashboardProps) {
   const [visibleCount, setVisibleCount] = useState(4);
-  const [showWelcome, setShowWelcome] = useState(false);
   
   // States for Quick Actions
   const [confirmingApp, setConfirmingApp] = useState<Appointment | null>(null);
@@ -109,19 +108,6 @@ export default function MobileDashboard({
   const [finalCommissionPercent, setFinalCommissionPercent] = useState<number>(100);
   
   const { toast } = useToast();
-
-  useEffect(() => {
-    const seen = localStorage.getItem('finanto_mobile_welcome_v2');
-    if (!seen) {
-      const timer = setTimeout(() => setShowWelcome(true), 800);
-      return () => clearTimeout(timer);
-    }
-  }, []);
-
-  const handleCloseWelcome = () => {
-    localStorage.setItem('finanto_mobile_welcome_v2', 'true');
-    setShowWelcome(false);
-  };
 
   // Hoy ordenado por prioridad: 1. Confirmadas, 2. Por confirmar, 3. Finalizadas
   const todayApps = useMemo(() => {
@@ -762,54 +748,6 @@ export default function MobileDashboard({
               <Save size={16} /> Guardar
             </Button>
           </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={showWelcome} onOpenChange={setShowWelcome}>
-        <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="w-[94%] max-w-[420px] rounded-[3rem] p-0 overflow-hidden border-none bg-background shadow-2xl z-[200]">
-          <DialogHeader className="sr-only">
-            <DialogTitle>Bienvenido a la Terminal Móvil</DialogTitle>
-            <DialogDescription>Mensaje inicial de bienvenida para usuarios móviles.</DialogDescription>
-          </DialogHeader>
-          
-          <div className="bg-primary p-12 flex flex-col items-center text-center gap-8 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-32 h-32 bg-black/10 rounded-full -ml-16 -mb-16 blur-2xl" />
-            
-            <div className="bg-white/20 p-8 rounded-[3rem] backdrop-blur-md relative z-10 shadow-2xl border border-white/20">
-              <Construction size={64} className="text-white animate-bounce" />
-            </div>
-            
-            <div className="space-y-3 relative z-10">
-              <h2 className="text-6xl font-black text-white uppercase italic tracking-tighter leading-none">¡HOLA!</h2>
-              <p className="text-white/90 font-bold text-sm uppercase tracking-[0.3em] leading-tight">
-                TERMINAL MÓVIL ACTIVA
-              </p>
-            </div>
-          </div>
-
-          <div className="p-12 space-y-10 text-center bg-background pb-32">
-            <div className="space-y-6">
-              <p className="text-foreground font-black text-lg leading-snug uppercase italic tracking-tight">
-                "Estamos transformando tu productividad inmobiliaria con herramientas de élite."
-              </p>
-              <div className="flex items-center justify-center gap-2">
-                <div className="h-1.5 w-8 bg-primary rounded-full" />
-                <div className="h-1.5 w-1.5 bg-primary/30 rounded-full" />
-                <div className="h-1.5 w-1.5 bg-primary/30 rounded-full" />
-              </div>
-              <p className="text-muted-foreground text-xs font-black uppercase tracking-[0.2em]">
-                OPTIMIZADO PARA GESTIÓN TÁCTICA
-              </p>
-            </div>
-
-            <Button 
-              onClick={handleCloseWelcome}
-              className="w-full h-20 rounded-full bg-primary hover:bg-primary/90 text-white font-black text-lg uppercase tracking-[0.25em] shadow-2xl shadow-primary/30 active:scale-95 transition-all border-none"
-            >
-              ¡COMENZAR!
-            </Button>
-          </div>
         </DialogContent>
       </Dialog>
     </div>

@@ -6,6 +6,7 @@ import MobileDashboard from '@/components/dashboard/MobileDashboard';
 import DesktopDashboard from '@/components/dashboard/DesktopDashboard';
 import TrashDialog from '@/components/appointments/TrashDialog';
 import AppointmentForm from '@/components/appointments/AppointmentForm';
+import PaymentReminderDialog from '@/components/appointments/PaymentReminderDialog';
 import { 
   Sparkles, 
   MessageSquare, 
@@ -336,6 +337,11 @@ export default function FinantoMain({ initialSection }: FinantoMainProps) {
         onDelete={deletePermanent}
         formatDate={appointmentState.formatFriendlyDate}
         format12hTime={appointmentState.format12hTime}
+      />
+
+      <PaymentReminderDialog 
+        appointments={appointments}
+        onConfirmPayment={(id) => editAppointment(id, { commissionStatus: 'Pagada' })}
       />
     </div>
   );
