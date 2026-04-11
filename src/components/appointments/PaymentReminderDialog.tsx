@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Appointment, getCommissionPaymentDate } from '@/services/appointment-service';
 import { 
   Receipt, Coins, CalendarDays, CheckCircle2, 
-  X, AlertCircle, TrendingUp, HandCoins
+  X, HandCoins, ArrowRight, Wallet
 } from 'lucide-react';
 import { format, isToday, isBefore, startOfDay } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -33,20 +33,29 @@ export default function PaymentReminderDialog({ appointments, onConfirmPayment }
       const paymentDate = startOfDay(getCommissionPaymentDate(a.date));
       return isToday(paymentDate) || isBefore(paymentDate, today);
     }).sort((a, b) => {
-      // Priorizar los más antiguos
       return new Date(a.date).getTime() - new Date(b.date).getTime();
     });
   }, [appointments]);
 
+  // Manejador de apertura inicial e intervalos de 60 segundos
   useEffect(() => {
     if (pendingPayments.length > 0 && !isOpen) {
-      // Pequeño delay para no interrumpir la carga inicial
-      const timer = setTimeout(() => setIsOpen(true), 2000);
-      return () => clearTimeout(timer);
+      // Primera apertura con pequeño delay
+      const initialTimer = setTimeout(() => setIsOpen(true), 2500);
+
+      // Intervalo de re-apertura cada 60 segundos
+      const reminderInterval = setInterval(() => {
+        setIsOpen(true);
+      }, 60000);
+
+      return () => {
+        clearTimeout(initialTimer);
+        clearInterval(reminderInterval);
+      };
     }
   }, [pendingPayments.length, isOpen]);
 
-  if (pendingPayments.length === 0 || !isOpen) return null;
+  if (pendingPayments.length === 0) return null;
 
   const currentApp = pendingPayments[currentIndex];
   if (!currentApp) return null;
@@ -76,28 +85,41 @@ export default function PaymentReminderDialog({ appointments, onConfirmPayment }
   };
 
   const handleNext = () => {
+    setIsOpen(false); // Cierra el diálogo, el intervalo lo volverá a abrir en 60s
     if (currentIndex < pendingPayments.length - 1) {
+      // Preparamos el siguiente para cuando vuelva a abrir
       setCurrentIndex(prev => prev + 1);
     } else {
-      setIsOpen(false);
+      setCurrentIndex(0); // Reiniciamos ciclo para la próxima vez
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden rounded-[2.5rem] border-none bg-green-600 text-white shadow-2xl z-[250]">
+      <DialogContent 
+        onOpenAutoFocus={(e) => e.preventDefault()}
+        className="sm:max-w-[500px] p-0 overflow-hidden rounded-[3rem] border-none bg-gradient-to-br from-emerald-600 via-green-600 to-teal-800 text-white shadow-[0_0_50px_rgba(0,0,0,0.3)] z-[250]"
+      >
         <DialogHeader className="p-8 pb-4 relative shrink-0">
-          <div className="flex items-center gap-4">
-            <div className="p-4 bg-white/20 rounded-2xl shadow-xl backdrop-blur-md">
-              <HandCoins size={32} className="text-white" />
+          <div className="flex items-center gap-5">
+            <div className="p-4 bg-white/20 rounded-[1.5rem] shadow-xl backdrop-blur-xl border border-white/10">
+              <HandCoins size={36} className="text-white" />
             </div>
-            <div>
-              <DialogTitle className="text-2xl font-black uppercase tracking-tighter text-white leading-none">
+            <div className="space-y-1">
+              <DialogTitle className="text-3xl font-black uppercase tracking-tighter text-white leading-none">
                 ¡Día de Cobro!
               </DialogTitle>
-              <DialogDescription className="text-[10px] font-bold uppercase text-white/70 tracking-[0.2em] mt-1">
-                {isOverdue ? 'Liquidación Vencida' : 'Pago proyectado para hoy'}
-              </DialogDescription>
+              <div className="flex items-center gap-2">
+                <span className={cn(
+                  "px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest",
+                  isOverdue ? "bg-red-500/30 text-white" : "bg-white/20 text-white"
+                )}>
+                  {isOverdue ? 'VENCIDO' : 'PARA HOY'}
+                </span>
+                <DialogDescription className="text-[10px] font-bold uppercase text-white/60 tracking-[0.1em]">
+                  Liquidación de comisión
+                </DialogDescription>
+              </div>
             </div>
           </div>
           <DialogClose asChild>
@@ -107,67 +129,74 @@ export default function PaymentReminderDialog({ appointments, onConfirmPayment }
           </DialogClose>
         </DialogHeader>
 
-        <div className="p-8 space-y-8">
-          <div className="text-center space-y-1">
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/60">Cliente</p>
-            <h3 className="text-3xl font-black uppercase tracking-tighter leading-none">{currentApp.name}</h3>
+        <div className="p-8 pt-4 space-y-8">
+          <div className="text-center space-y-1 py-4">
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40">Expediente de Cierre</p>
+            <h3 className="text-4xl font-black uppercase tracking-tighter leading-none drop-shadow-md">{currentApp.name}</h3>
           </div>
 
-          <div className="bg-white/10 rounded-[2rem] p-6 space-y-6 backdrop-blur-sm border border-white/10">
-            <div className="grid grid-cols-2 gap-4 border-b border-white/10 pb-4">
+          <div className="bg-white/10 rounded-[2.5rem] p-8 space-y-8 backdrop-blur-xl border border-white/10 shadow-inner">
+            <div className="grid grid-cols-2 gap-6 border-b border-white/10 pb-6">
               <div className="space-y-1">
-                <span className="text-[9px] font-black uppercase text-white/50 tracking-widest">Monto Crédito</span>
-                <p className="text-lg font-bold">{formatCurrency(finalCredit)}</p>
+                <span className="text-[9px] font-black uppercase text-white/50 tracking-widest flex items-center gap-1.5">
+                  <Wallet size={10} /> Crédito
+                </span>
+                <p className="text-xl font-bold text-white">{formatCurrency(finalCredit)}</p>
               </div>
               <div className="space-y-1 text-right">
-                <span className="text-[9px] font-black uppercase text-white/50 tracking-widest">Participación</span>
-                <p className="text-lg font-bold">{commissionPercent}%</p>
+                <span className="text-[9px] font-black uppercase text-white/50 tracking-widest flex items-center justify-end gap-1.5">
+                  Part. % <Coins size={10} />
+                </span>
+                <p className="text-xl font-bold text-white">{commissionPercent}%</p>
               </div>
             </div>
 
             <div className="flex flex-col items-center justify-center py-2">
-              <span className="text-[10px] font-black uppercase text-white/60 tracking-[0.4em] mb-2">Ingreso Neto para ti</span>
-              <p className="text-5xl font-black tracking-tighter drop-shadow-lg">
+              <div className="bg-white/5 px-4 py-1.5 rounded-full border border-white/5 mb-4">
+                <span className="text-[10px] font-black uppercase text-white/80 tracking-[0.3em]">Ingreso Neto para ti</span>
+              </div>
+              <p className="text-6xl font-black tracking-tighter drop-shadow-[0_4px_10px_rgba(0,0,0,0.3)] text-white">
                 {formatCurrency(netIncome)}
               </p>
+              <p className="text-[10px] font-bold text-white/40 mt-2 uppercase tracking-widest italic">ISR Deducido (9%)</p>
             </div>
 
-            <div className="pt-4 border-t border-white/10 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <CalendarDays size={14} className="text-white/60" />
-                <span className="text-[10px] font-bold uppercase text-white/70">
+            <div className="pt-6 border-t border-white/10 flex items-center justify-between">
+              <div className="flex items-center gap-2 bg-black/20 px-3 py-1.5 rounded-full border border-white/5">
+                <CalendarDays size={14} className="text-emerald-300" />
+                <span className="text-[10px] font-black uppercase text-white/90">
                   {format(paymentDate, "d 'de' MMMM", { locale: es })}
                 </span>
               </div>
               {pendingPayments.length > 1 && (
-                <span className="text-[9px] font-black uppercase bg-white/20 px-2 py-0.5 rounded-full">
-                  {currentIndex + 1} de {pendingPayments.length} pendientes
+                <span className="text-[10px] font-black uppercase bg-white/20 px-3 py-1.5 rounded-full border border-white/10">
+                  {currentIndex + 1} / {pendingPayments.length}
                 </span>
               )}
             </div>
           </div>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-4">
             <Button 
               onClick={handleConfirm}
-              className="w-full h-16 rounded-[1.5rem] bg-white text-green-600 hover:bg-white/90 font-black uppercase text-base tracking-widest shadow-xl transition-all active:scale-[0.97] border-none"
+              className="w-full h-16 rounded-[1.8rem] bg-white text-emerald-700 hover:bg-emerald-50 font-black uppercase text-base tracking-widest shadow-[0_10px_30px_rgba(0,0,0,0.2)] transition-all active:scale-[0.97] border-none group"
             >
-              <CheckCircle2 className="mr-2 h-6 w-6" /> Confirmar Cobro
+              <CheckCircle2 className="mr-3 h-6 w-6 transition-transform group-hover:scale-110" /> Confirmar Cobro
             </Button>
             
             <Button 
               variant="ghost" 
               onClick={handleNext}
-              className="w-full h-12 rounded-full text-white/60 hover:text-white hover:bg-white/10 font-bold uppercase text-[10px] tracking-[0.2em] border-none"
+              className="w-full h-12 rounded-full text-white/60 hover:text-white hover:bg-white/10 font-bold uppercase text-[10px] tracking-[0.2em] border-none flex items-center justify-center gap-2"
             >
-              Recordar más tarde
+              Recordar en 60 segundos <ArrowRight size={14} />
             </Button>
           </div>
         </div>
 
-        <div className="p-6 bg-black/10 text-center">
-          <p className="text-[8px] font-black uppercase tracking-[0.5em] text-white/40">
-            FINANTO SETTLEMENT ENGINE • v2.0
+        <div className="p-6 bg-black/20 text-center border-t border-white/5">
+          <p className="text-[8px] font-black uppercase tracking-[0.5em] text-white/30">
+            FINANTO SETTLEMENT ENGINE • v2.8 PRO
           </p>
         </div>
       </DialogContent>
