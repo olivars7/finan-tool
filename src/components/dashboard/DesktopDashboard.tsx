@@ -1,3 +1,4 @@
+
 "use client"
 
 import React from 'react';
@@ -85,8 +86,10 @@ export default function DesktopDashboard({
       color: 'text-primary',
       tip: (
         <div className="space-y-1.5 py-0.5 text-[10px]">
-          <p className="flex justify-between gap-4 border-b border-white/5 pb-1">Confirmadas: <span className="text-green-500 font-bold">{stats.todayConfirmed}</span></p>
-          <p className="flex justify-between gap-4">Total agendadas: <span className="text-blue-400 font-bold">{stats.todayCount}</span></p>
+          <p className="flex justify-between gap-4 border-b border-white/5 pb-1">Confirmadas: <span className="text-green-500 font-bold">{stats.todayOnlyConfirmed}</span></p>
+          <p className="flex justify-between gap-4">Atendidas: <span className="text-blue-400 font-bold">{stats.todayAttended}</span></p>
+          <p className="flex justify-between gap-4">Reagendadas: <span className="text-amber-400 font-bold">{stats.todayRescheduled}</span></p>
+          <p className="flex justify-between gap-4">Canceladas: <span className="text-red-400 font-bold">{stats.todayCancelled}</span></p>
         </div>
       )
     },

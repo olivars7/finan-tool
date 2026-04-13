@@ -127,7 +127,7 @@ export const calculateStats = (appointments: Appointment[]) => {
   // Función auxiliar para calcular comisión neta de forma segura
   const getNetCommission = (a: Appointment) => {
     const amount = Number(a.finalCreditAmount) || 0;
-    // Bug fix: Si es un cierre pero no tiene participación definida, asumir 100% para no dar 0 de ingreso
+    // Default 100% para evitar que cierres de $3,000 desaparezcan por falta de este dato
     const percent = (a.commissionPercent !== undefined && a.commissionPercent !== null) 
       ? Number(a.commissionPercent) 
       : 100;
@@ -193,8 +193,15 @@ export const calculateStats = (appointments: Appointment[]) => {
     })
     .reduce((sum, a) => sum + getNetCommission(a), 0);
 
+  // Desglose de Hoy solicitado
   const todayTotal = activeApps.filter(a => isToday(parseISO(a.date))).length;
-  const todayConfirmed = activeApps.filter(a => isToday(parseISO(a.date)) && (a.isConfirmed || a.status)).length;
+  const todayConfirmedGeneral = activeApps.filter(a => isToday(parseISO(a.date)) && (a.isConfirmed || a.status)).length;
+  
+  // Breakdown preciso para Tooltips
+  const todayOnlyConfirmed = activeApps.filter(a => isToday(parseISO(a.date)) && a.isConfirmed && !a.status).length;
+  const todayAttended = activeApps.filter(a => isToday(parseISO(a.date)) && a.status && ['Asistencia', 'Cierre', 'Apartado', 'Continuación en 2da cita'].includes(a.status)).length;
+  const todayRescheduled = activeApps.filter(a => isToday(parseISO(a.date)) && a.status === 'Reagendó').length;
+  const todayCancelled = activeApps.filter(a => isToday(parseISO(a.date)) && a.status === 'No asistencia').length;
   
   const conversionRate = currentMonthProspects > 0 ? (currentMonthSales / currentMonthProspects) * 100 : 0;
   const commissionGrowth = lastMonthCommission > 0 ? ((currentMonthCommission - lastMonthCommission) / lastMonthCommission) * 100 : 0;
@@ -284,7 +291,11 @@ export const calculateStats = (appointments: Appointment[]) => {
 
   return {
     todayCount: todayTotal,
-    todayConfirmed,
+    todayConfirmed: todayConfirmedGeneral,
+    todayOnlyConfirmed,
+    todayAttended,
+    todayRescheduled,
+    todayCancelled,
     pendingCount: activeApps.filter(a => {
       const d = startOfDay(parseISO(a.date));
       return (isToday(d) || isAfter(d, todayStart)) && !a.status;

@@ -120,8 +120,10 @@ const DashboardContent = ({
       color: 'text-blue-600', 
       tip: (
         <div className="space-y-1 py-0.5 text-[10px]">
-          <p className="flex justify-between gap-4">Confirmadas: <span className="text-green-500 font-bold">{stats.todayConfirmed}</span></p>
-          <p className="flex justify-between gap-4">Totales: <span className="text-blue-400 font-bold">{stats.todayCount}</span></p>
+          <p className="flex justify-between gap-4">Confirmadas: <span className="text-green-500 font-bold">{stats.todayOnlyConfirmed}</span></p>
+          <p className="flex justify-between gap-4">Atendidas: <span className="text-blue-400 font-bold">{stats.todayAttended}</span></p>
+          <p className="flex justify-between gap-4">Reagendadas: <span className="text-amber-400 font-bold">{stats.todayRescheduled}</span></p>
+          <p className="flex justify-between gap-4">Canceladas: <span className="text-red-400 font-bold">{stats.todayCancelled}</span></p>
         </div>
       )
     },
