@@ -200,10 +200,8 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
   };
 
   const WeeklyHistoryChart = ({ markedBorder = false }: { markedBorder?: boolean }) => {
-    const data = useMemo(() => {
-      if (isMobile) return stats.charts.weeklyIncomeHistory.slice(-12);
-      return stats.charts.weeklyIncomeHistory;
-    }, [stats.charts.weeklyIncomeHistory, isMobile]);
+    // LIMITADO A 13 SEMANAS
+    const data = stats.charts.weeklyIncomeHistory;
 
     return (
       <div className={cn(
@@ -214,13 +212,14 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
           <div className="p-2 bg-primary/10 rounded-xl"><LineIcon className="w-5 h-5 text-primary" /></div>
           <div>
             <h4 className="text-[11px] font-bold uppercase tracking-widest">Flujo de Cobro Semanal</h4>
-            <p className="text-[9px] text-muted-foreground/60">{isMobile ? "Vista de 3 meses" : "Historial extendido"}</p>
+            <p className="text-[9px] text-muted-foreground/60">Últimas 13 semanas (Corte: Miércoles)</p>
           </div>
         </div>
         <div className="h-[280px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data} margin={{ left: 10, right: 10, top: 20, bottom: 10 }}>
-              <CartesianGrid vertical={true} horizontal={false} stroke="currentColor" opacity={0.05} />
+              {/* LÍNEAS VERTICALES GRISES DE POCA OPACIDAD */}
+              <CartesianGrid vertical={true} horizontal={false} stroke="#64748b" opacity={0.05} />
               <XAxis dataKey="week" tickLine={false} axisLine={false} tickMargin={10} className="text-[10px] font-bold text-muted-foreground/40" />
               <YAxis hide />
               <ChartTooltip 

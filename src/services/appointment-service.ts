@@ -127,7 +127,7 @@ export const calculateStats = (appointments: Appointment[]) => {
   // Función auxiliar para calcular comisión neta de forma segura
   const getNetCommission = (a: Appointment) => {
     const amount = Number(a.finalCreditAmount) || 0;
-    // Default 100% para evitar que cierres de $3,000 desaparezcan por falta de este dato
+    // Default 100% para evitar que cierres desaparezcan por falta de este dato
     const percent = (a.commissionPercent !== undefined && a.commissionPercent !== null) 
       ? Number(a.commissionPercent) 
       : 100;
@@ -193,7 +193,7 @@ export const calculateStats = (appointments: Appointment[]) => {
     })
     .reduce((sum, a) => sum + getNetCommission(a), 0);
 
-  // Desglose de Hoy solicitado
+  // Desglose de Hoy
   const todayTotal = activeApps.filter(a => isToday(parseISO(a.date))).length;
   const todayConfirmedGeneral = activeApps.filter(a => isToday(parseISO(a.date)) && (a.isConfirmed || a.status)).length;
   
@@ -239,15 +239,14 @@ export const calculateStats = (appointments: Appointment[]) => {
   const fortnightActivity = buildActivityData(7, 7);
   const expandedActivity = buildActivityData(25, 10);
 
-  const startDate = subMonths(todayStart, 4);
-  const endDate = addWeeks(todayStart, 3);
-  // SEMANA EMPIEZA MIÉRCOLES (3) DESPUÉS DEL CORTE DE MARTES
+  // LIMITAR A 13 SEMANAS: 10 pasadas + actual + 2 futuras
+  const startDate = subWeeks(todayStart, 10);
+  const endDate = addWeeks(todayStart, 2);
   const weeks = eachWeekOfInterval({ start: startDate, end: endDate }, { weekStartsOn: 3 });
   
   const weeklyIncomeHistory = weeks.map(weekStart => {
     const s = startOfDay(weekStart);
     const e = startOfDay(addDays(weekStart, 6));
-    // Etiqueta: Número día inicio - Número día fin
     const weekLabel = `${format(s, 'd')} - ${format(e, 'd')}`;
     
     const income = activeApps
@@ -265,9 +264,9 @@ export const calculateStats = (appointments: Appointment[]) => {
       income: Math.round(income),
       isCurrentWeek
     };
-  });
+  }).slice(-13); // Garantizar exactamente 13 semanas
 
-  // Actividad últimas 6 semanas para micro stats - TAMBIÉN EMPIEZA MIÉRCOLES
+  // Actividad últimas 6 semanas
   const last6Weeks = eachWeekOfInterval({ 
     start: subWeeks(todayStart, 5), 
     end: todayStart 
