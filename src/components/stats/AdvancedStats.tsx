@@ -9,7 +9,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
-  TrendingUp, BarChart3, Maximize2, X, Activity, CalendarDays, Trophy, Users, Coins, ArrowUpRight, ArrowDownRight, Zap, Target, Receipt, Percent, Info, LineChart as LineIcon, AlertCircle, Lightbulb, CalendarClock
+  TrendingUp, BarChart3, Maximize2, X, Activity, CalendarDays, Trophy, Users, Coins, ArrowUpRight, ArrowDownRight, Zap, Target, Receipt, Percent, Info, LineChart as LineIcon, AlertCircle, Lightbulb, CalendarClock, CheckCircle2, History
 } from "lucide-react";
 import { Bar, CartesianGrid, XAxis, YAxis, Cell, ReferenceArea, Line, ResponsiveContainer, ComposedChart, LineChart, ReferenceLine } from "recharts";
 import { ChartContainer, ChartTooltip, type ChartConfig } from "@/components/ui/chart";
@@ -74,7 +74,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
   const isMobile = useIsMobile();
   
   const displayData = useMemo(() => {
-    if (isMobile) return data.slice(-25); // Monitor de 25 días en móvil tal como se solicitó
+    if (isMobile) return data.slice(-25);
     return data;
   }, [data, isMobile]);
 
@@ -121,7 +121,7 @@ const FortnightMonitor = ({ data, title, icon: Icon, expanded = false, markedBor
               dataKey="dayNumber" 
               tickLine={false} 
               axisLine={false} 
-              interval={0} // Mostrar todos los números e iniciales en móvil
+              interval={0} 
               tick={<CustomXAxisTick data={displayData} />} 
             />
             <XAxis xAxisId={1} dataKey="dayNumber" hide />
@@ -199,14 +199,9 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
     return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(Math.round(val));
   };
 
-  const getDynamicGradient = (val: number) => {
-    if (val < 5000) return "";
-    return "text-gradient-aqua-blue";
-  };
-
   const WeeklyHistoryChart = ({ markedBorder = false }: { markedBorder?: boolean }) => {
     const data = useMemo(() => {
-      if (isMobile) return stats.charts.weeklyIncomeHistory.slice(-12); // 3 meses (12 semanas) en móvil tal como se pidió
+      if (isMobile) return stats.charts.weeklyIncomeHistory.slice(-12);
       return stats.charts.weeklyIncomeHistory;
     }, [stats.charts.weeklyIncomeHistory, isMobile]);
 
@@ -329,7 +324,7 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                       <div className={cn("p-2 rounded-xl bg-background/50 shadow-sm", s.color)}><s.icon className="w-4 h-4" /></div>
                       {s.growth !== undefined && <span className={cn("text-[10px] font-bold flex items-center", s.growth >= 0 ? "text-green-500" : "text-destructive")}>{s.growth >= 0 ? <ArrowUpRight className="w-3 h-3"/> : <ArrowDownRight className="w-3 h-3"/>} {Math.abs(Math.round(s.growth))}%</span>}
                     </div>
-                    <div><p className="text-[9px] uppercase font-black text-muted-foreground/60 tracking-widest">{s.label}</p><p className={cn("text-xl md:text-2xl font-black truncate", s.isGradient ? getDynamicGradient(stats.currentMonthCommission || 0) : "")}>{s.value}</p></div>
+                    <div><p className="text-[9px] uppercase font-black text-muted-foreground/60 tracking-widest">{s.label}</p><p className={cn("text-xl md:text-2xl font-black truncate", s.label === 'Ingresos' && stats.currentMonthCommission > 10000 ? "text-gradient-lima-blue" : "")}>{s.value}</p></div>
                     <div className="pt-3 border-t border-border/5 flex justify-between"><span className="text-[8px] font-bold text-muted-foreground uppercase">{s.sub1}</span><span className="text-xs font-bold opacity-60">{s.val1}</span></div>
                   </div>
                 ))}
@@ -344,37 +339,65 @@ export default function AdvancedStats({ stats, isExpanded = false, onExpandedCha
                 <div className="lg:col-span-4 space-y-8">
                   <PaydayTimeline />
 
-                  {/* Insights - Solo Desktop */}
-                  {!isMobile && (
-                    <div className="border border-yellow-500/5 bg-yellow-500/[0.03] p-6 rounded-2xl space-y-4">
+                  {/* Record de Venta */}
+                  <div className="p-8 rounded-[2.5rem] bg-gradient-to-br from-primary/20 via-primary/5 to-transparent border border-primary/20 shadow-2xl relative overflow-hidden group">
+                    <div className="absolute -right-4 -top-4 opacity-5 group-hover:scale-110 transition-transform duration-700">
+                      <Trophy size={160} className="text-primary" />
+                    </div>
+                    <div className="relative z-10 space-y-4">
                       <div className="flex items-center gap-3">
-                        <div className="p-2 bg-yellow-500/10 rounded-xl"><Lightbulb className="w-5 h-5 text-yellow-600" /></div>
-                        <span className="text-[10px] font-black uppercase text-yellow-700 tracking-widest">Insights Operativos</span>
-                      </div>
-                      <div className="space-y-4">
-                        <p className="text-xs font-medium opacity-80 leading-relaxed">
-                          Tu tasa de cierre actual está en el rango óptimo del equipo para este trimestre.
-                        </p>
-                        <div className="pt-3 border-t border-yellow-500/10 flex items-center justify-between">
-                          <span className="text-[9px] font-bold uppercase opacity-40">Ticket Promedio:</span>
-                          <span className="text-[10px] font-black">{formatCurrency(stats.totalCreditSold / (stats.currentMonthOnlyCierre || 1))}</span>
+                        <div className="p-3 bg-primary text-white rounded-2xl shadow-lg">
+                          <Trophy size={24} />
                         </div>
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Récord de Venta</span>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest ml-1">Monto más alto cerrado</p>
+                        <p className="text-4xl md:text-5xl font-black tracking-tighter text-foreground text-gradient-aqua-blue">
+                          {formatCurrency(stats.salesRecord)}
+                        </p>
+                      </div>
+                      <div className="pt-4 border-t border-primary/10">
+                        <p className="text-[8px] font-black uppercase text-primary/60 tracking-widest italic flex items-center gap-2">
+                          <Zap size={10} /> Sigue superando tus propios límites
+                        </p>
                       </div>
                     </div>
-                  )}
+                  </div>
 
-                  <div className="bg-muted/5 rounded-2xl p-6 space-y-6 border border-border/5">
-                    <div>
-                      <span className="text-[9px] font-black uppercase block text-muted-foreground/60 mb-1 tracking-widest">Volumen Vendido (Mes)</span>
-                      <p className={cn("text-2xl font-black tracking-tighter", getDynamicGradient(stats.totalCreditSold))}>{formatCurrency(stats.totalCreditSold || 0)}</p>
+                  {/* Actividad Últimas 6 Semanas */}
+                  <div className="bg-muted/5 rounded-[2.5rem] p-6 space-y-6 border border-border/5">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-muted rounded-xl"><History className="w-4 h-4 text-muted-foreground" /></div>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Flujo Semanal (6 Sem.)</span>
                     </div>
-                    
-                    {!isMobile && (
-                      <div className="pt-4 border-t border-border/5">
-                        <span className="text-[9px] font-black uppercase block text-muted-foreground/60 mb-1 tracking-widest">Retención ISR Est. (9%)</span>
-                        <p className="text-xl font-black tracking-tight text-destructive/60">{formatCurrency(stats.currentMonthCommission / 0.91 * 0.09)}</p>
-                      </div>
-                    )}
+                    <div className="space-y-4">
+                      {stats.last6Weeks.map((week: any, i: number) => (
+                        <div key={`week-stat-${i}`} className={cn(
+                          "flex items-center justify-between p-3 rounded-2xl border transition-all",
+                          week.isCurrent ? "bg-primary/5 border-primary/20" : "bg-background/20 border-transparent opacity-60"
+                        )}>
+                          <div>
+                            <p className="text-[10px] font-black uppercase leading-none mb-1">{week.label}</p>
+                            {week.isCurrent && <span className="text-[8px] font-bold text-primary uppercase tracking-tighter">Ciclo Actual</span>}
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <div className="text-center">
+                              <span className="block text-[8px] font-bold text-muted-foreground uppercase mb-0.5">Agend.</span>
+                              <span className="text-xs font-black">{week.agendadas}</span>
+                            </div>
+                            <div className="text-center">
+                              <span className="block text-[8px] font-bold text-muted-foreground uppercase mb-0.5">Atend.</span>
+                              <span className="text-xs font-black text-accent">{week.atendidas}</span>
+                            </div>
+                            <div className="text-center">
+                              <span className="block text-[8px] font-bold text-muted-foreground uppercase mb-0.5">Cierr.</span>
+                              <span className="text-xs font-black text-green-500">{week.cierres}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>

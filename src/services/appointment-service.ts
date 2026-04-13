@@ -17,6 +17,7 @@ import {
   subDays, 
   addDays, 
   addWeeks,
+  subWeeks,
   getDay,
   format,
   eachDayOfInterval,
@@ -126,8 +127,8 @@ export const calculateStats = (appointments: Appointment[]) => {
   // Función auxiliar para calcular comisión neta de forma segura
   const getNetCommission = (a: Appointment) => {
     const amount = Number(a.finalCreditAmount) || 0;
-    // Si commissionPercent es undefined, null o 0 (y es cierre), asumimos 100% para no ignorar el ingreso
-    const percent = (a.commissionPercent !== undefined && a.commissionPercent !== null && a.commissionPercent !== 0) 
+    // Bug fix: Si es un cierre pero no tiene participación definida, asumir 100% para no dar 0 de ingreso
+    const percent = (a.commissionPercent !== undefined && a.commissionPercent !== null) 
       ? Number(a.commissionPercent) 
       : 100;
     return (amount * 0.007 * (percent / 100)) * 0.91;
@@ -148,10 +149,10 @@ export const calculateStats = (appointments: Appointment[]) => {
     .filter(a => a.status === 'Cierre' && isSameMonth(startOfDay(parseISO(a.date)), todayStart))
     .reduce((sum, a) => sum + (Number(a.finalCreditAmount) || 0), 0);
 
-  const salesWithAmount = activeApps.filter(a => a.status === 'Cierre' && isSameMonth(startOfDay(parseISO(a.date)), todayStart) && (Number(a.finalCreditAmount) || 0) > 0);
-  const avgParticipation = salesWithAmount.length > 0 
-    ? salesWithAmount.reduce((sum, a) => sum + (Number(a.commissionPercent) || 100), 0) / salesWithAmount.length 
-    : 0;
+  // Récord de venta histórica
+  const salesRecord = activeApps
+    .filter(a => a.status === 'Cierre')
+    .reduce((max, a) => Math.max(max, Number(a.finalCreditAmount) || 0), 0);
 
   const currentMonthCommission = activeApps
     .filter(a => {
@@ -214,17 +215,6 @@ export const calculateStats = (appointments: Appointment[]) => {
       const atendidas = activeApps.filter(a => isSameDay(startOfDay(parseISO(a.date)), dayNormalized) && a.status && a.status !== 'No asistencia').length;
       const cierres = activeApps.filter(a => isSameDay(startOfDay(parseISO(a.date)), dayNormalized) && a.status === 'Cierre').length;
       
-      let projectedPay = 0;
-      if (dayOfWeek === 5) { // Viernes
-        projectedPay = activeApps
-          .filter(a => {
-            if (a.status !== 'Cierre') return false;
-            const payDate = startOfDay(getCommissionPaymentDate(a.date));
-            return isSameDay(payDate, dayNormalized);
-          })
-          .reduce((sum, a) => sum + getNetCommission(a), 0);
-      }
-
       return { 
         dayNumber,
         dayFull,
@@ -235,7 +225,6 @@ export const calculateStats = (appointments: Appointment[]) => {
         isToday: isToday(dayNormalized),
         isCorte: dayOfWeek === 2, // Martes
         isPaga: dayOfWeek === 5,  // Viernes
-        projectedPay: Math.round(projectedPay)
       };
     });
   };
@@ -269,6 +258,27 @@ export const calculateStats = (appointments: Appointment[]) => {
     };
   });
 
+  // Actividad últimas 6 semanas para micro stats
+  const last6Weeks = eachWeekOfInterval({ 
+    start: subWeeks(todayStart, 5), 
+    end: todayStart 
+  }, { weekStartsOn: 1 }).map(ws => {
+    const s = startOfDay(ws);
+    const e = startOfDay(addDays(ws, 6));
+    const weekApps = activeApps.filter(a => {
+      const d = startOfDay(parseISO(a.date));
+      return (isSameDay(d, s) || isAfter(d, s)) && (isSameDay(d, e) || isBefore(d, e));
+    });
+
+    return {
+      label: format(s, 'd MMM', { locale: es }),
+      agendadas: weekApps.length,
+      atendidas: weekApps.filter(a => a.status && a.status !== 'No asistencia').length,
+      cierres: weekApps.filter(a => a.status === 'Cierre').length,
+      isCurrent: (isSameDay(todayStart, s) || isAfter(todayStart, s)) && (isSameDay(todayStart, e) || isBefore(todayStart, e))
+    };
+  }).reverse();
+
   const allVals = [...fortnightActivity, ...expandedActivity].flatMap(d => [d.agendadas, d.atendidas, d.cierres]);
   const globalMax = Math.max(0, ...allVals);
 
@@ -286,13 +296,14 @@ export const calculateStats = (appointments: Appointment[]) => {
     currentMonthOnlyCierre,
     currentMonthApartados,
     totalCreditSold,
-    avgParticipation: parseFloat(avgParticipation.toFixed(1)),
+    salesRecord,
     currentMonthCommission,
     lastMonthCommission,
     thisFridayCommission,
     nextFridayCommission,
     conversionRate: parseFloat(conversionRate.toFixed(1)),
     commissionGrowth: parseFloat(commissionGrowth.toFixed(1)),
+    last6Weeks,
     charts: { 
       fortnightActivity,
       expandedActivity,
