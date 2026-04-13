@@ -123,51 +123,51 @@ export const calculateStats = (appointments: Appointment[]) => {
   const todayStart = startOfDay(now);
   const lastMonth = subMonths(now, 1);
 
-  const currentMonthProspects = activeApps.filter(a => isSameMonth(parseISO(a.date), now)).length;
-  const lastMonthProspects = activeApps.filter(a => isSameMonth(parseISO(a.date), lastMonth)).length;
+  // Función auxiliar para calcular comisión neta de forma segura
+  const getNetCommission = (a: Appointment) => {
+    const amount = Number(a.finalCreditAmount) || 0;
+    // Si commissionPercent es undefined, null o 0 (y es cierre), asumimos 100% para no ignorar el ingreso
+    const percent = (a.commissionPercent !== undefined && a.commissionPercent !== null && a.commissionPercent !== 0) 
+      ? Number(a.commissionPercent) 
+      : 100;
+    return (amount * 0.007 * (percent / 100)) * 0.91;
+  };
 
-  // REGLA: Los cierres y el volumen se cuentan en el mes de la CITA/CIERRE
-  const currentMonthOnlyCierre = activeApps.filter(a => a.status === 'Cierre' && isSameMonth(parseISO(a.date), now)).length;
-  const currentMonthApartados = activeApps.filter(a => a.status === 'Apartado' && isSameMonth(parseISO(a.date), now)).length;
+  const currentMonthProspects = activeApps.filter(a => isSameMonth(startOfDay(parseISO(a.date)), todayStart)).length;
+  const lastMonthProspects = activeApps.filter(a => isSameMonth(startOfDay(parseISO(a.date)), lastMonth)).length;
+
+  const currentMonthOnlyCierre = activeApps.filter(a => a.status === 'Cierre' && isSameMonth(startOfDay(parseISO(a.date)), todayStart)).length;
+  const currentMonthApartados = activeApps.filter(a => a.status === 'Apartado' && isSameMonth(startOfDay(parseISO(a.date)), todayStart)).length;
   const currentMonthSales = currentMonthOnlyCierre + currentMonthApartados;
 
-  const lastMonthOnlyCierre = activeApps.filter(a => a.status === 'Cierre' && isSameMonth(parseISO(a.date), lastMonth)).length;
-  const lastMonthApartados = activeApps.filter(a => a.status === 'Apartado' && isSameMonth(parseISO(a.date), lastMonth)).length;
+  const lastMonthOnlyCierre = activeApps.filter(a => a.status === 'Cierre' && isSameMonth(startOfDay(parseISO(a.date)), lastMonth)).length;
+  const lastMonthApartados = activeApps.filter(a => a.status === 'Apartado' && isSameMonth(startOfDay(parseISO(a.date)), lastMonth)).length;
   const lastMonthSales = lastMonthOnlyCierre + lastMonthApartados;
 
   const totalCreditSold = activeApps
-    .filter(a => a.status === 'Cierre' && isSameMonth(parseISO(a.date), now))
+    .filter(a => a.status === 'Cierre' && isSameMonth(startOfDay(parseISO(a.date)), todayStart))
     .reduce((sum, a) => sum + (Number(a.finalCreditAmount) || 0), 0);
 
-  const salesWithAmount = activeApps.filter(a => a.status === 'Cierre' && isSameMonth(parseISO(a.date), now) && (Number(a.commissionPercent) || 0) > 0);
+  const salesWithAmount = activeApps.filter(a => a.status === 'Cierre' && isSameMonth(startOfDay(parseISO(a.date)), todayStart) && (Number(a.finalCreditAmount) || 0) > 0);
   const avgParticipation = salesWithAmount.length > 0 
-    ? salesWithAmount.reduce((sum, a) => sum + (Number(a.commissionPercent) || 0), 0) / salesWithAmount.length 
+    ? salesWithAmount.reduce((sum, a) => sum + (Number(a.commissionPercent) || 100), 0) / salesWithAmount.length 
     : 0;
 
-  // REGLA: El ingreso se cuenta en el mes de PAGO proyectado
   const currentMonthCommission = activeApps
     .filter(a => {
       if (a.status !== 'Cierre') return false;
-      const payDate = getCommissionPaymentDate(a.date);
-      return isSameMonth(payDate, now);
+      const payDate = startOfDay(getCommissionPaymentDate(a.date));
+      return isSameMonth(payDate, todayStart);
     })
-    .reduce((sum, a) => {
-      const amount = Number(a.finalCreditAmount) || 0;
-      const percent = Number(a.commissionPercent) || 0;
-      return sum + (amount * 0.007 * (percent / 100)) * 0.91;
-    }, 0);
+    .reduce((sum, a) => sum + getNetCommission(a), 0);
 
   const lastMonthCommission = activeApps
     .filter(a => {
       if (a.status !== 'Cierre') return false;
-      const payDate = getCommissionPaymentDate(a.date);
+      const payDate = startOfDay(getCommissionPaymentDate(a.date));
       return isSameMonth(payDate, lastMonth);
     })
-    .reduce((sum, a) => {
-      const amount = Number(a.finalCreditAmount) || 0;
-      const percent = Number(a.commissionPercent) || 0;
-      return sum + (amount * 0.007 * (percent / 100)) * 0.91;
-    }, 0);
+    .reduce((sum, a) => sum + getNetCommission(a), 0);
 
   const dayOfWeekToday = getDay(todayStart);
   const daysToFriday = (5 - dayOfWeekToday + 7) % 7;
@@ -179,35 +179,22 @@ export const calculateStats = (appointments: Appointment[]) => {
       if (a.status !== 'Cierre') return false;
       if (a.commissionStatus === 'Pagada') return false;
       const payDate = startOfDay(getCommissionPaymentDate(a.date));
-      return payDate.getTime() === targetFriday.getTime();
+      return isSameDay(payDate, targetFriday);
     })
-    .reduce((sum, a) => {
-      const amount = Number(a.finalCreditAmount) || 0;
-      const percent = Number(a.commissionPercent) || 0;
-      return sum + (amount * 0.007 * (percent / 100)) * 0.91;
-    }, 0);
+    .reduce((sum, a) => sum + getNetCommission(a), 0);
 
   const nextFridayCommission = activeApps
     .filter(a => {
       if (a.status !== 'Cierre') return false;
       if (a.commissionStatus === 'Pagada') return false;
       const payDate = startOfDay(getCommissionPaymentDate(a.date));
-      return payDate.getTime() === nextTargetFriday.getTime();
+      return isSameDay(payDate, nextTargetFriday);
     })
-    .reduce((sum, a) => {
-      const amount = Number(a.finalCreditAmount) || 0;
-      const percent = Number(a.commissionPercent) || 0;
-      return sum + (amount * 0.007 * (percent / 100)) * 0.91;
-    }, 0);
+    .reduce((sum, a) => sum + getNetCommission(a), 0);
 
   const todayTotal = activeApps.filter(a => isToday(parseISO(a.date))).length;
   const todayConfirmed = activeApps.filter(a => isToday(parseISO(a.date)) && (a.isConfirmed || a.status)).length;
-  const tomorrowTotal = activeApps.filter(a => {
-    const d = parseISO(a.date);
-    const tomorrow = addDays(now, 1);
-    return d.getDate() === tomorrow.getDate() && d.getMonth() === tomorrow.getMonth() && d.getFullYear() === tomorrow.getFullYear();
-  }).length;
-
+  
   const conversionRate = currentMonthProspects > 0 ? (currentMonthSales / currentMonthProspects) * 100 : 0;
   const commissionGrowth = lastMonthCommission > 0 ? ((currentMonthCommission - lastMonthCommission) / lastMonthCommission) * 100 : 0;
 
@@ -218,13 +205,14 @@ export const calculateStats = (appointments: Appointment[]) => {
     const dayInitials = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
     
     return interval.map(day => {
-      const dayNumber = format(day, 'd');
-      const dayFull = format(day, "EEEE d 'de' MMMM", { locale: es });
-      const dayOfWeek = getDay(day); 
+      const dayNormalized = startOfDay(day);
+      const dayNumber = format(dayNormalized, 'd');
+      const dayFull = format(dayNormalized, "EEEE d 'de' MMMM", { locale: es });
+      const dayOfWeek = getDay(dayNormalized); 
       
-      const agendadas = activeApps.filter(a => isSameDay(parseISO(a.date), day)).length;
-      const atendidas = activeApps.filter(a => isSameDay(parseISO(a.date), day) && a.status && a.status !== 'No asistencia').length;
-      const cierres = activeApps.filter(a => isSameDay(parseISO(a.date), day) && a.status === 'Cierre').length;
+      const agendadas = activeApps.filter(a => isSameDay(startOfDay(parseISO(a.date)), dayNormalized)).length;
+      const atendidas = activeApps.filter(a => isSameDay(startOfDay(parseISO(a.date)), dayNormalized) && a.status && a.status !== 'No asistencia').length;
+      const cierres = activeApps.filter(a => isSameDay(startOfDay(parseISO(a.date)), dayNormalized) && a.status === 'Cierre').length;
       
       let projectedPay = 0;
       if (dayOfWeek === 5) { // Viernes
@@ -232,13 +220,9 @@ export const calculateStats = (appointments: Appointment[]) => {
           .filter(a => {
             if (a.status !== 'Cierre') return false;
             const payDate = startOfDay(getCommissionPaymentDate(a.date));
-            return isSameDay(payDate, day);
+            return isSameDay(payDate, dayNormalized);
           })
-          .reduce((sum, a) => {
-            const amount = Number(a.finalCreditAmount) || 0;
-            const percent = Number(a.commissionPercent) || 0;
-            return sum + (amount * 0.007 * (percent / 100)) * 0.91;
-          }, 0);
+          .reduce((sum, a) => sum + getNetCommission(a), 0);
       }
 
       return { 
@@ -248,7 +232,7 @@ export const calculateStats = (appointments: Appointment[]) => {
         agendadas, 
         atendidas, 
         cierres, 
-        isToday: isToday(day),
+        isToday: isToday(dayNormalized),
         isCorte: dayOfWeek === 2, // Martes
         isPaga: dayOfWeek === 5,  // Viernes
         projectedPay: Math.round(projectedPay)
@@ -259,27 +243,24 @@ export const calculateStats = (appointments: Appointment[]) => {
   const fortnightActivity = buildActivityData(7, 7);
   const expandedActivity = buildActivityData(25, 10);
 
-  const startDate = subMonths(now, 4);
-  const endDate = addWeeks(now, 3);
+  const startDate = subMonths(todayStart, 4);
+  const endDate = addWeeks(todayStart, 3);
   const weeks = eachWeekOfInterval({ start: startDate, end: endDate }, { weekStartsOn: 1 });
   
   const weeklyIncomeHistory = weeks.map(weekStart => {
-    const weekEnd = addDays(weekStart, 6);
-    const weekLabel = format(weekStart, 'd MMM', { locale: es });
+    const s = startOfDay(weekStart);
+    const e = startOfDay(addDays(weekStart, 6));
+    const weekLabel = format(s, 'd MMM', { locale: es });
     
     const income = activeApps
       .filter(a => {
         if (a.status !== 'Cierre') return false;
-        const payDate = getCommissionPaymentDate(a.date);
-        return (isSameDay(payDate, weekStart) || isAfter(payDate, weekStart)) && (isSameDay(payDate, weekEnd) || isBefore(payDate, weekEnd));
+        const payDate = startOfDay(getCommissionPaymentDate(a.date));
+        return (isSameDay(payDate, s) || isAfter(payDate, s)) && (isSameDay(payDate, e) || isBefore(payDate, e));
       })
-      .reduce((sum, a) => {
-        const amount = Number(a.finalCreditAmount) || 0;
-        const percent = Number(a.commissionPercent) || 0;
-        return sum + (amount * 0.007 * (percent / 100)) * 0.91;
-      }, 0);
+      .reduce((sum, a) => sum + getNetCommission(a), 0);
 
-    const isCurrentWeek = (isSameDay(now, weekStart) || isAfter(now, weekStart)) && (isSameDay(now, weekEnd) || isBefore(now, weekEnd));
+    const isCurrentWeek = (isSameDay(todayStart, s) || isAfter(todayStart, s)) && (isSameDay(todayStart, e) || isBefore(todayStart, e));
 
     return {
       week: weekLabel,
@@ -294,10 +275,9 @@ export const calculateStats = (appointments: Appointment[]) => {
   return {
     todayCount: todayTotal,
     todayConfirmed,
-    tomorrowTotal,
     pendingCount: activeApps.filter(a => {
       const d = startOfDay(parseISO(a.date));
-      return (isToday(d) || isAfter(d, startOfDay(now))) && !a.status;
+      return (isToday(d) || isAfter(d, todayStart)) && !a.status;
     }).length,
     currentMonthProspects,
     lastMonthProspects,
