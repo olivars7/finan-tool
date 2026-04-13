@@ -241,12 +241,14 @@ export const calculateStats = (appointments: Appointment[]) => {
 
   const startDate = subMonths(todayStart, 4);
   const endDate = addWeeks(todayStart, 3);
-  const weeks = eachWeekOfInterval({ start: startDate, end: endDate }, { weekStartsOn: 1 });
+  // SEMANA EMPIEZA MIÉRCOLES (3) DESPUÉS DEL CORTE DE MARTES
+  const weeks = eachWeekOfInterval({ start: startDate, end: endDate }, { weekStartsOn: 3 });
   
   const weeklyIncomeHistory = weeks.map(weekStart => {
     const s = startOfDay(weekStart);
     const e = startOfDay(addDays(weekStart, 6));
-    const weekLabel = format(s, 'd MMM', { locale: es });
+    // Etiqueta: Número día inicio - Número día fin
+    const weekLabel = `${format(s, 'd')} - ${format(e, 'd')}`;
     
     const income = activeApps
       .filter(a => {
@@ -265,11 +267,11 @@ export const calculateStats = (appointments: Appointment[]) => {
     };
   });
 
-  // Actividad últimas 6 semanas para micro stats
+  // Actividad últimas 6 semanas para micro stats - TAMBIÉN EMPIEZA MIÉRCOLES
   const last6Weeks = eachWeekOfInterval({ 
     start: subWeeks(todayStart, 5), 
     end: todayStart 
-  }, { weekStartsOn: 1 }).map(ws => {
+  }, { weekStartsOn: 3 }).map(ws => {
     const s = startOfDay(ws);
     const e = startOfDay(addDays(ws, 6));
     const weekApps = activeApps.filter(a => {
@@ -278,7 +280,7 @@ export const calculateStats = (appointments: Appointment[]) => {
     });
 
     return {
-      label: format(s, 'd MMM', { locale: es }),
+      label: `${format(s, 'd')} - ${format(e, 'd')}`,
       agendadas: weekApps.length,
       atendidas: weekApps.filter(a => a.status && a.status !== 'No asistencia').length,
       cierres: weekApps.filter(a => a.status === 'Cierre').length,
